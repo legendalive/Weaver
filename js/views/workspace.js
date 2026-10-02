@@ -1,16 +1,14 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-11: workspace shell — top bar, three-panel skeleton,
-   expand/collapse, Library exit, resize binding, and mounting
-   of the Manuscript editor. Shell re-renders ONLY on project
-   identity change (never on typing syncs).
+   Step 12: workspace shell. Wires the Accept-as-is button to
+   the manuscript panel's paging engine.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, subscribe, setUI, closeProject } from '../core/state.js';
 import { bindResizers, refreshLayout } from '../core/resizers.js';
-import { mountManuscript, flushManuscriptSync } from '../panels/manuscript.js';
+import { mountManuscript, flushManuscriptSync, acceptAsIs } from '../panels/manuscript.js';
 
 let root = null;
 let refs = {};
@@ -40,7 +38,6 @@ export function initWorkspace() {
   lastProjectId = getState().project ? getState().project.id : null;
 }
 
-/* ---------- Builders ---------- */
 function topBtn(key, iconName, label, onclick) {
   const b = el('button', { class: 'btn', title: label, onclick }, [
     icon(iconName),
@@ -97,7 +94,6 @@ function buildPanel(key, iconName, title, placeholder, footerButtons) {
   return panel;
 }
 
-/* ---------- Expansion ---------- */
 function toggleExpand(key) {
   const current = getState().ui.expandedPanel;
   setUI({ expandedPanel: current === key ? null : key });
@@ -121,7 +117,6 @@ function applyExpansion() {
   refreshLayout();
 }
 
-/* ---------- Render ---------- */
 export function renderWorkspace() {
   if (!root) return;
   clear(root);
@@ -163,7 +158,7 @@ export function renderWorkspace() {
   const panels = el('div', { class: 'workspace-panels' }, [
     buildPanel('manuscript', 'file-text', 'Manuscript',
       'Paste or type raw draft chapters or research here…', [
-        footerBtn('Accept as is', 'check', () => toast('Accept-as-is arrives with the paging engine in Step 12.', 'info')),
+        footerBtn('Accept as is', 'check', () => acceptAsIs()),
       ]),
     resizerA,
     buildPanel('novel', 'book-open', 'Main Novel',
