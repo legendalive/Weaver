@@ -70,8 +70,8 @@ export function openProjectWizard() {
     seriesHint,
   ]);
 
-  const bookInput = el('input', {
-    class: 'input', type: 'text', maxlength: '80', hidden: true,
+    const bookInput = el('input', {
+    class: 'input', type: 'text', maxlength: '80',
     placeholder: 'e.g. Book One: Ashfall',
   });
   const bookField = el('div', { class: 'field', hidden: true }, [
