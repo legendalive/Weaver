@@ -142,3 +142,53 @@
 }
 .wizard-upload .icon { color: var(--faint); }
 .wizard-upload-hint { font-size: .8rem; text-align: center; }
+/* =========================================================
+   Step 11: Manuscript editor
+   ========================================================= */
+.ms-scroll {
+  padding: 18px 20px 45vh; /* bottom padding = comfortable scroll runway */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 100%;
+}
+.ms-block {
+  padding: 3px 8px;
+  border-radius: 4px;
+  line-height: 1.7;
+  font-family: var(--font-prose);
+  font-size: calc(0.98rem * var(--font-scale, 1));
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  outline: none;
+  min-height: 1.7em;
+}
+.ms-block:focus {
+  background: var(--surface);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.ms-block:empty::before { content: 'Type here…'; color: var(--faint); }
+.ms-h1 {
+  font-family: var(--font-ui);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 16px;
+}
+.ms-h2 {
+  font-family: var(--font-ui);
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+.ms-h3 {
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.ms-toolbar { display: flex; gap: 2px; margin-right: 8px; }
+.ms-tb-btn { min-width: 30px; padding: 5px 7px; font-size: .72rem; font-weight: 700; }
+.ms-tb-btn.is-selected { background: var(--accent-soft); color: var(--accent); }
