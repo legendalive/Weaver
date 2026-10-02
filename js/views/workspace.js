@@ -1,7 +1,6 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 12: workspace shell. Wires the Accept-as-is button to
-   the manuscript panel's paging engine.
+   Step 13: workspace shell. Mounts Manuscript and Main Novel.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -9,6 +8,7 @@ import { icon } from '../utils/icons.js';
 import { getState, subscribe, setUI, closeProject } from '../core/state.js';
 import { bindResizers, refreshLayout } from '../core/resizers.js';
 import { mountManuscript, flushManuscriptSync, acceptAsIs } from '../panels/manuscript.js';
+import { mountMainNovel, recheck } from '../panels/main-novel.js';
 
 let root = null;
 let refs = {};
@@ -163,7 +163,7 @@ export function renderWorkspace() {
     resizerA,
     buildPanel('novel', 'book-open', 'Main Novel',
       'Your canon manuscript will grow here. Accept text from raw drafts or AI prompts…', [
-        footerBtn('Recheck', 'refresh', () => toast('Recheck arrives in Step 13.', 'info')),
+        footerBtn('Recheck', 'refresh', () => recheck()),
       ]),
     resizerB,
     buildPanel('ai', 'sparkles', 'AI Output',
@@ -180,6 +180,9 @@ export function renderWorkspace() {
     panels: [refs.manuscript, refs.novel, refs.ai],
     resizers: refs.resizers,
   });
+  
   mountManuscript(refs.manuscript);
+  mountMainNovel(refs.novel);
+  
   applyExpansion();
 }
