@@ -496,14 +496,16 @@ function pruneBottom() {
 
 /* ---------- Accept as Is ---------- */
 export function acceptAsIs() {
+  flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
-  const nodes = getBlockNodes();
-  if (!nodes.length) { toast('Nothing to accept.', 'info'); return; }
+  const text = (project.manuscript.text || '').trim();
+  if (!text) { toast('Nothing to accept — manuscript is empty.', 'info'); return; }
 
-  const textToPush = nodes.map(nodeToString).join('\n');
   const currentNovel = project.mainNovel.text || '';
-  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
-  touchProject();
-  toast('Accepted to Main Novel.', 'success');
+  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + text : text;
+  project.manuscript.text = '';
+  touchProject({ novel: true });
+  toast('Manuscript pushed to Main Novel.', 'success');
+  renderManuscript();
 }
