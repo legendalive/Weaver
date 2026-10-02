@@ -1,14 +1,15 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 7: boot + routing + launch dashboard + project wizard.
+   Step 8: boot + routing + launch + wizard + workspace shell.
    ========================================================= */
 
 import { getState, subscribe } from './core/state.js';
 import { initLaunch } from './views/launch.js';
 import { initWizard } from './views/wizard.js';
+import { initWorkspace } from './views/workspace.js';
 
-const APP_VERSION = '0.4.0';
+const APP_VERSION = '0.5.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -32,9 +33,10 @@ function boot() {
 
   initLaunch();
   initWizard();
+  initWorkspace();
   switchView(getState().view);
   console.info(
-    `%cWeaver v${APP_VERSION}%c project wizard online`,
+    `%cWeaver v${APP_VERSION}%c workspace shell online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
