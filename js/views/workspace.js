@@ -8,6 +8,7 @@
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, subscribe, setUI, closeProject } from '../core/state.js';
+import { bindResizers, refreshLayout } from '../core/resizers.js';
 
 let root = null;
 let refs = {};
