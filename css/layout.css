@@ -99,3 +99,20 @@
     cursor: row-resize;
   }
 }
+/* =========================================================
+   Step 8: top bar extras — Scribe bar + responsive labels
+   ========================================================= */
+.scribe-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: min(320px, 30vw);
+}
+.scribe-bar .input { padding: 7px 10px; font-size: .8rem; }
+.btn-label { white-space: nowrap; }
+
+@media (max-width: 860px) {
+  .scribe-bar { display: none; }         /* mobile Scribe entry arrives with Step 21 */
+  .topbar .btn-label { display: none; }  /* icon-only top bar on phones */
+  .topbar .btn { padding: 8px; width: 34px; height: 34px; }
+}
