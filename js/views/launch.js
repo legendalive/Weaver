@@ -77,8 +77,9 @@ function projectCard(project, activeId) {
     },
   }, [
     el('h3', { class: 'project-name', text: project.name }),
-    el('div', { class: 'project-meta' }, [
+        el('div', { class: 'project-meta' }, [
       el('span', { class: 'badge badge-accent', text: project.scope === 'series' ? 'series' : 'standalone' }),
+      project.seriesName ? el('span', { class: 'badge', text: project.seriesName }) : null,
       el('span', { class: 'badge', text: project.source === 'upload' ? 'uploaded' : 'from scratch' }),
       el('span', { class: 'badge', text: `${project.wordCount || 0} words` }),
     ]),
