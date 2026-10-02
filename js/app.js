@@ -1,17 +1,15 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 1: boot sequence + minimal view-router stub.
-   (Real views/state arrive in Stage C; this file stays the single
-    bootstrap that later modules hook into.)
+   Step 5: boot + view routing driven by the reactive store.
    ========================================================= */
 
-const APP_VERSION = '0.1.0';
+import { getState, subscribe } from './core/state.js';
 
+const APP_VERSION = '0.2.0';
 const VIEWS = ['launch', 'workspace'];
 
-/** Minimal view router stub — upgraded to the full router in Stage C. */
-export function switchView(name) {
+function switchView(name) {
   if (!VIEWS.includes(name)) return false;
   for (const v of VIEWS) {
     const el = document.getElementById(`view-${v}`);
@@ -25,12 +23,17 @@ function boot() {
   if (status) {
     status.textContent = `foundation online · v${APP_VERSION}`;
   }
-  switchView('launch');
+
+  // Re-route whenever the store reports a view change.
+  subscribe((state, change) => {
+    if (change.view) switchView(state.view);
+  });
+
+  switchView(getState().view);
   console.info(
-    `%cWeaver v${APP_VERSION}%c foundation booted`,
+    `%cWeaver v${APP_VERSION}%c state store online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
 
-/* Module scripts are deferred, so the DOM is already parsed here. */
 boot();
