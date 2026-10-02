@@ -1,12 +1,13 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 5: boot + view routing driven by the reactive store.
+   Step 6: boot + store-driven routing + launch view init.
    ========================================================= */
 
 import { getState, subscribe } from './core/state.js';
+import { initLaunch } from './views/launch.js';
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.3.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -24,14 +25,14 @@ function boot() {
     status.textContent = `foundation online · v${APP_VERSION}`;
   }
 
-  // Re-route whenever the store reports a view change.
   subscribe((state, change) => {
     if (change.view) switchView(state.view);
   });
 
+  initLaunch();
   switchView(getState().view);
   console.info(
-    `%cWeaver v${APP_VERSION}%c state store online`,
+    `%cWeaver v${APP_VERSION}%c launch dashboard online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
