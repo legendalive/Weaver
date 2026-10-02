@@ -33,6 +33,7 @@ const CSS = `
 @keyframes scribe-blink{50%{opacity:0;}}
 .ai-block.is-error{border-color:var(--danger);}
 .scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
+.ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
 `;
 
 function ensureStyle() {
