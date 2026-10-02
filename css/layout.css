@@ -116,3 +116,12 @@
   .topbar .btn-label { display: none; }  /* icon-only top bar on phones */
   .topbar .btn { padding: 8px; width: 34px; height: 34px; }
 }
+/* =========================================================
+   Step 9: resize engine touch support
+   ========================================================= */
+.resizer { touch-action: none; }
+.resizer.is-dragging { background: var(--accent); }
+
+@media (max-width: 860px) {
+  .resizer { height: 10px; } /* fatter touch target on phones */
+}
