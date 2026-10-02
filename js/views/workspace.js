@@ -1,7 +1,8 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8: workspace shell — top bar, three-panel skeleton,
-   per-panel expand/collapse, Library exit.
+   Step 8 + Step 9: workspace shell — top bar, three-panel
+   skeleton, per-panel expand/collapse, Library exit, and
+   resize-engine binding.
    Panel contents (editor, paging, novel, AI) arrive Steps 11-22.
    ========================================================= */
 
@@ -101,6 +102,7 @@ function applyExpansion() {
     }
   }
   for (const r of refs.resizers || []) r.style.display = expanded ? 'none' : '';
+  refreshLayout();
 }
 
 /* ---------- Render ---------- */
@@ -162,5 +164,10 @@ export function renderWorkspace() {
   ]);
 
   root.append(topbar, panels);
+  bindResizers({
+    container: panels,
+    panels: [refs.manuscript, refs.novel, refs.ai],
+    resizers: refs.resizers,
+  });
   applyExpansion();
 }
