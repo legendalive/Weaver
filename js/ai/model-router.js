@@ -1,11 +1,8 @@
 /* =========================================================
    Weaver — js/ai/model-router.js
-   Step 18: Dynamic model router.
-   - Zero hardcoded model strings.
-   - Scores discovered models for creative-writing fitness
-     using name heuristics, context length, and recency.
-   - selectBestModel(models) returns the highest-scoring
-     candidate (or the newest if no creative signals are found).
+   Step 18 + Patch: Dynamic model router.
+   - Blacklists models requiring TOS (orpheus) or deprecated (2.5).
+   - Boosts latest creative models (gemini-3, gemini-2.0, qwen).
    ========================================================= */
 
 function scoreModel(model) {
@@ -19,16 +16,17 @@ function scoreModel(model) {
     'instruct', 'chat', 'story', 'writer', 'creative', 'mytho', 'lumimaid',
     'airoboros', 'midnight', 'miqu', 'noromaid', 'dolphin', 'openhermes',
     'wizard', 'zephyr', 'nous', 'capricorn', 'mahou', 'psyfighter', 'hermes',
-    'roleplay', 'rp', 'fiction', 'novel', 'command-r'
+    'roleplay', 'rp', 'fiction', 'novel', 'command-r', 
+    'gemini-3', 'gemini-2.0', '3.8', '2.0-flash', 'qwen', 'llama-3'
   ];
   for (const kw of creativeKeywords) {
     if (combined.includes(kw)) score += 500;
   }
 
-  // Penalize non-text or highly specialized models
+  // Penalize non-text, highly specialized, or API-problematic models
   const penalizeKeywords = [
-    'code', 'math', 'embed', 'vision', 'audio', 'moderation',
-    'speech', 'tts', 'whisper', 'rerank'
+    'orpheus', '2.5-flash', 'gemini-2.5', 'code', 'math', 'embed', 'vision', 
+    'audio', 'moderation', 'speech', 'tts', 'whisper', 'rerank', 'guard'
   ];
   for (const kw of penalizeKeywords) {
     if (combined.includes(kw)) score -= 1000;
@@ -39,7 +37,7 @@ function scoreModel(model) {
     score += Math.min(model.contextLength / 1000, 200);
   }
 
-  // Recency bonus (timestamp is usually in seconds, e.g., 1700000000)
+  // Recency bonus
   if (model.created) {
     score += (model.created / 1e8); 
   }
