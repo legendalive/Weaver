@@ -224,11 +224,12 @@ export function getActiveProject() {
 
 /* ---------- Settings ---------- */
 const DEFAULT_SETTINGS = {
-  general: {
+    general: {
     theme: 'charcoal-gold',
     fontScale: 1.0,
     sentencesPerPage: 15,
     autosaveInterval: 3000,
+    panelSizes: [33.4, 33.3, 33.3],
   },
   ai: {
     providers: {
