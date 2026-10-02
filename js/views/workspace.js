@@ -1,27 +1,43 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8 + Step 9: workspace shell — top bar, three-panel
-   skeleton, per-panel expand/collapse, Library exit, and
-   resize-engine binding.
-   Panel contents (editor, paging, novel, AI) arrive Steps 11-22.
+   Step 8-11: workspace shell — top bar, three-panel skeleton,
+   expand/collapse, Library exit, resize binding, and mounting
+   of the Manuscript editor. Shell re-renders ONLY on project
+   identity change (never on typing syncs).
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, subscribe, setUI, closeProject } from '../core/state.js';
 import { bindResizers, refreshLayout } from '../core/resizers.js';
+import { mountManuscript, flushManuscriptSync } from '../panels/manuscript.js';
 
 let root = null;
 let refs = {};
+let lastProjectId = null;
 
 export function initWorkspace() {
   root = document.getElementById('view-workspace');
   subscribe((state, change) => {
     if (state.view !== 'workspace') return;
-    if (change.view || change.project) renderWorkspace();
-    else if (change.ui) applyExpansion();
+    if (change.view) {
+      renderWorkspace();
+      lastProjectId = state.project ? state.project.id : null;
+      return;
+    }
+    if (change.project && !change.silent) {
+      const id = state.project ? state.project.id : null;
+      if (id !== lastProjectId) {
+        flushManuscriptSync();
+        renderWorkspace();
+        lastProjectId = id;
+      }
+      return;
+    }
+    if (change.ui) applyExpansion();
   });
   renderWorkspace();
+  lastProjectId = getState().project ? getState().project.id : null;
 }
 
 /* ---------- Builders ---------- */
@@ -132,7 +148,7 @@ export function renderWorkspace() {
         class: 'btn btn-ghost btn-icon',
         title: 'Library — back to dashboard',
         'aria-label': 'Library',
-        onclick: () => closeProject(),
+        onclick: () => { flushManuscriptSync(); closeProject(); },
       }, [icon('library')]),
       topBtn('export', 'download', 'Export', () => toast('Export arrives in Step 23.', 'info')),
       topBtn('settings', 'gear', 'Settings', () => toast('Settings arrives in Step 20.', 'info')),
@@ -169,5 +185,6 @@ export function renderWorkspace() {
     panels: [refs.manuscript, refs.novel, refs.ai],
     resizers: refs.resizers,
   });
+  mountManuscript(refs.manuscript);
   applyExpansion();
 }
