@@ -1,13 +1,14 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 6: boot + store-driven routing + launch view init.
+   Step 7: boot + routing + launch dashboard + project wizard.
    ========================================================= */
 
 import { getState, subscribe } from './core/state.js';
 import { initLaunch } from './views/launch.js';
+import { initWizard } from './views/wizard.js';
 
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.4.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -30,9 +31,10 @@ function boot() {
   });
 
   initLaunch();
+  initWizard();
   switchView(getState().view);
   console.info(
-    `%cWeaver v${APP_VERSION}%c launch dashboard online`,
+    `%cWeaver v${APP_VERSION}%c project wizard online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
