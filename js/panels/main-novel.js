@@ -1,30 +1,51 @@
 /* =========================================================
    Weaver — js/panels/main-novel.js
-   Step 13 + patch: Main Novel panel.
-   - Read-only rendering of finalized text.
-   - Live word count in the panel header.
-   - Recheck: cuts selected text and moves it back to Manuscript.
-   - Auto re-renders when other modules push text (change.novel).
+   Step 13 + Step 14: Main Novel panel.
+   - Read-only AND virtualized (same spacer technique as the
+     Manuscript) so massive canon text stays instant.
+   - Live word count badge in the header.
+   - Recheck: cut selected text back into the Manuscript.
+   - jumpNovelToBlock for Hierarchy navigation.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
 import { getState, touchProject, subscribe } from '../core/state.js';
-import { wordCount } from '../utils/text.js';
+import {
+  wordCount, buildBlockIndex, windowBounds, headingPrefix,
+} from '../utils/text.js';
 import { renderManuscript, flushManuscriptSync } from './manuscript.js';
+
+const MAX_MOUNTED = 300;
+const SCROLL_THRESHOLD = 300;
 
 let panelEl = null;
 let bodyEl = null;
+let wrapEl = null;
 let wordCountEl = null;
 let novelBound = false;
+
+let nIndex = [];
+let nMounted = { from: 0, to: 0 };
+let topSpacer = null;
+let bottomSpacer = null;
 
 export function mountMainNovel(panel) {
   panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
+  clear(bodyEl);
+
+  wrapEl = el('div', { class: 'mn-scroll' });
+  topSpacer = el('div', { class: 'ms-spacer' });
+  bottomSpacer = el('div', { class: 'ms-spacer' });
+  wrapEl.append(topSpacer, bottomSpacer);
+  bodyEl.appendChild(wrapEl);
 
   const header = panel.querySelector('.panel-header');
   const actions = panel.querySelector('.panel-actions');
   wordCountEl = el('span', { class: 'badge badge-accent mn-word-count', text: '0 words' });
   header.insertBefore(wordCountEl, actions);
+
+  bodyEl.addEventListener('scroll', onScroll);
 
   if (!novelBound) {
     novelBound = true;
@@ -36,49 +57,172 @@ export function mountMainNovel(panel) {
   renderMainNovel();
 }
 
-export function renderMainNovel() {
-  if (!bodyEl) return;
-  clear(bodyEl);
+/* ---------- Render (windowed, read-only) ---------- */
+export function renderMainNovel(startBlock = 0) {
+  if (!wrapEl) return;
+  clearNodes();
+  topSpacer.style.height = '0px';
+  bottomSpacer.style.height = '0px';
 
   const project = getState().project;
   if (!project) return;
-
   const text = project.mainNovel.text || '';
-  const wc = wordCount(text);
-  if (wordCountEl) wordCountEl.textContent = `${wc.toLocaleString()} words`;
+  if (wordCountEl) wordCountEl.textContent = `${wordCount(text).toLocaleString()} words`;
 
-  if (!text) {
-    bodyEl.appendChild(el('div', { class: 'empty-state' }, [
+  nIndex = buildBlockIndex(text);
+  if (!text.trim()) {
+    topSpacer.after(el('div', { class: 'empty-state' }, [
       el('p', { text: 'Your finalized manuscript will appear here.' }),
-      el('p', { class: 'launch-empty-hint', text: 'Use "Accept as is" in the Manuscript panel to push text here.' }),
+      el('p', {
+        class: 'launch-empty-hint',
+        text: 'Use "Accept as is" in the Manuscript panel to push text here.',
+      }),
     ]));
+    nMounted = { from: 0, to: 0 };
     return;
   }
 
-  const wrap = el('div', { class: 'mn-scroll' });
-
-  const paragraphs = text.split(/\n\s*\n/);
-  for (const p of paragraphs) {
-    if (!p.trim()) continue;
-
-    const hm = p.match(/^(#{1,3})\s+(.*)/);
-    if (hm) {
-      const level = hm[1].length;
-      wrap.appendChild(el('div', { class: `mn-block mn-h${level}`, text: hm[2] }));
-    } else {
-      const lines = p.split('\n');
-      const node = el('div', { class: 'mn-block' });
-      lines.forEach((line, i) => {
-        if (i > 0) node.appendChild(document.createElement('br'));
-        node.appendChild(document.createTextNode(line));
-      });
-      wrap.appendChild(node);
-    }
-  }
-  bodyEl.appendChild(wrap);
+  const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+  const start = Math.max(0, Math.min(startBlock, nIndex.length - 1));
+  const { end } = windowBounds(nIndex, start, maxSent);
+  const to = Math.max(end, start + 1);
+  const { frag } = buildFragment(start, to, text);
+  bottomSpacer.before(frag);
+  nMounted = { from: start, to };
+  bodyEl.scrollTop = 0;
 }
 
-/* ---------- Recheck Action ---------- */
+export function jumpNovelToBlock(blockIndex) {
+  renderMainNovel(blockIndex);
+}
+
+function clearNodes() {
+  Array.from(wrapEl.children).forEach((n) => {
+    if (n !== topSpacer && n !== bottomSpacer) n.remove();
+  });
+}
+
+function getNodes() {
+  return Array.from(wrapEl.children).filter((n) => n !== topSpacer && n !== bottomSpacer);
+}
+
+/* Groups mounted blocks into paragraph/heading nodes. Each node
+   records how many blocks it consumed (dataset.bcount) so pruning
+   keeps the block-window math exact. */
+function buildFragment(from, to, text) {
+  const frag = document.createDocumentFragment();
+  const nodes = [];
+  let para = null;
+  let paraCount = 0;
+
+  const flush = () => {
+    if (para) { para.dataset.bcount = String(paraCount); nodes.push(para); }
+    para = null;
+    paraCount = 0;
+  };
+
+  for (let i = from; i < to; i++) {
+    const b = nIndex[i];
+    const raw = text.slice(b.s, b.e).replace(/\n$/, '');
+    if (b.level) {
+      flush();
+      const node = el('div', {
+        class: `mn-block mn-h${b.level}`,
+        dataset: { bcount: '1' },
+        text: raw.slice(headingPrefix(b.level).length),
+      });
+      frag.appendChild(node);
+      nodes.push(node);
+    } else if (!raw.trim()) {
+      flush();
+    } else {
+      if (!para) {
+        para = el('div', { class: 'mn-block' });
+        frag.appendChild(para);
+        paraCount = 1;
+      } else {
+        para.appendChild(document.createElement('br'));
+        paraCount += 1;
+      }
+      para.appendChild(document.createTextNode(raw));
+    }
+  }
+  flush();
+  return { frag, nodes };
+}
+
+/* ---------- Virtualized scroll (scroll-height-delta math) ---------- */
+function onScroll() {
+  if (!bodyEl || !nIndex.length) return;
+  const { scrollTop, scrollHeight, clientHeight } = bodyEl;
+  const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+  const nearTop = scrollTop <= SCROLL_THRESHOLD;
+
+  if (nearBottom && nMounted.to < nIndex.length) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    const { end } = windowBounds(nIndex, nMounted.to, maxSent);
+    if (end > nMounted.to) {
+      const text = getState().project.mainNovel.text || '';
+      const { frag } = buildFragment(nMounted.to, end, text);
+      bottomSpacer.before(frag);
+      nMounted.to = end;
+      pruneTop();
+    }
+  }
+
+  if (nearTop && nMounted.from > 0) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    let start = nMounted.from;
+    let budget = 0;
+    while (start > 0 && budget < maxSent) {
+      start--;
+      budget += nIndex[start].sentences;
+    }
+    if (start < nMounted.from) {
+      const text = getState().project.mainNovel.text || '';
+      const oldHeight = bodyEl.scrollHeight;
+      const oldTop = bodyEl.scrollTop;
+      const { frag } = buildFragment(start, nMounted.from, text);
+      topSpacer.after(frag);
+      bodyEl.scrollTop = oldTop + (bodyEl.scrollHeight - oldHeight);
+      nMounted.from = start;
+      pruneBottom();
+    }
+  }
+}
+
+function pruneTop() {
+  const nodes = getNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  const oldTop = bodyEl.scrollTop;
+  let blocksRemoved = 0;
+  for (let i = 0; i < removeCount; i++) {
+    blocksRemoved += Number(nodes[i].dataset.bcount || 1);
+    nodes[i].remove();
+  }
+  topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  bodyEl.scrollTop = oldTop;
+  nMounted.from += blocksRemoved;
+}
+
+function pruneBottom() {
+  const nodes = getNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  let blocksRemoved = 0;
+  for (let i = 0; i < removeCount; i++) {
+    const node = nodes[nodes.length - 1 - i];
+    blocksRemoved += Number(node.dataset.bcount || 1);
+    node.remove();
+  }
+  bottomSpacer.style.height = (parseFloat(bottomSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  nMounted.to -= blocksRemoved;
+}
+
+/* ---------- Recheck ---------- */
 export function recheck() {
   flushManuscriptSync();
 
@@ -96,7 +240,6 @@ export function recheck() {
 
   const novelText = project.mainNovel.text || '';
   const idx = novelText.indexOf(selectedText);
-
   if (idx === -1) {
     toast('Could not find selected text.', 'danger');
     return;
@@ -114,6 +257,5 @@ export function recheck() {
 
   renderMainNovel();
   renderManuscript();
-
   sel.removeAllRanges();
 }
