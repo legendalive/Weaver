@@ -92,12 +92,12 @@ export function mountManuscript(panel) {
 }
 
 /* ---------- Render (windowed) ---------- */
-export function renderManuscript() {
+export function renderManuscript(startBlock = 0) {
   if (!blocksWrap) return;
   clearTimeout(syncTimer);
   syncTimer = null;
   selectionInfo = null;
-  
+
   clearBlocksOnly();
   topSpacer.style.height = '0px';
   bottomSpacer.style.height = '0px';
@@ -109,8 +109,10 @@ export function renderManuscript() {
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
-  const { end } = windowBounds(index, 0, maxSent);
-  mountRange(0, Math.max(end, 1), text);
+  const start = Math.max(0, Math.min(startBlock, index.length - 1));
+  const { end } = windowBounds(index, start, maxSent);
+  mountRange(start, Math.max(end, start + 1), text);
+  bodyEl.scrollTop = 0;
 }
 
 function clearBlocksOnly() {
