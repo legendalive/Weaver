@@ -109,3 +109,36 @@
   line-height: 1.5;
 }
 .launch-empty .btn { margin-top: 8px; }
+/* =========================================================
+   Step 7: New Project wizard
+   ========================================================= */
+.wizard-seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.wizard-seg .btn { flex: 1; justify-content: flex-start; }
+.wizard-seg .btn.is-selected {
+  border-color: rgba(224, 168, 60, .55);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.wizard-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.wizard-upload:hover, .wizard-upload.is-drag {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.wizard-upload.is-loaded {
+  border-style: solid;
+  border-color: rgba(127, 176, 105, .5);
+  color: var(--success);
+}
+.wizard-upload .icon { color: var(--faint); }
+.wizard-upload-hint { font-size: .8rem; text-align: center; }
