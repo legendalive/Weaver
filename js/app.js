@@ -1,15 +1,16 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 8: boot + routing + launch + wizard + workspace shell.
+   Step 12: boot + routing + resume active project on refresh.
    ========================================================= */
 
-import { getState, subscribe } from './core/state.js';
+import { getState, subscribe, openProject } from './core/state.js';
+import { getActiveProject } from './core/storage.js';
 import { initLaunch } from './views/launch.js';
 import { initWizard } from './views/wizard.js';
 import { initWorkspace } from './views/workspace.js';
 
-const APP_VERSION = '0.5.0';
+const APP_VERSION = '0.6.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -23,9 +24,7 @@ function switchView(name) {
 
 function boot() {
   const status = document.getElementById('boot-status');
-  if (status) {
-    status.textContent = `foundation online · v${APP_VERSION}`;
-  }
+  if (status) status.textContent = `foundation online · v${APP_VERSION}`;
 
   subscribe((state, change) => {
     if (change.view) switchView(state.view);
@@ -34,9 +33,17 @@ function boot() {
   initLaunch();
   initWizard();
   initWorkspace();
-  switchView(getState().view);
+
+  // Resume active project on refresh
+  const activeId = getActiveProject();
+  if (activeId) {
+    openProject(activeId);
+  } else {
+    switchView(getState().view);
+  }
+
   console.info(
-    `%cWeaver v${APP_VERSION}%c workspace shell online`,
+    `%cWeaver v${APP_VERSION}%c paging engine online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
