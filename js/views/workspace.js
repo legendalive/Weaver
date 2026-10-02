@@ -1,149 +1,192 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 12 + Step 13 + Step 14: Main workspace layout.
-   - Responsive three-panel layout with drag-resize borders.
-   - Per-panel expand buttons (hide the other two panels).
-   - Top bar: Hierarchy, Config, Scribe, Library, Export, Settings.
-   - Panel footers: Accept as is / Recheck / AI actions.
+   Step 8-14: workspace shell — top bar, three-panel skeleton,
+   expand/collapse, Library exit, resize binding, Manuscript +
+   Main Novel mounting, Hierarchy drawer wiring.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
-import { getState, setState, subscribe } from '../core/state.js';
-import { mountManuscript, acceptAsIs } from '../panels/manuscript.js';
+import { getState, subscribe, setUI, closeProject } from '../core/state.js';
+import { bindResizers, refreshLayout } from '../core/resizers.js';
+import { mountManuscript, flushManuscriptSync, acceptAsIs } from '../panels/manuscript.js';
 import { mountMainNovel, recheck } from '../panels/main-novel.js';
 import { toggleHierarchyDrawer } from '../features/hierarchy.js';
 
-let rootEl = null;
-let panelsEl = null;
+let root = null;
+let refs = {};
+let lastProjectId = null;
 
-export function renderWorkspace(root) {
-  rootEl = root;
-  clear(root);
-
-  const topbar = el('div', { class: 'topbar' }, [
-    el('div', { class: 'topbar-brand' }, [icon('logo', 'icon-sm'), el('span', { text: 'Weaver' })]),
-    el('div', { class: 'topbar-actions' }, [
-      topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
-      topBtn('config', 'book', 'Config', () => toast('Config (Project Bible) arrives in Step 15.', 'info')),
-      topBtn('scribe', 'spark', 'Scribe', () => toast('Scribe AI arrives in Step 16.', 'info')),
-      topBtn('library', 'shelf', 'Library', () => setState({ view: 'library' })),
-      topBtn('export', 'download', 'Export', () => toast('Export arrives in Step 18.', 'info')),
-      topBtn('settings', 'gear', 'Settings', () => setState({ view: 'settings' })),
-    ]),
-  ]);
-
-  panelsEl = el('div', { class: 'panels' });
-
-  const manuscriptPanel = panel('Manuscript', 'ms-panel', [
-    footerBtn('Accept as is', 'check', () => acceptAsIs()),
-  ]);
-  const novelPanel = panel('Main Novel', 'mn-panel', [
-    footerBtn('Recheck', 'scissors', () => recheck()),
-  ]);
-  const aiPanel = panel('AI Output', 'ai-panel', [
-    footerBtn('Accept', 'check', () => toast('AI Output arrives in Step 16.', 'info')),
-    footerBtn('Rewrite', 'refresh', () => toast('AI Output arrives in Step 16.', 'info')),
-    footerBtn('Discard', 'trash', () => toast('AI Output arrives in Step 16.', 'info')),
-  ]);
-
-  const border1 = el('div', { class: 'panel-border', dataset: { border: '1' } });
-  const border2 = el('div', { class: 'panel-border', dataset: { border: '2' } });
-
-  panelsEl.append(manuscriptPanel, border1, novelPanel, border2, aiPanel);
-  root.append(topbar, panelsEl);
-
-  mountManuscript(manuscriptPanel);
-  mountMainNovel(novelPanel);
-
-  aiPanel.querySelector('.panel-body').appendChild(el('div', { class: 'empty-state' }, [
-    icon('spark', 'icon-lg'),
-    el('p', { text: 'AI generations will appear here.' }),
-    el('p', {
-      class: 'launch-empty-hint',
-      text: 'Highlight text in Manuscript and prompt Scribe to generate.',
-    }),
-  ]));
-
-  bindResize(border1, manuscriptPanel);
-  bindResize(border2, novelPanel);
-
+export function initWorkspace() {
+  root = document.getElementById('view-workspace');
   subscribe((state, change) => {
-    if (change.settings && state.view === 'workspace') applyAesthetic();
+    if (state.view !== 'workspace') return;
+    if (change.view) {
+      renderWorkspace();
+      lastProjectId = state.project ? state.project.id : null;
+      return;
+    }
+    if (change.project && !change.silent) {
+      const id = state.project ? state.project.id : null;
+      if (id !== lastProjectId) {
+        flushManuscriptSync();
+        renderWorkspace();
+        lastProjectId = id;
+      }
+      return;
+    }
+    if (change.ui) applyExpansion();
   });
-  applyAesthetic();
+  renderWorkspace();
+  lastProjectId = getState().project ? getState().project.id : null;
 }
 
 /* ---------- Builders ---------- */
-function topBtn(id, iconName, label, onclick) {
-  return el('button', { class: 'btn btn-ghost btn-sm topbar-btn', id: `tb-${id}`, onclick }, [
-    icon(iconName, 'icon-sm'),
-    el('span', { text: label }),
+function topBtn(key, iconName, label, onclick) {
+  const b = el('button', { class: 'btn', title: label, onclick }, [
+    icon(iconName),
+    el('span', { class: 'btn-label', text: label }),
+  ]);
+  refs[key + 'Btn'] = b;
+  return b;
+}
+
+function footerBtn(label, iconName, onclick, danger = false) {
+  return el('button', { class: 'btn' + (danger ? ' btn-danger' : ''), onclick }, [
+    icon(iconName),
+    label,
   ]);
 }
 
-function footerBtn(label, iconName, onclick) {
-  return el('button', { class: 'btn btn-sm panel-btn', onclick }, [
-    icon(iconName, 'icon-sm'),
-    el('span', { text: label }),
-  ]);
+function scribeBar() {
+  const input = el('input', {
+    class: 'input', type: 'text',
+    placeholder: 'Scribe: write, continue, describe, rewrite…',
+  });
+  const send = el('button', {
+    class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
+    onclick: () => toast('Scribe wiring arrives in Step 21.', 'info'),
+  }, [icon('send')]);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send.click(); });
+  refs.scribeInput = input;
+  return el('div', { class: 'scribe-bar' }, [input, send]);
 }
 
-function panel(title, cls, footerButtons) {
-  const actions = el('div', { class: 'panel-actions' });
-  const header = el('div', { class: 'panel-header' }, [
-    el('h2', { class: 'panel-title', text: title }),
-    actions,
-  ]);
-  const body = el('div', { class: 'panel-body' });
-  const footer = el('div', { class: 'panel-footer' }, footerButtons);
-  const p = el('section', { class: `panel ${cls}` }, [header, body, footer]);
-
-  actions.appendChild(el('button', {
+function buildPanel(key, iconName, title, placeholder, footerButtons) {
+  const expandBtn = el('button', {
     class: 'btn btn-ghost btn-icon btn-sm',
+    title: 'Expand panel',
     'aria-label': `Expand ${title}`,
-    onclick: () => toggleExpand(p),
-  }));
-  return p;
+    onclick: () => toggleExpand(key),
+  }, [icon('expand')]);
+  refs[key + 'Expand'] = expandBtn;
+
+  const panel = el('section', { class: 'panel', dataset: { panel: key } }, [
+    el('div', { class: 'panel-header' }, [
+      el('h2', { class: 'panel-title' }, [icon(iconName), title]),
+      el('div', { class: 'panel-actions' }, [expandBtn]),
+    ]),
+    el('div', { class: 'panel-body' }, [
+      el('div', { class: 'empty-state' }, [
+        icon(iconName, 'icon-lg'),
+        el('p', { text: placeholder }),
+      ]),
+    ]),
+    el('div', { class: 'panel-footer' }, footerButtons),
+  ]);
+  refs[key] = panel;
+  return panel;
 }
 
-function toggleExpand(p) {
-  const panels = Array.from(panelsEl.children).filter((n) => n.classList.contains('panel'));
-  const wasExpanded = p.classList.contains('is-expanded');
-  panels.forEach((n) => n.classList.remove('is-expanded'));
-  panelsEl.classList.remove('has-expanded');
-  if (!wasExpanded) {
-    p.classList.add('is-expanded');
-    panelsEl.classList.add('has-expanded');
+/* ---------- Expansion ---------- */
+function toggleExpand(key) {
+  const current = getState().ui.expandedPanel;
+  setUI({ expandedPanel: current === key ? null : key });
+}
+
+function applyExpansion() {
+  const expanded = getState().ui.expandedPanel;
+  for (const key of ['manuscript', 'novel', 'ai']) {
+    const panel = refs[key];
+    if (!panel) continue;
+    panel.classList.toggle('is-hidden', Boolean(expanded && expanded !== key));
+    panel.classList.toggle('is-expanded', expanded === key);
+    const btn = refs[key + 'Expand'];
+    if (btn) {
+      clear(btn);
+      btn.appendChild(icon(expanded === key ? 'collapse' : 'expand'));
+      btn.title = expanded === key ? 'Restore layout' : 'Expand panel';
+    }
   }
+  for (const r of refs.resizers || []) r.style.display = expanded ? 'none' : '';
+  refreshLayout();
 }
 
-/* ---------- Drag-to-resize borders ---------- */
-function bindResize(border, prevPanel) {
-  let dragging = false;
-  border.addEventListener('pointerdown', (e) => {
-    dragging = true;
-    border.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  border.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    const rect = panelsEl.getBoundingClientRect();
-    const vertical = window.matchMedia('(max-width: 860px)').matches;
-    const total = vertical ? rect.height : rect.width;
-    const cursor = vertical ? (e.clientY - rect.top) : (e.clientX - rect.left);
-    const prevRect = prevPanel.getBoundingClientRect();
-    const prevStart = vertical ? (prevRect.top - rect.top) : (prevRect.left - rect.left);
-    const pct = Math.max(12, Math.min(76, ((cursor - prevStart) / total) * 100));
-    prevPanel.style.flexBasis = pct + '%';
-  });
-  border.addEventListener('pointerup', () => { dragging = false; });
-  border.addEventListener('pointercancel', () => { dragging = false; });
-}
+/* ---------- Render ---------- */
+export function renderWorkspace() {
+  if (!root) return;
+  clear(root);
+  refs = {};
 
-/* ---------- Aesthetic ---------- */
-function applyAesthetic() {
-  const g = getState().settings.general;
-  document.documentElement.style.setProperty('--accent', g.accentColor || '#e0a83c');
-  document.documentElement.style.setProperty('--font-scale', String(g.fontScale ?? 1));
+  const project = getState().project;
+  if (!project) return;
+
+  const subtitle = project.seriesName
+    ? `${project.seriesName} · ${project.bookTitle || project.name}`
+    : (project.scope === 'series' ? 'series installment' : 'standalone');
+
+  const topbar = el('header', { class: 'topbar' }, [
+    el('div', { class: 'topbar-left' }, [
+      topBtn('config', 'sliders', 'Config', () => toast('Config bible editor arrives in Step 15.', 'info')),
+      topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
+    ]),
+    el('div', { class: 'topbar-center' }, [
+      el('h1', { class: 'topbar-title', text: project.name }),
+      el('span', { class: 'topbar-sub', text: subtitle }),
+    ]),
+    el('div', { class: 'topbar-right' }, [
+      el('button', {
+        class: 'btn btn-ghost btn-icon',
+        title: 'Library — back to dashboard',
+        'aria-label': 'Library',
+        onclick: () => { flushManuscriptSync(); closeProject(); },
+      }, [icon('library')]),
+      topBtn('export', 'download', 'Export', () => toast('Export arrives in Step 23.', 'info')),
+      topBtn('settings', 'gear', 'Settings', () => toast('Settings arrives in Step 20.', 'info')),
+      scribeBar(),
+    ]),
+  ]);
+
+  const resizerA = el('div', { class: 'resizer', dataset: { index: '0' } });
+  const resizerB = el('div', { class: 'resizer', dataset: { index: '1' } });
+  refs.resizers = [resizerA, resizerB];
+
+  const panels = el('div', { class: 'workspace-panels' }, [
+    buildPanel('manuscript', 'file-text', 'Manuscript',
+      'Paste or type raw draft chapters or research here…', [
+        footerBtn('Accept as is', 'check', () => acceptAsIs()),
+      ]),
+    resizerA,
+    buildPanel('novel', 'book-open', 'Main Novel',
+      'Your canon manuscript will grow here. Accept text from raw drafts or AI prompts…', [
+        footerBtn('Recheck', 'refresh', () => recheck()),
+      ]),
+    resizerB,
+    buildPanel('ai', 'sparkles', 'AI Output',
+      "Scribe's novel prose and continuations will stream here…", [
+        footerBtn('Accept', 'check', () => toast('Accept arrives with the AI Output panel in Step 22.', 'info')),
+        footerBtn('Rewrite', 'refresh', () => toast('Rewrite arrives with the AI Output panel in Step 22.', 'info')),
+        footerBtn('Discard', 'x', () => toast('Discard arrives with the AI Output panel in Step 22.', 'info'), true),
+      ]),
+  ]);
+
+  root.append(topbar, panels);
+  bindResizers({
+    container: panels,
+    panels: [refs.manuscript, refs.novel, refs.ai],
+    resizers: refs.resizers,
+  });
+  mountManuscript(refs.manuscript);
+  mountMainNovel(refs.novel);
+  applyExpansion();
 }
