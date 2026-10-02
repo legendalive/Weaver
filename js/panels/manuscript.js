@@ -1,24 +1,22 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   Step 11: Manuscript editor core.
-   - Windowed block rendering (first sentence-window only;
-     scroll-loading + pruning arrive in Step 12)
-   - contenteditable blocks: Enter splits, Backspace merges,
-     plain-text paste split into blocks
-   - Heading toolbar (H1/H2/H3/body) on the caret's block
-   - Selection capture with document offsets (for Scribe, Step 21)
-   - Debounced one-way sync: mounted window -> state string
+   Step 12: Manuscript editor + Paging Engine + Accept as Is.
+   - Virtualization: appends/prepends blocks on scroll.
+   - Spacers: replaces pruned DOM nodes with pixel-perfect
+     invisible divs to keep the scrollbar honest and prevent lag.
+   - Accept as Is: pushes mounted text to Main Novel state.
    ========================================================= */
 
-import { el, clear } from '../utils/dom.js';
+import { el, clear, toast } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
 import {
   buildBlockIndex, windowBounds, spliceBlocks, headingPrefix,
 } from '../utils/text.js';
 
 const SYNC_DELAY = 800;
+const MAX_MOUNTED = 300;
+const SCROLL_THRESHOLD = 300;
 
-/* plaintext-only where supported (Chrome/Edge/Safari/new FF) */
 const CE_MODE = (() => {
   const d = document.createElement('div');
   d.setAttribute('contenteditable', 'plaintext-only');
@@ -37,6 +35,9 @@ let selectionInfo = null;
 let docBound = false;
 let selTick = false;
 
+let topSpacer = null;
+let bottomSpacer = null;
+
 export function getManuscriptSelection() { return selectionInfo; }
 
 /* ---------- Mount ---------- */
@@ -46,6 +47,10 @@ export function mountManuscript(panel) {
   clear(bodyEl);
   blocksWrap = el('div', { class: 'ms-scroll' });
   bodyEl.appendChild(blocksWrap);
+
+  topSpacer = el('div', { class: 'ms-spacer' });
+  bottomSpacer = el('div', { class: 'ms-spacer' });
+  blocksWrap.append(topSpacer, bottomSpacer);
 
   const actions = panel.querySelector('.panel-actions');
   const expandBtn = actions.querySelector('button');
@@ -67,6 +72,7 @@ export function mountManuscript(panel) {
   blocksWrap.addEventListener('input', () => scheduleSync());
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
+  bodyEl.addEventListener('scroll', onScroll);
 
   if (!docBound) {
     docBound = true;
@@ -91,7 +97,10 @@ export function renderManuscript() {
   clearTimeout(syncTimer);
   syncTimer = null;
   selectionInfo = null;
-  clear(blocksWrap);
+  
+  clearBlocksOnly();
+  topSpacer.style.height = '0px';
+  bottomSpacer.style.height = '0px';
 
   const project = getState().project;
   if (!project) return;
@@ -104,11 +113,18 @@ export function renderManuscript() {
   mountRange(0, Math.max(end, 1), text);
 }
 
+function clearBlocksOnly() {
+  Array.from(blocksWrap.children).forEach(n => {
+    if (n !== topSpacer && n !== bottomSpacer) n.remove();
+  });
+}
+
 function mountRange(from, to, text) {
   mounted = { from, to };
   const frag = document.createDocumentFragment();
   for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
-  blocksWrap.appendChild(frag);
+  clearBlocksOnly();
+  topSpacer.after(frag);
 }
 
 function blockNode(block, text) {
@@ -153,7 +169,9 @@ function nodeToString(node) {
   return (lv ? headingPrefix(lv) : '') + bodyString(node);
 }
 
-function mountedNodes() { return Array.from(blocksWrap.children); }
+function getBlockNodes() {
+  return Array.from(blocksWrap.children).filter(n => n !== topSpacer && n !== bottomSpacer);
+}
 
 function blockOf(node) {
   if (!node) return null;
@@ -161,7 +179,7 @@ function blockOf(node) {
   return elem ? elem.closest('.ms-block') : null;
 }
 
-/* ---------- Caret math (offsets count \n/BR as 1 char) ---------- */
+/* ---------- Caret math ---------- */
 function lenOf(c) {
   if (c.nodeType === 3) return c.data.length;
   if (c.nodeName === 'BR') return 1;
@@ -234,7 +252,7 @@ function onKeydown(e) {
     const sel = document.getSelection();
     if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === 0) {
       const prev = node.previousElementSibling;
-      if (!prev) { e.preventDefault(); return; } // protect unmounted prefix (Step 12)
+      if (!prev || prev === topSpacer) { e.preventDefault(); return; } 
       e.preventDefault();
       mergeInto(prev, node);
     }
@@ -326,7 +344,7 @@ function refreshToolbar(activeNode) {
   }
 }
 
-/* ---------- Selection capture (for Scribe) ---------- */
+/* ---------- Selection capture ---------- */
 function onSelectionChange() {
   if (!blocksWrap) return;
   const sel = document.getSelection();
@@ -343,7 +361,7 @@ function onSelectionChange() {
     return;
   }
 
-  const nodes = mountedNodes();
+  const nodes = getBlockNodes();
   const ia = nodes.indexOf(a);
   const ib = nodes.indexOf(focusBlock);
   let first, last, firstOff, lastOff;
@@ -367,7 +385,7 @@ function onSelectionChange() {
   selectionInfo = text ? { text, start, end } : null;
 }
 
-/* ---------- One-way sync: mounted window -> state ---------- */
+/* ---------- Sync ---------- */
 function scheduleSync() {
   clearTimeout(syncTimer);
   syncTimer = setTimeout(flushManuscriptSync, SYNC_DELAY);
@@ -378,7 +396,7 @@ export function flushManuscriptSync() {
   syncTimer = null;
   const project = getState().project;
   if (!project || !blocksWrap || project.id !== syncProjectId) return;
-  const nodes = mountedNodes();
+  const nodes = getBlockNodes();
   if (!nodes.length) return;
 
   const strings = nodes.map(nodeToString);
@@ -390,4 +408,102 @@ export function flushManuscriptSync() {
   index = buildBlockIndex(newText);
   mounted.to = mounted.from + nodes.length;
   touchProject({ silent: true });
+}
+
+/* ---------- Paging Engine (Virtualization) ---------- */
+function onScroll() {
+  if (!bodyEl || !index.length) return;
+  const { scrollTop, scrollHeight, clientHeight } = bodyEl;
+  const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+  const nearTop = scrollTop <= SCROLL_THRESHOLD;
+
+  if (nearBottom && mounted.to < index.length) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    const { end } = windowBounds(index, mounted.to, maxSent);
+    if (end > mounted.to) {
+      appendBlocks(mounted.to, end);
+      pruneTop();
+    }
+  }
+
+  if (nearTop && mounted.from > 0) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    let start = mounted.from;
+    let budget = 0;
+    while (start > 0 && budget < maxSent) {
+      start--;
+      budget += index[start].sentences;
+    }
+    if (start < mounted.from) {
+      prependBlocks(start, mounted.from);
+      pruneBottom();
+    }
+  }
+}
+
+function appendBlocks(from, to) {
+  const text = getState().project.manuscript.text || '';
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  bottomSpacer.before(frag);
+  mounted.to = to;
+}
+
+function prependBlocks(from, to) {
+  const text = getState().project.manuscript.text || '';
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  
+  const prevScroll = bodyEl.scrollTop;
+  topSpacer.after(frag);
+  
+  let h = 0;
+  const newNodes = Array.from(topSpacer.nextElementSibling.parentElement.children)
+    .filter(n => n !== topSpacer && n !== bottomSpacer)
+    .slice(0, to - from);
+  for (const n of newNodes) h += n.offsetHeight;
+  bodyEl.scrollTop = prevScroll + h;
+
+  mounted.from = from;
+}
+
+function pruneTop() {
+  const nodes = getBlockNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  let h = 0;
+  for (let i = 0; i < removeCount; i++) {
+    h += nodes[i].offsetHeight;
+    nodes[i].remove();
+  }
+  topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + h) + 'px';
+  mounted.from += removeCount;
+}
+
+function pruneBottom() {
+  const nodes = getBlockNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  let h = 0;
+  for (let i = 0; i < removeCount; i++) {
+    const node = nodes[nodes.length - 1 - i];
+    h += node.offsetHeight;
+    node.remove();
+  }
+  bottomSpacer.style.height = (parseFloat(bottomSpacer.style.height || 0) + h) + 'px';
+  mounted.to -= removeCount;
+}
+
+/* ---------- Accept as Is ---------- */
+export function acceptAsIs() {
+  const project = getState().project;
+  if (!project) return;
+  const nodes = getBlockNodes();
+  if (!nodes.length) { toast('Nothing to accept.', 'info'); return; }
+
+  const textToPush = nodes.map(nodeToString).join('\n');
+  const currentNovel = project.mainNovel.text || '';
+  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
+  touchProject();
+  toast('Accepted to Main Novel.', 'success');
 }
