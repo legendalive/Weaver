@@ -1,8 +1,8 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-14: workspace shell — top bar, three-panel skeleton,
+   Step 8-15: workspace shell — top bar, three-panel skeleton,
    expand/collapse, Library exit, resize binding, Manuscript +
-   Main Novel mounting, Hierarchy drawer wiring.
+   Main Novel mounting, Hierarchy drawer + Config bible wiring.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -12,6 +12,7 @@ import { bindResizers, refreshLayout } from '../core/resizers.js';
 import { mountManuscript, flushManuscriptSync, acceptAsIs } from '../panels/manuscript.js';
 import { mountMainNovel, recheck } from '../panels/main-novel.js';
 import { toggleHierarchyDrawer } from '../features/hierarchy.js';
+import { openConfigBible } from '../features/config-bible.js';
 
 let root = null;
 let refs = {};
@@ -137,7 +138,7 @@ export function renderWorkspace() {
 
   const topbar = el('header', { class: 'topbar' }, [
     el('div', { class: 'topbar-left' }, [
-      topBtn('config', 'sliders', 'Config', () => toast('Config bible editor arrives in Step 15.', 'info')),
+      topBtn('config', 'sliders', 'Config', () => openConfigBible()),
       topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
     ]),
     el('div', { class: 'topbar-center' }, [
