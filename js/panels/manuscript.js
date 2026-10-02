@@ -1,12 +1,7 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   Step 11-14: Manuscript editor + Paging Engine + Accept as Is.
-   - Virtualization: appends/prepends blocks on scroll.
-   - Spacers: pruned nodes replaced by pixel-perfect divs.
-   - Heading toolbar, Enter splits, Backspace merges, plain paste.
-   - Selection capture with document offsets (for Scribe).
-   - Debounced one-way sync: mounted window -> state string.
-   - Hierarchy jump via window reset.
+   Step 11-14 + Step 21 Patch: Manuscript editor.
+   - Adds visual tracking (gold tint) for blocks selected for Scribe.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -71,7 +66,7 @@ export function mountManuscript(panel) {
   }
   actions.insertBefore(tb, expandBtn);
 
-  blocksWrap.addEventListener('input', () => scheduleSync());
+  blocksWrap.addEventListener('input', () => { clearBundledBlocks(); scheduleSync(); });
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
   bodyEl.addEventListener('scroll', onScroll);
@@ -354,17 +349,35 @@ function refreshToolbar(activeNode) {
   }
 }
 
-/* ---------- Selection capture ---------- */
+/* ---------- Selection capture + Visual Tracking ---------- */
+function clearBundledBlocks() {
+  document.querySelectorAll('.ms-block.is-bundled').forEach(n => n.classList.remove('is-bundled'));
+}
+
 function onSelectionChange() {
   if (!blocksWrap) return;
   const sel = document.getSelection();
   const project = getState().project;
+  
+  // Clear previous visual tracking
+  clearBundledBlocks();
+
   if (!sel || !project) { selectionInfo = null; refreshToolbar(null); return; }
 
   const a = blockOf(sel.anchorNode);
   const focusBlock = blockOf(sel.focusNode);
   if (!a || !blocksWrap.contains(a)) { selectionInfo = null; refreshToolbar(null); return; }
   refreshToolbar(sel.isCollapsed ? a : focusBlock);
+
+  // Apply visual tracking (gold tint) to selected blocks
+  if (!sel.isCollapsed && focusBlock && blocksWrap.contains(focusBlock)) {
+    const nodes = getBlockNodes();
+    for (const node of nodes) {
+      if (sel.containsNode(node, true) || node.contains(sel.anchorNode) || node.contains(sel.focusNode)) {
+        node.classList.add('is-bundled');
+      }
+    }
+  }
 
   if (sel.isCollapsed || !focusBlock || !blocksWrap.contains(focusBlock)) {
     selectionInfo = null;
