@@ -1,0 +1,111 @@
+/* =========================================================
+   Weaver — css/views.css
+   Step 6: launch dashboard styles (wizard styles append in Step 7).
+   ========================================================= */
+
+/* ---------- Dashboard shell ---------- */
+.launch-wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  padding: 48px 24px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(224, 168, 60, .06), transparent 60%),
+    var(--bg);
+}
+
+.launch-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(960px, 100%);
+}
+.launch-logo { width: 52px; height: 52px; color: var(--accent); flex: none; }
+.launch-logo svg { width: 100%; height: 100%; display: block; }
+.launch-title { font-size: 1.9rem; font-weight: 650; letter-spacing: .03em; }
+.launch-tag {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .7rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.launch-spacer { flex: 1; }
+
+/* ---------- Project cards ---------- */
+.launch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  width: min(960px, 100%);
+}
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.project-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-1);
+}
+.project-card.is-active { border-color: rgba(224, 168, 60, .5); }
+
+.project-name {
+  font-size: 1rem;
+  font-weight: 600;
+  padding-right: 30px; /* keep clear of delete button */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.project-updated {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+}
+.project-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.project-card:hover .project-delete,
+.project-card:focus-within .project-delete { opacity: 1; }
+
+/* ---------- Empty state ---------- */
+.launch-empty {
+  width: min(960px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+}
+.launch-empty .icon { width: 30px; height: 30px; color: var(--faint); }
+.launch-empty-hint {
+  font-size: .8rem;
+  color: var(--faint);
+  max-width: 340px;
+  text-align: center;
+  line-height: 1.5;
+}
+.launch-empty .btn { margin-top: 8px; }
