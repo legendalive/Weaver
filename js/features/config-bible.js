@@ -1,11 +1,10 @@
 /* =========================================================
    Weaver — js/features/config-bible.js
-   Step 15 + patch: Config (Project Bible) editor.
+   Step 15 + patches + Step 23.5: Config (Project Bible) editor.
    - Seven sections; series-aware shared bible.
-   - COLLAPSIBLE entries: one-line rows by default; click a row
-     (or its pen icon) to expand into the editing card; the
-     card's Done button collapses it again. Same for the two
-     prose/instruction fields.
+   - Collapsible entries (one-line rows; expand to edit).
+   - IMPORT: ingest an exported *_config_bible.txt with
+     Replace / Merge choice.
    - Debounced autosave + flush on close. Self-styled module.
    ========================================================= */
 
@@ -79,6 +78,20 @@ const SECTIONS = [
   },
 ];
 
+const LIST_KEYS = ['characters', 'settings', 'plotArcs', 'worldRules', 'items'];
+const TEXT_KEYS = ['generalProse', 'generalAiInstructions'];
+
+/* Exported-header label -> internal key (case-insensitive) */
+const SECTION_LABELS = {
+  'characters': 'characters',
+  'settings & places': 'settings',
+  'plot arcs': 'plotArcs',
+  'world rules & physics': 'worldRules',
+  'item catalog': 'items',
+  'general prose': 'generalProse',
+  'general ai instructions': 'generalAiInstructions',
+};
+
 let projectRef = null;
 let cfg = null;
 let activeSection = 'characters';
@@ -87,7 +100,7 @@ let contentEl = null;
 let savedBadge = null;
 let saveTimer = null;
 let m = null;
-let expanded = new Set(); // entry ids / text-section keys currently expanded
+let expanded = new Set();
 
 function entryId() {
   return (typeof crypto !== 'undefined' && crypto.randomUUID)
@@ -123,6 +136,120 @@ function saveNow() {
     savedBadge.hidden = false;
     setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
   }
+}
+
+/* ---------- Import: parser ---------- */
+function isListKey(key) { return LIST_KEYS.includes(key); }
+
+export function parseBibleText(text) {
+  const out = {
+    characters: [], settings: [], plotArcs: [], worldRules: [], items: [],
+    generalProse: '', generalAiInstructions: '',
+  };
+  const lines = String(text).replace(/\r\n?/g, '\n').split('\n');
+  let section = null;
+  let current = null;
+  let textBuf = [];
+
+  const flushEntry = () => {
+    if (current && section && isListKey(section)) {
+      current.body = current.body.replace(/\s+$/, '');
+      out[section].push(current);
+    }
+    current = null;
+  };
+  const flushText = () => {
+    if (section && !isListKey(section)) {
+      const joined = textBuf.join('\n').trim();
+      out[section] = joined === '(Empty)' ? '' : joined;
+    }
+    textBuf = [];
+  };
+
+  for (const line of lines) {
+    if (line.startsWith('### ')) {
+      flushEntry();
+      if (section && isListKey(section)) {
+        current = { id: entryId(), name: line.slice(4).trim(), body: '' };
+      }
+      continue;
+    }
+    if (line.startsWith('## ')) {
+      flushEntry();
+      flushText();
+      section = SECTION_LABELS[line.slice(3).trim().toLowerCase()] || null;
+      continue;
+    }
+    if (line.startsWith('# ')) continue;             // title line
+    if (/^(Series|Exported):/i.test(line)) continue; // metadata lines
+    if (!section) continue;
+    if (isListKey(section)) {
+      if (current) current.body += (current.body ? '\n' : '') + line;
+      // stray lines with no open entry (e.g. "(No entries)") are ignored
+    } else {
+      textBuf.push(line);
+    }
+  }
+  flushEntry();
+  flushText();
+  return out;
+}
+
+function importSummary(parsed) {
+  const parts = LIST_KEYS
+    .filter((k) => parsed[k].length)
+    .map((k) => `${parsed[k].length} ${k}`);
+  for (const t of TEXT_KEYS) if (parsed[t].trim()) parts.push(t === 'generalProse' ? 'prose style' : 'AI instructions');
+  return parts.length ? parts.join(', ') : 'no content found';
+}
+
+function askImportMode(parsed) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const mm = modal({
+      title: 'Import config bible',
+      body: el('p', {
+        text: `File contains: ${importSummary(parsed)}. Replace the current bible, or merge (append) into it?`,
+        style: { color: 'var(--muted)', 'font-size': '.88rem', 'line-height': '1.6' },
+      }),
+      footer: [
+        el('button', { class: 'btn', text: 'Cancel', onclick: () => { settled = true; mm.close(); resolve(null); } }),
+        el('button', { class: 'btn', text: 'Merge (append)', onclick: () => { settled = true; mm.close(); resolve('merge'); } }),
+        el('button', { class: 'btn btn-primary', text: 'Replace', onclick: () => { settled = true; mm.close(); resolve('replace'); } }),
+      ],
+      onClose: () => { if (!settled) resolve(null); },
+    });
+  });
+}
+
+function applyImport(mode, parsed) {
+  if (mode === 'replace') {
+    cfg = normalize(parsed);
+  } else {
+    for (const k of LIST_KEYS) cfg[k] = (cfg[k] || []).concat(parsed[k]);
+    for (const t of TEXT_KEYS) {
+      if (parsed[t].trim()) {
+        cfg[t] = cfg[t].trim() ? cfg[t].trim() + '\n\n' + parsed[t].trim() : parsed[t];
+      }
+    }
+  }
+  expanded = new Set();
+  scheduleSave();
+  renderRail();
+  renderContent();
+  toast(`Bible imported (${mode}).`, 'success');
+}
+
+async function handleImportFile(file) {
+  const text = await file.text();
+  if (!/^#\s*Project Bible/im.test(text.slice(0, 300))) {
+    toast('That file does not look like an exported Weaver config bible.', 'danger');
+    return;
+  }
+  const parsed = parseBibleText(text);
+  const mode = await askImportMode(parsed);
+  if (!mode) return;
+  applyImport(mode, parsed);
 }
 
 /* ---------- Render: rail ---------- */
@@ -314,6 +441,20 @@ export function openConfigBible() {
 
   savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
 
+  const fileInput = el('input', {
+    type: 'file', accept: '.txt,text/plain', hidden: true,
+    onchange: (e) => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (f) handleImportFile(f);
+    },
+  });
+  const importBtn = el('button', {
+    class: 'btn btn-sm',
+    title: 'Import an exported config bible (.txt)',
+    onclick: () => fileInput.click(),
+  }, [icon('upload', 'icon-sm'), 'Import']);
+
   m = modal({
     title: 'Project Bible',
     size: 'lg',
@@ -342,6 +483,8 @@ export function openConfigBible() {
           ? 'Edits persist across every book in this series.'
           : 'Edits apply to this project only.',
       }),
+      importBtn,
+      fileInput,
     ]),
     el('div', { class: 'cb-wrap' }, [railEl, contentEl])
   );
