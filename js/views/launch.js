@@ -53,9 +53,13 @@ function enterProject(id) {
 }
 
 async function askDelete(project) {
+  const words = project.wordCount || 0;
+  const seriesNote = project.seriesName
+    ? ` It belongs to the series "${project.seriesName}" — if this is the last book in it, the shared series bible will also be removed.`
+    : '';
   const ok = await confirmDialog({
     title: 'Delete project',
-    message: `"${project.name}" — its manuscript, main novel, and config bible will be permanently removed.`,
+    message: `"${project.name}" (${words.toLocaleString()} words in Main Novel) will be permanently removed, including its manuscript and config bible.${seriesNote} Tip: use Export first if you want a local copy.`,
     confirmLabel: 'Delete',
     danger: true,
   });
