@@ -1,15 +1,16 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   CONSOLIDATED (Steps 11-14 + 21 + 24 + 25 + scroll fixes).
+   CONSOLIDATED (Steps 11-14 + 21 + 24 + 25 + final scroll/dup fixes).
    - Editable, virtualized (spacer) windowed rendering.
    - Sticky bundle: last highlight persists as Scribe context;
      captured bulletproof via sel.toString().
    - Resume: reopens at saved window position (viewStart).
-   - Accept-as-is: operates on the SELECTION only; move-mode cuts.
-   - Sticky-bottom scroll + one-page bottom runway.
+   - Accept-as-is: operates on the SELECTION only; move-mode cuts;
+     includes duplicate-detection guard.
+   - Sticky-bottom scroll (rAF pinned) + one-page bottom runway.
    ========================================================= */
 
-import { el, clear, toast } from '../utils/dom.js';
+import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
 import {
   buildBlockIndex, windowBounds, spliceBlocks, headingPrefix,
@@ -39,6 +40,7 @@ let selTick = false;
 
 let topSpacer = null;
 let bottomSpacer = null;
+let isStickyBottom = true; // Tracks if user is scrolled to the bottom
 
 export function getManuscriptSelection() { return selectionInfo; }
 
@@ -72,7 +74,7 @@ export function mountManuscript(panel) {
   actions.insertBefore(tb, expandBtn);
 
   blocksWrap.addEventListener('input', () => {
-    selectionInfo = null;      // edits invalidate the bundle
+    selectionInfo = null;
     clearBundledBlocks();
     scheduleSync();
   });
@@ -379,8 +381,6 @@ function onSelectionChange() {
 
   if (a && blocksWrap.contains(a)) refreshToolbar(a);
 
-  // STICKY: collapsed selections (e.g. clicking the Scribe input) and
-  // selections outside the manuscript do NOT clear the bundle/tint.
   if (sel.isCollapsed || !inManuscript) return;
 
   clearBundledBlocks();
@@ -391,7 +391,6 @@ function onSelectionChange() {
     }
   }
 
-  // Bulletproof capture: store exactly what the user sees selected.
   const text = sel.toString();
   selectionInfo = text ? { text } : null;
 }
@@ -427,7 +426,10 @@ export function flushManuscriptSync() {
 function onScroll() {
   if (!bodyEl || !index.length) return;
   const { scrollTop, scrollHeight, clientHeight } = bodyEl;
-  const atBottom = scrollTop + clientHeight >= scrollHeight - 4;
+
+  // If we are within 30px of the bottom, we consider the user "sticky" at the bottom
+  isStickyBottom = (scrollTop + clientHeight >= scrollHeight - 30);
+
   const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
   const nearTop = scrollTop <= SCROLL_THRESHOLD;
 
@@ -437,7 +439,6 @@ function onScroll() {
     if (end > mounted.to) {
       appendBlocks(mounted.to, end);
       pruneTop();
-      if (atBottom) bodyEl.scrollTop = bodyEl.scrollHeight; // sticky: thumb stays at bottom
     }
   }
 
@@ -453,6 +454,14 @@ function onScroll() {
       prependBlocks(start, mounted.from);
       pruneBottom();
     }
+  }
+
+  // If the user was at the bottom before DOM mutations, pin them to the new bottom
+  // using rAF so it happens AFTER the browser calculates the new scrollHeight.
+  if (isStickyBottom) {
+    requestAnimationFrame(() => {
+      bodyEl.scrollTop = bodyEl.scrollHeight;
+    });
   }
 }
 
@@ -497,14 +506,13 @@ function pruneBottom() {
   mounted.to -= removeCount;
 }
 
-/* One empty page of runway below the last text, so the writer can
-   scroll the final line to the top and out of view before max scroll. */
+/* One empty page of runway below the last text */
 function updateRunway() {
   if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
 }
 
-/* ---------- Accept as Is (selection-based) ---------- */
-export function acceptAsIs() {
+/* ---------- Accept as Is (selection-based + duplicate guard) ---------- */
+export async function acceptAsIs() {
   flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
@@ -517,6 +525,18 @@ export function acceptAsIs() {
   }
 
   const currentNovel = project.mainNovel.text || '';
+
+  // DUPLICATE GUARD
+  if (currentNovel.includes(textToPush)) {
+    const ok = await confirmDialog({
+      title: 'Duplicate text detected',
+      message: 'This exact text is already in the Main Novel. Add it again anyway?',
+      confirmLabel: 'Add anyway',
+      danger: false,
+    });
+    if (!ok) return;
+  }
+
   project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
 
   if (getState().settings.general.acceptMovesText) {
@@ -538,7 +558,7 @@ export function acceptAsIs() {
 
 /* ---------- Bundle lifecycle ---------- */
 export function consumeManuscriptSelection() {
-  selectionInfo = null; // gold tint remains as tracking
+  selectionInfo = null;
 }
 
 export function clearManuscriptSelection() {
