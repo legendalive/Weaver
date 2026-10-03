@@ -236,7 +236,8 @@ const DEFAULT_SETTINGS = {
     fontScale: 1.0,
     sentencesPerPage: 15,
     autosaveInterval: 3000,
-    panelSizes: [33.4, 33.3, 33.3],
+        panelSizes: [33.4, 33.3, 33.3],
+    acceptMovesText: false,
   },
   ai: {
     providers: {
@@ -245,8 +246,10 @@ const DEFAULT_SETTINGS = {
       gemini: { key: '', enabled: false },
       mistral: { key: '', enabled: false },
     },
-    fallbackOrder: ['groq', 'openrouter', 'gemini', 'mistral'],
+        fallbackOrder: ['gemini', 'openrouter', 'groq', 'mistral'],
     activeModel: null,
+    temperature: 0.85,
+    maxTokens: 2048,
   },
 };
 
