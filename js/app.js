@@ -1,7 +1,7 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 21: boot + routing + resume + Scribe initialization.
+   Step 22: boot + routing + resume + Scribe + AI Output actions.
    ========================================================= */
 
 import { getState, subscribe, openProject } from './core/state.js';
@@ -10,8 +10,9 @@ import { initLaunch } from './views/launch.js';
 import { initWizard } from './views/wizard.js';
 import { initWorkspace } from './views/workspace.js';
 import { initScribe } from './features/scribe.js';
+import { initAiOutput } from './panels/ai-output.js';
 
-const APP_VERSION = '0.7.0';
+const APP_VERSION = '0.8.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -37,6 +38,7 @@ function boot() {
   initWizard();
   initWorkspace();
   initScribe();
+  initAiOutput();
 
   const activeId = getActiveProject();
   if (activeId) {
@@ -46,7 +48,7 @@ function boot() {
   }
 
   console.info(
-    `%cWeaver v${APP_VERSION}%c scribe online`,
+    `%cWeaver v${APP_VERSION}%c ai output actions online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
