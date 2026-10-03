@@ -499,19 +499,29 @@ export function acceptAsIs() {
   flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
-  const nodes = getBlockNodes();
-  if (!nodes.length) { toast('Nothing to accept.', 'info'); return; }
 
-  const textToPush = nodes.map(nodeToString).join('\n');
+  // Accept operates on the SELECTION only.
+  const sel = selectionInfo;
+  const textToPush = sel && sel.text ? sel.text.trim() : '';
+  if (!textToPush) {
+    toast('Select the text you want to accept first.', 'info');
+    return;
+  }
+
   const currentNovel = project.mainNovel.text || '';
-    project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
+  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
 
   if (getState().settings.general.acceptMovesText) {
-    project.manuscript.text = spliceBlocks(
-      project.manuscript.text, index, mounted.from, Math.min(mounted.to, index.length), []
-    );
-    project.manuscript.viewStart = Math.max(0, mounted.from - 1);
-    renderManuscript();
+    const idx = project.manuscript.text.indexOf(textToPush);
+    if (idx >= 0) {
+      const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + textToPush.length))
+        .replace(/\n{3,}/g, '\n\n').trim();
+      project.manuscript.text = cut;
+      clearManuscriptSelection();
+      renderManuscript();
+    } else {
+      toast('Selection no longer matches manuscript text — accepted as copy.', 'info');
+    }
   }
 
   touchProject({ novel: true });
