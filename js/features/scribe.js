@@ -44,7 +44,7 @@ function ensureStyle() {
     document.head.appendChild(s);
   }
 }
-
+const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
 const BIBLE_BUDGET = 6000;  // chars (~1.5k tokens) hard cap
 const CONTEXT_CAP = 8000;   // chars of highlighted text
 const SECTION_TAGS = {
@@ -83,9 +83,9 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
     for (const e of (cfg[key] || [])) {
       const name = (e.name || '').trim();
       const nameLc = name.toLowerCase();
-      const hit = nameLc && (
-        ctx.includes(nameLc) ||
-        nameLc.split(/\s+/).some((w) => w.length > 2 && wordSet.has(w))
+            const hit = nameLc && (
+        (nameLc.length > 3 && ctx.includes(nameLc)) ||
+        nameLc.split(/\s+/).some((w) => w.length > 3 && !STOP_WORDS.has(w) && wordSet.has(w))
       );
       if (hit) matched.push(e);
       else if (name) roster.push(`${SECTION_TAGS[key]}:${name}`);
