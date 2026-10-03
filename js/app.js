@@ -1,7 +1,7 @@
 /* =========================================================
    Weaver — js/app.js
    Application entry point.
-   Step 22: boot + routing + resume + Scribe + AI Output actions.
+   Step 25: boot + routing + resume + live preferences pass.
    ========================================================= */
 
 import { getState, subscribe, openProject } from './core/state.js';
@@ -11,8 +11,10 @@ import { initWizard } from './views/wizard.js';
 import { initWorkspace } from './views/workspace.js';
 import { initScribe } from './features/scribe.js';
 import { initAiOutput } from './panels/ai-output.js';
+import { renderManuscript } from './panels/manuscript.js';
+import { renderMainNovel } from './panels/main-novel.js';
 
-const APP_VERSION = '0.8.0';
+const APP_VERSION = '0.9.0';
 const VIEWS = ['launch', 'workspace'];
 
 function switchView(name) {
@@ -24,6 +26,13 @@ function switchView(name) {
   return true;
 }
 
+function applyFontScale() {
+  const fs = getState().settings.general.fontScale ?? 1;
+  document.documentElement.style.setProperty('--font-scale', String(fs));
+}
+
+let settingsTimer = null;
+
 function boot() {
   const status = document.getElementById('boot-status');
   if (status) {
@@ -32,6 +41,16 @@ function boot() {
 
   subscribe((state, change) => {
     if (change.view) switchView(state.view);
+    if (change.settings) {
+      applyFontScale();
+      clearTimeout(settingsTimer);
+      settingsTimer = setTimeout(() => {
+        if (getState().view === 'workspace' && getState().project) {
+          renderManuscript();
+          renderMainNovel();
+        }
+      }, 500);
+    }
   });
 
   initLaunch();
@@ -39,6 +58,8 @@ function boot() {
   initWorkspace();
   initScribe();
   initAiOutput();
+
+  applyFontScale();
 
   const activeId = getActiveProject();
   if (activeId) {
@@ -48,7 +69,7 @@ function boot() {
   }
 
   console.info(
-    `%cWeaver v${APP_VERSION}%c ai output actions online`,
+    `%cWeaver v${APP_VERSION}%c preferences live`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
