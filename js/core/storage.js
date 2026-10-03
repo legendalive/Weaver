@@ -1,8 +1,8 @@
 /* =========================================================
    Weaver — js/core/storage.js
-   Step 4 + Step 7.5: namespaced localStorage engine.
+   Step 4 + 7.5 + 9 + 24: namespaced localStorage engine.
    Projects, series registry (shared config bible per series),
-   settings, and the "last active" resume state.
+   settings, resume state, and orphan-safe deletion.
    ========================================================= */
 
 const PREFIX = 'weaver_';
@@ -73,12 +73,12 @@ function createBlankProject({ name = 'Untitled Project', scope = 'standalone', s
     name,
     scope,        // 'standalone' | 'series'
     source,       // 'scratch' | 'upload'
-    seriesId: null,   // set for series installments
+    seriesId: null,
     seriesName: null,
-    bookTitle: null,  // series books: the book's own title
+    bookTitle: null,
     createdAt: now,
     updatedAt: now,
-    manuscript: { text: '', viewIndex: 0 },
+    manuscript: { text: '', viewIndex: 0, viewStart: 0 },
     mainNovel: { text: '' },
     configBible: blankConfig(), // used only when seriesId is null
     configInitialized: false,
@@ -131,6 +131,8 @@ export function saveProject(project) {
   return true;
 }
 
+/* Step 24: orphan-safe deletion — removing the last book of a
+   series also removes the series registry entry and its bible. */
 export function deleteProject(id) {
   remove(`project_data_${id}`);
   remove(`project_meta_${id}`);
@@ -138,12 +140,17 @@ export function deleteProject(id) {
   const ids = read('project_ids', []);
   write('project_ids', ids.filter((x) => x !== id));
 
-  // Unlink from any series
   for (const sid of read('series_ids', [])) {
     const meta = read(`series_meta_${sid}`);
     if (meta && meta.bookIds.includes(id)) {
       meta.bookIds = meta.bookIds.filter((b) => b !== id);
-      write(`series_meta_${sid}`, meta);
+      if (meta.bookIds.length === 0) {
+        remove(`series_meta_${sid}`);
+        remove(`series_config_${sid}`);
+        write('series_ids', read('series_ids', []).filter((x) => x !== sid));
+      } else {
+        write(`series_meta_${sid}`, meta);
+      }
     }
   }
 
@@ -199,7 +206,7 @@ export function saveSeriesConfig(seriesId, config) {
 }
 
 /* Config resolution: series books share the series bible;
-   standalone books use their own. Steps 15/21/23 use these. */
+   standalone books use their own. */
 export function getEffectiveConfig(project) {
   if (project && project.seriesId) return getSeriesConfig(project.seriesId);
   return (project && project.configBible) || blankConfig();
@@ -224,7 +231,7 @@ export function getActiveProject() {
 
 /* ---------- Settings ---------- */
 const DEFAULT_SETTINGS = {
-    general: {
+  general: {
     theme: 'charcoal-gold',
     fontScale: 1.0,
     sentencesPerPage: 15,
