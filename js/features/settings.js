@@ -1,9 +1,9 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   Step 20: Settings Modal.
-   - AI Tab: 4-tier provider management (paste key, test, enable).
-   - General Tab: QoL tweaks (paging, autosave, font scale).
-   - Auto-saves to state/localStorage on every change.
+   Step 20 + Step 25: Settings Modal.
+   - AI Tab: providers (key/test/enable) + generation controls
+     (temperature, max tokens).
+   - General Tab: paging, autosave, font scale, accept move-mode.
    ========================================================= */
 
 import { el, clear, modal, toast } from '../utils/dom.js';
@@ -42,6 +42,8 @@ const CSS = `
 .set-order{display:flex;gap:6px;flex-wrap:wrap;}
 .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;}
 .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;}
+.set-range-row{display:flex;align-items:center;gap:10px;}
+.set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);}
 @media (max-width:640px){
   .set-wrap{flex-direction:column;}
   .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;}
@@ -80,25 +82,55 @@ function renderAiTab(contentEl, settings) {
     }))
   ]));
 
+  /* Generation controls */
+  const tempVal = el('span', { class: 'badge', text: String(settings.ai.temperature ?? 0.85) });
+  contentEl.appendChild(el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Generation' }),
+    el('div', { class: 'set-field' }, [
+      el('label', { text: 'Temperature (0 = precise, 1 = inventive)' }),
+      el('div', { class: 'set-range-row' }, [
+        el('input', {
+          type: 'range', min: '0', max: '1', step: '0.05',
+          value: String(settings.ai.temperature ?? 0.85),
+          oninput: (e) => {
+            tempVal.textContent = e.target.value;
+            saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); });
+          },
+        }),
+        tempVal,
+      ]),
+    ]),
+    el('div', { class: 'set-field' }, [
+      el('label', { text: 'Max tokens per generation' }),
+      el('input', {
+        type: 'number', class: 'input', min: '256', max: '8192', step: '256',
+        value: String(settings.ai.maxTokens ?? 2048),
+        oninput: (e) => saveAndFlash(s => {
+          s.ai.maxTokens = Math.max(256, Math.min(8192, parseInt(e.target.value) || 2048));
+        }),
+      }),
+    ]),
+  ]));
+
   for (const p of PROVIDERS) {
     const pCfg = settings.ai.providers[p.id];
-    
-    const input = el('input', { 
-      class: 'input', 
-      type: 'password', 
-      placeholder: 'Paste API key...', 
+
+    const input = el('input', {
+      class: 'input',
+      type: 'password',
+      placeholder: 'Paste API key...',
       value: pCfg.key || '',
       oninput: (e) => {
         saveAndFlash(s => { s.ai.providers[p.id].key = e.target.value; });
         statusBadge.textContent = 'untested';
         statusBadge.className = 'badge';
-      }
+      },
     });
-    
+
     const statusBadge = el('span', { class: 'badge', text: pCfg.key ? 'saved' : 'untested' });
-    
-    const testBtn = el('button', { 
-      class: 'btn btn-sm', 
+
+    const testBtn = el('button', {
+      class: 'btn btn-sm',
       text: 'Test Connection',
       onclick: async () => {
         testBtn.disabled = true;
@@ -115,25 +147,25 @@ function renderAiTab(contentEl, settings) {
           statusBadge.className = 'badge badge-danger';
           toast(`${p.label} failed: ${res.message}`, 'danger');
         }
-      }
+      },
     });
-    
+
     const toggleLabel = el('label', { class: 'set-toggle' }, [
-      el('input', { 
-        type: 'checkbox', 
+      el('input', {
+        type: 'checkbox',
         checked: pCfg.enabled,
-        onchange: (e) => saveAndFlash(s => { s.ai.providers[p.id].enabled = e.target.checked; })
+        onchange: (e) => saveAndFlash(s => { s.ai.providers[p.id].enabled = e.target.checked; }),
       }),
-      el('span', { text: 'Enable for fallback chain' })
+      el('span', { text: 'Enable for fallback chain' }),
     ]);
-    
+
     contentEl.appendChild(el('div', { class: 'set-card' }, [
       el('div', { class: 'set-card-head' }, [
         el('h4', { text: p.label }),
         el('a', { href: p.keyUrl, target: '_blank', class: 'btn btn-ghost btn-sm', title: 'Get API Key' }, [icon('key', 'icon-sm'), 'Get Key']),
       ]),
       el('div', { class: 'set-row' }, [input, testBtn]),
-      el('div', { class: 'set-row' }, [statusBadge, toggleLabel])
+      el('div', { class: 'set-row' }, [statusBadge, toggleLabel]),
     ]));
   }
 }
@@ -142,42 +174,50 @@ function renderAiTab(contentEl, settings) {
 function renderGeneralTab(contentEl, settings) {
   clear(contentEl);
   const g = settings.general;
-  
+
   contentEl.append(
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Editor Behavior' }),
       el('div', { class: 'set-field' }, [
         el('label', { text: 'Sentences per page (Manuscript window)' }),
-        el('input', { 
+        el('input', {
           type: 'number', class: 'input', min: '5', max: '50', value: String(g.sentencesPerPage),
-          oninput: (e) => saveAndFlash(s => { s.general.sentencesPerPage = Math.max(5, parseInt(e.target.value) || 15); })
-        })
+          oninput: (e) => saveAndFlash(s => { s.general.sentencesPerPage = Math.max(5, parseInt(e.target.value) || 15); }),
+        }),
       ]),
       el('div', { class: 'set-field' }, [
         el('label', { text: 'Autosave delay (milliseconds)' }),
-        el('input', { 
+        el('input', {
           type: 'number', class: 'input', min: '500', max: '5000', step: '500', value: String(g.autosaveInterval),
-          oninput: (e) => saveAndFlash(s => { s.general.autosaveInterval = Math.max(500, parseInt(e.target.value) || 3000); })
-        })
-      ])
+          oninput: (e) => saveAndFlash(s => { s.general.autosaveInterval = Math.max(500, parseInt(e.target.value) || 3000); }),
+        }),
+      ]),
+      el('label', { class: 'set-toggle' }, [
+        el('input', {
+          type: 'checkbox',
+          checked: Boolean(g.acceptMovesText),
+          onchange: (e) => saveAndFlash(s => { s.general.acceptMovesText = e.target.checked; }),
+        }),
+        el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
+      ]),
     ]),
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Aesthetics' }),
       el('div', { class: 'set-field' }, [
         el('label', { text: 'Font Scale' }),
-        el('select', { 
+        el('select', {
           class: 'select',
           onchange: (e) => {
             saveAndFlash(s => { s.general.fontScale = parseFloat(e.target.value); });
             document.documentElement.style.setProperty('--font-scale', e.target.value);
-          }
+          },
         }, [
           el('option', { value: '0.9', text: 'Small (0.9x)', selected: g.fontScale === 0.9 }),
           el('option', { value: '1.0', text: 'Default (1.0x)', selected: g.fontScale === 1.0 || !g.fontScale }),
           el('option', { value: '1.1', text: 'Large (1.1x)', selected: g.fontScale === 1.1 }),
           el('option', { value: '1.2', text: 'Extra Large (1.2x)', selected: g.fontScale === 1.2 }),
-        ])
-      ])
+        ]),
+      ]),
     ])
   );
 }
@@ -187,40 +227,40 @@ export function openSettings() {
   ensureStyle();
   const state = getState();
   let activeTab = 'ai';
-  
+
   const railEl = el('div', { class: 'set-rail' });
   const contentEl = el('div', { class: 'set-content' });
   savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
-  
+
   function renderRail() {
     clear(railEl);
     const tabs = [
       { id: 'ai', label: 'AI Providers', icon: 'sparkles' },
-      { id: 'general', label: 'General', icon: 'gear' }
+      { id: 'general', label: 'General', icon: 'gear' },
     ];
     for (const tab of tabs) {
       railEl.appendChild(el('button', {
         class: 'set-rail-btn' + (activeTab === tab.id ? ' is-selected' : ''),
-        onclick: () => { activeTab = tab.id; renderRail(); renderContent(); }
+        onclick: () => { activeTab = tab.id; renderRail(); renderContent(); },
       }, [icon(tab.icon, 'icon-sm'), el('span', { text: tab.label })]));
     }
   }
-  
+
   function renderContent() {
     if (activeTab === 'ai') renderAiTab(contentEl, state.settings);
     else renderGeneralTab(contentEl, state.settings);
   }
-  
+
   const m = modal({
     title: 'Settings',
     size: 'lg',
     body: [
       el('div', { class: 'set-scope-row' }, [savedBadge]),
-      el('div', { class: 'set-wrap' }, [railEl, contentEl])
+      el('div', { class: 'set-wrap' }, [railEl, contentEl]),
     ],
-    footer: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() })]
+    footer: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() })],
   });
-  
+
   renderRail();
   renderContent();
 }
