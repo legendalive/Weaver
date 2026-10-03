@@ -1,10 +1,14 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21 + patches: Scribe — prompt bundling, token-efficient
-   bible compiler, live streaming, context chip, HARD RULES.
-   - Bundle is consumed on send (gold tint remains as tracking).
-   - Gold chip beside the input shows bundled char count + clear.
-   - System prompt carries hardcoded relevance rules.
+   Step 21 + patches (v3): Scribe context contract.
+   - SOURCE TEXT: sticky highlight bundle; persists across sends;
+     replaced by new highlight; cleared via chip X / edit / switch.
+   - PREVIOUS GENERATION: last completed output, so follow-up
+     instructions chain instead of asking for text again.
+   - Targeting HARD RULES keep output relevant; bible is private
+     reference only.
+   - Gold chip = what is CURRENTLY bundled (truth); gold tint =
+     tracking mark for text already sent/selected.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -13,7 +17,6 @@ import { getState, subscribe } from '../core/state.js';
 import { getEffectiveConfig } from '../core/storage.js';
 import {
   getManuscriptSelection,
-  consumeManuscriptSelection,
   clearManuscriptSelection,
 } from '../panels/manuscript.js';
 import { streamChatWithFallback } from '../ai/manager.js';
@@ -53,8 +56,9 @@ function ensureStyle() {
   }
 }
 
-const BIBLE_BUDGET = 6000;  // chars (~1.5k tokens) hard cap
-const CONTEXT_CAP = 8000;   // chars of highlighted text
+const BIBLE_BUDGET = 6000;
+const CONTEXT_CAP = 8000;
+const PRIOR_CAP = 4000;
 
 const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
 
@@ -113,25 +117,30 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
 }
 
 /* ---------- Hardened prompt construction ---------- */
-function buildMessages(compiled, context, prompt) {
+function buildMessages(compiled, context, prompt, prior) {
   let system =
     'You are Scribe, an elite ghostwriter collaborating on a novel.\n' +
     'HARD RULES (override everything else):\n' +
-    '1. Perform ONLY the task stated in the TASK INSTRUCTION block. Never add unrelated scenes, lore, or commentary.\n' +
-    '2. If a SOURCE TEXT block is present, operate on THAT text only. Do not rewrite, repeat, or summarize any other text.\n' +
-    '3. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
-    '4. Never continue the story beyond the exact scope of the instruction.\n' +
-    '5. If the instruction requires source text but none is provided, reply with ONE short clarifying question and nothing else.\n' +
-    '6. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
+    '1. Perform ONLY the task stated in the TASK INSTRUCTION. Never add unrelated scenes, lore, or commentary.\n' +
+    '2. PRECEDENCE for what to operate on: (a) if the instruction is a follow-up transformation of your PREVIOUS GENERATION ("make it shorter", "now in past tense", "change the name in it"), transform PREVIOUS GENERATION; (b) else if the instruction targets the SOURCE TEXT ("rewrite it", "translate this", "fix the dialogue in the passage"), transform SOURCE TEXT; (c) otherwise generate entirely new content.\n' +
+    '3. Follow-up transformations are instructions like "make it shorter/longer", "rewrite it", "now do X to it". Instructions requesting NEW content ("continue", "write a scene", "describe", "add") are NOT follow-ups — generate freely and do NOT rewrite, repeat, or summarize SOURCE TEXT or PREVIOUS GENERATION.\n' +
+    '4. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
+    '5. Never continue the story beyond the exact scope of the instruction.\n' +
+    '6. ONLY if the instruction transforms "it/this/the passage/the highlighted text" AND neither SOURCE TEXT nor PREVIOUS GENERATION is present, reply with ONE short clarifying question and nothing else.\n' +
+    '7. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
   if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
 
   const parts = [`TASK INSTRUCTION:\n${prompt}`];
-  if (context) {
-    parts.push(`SOURCE TEXT TO OPERATE ON (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
-    parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above. Output only the result.');
-  } else {
-    parts.push('No SOURCE TEXT is provided with this request.');
+  if (prior) {
+    parts.push(`PREVIOUS GENERATION (your last output in this session):\n"""\n${cap(prior, PRIOR_CAP)}\n"""`);
   }
+  if (context) {
+    parts.push(`SOURCE TEXT the user is currently working on (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
+  }
+  if (!prior && !context) {
+    parts.push('No SOURCE TEXT or PREVIOUS GENERATION is provided with this request.');
+  }
+  parts.push('Apply the precedence in HARD RULE 2. Output only the result.');
   return [
     { role: 'system', content: system },
     { role: 'user', content: parts.join('\n\n') },
@@ -147,7 +156,15 @@ function updateChip() {
 }
 
 /* ---------- AI Output blocks ---------- */
-function createBlock(prompt, context) {
+function lastCompletedText(excludeBlock) {
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const b = blocks[i];
+    if (b !== excludeBlock && b.done && (b.full || '').trim()) return b.full;
+  }
+  return '';
+}
+
+function createBlock(prompt, context, priorText) {
   const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
   if (!body) return null;
   const empty = body.querySelector('.empty-state');
@@ -166,7 +183,8 @@ function createBlock(prompt, context) {
   const block = {
     id: 'b' + Date.now() + Math.random().toString(36).slice(2, 6),
     el: blockEl, badge, textEl, stopBtn,
-    prompt, context, provider: null, full: '', controller: null, done: false,
+    prompt, context, priorText: priorText || '',
+    provider: null, full: '', controller: null, done: false,
   };
   stopBtn.onclick = () => { if (block.controller) block.controller.abort(); };
   blocks.push(block);
@@ -178,7 +196,7 @@ function streamInto(block) {
   if (!project) return;
   const cfg = getEffectiveConfig(project);
   const compiled = compileBible(cfg, `${block.context} ${block.prompt}`);
-  const messages = buildMessages(compiled, block.context, block.prompt);
+  const messages = buildMessages(compiled, block.context, block.prompt, block.priorText);
 
   block.controller = new AbortController();
   block.done = false;
@@ -227,21 +245,27 @@ export function runScribePrompt(prompt) {
   if (!getState().project) return;
   const sel = getManuscriptSelection();
   const context = sel ? sel.text : '';
-  const block = createBlock(p, context);
+  const prior = lastCompletedText(null);
+  const block = createBlock(p, context, prior);
   if (!block) return;
-  consumeManuscriptSelection(); // consumed by this send; gold tint stays as tracking
+  // NOTE: the bundle is NOT consumed — it persists across sends so
+  // multi-turn work on one passage works. The chip shows the truth;
+  // clear it via the chip X, a new highlight, an edit, or a switch.
   updateChip();
   streamInto(block);
 }
 
-export function rerunBlock(block) { streamInto(block); }
+export function rerunBlock(block) {
+  block.priorText = block.full || ''; // Rewrite: fresh attempt vs its own last try
+  streamInto(block);
+}
 
 /* ---------- Prompt bar (desktop) + FAB/sheet (mobile) ---------- */
 function buildBar() {
   chipText = el('span', { text: '' });
   chip = el('button', {
     class: 'scribe-chip', hidden: true,
-    title: 'Highlighted text bundled with your prompt — click to clear',
+    title: 'Bundled source text — persists across sends until cleared or replaced. Click to clear.',
     onclick: () => { clearManuscriptSelection(); updateChip(); },
   }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
 
@@ -274,7 +298,7 @@ function openPromptSheet() {
   const hint = el('p', {
     class: 'scribe-sheet-hint',
     text: selAtOpen
-      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
+      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text. It stays bundled for follow-up prompts until you clear it.`
       : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
   });
   const clearBtn = el('button', {
