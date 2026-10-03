@@ -1,9 +1,9 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-22: workspace shell — top bar, three-panel skeleton,
+   Step 8-23: workspace shell — top bar, three-panel skeleton,
    expand/collapse, Library exit, resize binding, Manuscript +
    Main Novel mounting, Hierarchy + Config + Settings wiring,
-   live AI Output actions.
+   live AI Output actions, and Export.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -16,6 +16,7 @@ import { toggleHierarchyDrawer } from '../features/hierarchy.js';
 import { openConfigBible } from '../features/config-bible.js';
 import { openSettings } from '../features/settings.js';
 import { acceptAiBlock, rewriteAiBlock, discardAiBlock } from '../panels/ai-output.js';
+import { exportProject } from '../features/export.js';
 
 let root = null;
 let refs = {};
@@ -157,7 +158,7 @@ export function renderWorkspace() {
         'aria-label': 'Library',
         onclick: () => { flushManuscriptSync(); closeProject(); },
       }, [icon('library')]),
-      topBtn('export', 'download', 'Export', () => toast('Export arrives in Step 23.', 'info')),
+      topBtn('export', 'download', 'Export', () => exportProject()),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
       document.querySelector('.scribe-bar') || scribeBarPlaceholder(),
     ]),
