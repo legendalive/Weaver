@@ -524,3 +524,12 @@ export function acceptAsIs() {
   touchProject({ novel: true });
   toast('Accepted to Main Novel.', 'success');
 }
+/* ---------- Bundle lifecycle ---------- */
+export function consumeManuscriptSelection() {
+  selectionInfo = null; // bundle consumed by a send; gold tint remains as tracking
+}
+
+export function clearManuscriptSelection() {
+  selectionInfo = null;
+  clearBundledBlocks();
+}
