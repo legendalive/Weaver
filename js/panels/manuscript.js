@@ -89,7 +89,7 @@ export function mountManuscript(panel) {
 }
 
 /* ---------- Render (windowed) ---------- */
-export function renderManuscript(startBlock = 0) {
+export function renderManuscript(startBlock = null) {
   if (!blocksWrap) return;
   clearTimeout(syncTimer);
   syncTimer = null;
@@ -106,7 +106,8 @@ export function renderManuscript(startBlock = 0) {
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
-  const start = Math.max(0, Math.min(startBlock, index.length - 1));
+    const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
+  const start = Math.max(0, Math.min(resume, index.length - 1));
   const { end } = windowBounds(index, start, maxSent);
   mountRange(start, Math.max(end, start + 1), text);
   bodyEl.scrollTop = 0;
@@ -422,8 +423,9 @@ export function flushManuscriptSync() {
   const nodes = getBlockNodes();
   if (!nodes.length) return;
 
-  const strings = nodes.map(nodeToString);
+   const strings = nodes.map(nodeToString);
   const oldText = project.manuscript.text || '';
+  project.manuscript.viewStart = mounted.from;
   const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, index.length), strings);
   if (newText === oldText) return;
 
