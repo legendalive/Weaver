@@ -26,6 +26,8 @@ let novelBound = false;
 
 let nIndex = [];
 let nMounted = { from: 0, to: 0 };
+let lastNovelText = null;
+let lastNovelProjectId = null;
 let topSpacer = null;
 let bottomSpacer = null;
 
@@ -58,14 +60,26 @@ export function mountMainNovel(panel) {
 }
 
 /* ---------- Render (windowed, read-only) ---------- */
-export function renderMainNovel(startBlock = 0) {
+export function renderMainNovel(startBlock = null) {
   if (!wrapEl) return;
+
+  const prevText = lastNovelText;
+  const prevScroll = bodyEl.scrollTop;
+  const prevFrom = nMounted.from;
+
   clearNodes();
   topSpacer.style.height = '0px';
   bottomSpacer.style.height = '0px';
 
   const project = getState().project;
-  if (!project) return;
+  if (!project) { lastNovelText = null; lastNovelProjectId = null; return; }
+
+  // A different project means a fresh document: forget prior state.
+  if (project.id !== lastNovelProjectId) {
+    lastNovelProjectId = project.id;
+    lastNovelText = null;
+  }
+
   const text = project.mainNovel.text || '';
   if (wordCountEl) wordCountEl.textContent = `${wordCount(text).toLocaleString()} words`;
 
@@ -79,17 +93,47 @@ export function renderMainNovel(startBlock = 0) {
       }),
     ]));
     nMounted = { from: 0, to: 0 };
+    lastNovelText = text;
+    bodyEl.scrollTop = 0;
     return;
   }
 
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
-  const start = Math.max(0, Math.min(startBlock, nIndex.length - 1));
+  let start;
+  let scrollMode;
+
+  if (startBlock != null) {
+    // Explicit jump (Hierarchy): go there, from the top of the window.
+    start = Math.max(0, Math.min(startBlock, nIndex.length - 1));
+    scrollMode = 'top';
+  } else if (lastNovelText === null) {
+    // First render of this project.
+    start = 0;
+    scrollMode = 'top';
+  } else if (text !== prevText && text.startsWith(prevText)) {
+    // APPEND detected (Accept / AI Accept): show the newly added tail.
+    const appendedFrom = Math.min(buildBlockIndex(prevText).length, nIndex.length - 1);
+    let s = appendedFrom;
+    let budget = 0;
+    while (s > 0 && budget < maxSent) { s--; budget += nIndex[s].sentences; }
+    start = s;
+    scrollMode = 'bottom';
+  } else {
+    // Removal or other edit (Recheck): keep the reader in place.
+    start = Math.min(prevFrom, nIndex.length - 1);
+    scrollMode = 'preserve';
+  }
+
   const { end } = windowBounds(nIndex, start, maxSent);
   const to = Math.max(end, start + 1);
   const { frag } = buildFragment(start, to, text);
   bottomSpacer.before(frag);
   nMounted = { from: start, to };
-  bodyEl.scrollTop = 0;
+  lastNovelText = text;
+
+  if (scrollMode === 'bottom') bodyEl.scrollTop = bodyEl.scrollHeight;
+  else if (scrollMode === 'preserve') bodyEl.scrollTop = Math.min(prevScroll, bodyEl.scrollHeight);
+  else bodyEl.scrollTop = 0;
 }
 
 export function jumpNovelToBlock(blockIndex) {
