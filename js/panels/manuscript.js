@@ -1,10 +1,12 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   Step 11-14 + 21 + 24 + patch: Manuscript editor.
-   - STICKY BUNDLE: the last manuscript highlight persists as
-     the Scribe payload context (and keeps its gold tint) until
-     a new highlight, an edit, or a project re-render clears it.
-   - Resume: reopens at the saved window position (viewStart).
+   CONSOLIDATED (Steps 11-14 + 21 + 24 + 25 + scroll fixes).
+   - Editable, virtualized (spacer) windowed rendering.
+   - Sticky bundle: last highlight persists as Scribe context;
+     captured bulletproof via sel.toString().
+   - Resume: reopens at saved window position (viewStart).
+   - Accept-as-is: operates on the SELECTION only; move-mode cuts.
+   - Sticky-bottom scroll + one-page bottom runway.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -87,6 +89,7 @@ export function mountManuscript(panel) {
     });
     const persist = () => { flushManuscriptSync(); flushSave(); };
     window.addEventListener('beforeunload', persist);
+    window.addEventListener('resize', updateRunway);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') persist();
     });
@@ -118,6 +121,7 @@ export function renderManuscript(startBlock = null) {
   const start = Math.max(0, Math.min(resume, index.length - 1));
   const { end } = windowBounds(index, start, maxSent);
   mountRange(start, Math.max(end, start + 1), text);
+  updateRunway();
   bodyEl.scrollTop = 0;
 }
 
@@ -375,10 +379,8 @@ function onSelectionChange() {
 
   if (a && blocksWrap.contains(a)) refreshToolbar(a);
 
-  // STICKY BUNDLE: collapsed selections (e.g. clicking the Scribe
-  // input) and selections outside the manuscript do NOT clear the
-  // last bundle or its gold tint. Only a new manuscript highlight
-  // replaces it; edits and re-renders clear it.
+  // STICKY: collapsed selections (e.g. clicking the Scribe input) and
+  // selections outside the manuscript do NOT clear the bundle/tint.
   if (sel.isCollapsed || !inManuscript) return;
 
   clearBundledBlocks();
@@ -390,7 +392,6 @@ function onSelectionChange() {
   }
 
   // Bulletproof capture: store exactly what the user sees selected.
-  // No offset math → cannot desync from the text index.
   const text = sel.toString();
   selectionInfo = text ? { text } : null;
 }
@@ -422,10 +423,11 @@ export function flushManuscriptSync() {
   touchProject({ silent: true });
 }
 
-/* ---------- Paging Engine (Virtualization) ---------- */
+/* ---------- Paging Engine (virtualization, sticky bottom) ---------- */
 function onScroll() {
   if (!bodyEl || !index.length) return;
   const { scrollTop, scrollHeight, clientHeight } = bodyEl;
+  const atBottom = scrollTop + clientHeight >= scrollHeight - 4;
   const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
   const nearTop = scrollTop <= SCROLL_THRESHOLD;
 
@@ -435,6 +437,7 @@ function onScroll() {
     if (end > mounted.to) {
       appendBlocks(mounted.to, end);
       pruneTop();
+      if (atBottom) bodyEl.scrollTop = bodyEl.scrollHeight; // sticky: thumb stays at bottom
     }
   }
 
@@ -494,13 +497,18 @@ function pruneBottom() {
   mounted.to -= removeCount;
 }
 
-/* ---------- Accept as Is ---------- */
+/* One empty page of runway below the last text, so the writer can
+   scroll the final line to the top and out of view before max scroll. */
+function updateRunway() {
+  if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
+}
+
+/* ---------- Accept as Is (selection-based) ---------- */
 export function acceptAsIs() {
   flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
 
-  // Accept operates on the SELECTION only.
   const sel = selectionInfo;
   const textToPush = sel && sel.text ? sel.text.trim() : '';
   if (!textToPush) {
@@ -527,9 +535,10 @@ export function acceptAsIs() {
   touchProject({ novel: true });
   toast('Accepted to Main Novel.', 'success');
 }
+
 /* ---------- Bundle lifecycle ---------- */
 export function consumeManuscriptSelection() {
-  selectionInfo = null; // bundle consumed by a send; gold tint remains as tracking
+  selectionInfo = null; // gold tint remains as tracking
 }
 
 export function clearManuscriptSelection() {
