@@ -1,18 +1,21 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21: Scribe — prompt bundling + token-efficient bible
-   compiler + live streaming into the AI Output panel.
-   - Desktop: rebuilds the top-bar prompt bar (conflict-free).
-   - Mobile: floating action button + prompt sheet.
-   - compileBible(): priority-budgeted compact payload.
-   - Block registry for Step 22 (Accept/Rewrite/Discard).
+   Step 21 + patches: Scribe — prompt bundling, token-efficient
+   bible compiler, live streaming, context chip, HARD RULES.
+   - Bundle is consumed on send (gold tint remains as tracking).
+   - Gold chip beside the input shows bundled char count + clear.
+   - System prompt carries hardcoded relevance rules.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
 import { getEffectiveConfig } from '../core/storage.js';
-import { getManuscriptSelection } from '../panels/manuscript.js';
+import {
+  getManuscriptSelection,
+  consumeManuscriptSelection,
+  clearManuscriptSelection,
+} from '../panels/manuscript.js';
 import { streamChatWithFallback } from '../ai/manager.js';
 
 const STYLE_ID = 'scribe-style';
@@ -34,6 +37,11 @@ const CSS = `
 .ai-block.is-error{border-color:var(--danger);}
 .scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
 .ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
+.scribe-bar{width:min(380px,34vw);}
+.scribe-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;
+  border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
+  border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
+.scribe-chip[hidden]{display:none;}
 `;
 
 function ensureStyle() {
@@ -44,15 +52,21 @@ function ensureStyle() {
     document.head.appendChild(s);
   }
 }
-const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
+
 const BIBLE_BUDGET = 6000;  // chars (~1.5k tokens) hard cap
 const CONTEXT_CAP = 8000;   // chars of highlighted text
+
+const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
+
 const SECTION_TAGS = {
   characters: 'CHAR', settings: 'PLACE', plotArcs: 'PLOT',
   worldRules: 'RULE', items: 'ITEM',
 };
 
 let fab = null;
+let chip = null;
+let chipText = null;
+let chipBound = false;
 const blocks = [];
 
 export function getAiBlocks() { return blocks; }
@@ -83,7 +97,7 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
     for (const e of (cfg[key] || [])) {
       const name = (e.name || '').trim();
       const nameLc = name.toLowerCase();
-            const hit = nameLc && (
+      const hit = nameLc && (
         (nameLc.length > 3 && ctx.includes(nameLc)) ||
         nameLc.split(/\s+/).some((w) => w.length > 3 && !STOP_WORDS.has(w) && wordSet.has(w))
       );
@@ -98,20 +112,38 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
   return out.join('\n');
 }
 
+/* ---------- Hardened prompt construction ---------- */
 function buildMessages(compiled, context, prompt) {
-  let system = 'You are Scribe, an elite ghostwriter collaborating on a novel. ' +
-    'Respond in polished, publication-ready prose. Never contradict the project bible. ' +
-    'Follow style directives strictly.';
-  if (compiled) system += `\n\nPROJECT BIBLE (compact):\n${compiled}`;
+  let system =
+    'You are Scribe, an elite ghostwriter collaborating on a novel.\n' +
+    'HARD RULES (override everything else):\n' +
+    '1. Perform ONLY the task stated in the TASK INSTRUCTION block. Never add unrelated scenes, lore, or commentary.\n' +
+    '2. If a SOURCE TEXT block is present, operate on THAT text only. Do not rewrite, repeat, or summarize any other text.\n' +
+    '3. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
+    '4. Never continue the story beyond the exact scope of the instruction.\n' +
+    '5. If the instruction requires source text but none is provided, reply with ONE short clarifying question and nothing else.\n' +
+    '6. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
+  if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
 
-  const parts = [];
-  if (context) parts.push(`HIGHLIGHTED MANUSCRIPT TEXT:\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
-  parts.push(`INSTRUCTION:\n${prompt}`);
-  parts.push('Reply with the requested prose only — no meta commentary.');
+  const parts = [`TASK INSTRUCTION:\n${prompt}`];
+  if (context) {
+    parts.push(`SOURCE TEXT TO OPERATE ON (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
+    parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above. Output only the result.');
+  } else {
+    parts.push('No SOURCE TEXT is provided with this request.');
+  }
   return [
     { role: 'system', content: system },
     { role: 'user', content: parts.join('\n\n') },
   ];
+}
+
+/* ---------- Context chip ---------- */
+function updateChip() {
+  if (!chip) return;
+  const sel = getManuscriptSelection();
+  chip.hidden = !sel;
+  if (sel) chipText.textContent = `${sel.text.length.toLocaleString()} ch`;
 }
 
 /* ---------- AI Output blocks ---------- */
@@ -197,6 +229,8 @@ export function runScribePrompt(prompt) {
   const context = sel ? sel.text : '';
   const block = createBlock(p, context);
   if (!block) return;
+  consumeManuscriptSelection(); // consumed by this send; gold tint stays as tracking
+  updateChip();
   streamInto(block);
 }
 
@@ -204,6 +238,13 @@ export function rerunBlock(block) { streamInto(block); }
 
 /* ---------- Prompt bar (desktop) + FAB/sheet (mobile) ---------- */
 function buildBar() {
+  chipText = el('span', { text: '' });
+  chip = el('button', {
+    class: 'scribe-chip', hidden: true,
+    title: 'Highlighted text bundled with your prompt — click to clear',
+    onclick: () => { clearManuscriptSelection(); updateChip(); },
+  }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
+
   const input = el('input', {
     class: 'input', type: 'text',
     placeholder: 'Scribe: write, continue, describe, rewrite…',
@@ -211,10 +252,11 @@ function buildBar() {
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
   }, [icon('send')]);
-  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [input, send]);
+  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [chip, input, send]);
   const fire = () => { runScribePrompt(input.value); input.value = ''; };
   send.addEventListener('click', fire);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
+  updateChip();
   return bar;
 }
 
@@ -224,22 +266,32 @@ function bindDesktop() {
 }
 
 function openPromptSheet() {
-  const sel = getManuscriptSelection();
+  const selAtOpen = getManuscriptSelection();
   const ta = el('textarea', {
     class: 'textarea', rows: '4',
     placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…',
   });
   const hint = el('p', {
     class: 'scribe-sheet-hint',
-    text: sel
-      ? `Bundling ${sel.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
+    text: selAtOpen
+      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
       : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
+  });
+  const clearBtn = el('button', {
+    class: 'btn btn-sm', text: 'Clear context', hidden: !selAtOpen,
+    onclick: () => {
+      clearManuscriptSelection();
+      updateChip();
+      hint.textContent = 'No text highlighted — Scribe will follow the instruction using the project bible only.';
+      clearBtn.hidden = true;
+    },
   });
   const m = modal({
     title: 'Scribe',
     body: [hint, ta],
     footer: [
       el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() }),
+      clearBtn,
       el('button', {
         class: 'btn btn-primary', text: 'Generate',
         onclick: () => { const v = ta.value; m.close(); runScribePrompt(v); },
@@ -257,6 +309,15 @@ export function initScribe() {
       onclick: openPromptSheet,
     }, [icon('feather', 'icon-lg')]);
     document.body.appendChild(fab);
+  }
+  if (!chipBound) {
+    chipBound = true;
+    let tick = false;
+    document.addEventListener('selectionchange', () => {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(() => { tick = false; updateChip(); });
+    });
   }
   bindDesktop();
   subscribe((state, change) => {
