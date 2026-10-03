@@ -1,13 +1,11 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21 + patches (v4): stored, project-scoped bundle.
-   - Bundle is STORED at highlight time (module-level), survives
-     clicking into the input and multi-turn sends.
-   - Bundle is scoped to the project it was captured in; project
-     switch clears it (no cross-project leak).
-   - Cleared only via chip X / new highlight replacing / switch.
-   - PREVIOUS GENERATION chains follow-up instructions.
-   - HARD RULES forbid rewriting bible summaries when no source.
+   Step 21 + patches (v5, SIMPLIFIED): Scribe bundling.
+   - Bundle = the manuscript's live selection, CONSUMED on send
+     (no stale reuse, no cross-send / cross-project leakage).
+   - No PREVIOUS-GENERATION chaining (removed: caused garbage loops).
+   - Short crisp system rules + "never open with an interjection".
+   - Gold tint = "currently bundled"; clears after send/edit.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -57,7 +55,6 @@ function ensureStyle() {
 
 const BIBLE_BUDGET = 6000;
 const CONTEXT_CAP = 8000;
-const PRIOR_CAP = 4000;
 
 const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
 
@@ -72,22 +69,10 @@ let chipText = null;
 let chipBound = false;
 const blocks = [];
 
-/* STORED bundle: captured at highlight time, survives input clicks. */
-let bundle = { text: '', projectId: '' };
-
 export function getAiBlocks() { return blocks; }
 
 function cap(s, n) { return s.length > n ? s.slice(0, Math.max(0, n - 1)) + '…' : s; }
 function flat(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
-function currentProjectId() { const p = getState().project; return p ? (p.id || p.name || '') : ''; }
-
-function clearBundle() { bundle.text = ''; bundle.projectId = ''; updateChip(); }
-
-function activeBundleText() {
-  if (!bundle.text) return '';
-  if (bundle.projectId !== currentProjectId()) { clearBundle(); return ''; }
-  return bundle.text;
-}
 
 /* ---------- Token-efficient bible compiler ---------- */
 export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
@@ -127,56 +112,43 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
   return out.join('\n');
 }
 
-/* ---------- Hardened prompt construction ---------- */
-function buildMessages(compiled, context, prompt, prior) {
+/* ---------- Simplified, robust prompt ---------- */
+function buildMessages(compiled, context, prompt) {
   let system =
-    'You are Scribe, an elite ghostwriter collaborating on a novel.\n' +
-    'HARD RULES (override everything else):\n' +
-    '1. Perform ONLY the task stated in the TASK INSTRUCTION. Never add unrelated scenes, lore, or commentary.\n' +
-    '2. PRECEDENCE for what to operate on: (a) if the instruction is a follow-up transformation of your PREVIOUS GENERATION ("make it shorter", "now in past tense", "change the name in it"), transform PREVIOUS GENERATION; (b) else if the instruction targets the SOURCE TEXT ("rewrite it", "translate this", "fix the dialogue in the passage"), transform SOURCE TEXT; (c) otherwise generate entirely new content.\n' +
-    '3. Follow-up transformations are instructions like "make it shorter/longer", "rewrite it", "now do X to it". Instructions requesting NEW content ("continue", "write a scene", "describe", "add") are NOT follow-ups — generate freely and do NOT rewrite, repeat, or summarize SOURCE TEXT or PREVIOUS GENERATION.\n' +
-    '4. When NO SOURCE TEXT is provided, do NOT rewrite, expand, or dramatize PROJECT BIBLE summaries or roster entries into prose. Use the bible ONLY for consistency (names/facts/rules/style) while generating new content per the instruction.\n' +
-    '5. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
-    '6. Never continue the story beyond the exact scope of the instruction.\n' +
-    '7. ONLY if the instruction transforms "it/this/the passage/the highlighted text" AND neither SOURCE TEXT nor PREVIOUS GENERATION is present, reply with ONE short clarifying question and nothing else.\n' +
-    '8. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
+    'You are Scribe, a professional ghostwriter for a novel.\n' +
+    'RULES:\n' +
+    '1. Do exactly what the TASK INSTRUCTION asks, nothing more.\n' +
+    '2. If SOURCE TEXT is provided, rewrite/transform ONLY that text.\n' +
+    '3. If no SOURCE TEXT is provided, write NEW content per the instruction; use the PROJECT BIBLE only for names/facts/style consistency — never quote or retell it.\n' +
+    '4. If the instruction needs source text but none is provided, ask ONE short clarifying question.\n' +
+    '5. Start your answer directly with prose. Never open with a greeting, interjection, sound effect, or standalone exclamation (e.g. "Ah!", "Hwæt!", "Yes!").\n' +
+    '6. Output only the prose (or the one clarifying question). No preamble, no explanations.';
   if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
 
   const parts = [`TASK INSTRUCTION:\n${prompt}`];
-  if (prior) {
-    parts.push(`PREVIOUS GENERATION (your last output in this session):\n"""\n${cap(prior, PRIOR_CAP)}\n"""`);
-  }
   if (context) {
-    parts.push(`SOURCE TEXT the user is currently working on (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
+    parts.push(`SOURCE TEXT (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
+    parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above.');
+  } else {
+    parts.push('No SOURCE TEXT is provided with this request.');
   }
-  if (!prior && !context) {
-    parts.push('No SOURCE TEXT or PREVIOUS GENERATION is provided with this request.');
-  }
-  parts.push('Apply the precedence in HARD RULE 2. Output only the result.');
   return [
     { role: 'system', content: system },
     { role: 'user', content: parts.join('\n\n') },
   ];
 }
 
-/* ---------- Context chip (reads STORED bundle) ---------- */
+/* ---------- Context chip ---------- */
 function updateChip() {
   if (!chip) return;
-  const t = activeBundleText();
+  const sel = getManuscriptSelection();
+  const t = sel ? sel.text : '';
   chip.hidden = !t;
   if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
 
 /* ---------- AI Output blocks ---------- */
-function lastCompletedText(excludeBlock) {
-  for (let i = blocks.length - 1; i >= 0; i--) {
-    const b = blocks[i];
-    if (b !== excludeBlock && b.done && (b.full || '').trim()) return b.full;
-  }
-  return '';
-}
-
-function createBlock(prompt, context, priorText) {
+function createBlock(prompt, context) {
   const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
   if (!body) return null;
   const empty = body.querySelector('.empty-state');
@@ -195,7 +167,7 @@ function createBlock(prompt, context, priorText) {
   const block = {
     id: 'b' + Date.now() + Math.random().toString(36).slice(2, 6),
     el: blockEl, badge, textEl, stopBtn,
-    prompt, context, priorText: priorText || '',
+    prompt, context,
     provider: null, full: '', controller: null, done: false,
   };
   stopBtn.onclick = () => { if (block.controller) block.controller.abort(); };
@@ -208,7 +180,7 @@ function streamInto(block) {
   if (!project) return;
   const cfg = getEffectiveConfig(project);
   const compiled = compileBible(cfg, `${block.context} ${block.prompt}`);
-  const messages = buildMessages(compiled, block.context, block.prompt, block.priorText);
+  const messages = buildMessages(compiled, block.context, block.prompt);
 
   block.controller = new AbortController();
   block.done = false;
@@ -236,6 +208,9 @@ function streamInto(block) {
     block.done = true;
     block.el.classList.remove('is-streaming');
     block.stopBtn.hidden = true;
+    if ((block.full || '').trim().length < 12) {
+      toast('Very short output — try Rewrite or a clearer instruction.', 'info');
+    }
   }).catch((err) => {
     block.done = true;
     block.el.classList.remove('is-streaming');
@@ -251,20 +226,27 @@ function streamInto(block) {
   });
 }
 
+/* ---------- Send: consume the bundle ---------- */
 export function runScribePrompt(prompt) {
   const p = (prompt || '').trim();
   if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
   if (!getState().project) return;
-  const context = activeBundleText(); // STORED bundle, project-scoped
-  const prior = lastCompletedText(null);
-  const block = createBlock(p, context, prior);
+
+  const sel = getManuscriptSelection();
+  const context = sel ? sel.text : '';
+
+  const block = createBlock(p, context);
   if (!block) return;
+
+  // Consume the bundle so it can never be re-sent stale.
+  clearManuscriptSelection();
   updateChip();
+
   streamInto(block);
 }
 
+/* Rewrite: resend THIS block's stored prompt + context. */
 export function rerunBlock(block) {
-  block.priorText = block.full || '';
   streamInto(block);
 }
 
@@ -273,8 +255,8 @@ function buildBar() {
   chipText = el('span', { text: '' });
   chip = el('button', {
     class: 'scribe-chip', hidden: true,
-    title: 'Bundled source text — persists across sends until cleared or replaced. Click to clear.',
-    onclick: () => { clearBundle(); clearManuscriptSelection(); },
+    title: 'Highlighted text bundled with your next prompt — click to clear',
+    onclick: () => { clearManuscriptSelection(); updateChip(); },
   }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
 
   const input = el('input', {
@@ -298,22 +280,22 @@ function bindDesktop() {
 }
 
 function openPromptSheet() {
-  const t = activeBundleText();
+  const selAtOpen = getManuscriptSelection();
   const ta = el('textarea', {
     class: 'textarea', rows: '4',
     placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…',
   });
   const hint = el('p', {
     class: 'scribe-sheet-hint',
-    text: t
-      ? `Bundling ${t.length.toLocaleString()} characters of highlighted Manuscript text. It stays bundled for follow-up prompts until you clear it.`
+    text: selAtOpen
+      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
       : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
   });
   const clearBtn = el('button', {
-    class: 'btn btn-sm', text: 'Clear context', hidden: !t,
+    class: 'btn btn-sm', text: 'Clear context', hidden: !selAtOpen,
     onclick: () => {
-      clearBundle();
       clearManuscriptSelection();
+      updateChip();
       hint.textContent = 'No text highlighted — Scribe will follow the instruction using the project bible only.';
       clearBtn.hidden = true;
     },
@@ -348,23 +330,12 @@ export function initScribe() {
     document.addEventListener('selectionchange', () => {
       if (tick) return;
       tick = true;
-      requestAnimationFrame(() => {
-        tick = false;
-        // STORE the bundle when a manuscript range is detected.
-        // A collapsed/absent selection does NOT clear it (sticky).
-        const sel = getManuscriptSelection();
-        if (sel && sel.text) {
-          bundle.text = sel.text;
-          bundle.projectId = currentProjectId();
-        }
-        updateChip();
-      });
+      requestAnimationFrame(() => { tick = false; updateChip(); });
     });
   }
   bindDesktop();
   subscribe((state, change) => {
     if (state.view !== 'workspace') return;
-    if (change.project && !change.silent) clearBundle(); // no cross-project leak
     if (change.view || (change.project && !change.silent)) bindDesktop();
   });
 }
