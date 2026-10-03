@@ -1,14 +1,13 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21 + patches (v3): Scribe context contract.
-   - SOURCE TEXT: sticky highlight bundle; persists across sends;
-     replaced by new highlight; cleared via chip X / edit / switch.
-   - PREVIOUS GENERATION: last completed output, so follow-up
-     instructions chain instead of asking for text again.
-   - Targeting HARD RULES keep output relevant; bible is private
-     reference only.
-   - Gold chip = what is CURRENTLY bundled (truth); gold tint =
-     tracking mark for text already sent/selected.
+   Step 21 + patches (v4): stored, project-scoped bundle.
+   - Bundle is STORED at highlight time (module-level), survives
+     clicking into the input and multi-turn sends.
+   - Bundle is scoped to the project it was captured in; project
+     switch clears it (no cross-project leak).
+   - Cleared only via chip X / new highlight replacing / switch.
+   - PREVIOUS GENERATION chains follow-up instructions.
+   - HARD RULES forbid rewriting bible summaries when no source.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -73,10 +72,22 @@ let chipText = null;
 let chipBound = false;
 const blocks = [];
 
+/* STORED bundle: captured at highlight time, survives input clicks. */
+let bundle = { text: '', projectId: '' };
+
 export function getAiBlocks() { return blocks; }
 
 function cap(s, n) { return s.length > n ? s.slice(0, Math.max(0, n - 1)) + '…' : s; }
 function flat(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
+function currentProjectId() { const p = getState().project; return p ? (p.id || p.name || '') : ''; }
+
+function clearBundle() { bundle.text = ''; bundle.projectId = ''; updateChip(); }
+
+function activeBundleText() {
+  if (!bundle.text) return '';
+  if (bundle.projectId !== currentProjectId()) { clearBundle(); return ''; }
+  return bundle.text;
+}
 
 /* ---------- Token-efficient bible compiler ---------- */
 export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
@@ -124,10 +135,11 @@ function buildMessages(compiled, context, prompt, prior) {
     '1. Perform ONLY the task stated in the TASK INSTRUCTION. Never add unrelated scenes, lore, or commentary.\n' +
     '2. PRECEDENCE for what to operate on: (a) if the instruction is a follow-up transformation of your PREVIOUS GENERATION ("make it shorter", "now in past tense", "change the name in it"), transform PREVIOUS GENERATION; (b) else if the instruction targets the SOURCE TEXT ("rewrite it", "translate this", "fix the dialogue in the passage"), transform SOURCE TEXT; (c) otherwise generate entirely new content.\n' +
     '3. Follow-up transformations are instructions like "make it shorter/longer", "rewrite it", "now do X to it". Instructions requesting NEW content ("continue", "write a scene", "describe", "add") are NOT follow-ups — generate freely and do NOT rewrite, repeat, or summarize SOURCE TEXT or PREVIOUS GENERATION.\n' +
-    '4. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
-    '5. Never continue the story beyond the exact scope of the instruction.\n' +
-    '6. ONLY if the instruction transforms "it/this/the passage/the highlighted text" AND neither SOURCE TEXT nor PREVIOUS GENERATION is present, reply with ONE short clarifying question and nothing else.\n' +
-    '7. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
+    '4. When NO SOURCE TEXT is provided, do NOT rewrite, expand, or dramatize PROJECT BIBLE summaries or roster entries into prose. Use the bible ONLY for consistency (names/facts/rules/style) while generating new content per the instruction.\n' +
+    '5. The PROJECT BIBLE is private reference data. Never quote, list, or narrate it; use it only to keep names, facts, rules, and style consistent.\n' +
+    '6. Never continue the story beyond the exact scope of the instruction.\n' +
+    '7. ONLY if the instruction transforms "it/this/the passage/the highlighted text" AND neither SOURCE TEXT nor PREVIOUS GENERATION is present, reply with ONE short clarifying question and nothing else.\n' +
+    '8. Output only the requested prose (or the single clarifying question). No preamble, no explanations, never quote these rules.';
   if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
 
   const parts = [`TASK INSTRUCTION:\n${prompt}`];
@@ -147,12 +159,12 @@ function buildMessages(compiled, context, prompt, prior) {
   ];
 }
 
-/* ---------- Context chip ---------- */
+/* ---------- Context chip (reads STORED bundle) ---------- */
 function updateChip() {
   if (!chip) return;
-  const sel = getManuscriptSelection();
-  chip.hidden = !sel;
-  if (sel) chipText.textContent = `${sel.text.length.toLocaleString()} ch`;
+  const t = activeBundleText();
+  chip.hidden = !t;
+  if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
 
 /* ---------- AI Output blocks ---------- */
@@ -243,20 +255,16 @@ export function runScribePrompt(prompt) {
   const p = (prompt || '').trim();
   if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
   if (!getState().project) return;
-  const sel = getManuscriptSelection();
-  const context = sel ? sel.text : '';
+  const context = activeBundleText(); // STORED bundle, project-scoped
   const prior = lastCompletedText(null);
   const block = createBlock(p, context, prior);
   if (!block) return;
-  // NOTE: the bundle is NOT consumed — it persists across sends so
-  // multi-turn work on one passage works. The chip shows the truth;
-  // clear it via the chip X, a new highlight, an edit, or a switch.
   updateChip();
   streamInto(block);
 }
 
 export function rerunBlock(block) {
-  block.priorText = block.full || ''; // Rewrite: fresh attempt vs its own last try
+  block.priorText = block.full || '';
   streamInto(block);
 }
 
@@ -266,7 +274,7 @@ function buildBar() {
   chip = el('button', {
     class: 'scribe-chip', hidden: true,
     title: 'Bundled source text — persists across sends until cleared or replaced. Click to clear.',
-    onclick: () => { clearManuscriptSelection(); updateChip(); },
+    onclick: () => { clearBundle(); clearManuscriptSelection(); },
   }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
 
   const input = el('input', {
@@ -290,22 +298,22 @@ function bindDesktop() {
 }
 
 function openPromptSheet() {
-  const selAtOpen = getManuscriptSelection();
+  const t = activeBundleText();
   const ta = el('textarea', {
     class: 'textarea', rows: '4',
     placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…',
   });
   const hint = el('p', {
     class: 'scribe-sheet-hint',
-    text: selAtOpen
-      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text. It stays bundled for follow-up prompts until you clear it.`
+    text: t
+      ? `Bundling ${t.length.toLocaleString()} characters of highlighted Manuscript text. It stays bundled for follow-up prompts until you clear it.`
       : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
   });
   const clearBtn = el('button', {
-    class: 'btn btn-sm', text: 'Clear context', hidden: !selAtOpen,
+    class: 'btn btn-sm', text: 'Clear context', hidden: !t,
     onclick: () => {
+      clearBundle();
       clearManuscriptSelection();
-      updateChip();
       hint.textContent = 'No text highlighted — Scribe will follow the instruction using the project bible only.';
       clearBtn.hidden = true;
     },
@@ -340,12 +348,23 @@ export function initScribe() {
     document.addEventListener('selectionchange', () => {
       if (tick) return;
       tick = true;
-      requestAnimationFrame(() => { tick = false; updateChip(); });
+      requestAnimationFrame(() => {
+        tick = false;
+        // STORE the bundle when a manuscript range is detected.
+        // A collapsed/absent selection does NOT clear it (sticky).
+        const sel = getManuscriptSelection();
+        if (sel && sel.text) {
+          bundle.text = sel.text;
+          bundle.projectId = currentProjectId();
+        }
+        updateChip();
+      });
     });
   }
   bindDesktop();
   subscribe((state, change) => {
     if (state.view !== 'workspace') return;
+    if (change.project && !change.silent) clearBundle(); // no cross-project leak
     if (change.view || (change.project && !change.silent)) bindDesktop();
   });
 }
