@@ -398,7 +398,8 @@ function onSelectionChange() {
 /* ---------- Sync ---------- */
 function scheduleSync() {
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(flushManuscriptSync, SYNC_DELAY);
+  const delay = getState().settings.general.autosaveInterval ?? SYNC_DELAY;
+  syncTimer = setTimeout(flushManuscriptSync, delay);
 }
 
 export function flushManuscriptSync() {
@@ -503,7 +504,16 @@ export function acceptAsIs() {
 
   const textToPush = nodes.map(nodeToString).join('\n');
   const currentNovel = project.mainNovel.text || '';
-  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
+    project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
+
+  if (getState().settings.general.acceptMovesText) {
+    project.manuscript.text = spliceBlocks(
+      project.manuscript.text, index, mounted.from, Math.min(mounted.to, index.length), []
+    );
+    project.manuscript.viewStart = Math.max(0, mounted.from - 1);
+    renderManuscript();
+  }
+
   touchProject({ novel: true });
   toast('Accepted to Main Novel.', 'success');
 }
