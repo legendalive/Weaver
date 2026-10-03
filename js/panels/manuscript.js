@@ -1,7 +1,10 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   Step 11-14 + Step 21 Patch: Manuscript editor.
-   - Adds visual tracking (gold tint) for blocks selected for Scribe.
+   Step 11-14 + 21 + 24 + patch: Manuscript editor.
+   - STICKY BUNDLE: the last manuscript highlight persists as
+     the Scribe payload context (and keeps its gold tint) until
+     a new highlight, an edit, or a project re-render clears it.
+   - Resume: reopens at the saved window position (viewStart).
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -66,7 +69,11 @@ export function mountManuscript(panel) {
   }
   actions.insertBefore(tb, expandBtn);
 
-  blocksWrap.addEventListener('input', () => { clearBundledBlocks(); scheduleSync(); });
+  blocksWrap.addEventListener('input', () => {
+    selectionInfo = null;      // edits invalidate the bundle
+    clearBundledBlocks();
+    scheduleSync();
+  });
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
   bodyEl.addEventListener('scroll', onScroll);
@@ -88,12 +95,13 @@ export function mountManuscript(panel) {
   renderManuscript();
 }
 
-/* ---------- Render (windowed) ---------- */
+/* ---------- Render (windowed, resume-aware) ---------- */
 export function renderManuscript(startBlock = null) {
   if (!blocksWrap) return;
   clearTimeout(syncTimer);
   syncTimer = null;
   selectionInfo = null;
+  clearBundledBlocks();
 
   clearBlocksOnly();
   topSpacer.style.height = '0px';
@@ -106,7 +114,7 @@ export function renderManuscript(startBlock = null) {
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
-    const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
+  const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
   const start = Math.max(0, Math.min(resume, index.length - 1));
   const { end } = windowBounds(index, start, maxSent);
   mountRange(start, Math.max(end, start + 1), text);
@@ -350,42 +358,37 @@ function refreshToolbar(activeNode) {
   }
 }
 
-/* ---------- Selection capture + Visual Tracking ---------- */
+/* ---------- Selection capture + persistent visual tracking ---------- */
 function clearBundledBlocks() {
-  document.querySelectorAll('.ms-block.is-bundled').forEach(n => n.classList.remove('is-bundled'));
+  document.querySelectorAll('.ms-block.is-bundled').forEach((n) => n.classList.remove('is-bundled'));
 }
 
 function onSelectionChange() {
   if (!blocksWrap) return;
   const sel = document.getSelection();
   const project = getState().project;
-  
-  // Clear previous visual tracking
-  clearBundledBlocks();
-
-  if (!sel || !project) { selectionInfo = null; refreshToolbar(null); return; }
+  if (!sel || !project) return;
 
   const a = blockOf(sel.anchorNode);
   const focusBlock = blockOf(sel.focusNode);
-  if (!a || !blocksWrap.contains(a)) { selectionInfo = null; refreshToolbar(null); return; }
-  refreshToolbar(sel.isCollapsed ? a : focusBlock);
+  const inManuscript = a && focusBlock && blocksWrap.contains(a) && blocksWrap.contains(focusBlock);
 
-  // Apply visual tracking (gold tint) to selected blocks
-  if (!sel.isCollapsed && focusBlock && blocksWrap.contains(focusBlock)) {
-    const nodes = getBlockNodes();
-    for (const node of nodes) {
-      if (sel.containsNode(node, true) || node.contains(sel.anchorNode) || node.contains(sel.focusNode)) {
-        node.classList.add('is-bundled');
-      }
+  if (a && blocksWrap.contains(a)) refreshToolbar(a);
+
+  // STICKY BUNDLE: collapsed selections (e.g. clicking the Scribe
+  // input) and selections outside the manuscript do NOT clear the
+  // last bundle or its gold tint. Only a new manuscript highlight
+  // replaces it; edits and re-renders clear it.
+  if (sel.isCollapsed || !inManuscript) return;
+
+  clearBundledBlocks();
+  const nodes = getBlockNodes();
+  for (const node of nodes) {
+    if (sel.containsNode(node, true) || node.contains(sel.anchorNode) || node.contains(sel.focusNode)) {
+      node.classList.add('is-bundled');
     }
   }
 
-  if (sel.isCollapsed || !focusBlock || !blocksWrap.contains(focusBlock)) {
-    selectionInfo = null;
-    return;
-  }
-
-  const nodes = getBlockNodes();
   const ia = nodes.indexOf(a);
   const ib = nodes.indexOf(focusBlock);
   let first, last, firstOff, lastOff;
@@ -423,7 +426,7 @@ export function flushManuscriptSync() {
   const nodes = getBlockNodes();
   if (!nodes.length) return;
 
-   const strings = nodes.map(nodeToString);
+  const strings = nodes.map(nodeToString);
   const oldText = project.manuscript.text || '';
   project.manuscript.viewStart = mounted.from;
   const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, index.length), strings);
