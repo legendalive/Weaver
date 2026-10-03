@@ -389,27 +389,10 @@ function onSelectionChange() {
     }
   }
 
-  const ia = nodes.indexOf(a);
-  const ib = nodes.indexOf(focusBlock);
-  let first, last, firstOff, lastOff;
-  if (ia <= ib) {
-    first = a; last = focusBlock;
-    firstOff = textOffsetIn(a, sel.anchorNode, sel.anchorOffset);
-    lastOff = textOffsetIn(focusBlock, sel.focusNode, sel.focusOffset);
-  } else {
-    first = focusBlock; last = a;
-    firstOff = textOffsetIn(focusBlock, sel.focusNode, sel.focusOffset);
-    lastOff = textOffsetIn(a, sel.anchorNode, sel.anchorOffset);
-  }
-  const fi = mounted.from + nodes.indexOf(first);
-  const li = mounted.from + nodes.indexOf(last);
-  if (fi >= index.length || li >= index.length) { selectionInfo = null; return; }
-
-  const pre = (i) => (index[i].level ? headingPrefix(index[i].level).length : 0);
-  const start = index[fi].s + pre(fi) + firstOff;
-  const end = index[li].s + pre(li) + lastOff;
-  const text = (project.manuscript.text || '').slice(start, end);
-  selectionInfo = text ? { text, start, end } : null;
+  // Bulletproof capture: store exactly what the user sees selected.
+  // No offset math → cannot desync from the text index.
+  const text = sel.toString();
+  selectionInfo = text ? { text } : null;
 }
 
 /* ---------- Sync ---------- */
