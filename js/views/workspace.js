@@ -1,8 +1,9 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-20: workspace shell — top bar, three-panel skeleton,
+   Step 8-22: workspace shell — top bar, three-panel skeleton,
    expand/collapse, Library exit, resize binding, Manuscript +
-   Main Novel mounting, Hierarchy + Config + Settings wiring.
+   Main Novel mounting, Hierarchy + Config + Settings wiring,
+   live AI Output actions.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -14,6 +15,7 @@ import { mountMainNovel, recheck } from '../panels/main-novel.js';
 import { toggleHierarchyDrawer } from '../features/hierarchy.js';
 import { openConfigBible } from '../features/config-bible.js';
 import { openSettings } from '../features/settings.js';
+import { acceptAiBlock, rewriteAiBlock, discardAiBlock } from '../panels/ai-output.js';
 
 let root = null;
 let refs = {};
@@ -67,11 +69,13 @@ function scribeBar() {
   });
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
-    onclick: () => toast('Scribe wiring arrives in Step 21.', 'info'),
   }, [icon('send')]);
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send.click(); });
-  refs.scribeInput = input;
-  return el('div', { class: 'scribe-bar' }, [input, send]);
+  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [input, send]);
+  const fire = () => {
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  };
+  send.addEventListener('click', fire);
+  return bar;
 }
 
 function buildPanel(key, iconName, title, placeholder, footerButtons) {
@@ -155,7 +159,7 @@ export function renderWorkspace() {
       }, [icon('library')]),
       topBtn('export', 'download', 'Export', () => toast('Export arrives in Step 23.', 'info')),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
-      scribeBar(),
+      document.querySelector('.scribe-bar') || scribeBarPlaceholder(),
     ]),
   ]);
 
@@ -176,9 +180,9 @@ export function renderWorkspace() {
     resizerB,
     buildPanel('ai', 'sparkles', 'AI Output',
       "Scribe's novel prose and continuations will stream here…", [
-        footerBtn('Accept', 'check', () => toast('Accept arrives with the AI Output panel in Step 22.', 'info')),
-        footerBtn('Rewrite', 'refresh', () => toast('Rewrite arrives with the AI Output panel in Step 22.', 'info')),
-        footerBtn('Discard', 'x', () => toast('Discard arrives with the AI Output panel in Step 22.', 'info'), true),
+        footerBtn('Accept', 'check', () => acceptAiBlock()),
+        footerBtn('Rewrite', 'refresh', () => rewriteAiBlock()),
+        footerBtn('Discard', 'x', () => discardAiBlock(), true),
       ]),
   ]);
 
@@ -191,4 +195,11 @@ export function renderWorkspace() {
   mountManuscript(refs.manuscript);
   mountMainNovel(refs.novel);
   applyExpansion();
+}
+
+function scribeBarPlaceholder() {
+  return el('div', { class: 'scribe-bar' }, [
+    el('input', { class: 'input', type: 'text', placeholder: 'Scribe: write, continue, describe, rewrite…' }),
+    el('button', { class: 'btn btn-ghost btn-icon', title: 'Send to Scribe' }, [icon('send')]),
+  ]);
 }
