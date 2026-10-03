@@ -74,10 +74,13 @@ export async function streamChatWithFallback(opts) {
       }
 
       // 4. Attempt to stream
+            const gen = getState().settings.ai;
       const fullText = await provider.streamChat({
         apiKey,
         model: bestModel.id,
         messages,
+        temperature: gen.temperature ?? 0.85,
+        maxTokens: gen.maxTokens ?? 2048,
         signal,
         onToken,
       });
