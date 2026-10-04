@@ -42,8 +42,10 @@ const CSS = `
 .scribe-chip[hidden]{display:none;}
 .scribe-qp-row{display:flex;flex-wrap:wrap;gap:4px;}
 .scribe-qp-row .btn{font-size:.66rem;padding:2px 10px;border-radius:999px;
-  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  max-width:170px;min-width:0;
   border:1px solid var(--border-strong);background:var(--surface-2);}
+.scribe-qp-row .btn > span{display:block;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
 .scribe-qp-row .btn:hover{border-color:rgba(224,168,60,.55);color:var(--accent);}
 @media (max-width:860px){ .scribe-bar{display:none;} }
 `;
@@ -166,10 +168,10 @@ function renderQuickRow() {
   if (!qpRowEl) return;
   clear(qpRowEl);
   for (const p of quickPrompts()) {
-    qpRowEl.appendChild(el('button', {
-      class: 'btn btn-ghost', text: p, title: p,
+        qpRowEl.appendChild(el('button', {
+      class: 'btn btn-ghost', title: p,
       onclick: () => runScribePrompt(p),
-    }));
+    }, [el('span', { text: p })]));
   }
 }
 
@@ -330,10 +332,10 @@ function openPromptSheet() {
 
   const qpRow = el('div', { class: 'scribe-qp-row' });
   for (const p of quickPrompts()) {
-    qpRow.appendChild(el('button', {
-      class: 'btn btn-sm', text: p,
+        qpRow.appendChild(el('button', {
+      class: 'btn btn-sm', title: p,
       onclick: () => { m.close(); runScribePrompt(p); },
-    }));
+    }, [el('span', { text: p })]));
   }
 
   const m = modal({
