@@ -18,6 +18,7 @@ import { openConfigBible } from '../features/config-bible.js';
 import { openSettings } from '../features/settings.js';
 import { acceptAiBlock, rewriteAiBlock, discardAiBlock } from '../panels/ai-output.js';
 import { exportProject } from '../features/export.js';
+import { autoSync } from '../features/cloud.js';
 
 const STYLE_ID = 'workspace-extra-style';
 const CSS = `
@@ -238,7 +239,7 @@ export function renderWorkspace() {
         class: 'btn btn-ghost btn-icon',
         title: 'Library — back to dashboard',
         'aria-label': 'Library',
-        onclick: () => { flushManuscriptSync(); closeProject(); },
+                onclick: () => { flushManuscriptSync(); autoSync(); closeProject(); },
       }, [icon('library')]),
       topBtn('export', 'download', 'Export', () => exportProject()),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
