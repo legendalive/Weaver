@@ -41,8 +41,9 @@ const CSS = `
   border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
 .scribe-chip[hidden]{display:none;}
 .scribe-qp-row{display:flex;flex-wrap:wrap;gap:4px;}
+.scribe-qp-row{flex-wrap:nowrap;width:100%;}
 .scribe-qp-row .btn{font-size:.66rem;padding:2px 10px;border-radius:999px;
-  max-width:170px;min-width:0;
+  flex:1 1 0;min-width:0;max-width:none;
   border:1px solid var(--border-strong);background:var(--surface-2);}
 .scribe-qp-row .btn > span{display:block;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;}
