@@ -1,9 +1,7 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21 + patches (v6): Scribe bundling + QUICK PROMPTS.
-   - Bundle = manuscript selection, consumed on send.
-   - Quick prompts: configurable in Settings ▸ General;
-     desktop popover below the Scribe input; mobile sheet row.
+   Step 21 + patches (v7): Scribe bundling + ALWAYS-VISIBLE
+   quick prompts (pill row directly below the Scribe input).
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -35,17 +33,17 @@ const CSS = `
 .ai-block.is-error{border-color:var(--danger);}
 .scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
 .ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
-.scribe-bar{width:min(380px,34vw);}
+.scribe-bar{width:min(430px,38vw);display:flex;flex-direction:column;gap:4px;}
+.scribe-row{display:flex;align-items:center;gap:6px;width:100%;}
+.scribe-row .input{flex:1;min-width:0;}
 .scribe-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;
   border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
   border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
 .scribe-chip[hidden]{display:none;}
-.scribe-qp{position:fixed;z-index:95;display:flex;flex-direction:column;gap:4px;
-  background:var(--surface);border:1px solid var(--border-strong);
-  border-radius:var(--radius-md);padding:6px;box-shadow:var(--shadow-2);min-width:230px;}
-.scribe-qp .btn{justify-content:flex-start;text-align:left;}
-.scribe-qp[hidden]{display:none;}
-.scribe-qp-row{display:flex;flex-wrap:wrap;gap:6px;}
+.scribe-qp-row{display:flex;flex-wrap:wrap;gap:4px;}
+.scribe-qp-row .btn{font-size:.66rem;padding:2px 9px;border-radius:999px;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@media (max-width:860px){ .scribe-bar{display:none;} }
 `;
 
 function ensureStyle() {
@@ -71,7 +69,7 @@ let fab = null;
 let chip = null;
 let chipText = null;
 let chipBound = false;
-let qpPop = null;
+let qpRowEl = null;
 const blocks = [];
 
 export function getAiBlocks() { return blocks; }
@@ -155,42 +153,16 @@ function updateChip() {
   if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
 
-/* ---------- Quick prompts popover ---------- */
-function hideQuick() { if (qpPop) qpPop.hidden = true; }
-
-function toggleQuickPrompts(bar) {
-  if (!qpPop) {
-    qpPop = el('div', { class: 'scribe-qp', hidden: true });
-    document.body.appendChild(qpPop);
-    document.addEventListener('click', (e) => {
-      if (qpPop && !qpPop.hidden && !qpPop.contains(e.target) && !e.target.closest('.scribe-bar')) hideQuick();
-    });
-  }
-  if (!qpPop.hidden) { hideQuick(); return; }
-
-  clear(qpPop);
-  const prompts = quickPrompts();
-  if (!prompts.length) {
-    qpPop.appendChild(el('span', {
-      class: 'scribe-sheet-hint',
-      text: 'No quick prompts yet — add them in Settings ▸ General.',
+/* ---------- Quick prompts (always-visible pill row) ---------- */
+function renderQuickRow() {
+  if (!qpRowEl) return;
+  clear(qpRowEl);
+  for (const p of quickPrompts()) {
+    qpRowEl.appendChild(el('button', {
+      class: 'btn btn-ghost', text: p, title: p,
+      onclick: () => runScribePrompt(p),
     }));
   }
-  for (const p of prompts) {
-    qpPop.appendChild(el('button', {
-      class: 'btn btn-sm', text: p,
-      onclick: () => { hideQuick(); runScribePrompt(p); },
-    }));
-  }
-  const rect = bar.getBoundingClientRect();
-  pop_position(rect);
-  qpPop.hidden = false;
-}
-
-function pop_position(rect) {
-  qpPop.style.top = (rect.bottom + 6) + 'px';
-  qpPop.style.right = (window.innerWidth - rect.right) + 'px';
-  qpPop.style.left = 'auto';
 }
 
 /* ---------- AI Output blocks ---------- */
@@ -308,12 +280,12 @@ function buildBar() {
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
   }, [icon('send')]);
-  const qpBtn = el('button', {
-    class: 'btn btn-ghost btn-icon', title: 'Quick prompts',
-    onclick: (e) => { e.stopPropagation(); toggleQuickPrompts(bar); },
-  }, [icon('sparkles', 'icon-sm')]);
 
-  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [chip, input, send, qpBtn]);
+  const row = el('div', { class: 'scribe-row' }, [chip, input, send]);
+  qpRowEl = el('div', { class: 'scribe-qp-row' });
+  renderQuickRow();
+
+  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
   const fire = () => { runScribePrompt(input.value); input.value = ''; };
   send.addEventListener('click', fire);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
@@ -391,6 +363,7 @@ export function initScribe() {
   }
   bindDesktop();
   subscribe((state, change) => {
+    if (change.settings) { renderQuickRow(); return; }
     if (state.view !== 'workspace') return;
     if (change.view || (change.project && !change.silent)) bindDesktop();
   });
