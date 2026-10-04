@@ -46,6 +46,7 @@ const CSS = `
   .panel-footer{
     padding:3px 8px;
     gap:8px;
+    min-height:0;
     justify-content:flex-end;
     border-top:1px solid var(--border);
   }
@@ -62,6 +63,26 @@ const CSS = `
   .panel-footer .btn:active{background:var(--surface-2);opacity:1;}
   .panel-footer .btn-label{display:none;}
   .panel-footer .btn .icon{width:15px;height:15px;}
+  .resizer{
+    height:16px;
+    background:transparent;
+    border:none;
+    position:relative;
+  }
+  .resizer::after{
+    content:'';
+    position:absolute;
+    left:0; right:0; top:50%;
+    height:1px;
+    background:var(--border);
+  }
+  .resizer:hover, .resizer:active, .resizer.is-drag, .resizer.is-dragging{
+    background:transparent;
+  }
+  .resizer:hover::after, .resizer:active::after,
+  .resizer.is-drag::after, .resizer.is-dragging::after{
+    background:var(--accent);
+  }
 }
 `;
 
