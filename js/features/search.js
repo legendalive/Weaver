@@ -22,7 +22,7 @@ const CSS = `
   border-radius:var(--radius-md);padding:0 8px;transition:width .18s ease;flex:none;}
 .ws-bar.is-open{width:280px;}
 .ws-bar .input{border:none;background:transparent;box-shadow:none;
-  padding:2px 4px;flex:1;min-width:0;font-size:.8rem;}
+  padding:0 4px;height:100%;min-height:0;flex:1;min-width:0;font-size:.8rem;}
 .ws-bar .input:focus{outline:none;}
 .ws-badge{font-family:var(--font-mono);font-size:.66rem;color:var(--faint);flex:none;}
 .ws-badge.is-novel{color:var(--accent);}
@@ -169,9 +169,10 @@ function buildBar() {
     if (e.key === 'Escape') { input.value = ''; onInput(); input.blur(); setOpen(false); }
   });
 
-  return el('div', { class: 'ws-bar', dataset: { wsBound: '1' } }, [
+    bar = el('div', { class: 'ws-bar', dataset: { wsBound: '1' } }, [
     icon('file-text', 'icon-sm'), input, badge, prev, next, clr,
   ]);
+  return bar;
 }
 
 function onInput() {
@@ -192,8 +193,14 @@ function bind() {
   if (!host) return;
   const old = host.querySelector('.ws-bar');
   if (old && old.dataset.wsBound) return;
-  if (old) old.remove();
+    if (old) old.remove();
   host.appendChild(buildBar());
+  matchButtonHeight();
+}
+
+function matchButtonHeight() {
+  const btn = document.querySelector('.topbar-left .btn');
+  if (bar && btn && btn.offsetHeight) bar.style.height = btn.offsetHeight + 'px';
 }
 
 export function initSearch() {
