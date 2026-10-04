@@ -11,6 +11,7 @@ import { initWizard } from './views/wizard.js';
 import { initWorkspace } from './views/workspace.js';
 import { initScribe } from './features/scribe.js';
 import { initAiOutput } from './panels/ai-output.js';
+import { initSearch } from './features/search.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { renderMainNovel } from './panels/main-novel.js';
 
@@ -58,6 +59,7 @@ function boot() {
   initWorkspace();
   initScribe();
   initAiOutput();
+  initSearch();
 
   applyFontScale();
 
