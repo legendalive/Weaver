@@ -131,9 +131,15 @@ export function openProjectWizard() {
   ]);
   sourceSeg.onChange((v) => { uploadRow.hidden = v !== 'upload'; });
 
-  async function readFile(file) {
+    async function readFile(file) {
     try {
-      uploadedText = await file.text();
+      if (/\.docx$/i.test(file.name)) {
+        const buf = await file.arrayBuffer();
+        const { text } = await readDocx(buf);
+        uploadedText = normalizeNewlines(text);
+      } else {
+        uploadedText = normalizeNewlines(await file.text());
+      }
       uploadedName = file.name;
       const words = uploadedText.trim() ? uploadedText.trim().split(/\s+/).length : 0;
       uploadLabel.textContent = `${file.name} — ${words.toLocaleString()} words loaded`;
