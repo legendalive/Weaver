@@ -1,10 +1,10 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-26 (v27): workspace shell.
-   - Mobile (<=860px): hairline panel headers — icons hidden,
-     panel name as a small pill on the far right; resizer lines
-     remain draggable; slim footers (icon-only <=640px).
-   - Desktop unchanged: three panels, drag borders, expand.
+   Step 8-26 (v28): workspace shell.
+   - Mobile: hairline headers (name pill left), icon-only
+     micro-buttons right, resizers = invisible touch strip with
+     a 1px hairline (inline-styled, cascade-proof).
+   - Desktop unchanged.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -21,6 +21,14 @@ import { exportProject } from '../features/export.js';
 
 const STYLE_ID = 'workspace-extra-style';
 const CSS = `
+.resizer-line{pointer-events:none;position:absolute;background:var(--border);}
+@media (max-width:860px){
+  .resizer-line{left:0;right:0;top:50%;height:1px;}
+}
+@media (min-width:861px){
+  .resizer-line{top:0;bottom:0;left:50%;width:1px;}
+}
+.resizer:active .resizer-line{background:var(--accent);}
 @media (max-width:860px){
   .panel-header{
     padding:2px 8px;
@@ -63,26 +71,6 @@ const CSS = `
   .panel-footer .btn:active{background:var(--surface-2);opacity:1;}
   .panel-footer .btn-label{display:none;}
   .panel-footer .btn .icon{width:15px;height:15px;}
-  .resizer{
-    height:16px;
-    background:transparent;
-    border:none;
-    position:relative;
-  }
-  .resizer::after{
-    content:'';
-    position:absolute;
-    left:0; right:0; top:50%;
-    height:1px;
-    background:var(--border);
-  }
-  .resizer:hover, .resizer:active, .resizer.is-drag, .resizer.is-dragging{
-    background:transparent;
-  }
-  .resizer:hover::after, .resizer:active::after,
-  .resizer.is-drag::after, .resizer.is-dragging::after{
-    background:var(--accent);
-  }
 }
 `;
 
@@ -98,10 +86,33 @@ function ensureStyle() {
 let root = null;
 let refs = {};
 let lastProjectId = null;
+let resizeBound = false;
+
+/* Inline, cascade-proof resizer styling + hairline child */
+function buildResizer(idx) {
+  return el('div', { class: 'resizer', dataset: { index: String(idx) } }, [
+    el('div', { class: 'resizer-line' }),
+  ]);
+}
+
+function styleResizers() {
+  const mobile = window.matchMedia('(max-width: 860px)').matches;
+  for (const r of refs.resizers || []) {
+    r.style.background = 'transparent';
+    r.style.border = 'none';
+    r.style.boxShadow = 'none';
+    r.style.position = 'relative';
+    r.style.height = mobile ? '16px' : '';
+  }
+}
 
 export function initWorkspace() {
   ensureStyle();
   root = document.getElementById('view-workspace');
+  if (!resizeBound) {
+    resizeBound = true;
+    window.addEventListener('resize', styleResizers);
+  }
   subscribe((state, change) => {
     if (state.view !== 'workspace') return;
     if (change.view) {
@@ -235,8 +246,8 @@ export function renderWorkspace() {
     ]),
   ]);
 
-  const resizerA = el('div', { class: 'resizer', dataset: { index: '0' } });
-  const resizerB = el('div', { class: 'resizer', dataset: { index: '1' } });
+  const resizerA = buildResizer(0);
+  const resizerB = buildResizer(1);
   refs.resizers = [resizerA, resizerB];
 
   const panels = el('div', { class: 'workspace-panels' }, [
@@ -266,5 +277,6 @@ export function renderWorkspace() {
   });
   mountManuscript(refs.manuscript);
   mountMainNovel(refs.novel);
+  styleResizers();
   applyExpansion();
 }
