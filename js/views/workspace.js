@@ -21,7 +21,7 @@ import { exportProject } from '../features/export.js';
 
 const STYLE_ID = 'workspace-extra-style';
 const CSS = `
-.resizer-line{pointer-events:none;position:absolute;background:var(--border);}
+.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06)
 @media (max-width:860px){
   .resizer-line{left:0;right:0;top:50%;height:1px;}
 }
