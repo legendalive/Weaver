@@ -1,9 +1,10 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-23: workspace shell — top bar, three-panel skeleton,
-   expand/collapse, Library exit, resize binding, Manuscript +
-   Main Novel mounting, Hierarchy + Config + Settings wiring,
-   live AI Output actions, and Export.
+   Step 8-26: workspace shell + mobile section tabs.
+   - Mobile (<=860px): one section visible at a time; the three
+     section names sit on the right edge as button-tabs; the
+     only border left is the single header underline.
+   - Desktop unchanged: three panels, drag borders, expand.
    ========================================================= */
 
 import { el, clear, toast } from '../utils/dom.js';
@@ -18,11 +19,32 @@ import { openSettings } from '../features/settings.js';
 import { acceptAiBlock, rewriteAiBlock, discardAiBlock } from '../panels/ai-output.js';
 import { exportProject } from '../features/export.js';
 
+const STYLE_ID = 'workspace-extra-style';
+const CSS = `
+.mob-tabs{position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:70;
+  display:none;flex-direction:column;gap:6px;}
+.mob-tabs .btn{padding:6px 9px;font-size:.68rem;border-radius:var(--radius-md);
+  background:var(--surface);border:1px solid var(--border-strong);box-shadow:var(--shadow-2);}
+.mob-tabs .btn.is-selected{background:var(--accent-soft);color:var(--accent);
+  border-color:rgba(224,168,60,.55);}
+@media (max-width:860px){ .mob-tabs{display:flex;} }
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
 let root = null;
 let refs = {};
 let lastProjectId = null;
 
 export function initWorkspace() {
+  ensureStyle();
   root = document.getElementById('view-workspace');
   subscribe((state, change) => {
     if (state.view !== 'workspace') return;
@@ -63,20 +85,13 @@ function footerBtn(label, iconName, onclick, danger = false) {
   ]);
 }
 
-function scribeBar() {
-  const input = el('input', {
-    class: 'input', type: 'text',
-    placeholder: 'Scribe: write, continue, describe, rewrite…',
-  });
-  const send = el('button', {
-    class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
-  }, [icon('send')]);
-  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [input, send]);
-  const fire = () => {
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-  };
-  send.addEventListener('click', fire);
-  return bar;
+function scribeBarPlaceholder() {
+  return el('div', { class: 'scribe-bar' }, [
+    el('div', { class: 'scribe-row' }, [
+      el('input', { class: 'input', type: 'text', placeholder: 'Scribe: write, continue, describe, rewrite…' }),
+      el('button', { class: 'btn btn-ghost btn-icon', title: 'Send to Scribe' }, [icon('send')]),
+    ]),
+  ]);
 }
 
 function buildPanel(key, iconName, title, placeholder, footerButtons) {
@@ -105,6 +120,17 @@ function buildPanel(key, iconName, title, placeholder, footerButtons) {
   return panel;
 }
 
+function mobTab(key, label) {
+  const b = el('button', {
+    class: 'btn',
+    text: label,
+    onclick: () => setUI({ expandedPanel: key }),
+  });
+  refs.mobTabBtns = refs.mobTabBtns || {};
+  refs.mobTabBtns[key] = b;
+  return b;
+}
+
 /* ---------- Expansion ---------- */
 function toggleExpand(key) {
   const current = getState().ui.expandedPanel;
@@ -124,6 +150,8 @@ function applyExpansion() {
       btn.appendChild(icon(expanded === key ? 'collapse' : 'expand'));
       btn.title = expanded === key ? 'Restore layout' : 'Expand panel';
     }
+    const tab = refs.mobTabBtns ? refs.mobTabBtns[key] : null;
+    if (tab) tab.classList.toggle('is-selected', expanded === key);
   }
   for (const r of refs.resizers || []) r.style.display = expanded ? 'none' : '';
   refreshLayout();
@@ -160,7 +188,7 @@ export function renderWorkspace() {
       }, [icon('library')]),
       topBtn('export', 'download', 'Export', () => exportProject()),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
-      document.querySelector('.scribe-bar') || scribeBarPlaceholder(),
+      scribeBarPlaceholder(),
     ]),
   ]);
 
@@ -187,7 +215,13 @@ export function renderWorkspace() {
       ]),
   ]);
 
-  root.append(topbar, panels);
+  const mobTabs = el('div', { class: 'mob-tabs' }, [
+    mobTab('manuscript', 'Manuscript'),
+    mobTab('novel', 'Main Novel'),
+    mobTab('ai', 'AI Output'),
+  ]);
+
+  root.append(topbar, panels, mobTabs);
   bindResizers({
     container: panels,
     panels: [refs.manuscript, refs.novel, refs.ai],
@@ -195,12 +229,10 @@ export function renderWorkspace() {
   });
   mountManuscript(refs.manuscript);
   mountMainNovel(refs.novel);
-  applyExpansion();
-}
 
-function scribeBarPlaceholder() {
-  return el('div', { class: 'scribe-bar' }, [
-    el('input', { class: 'input', type: 'text', placeholder: 'Scribe: write, continue, describe, rewrite…' }),
-    el('button', { class: 'btn btn-ghost btn-icon', title: 'Send to Scribe' }, [icon('send')]),
-  ]);
+  // Mobile default: one section at a time, starting with Manuscript.
+  if (window.matchMedia('(max-width: 860px)').matches && !getState().ui.expandedPanel) {
+    setUI({ expandedPanel: 'manuscript' });
+  }
+  applyExpansion();
 }
