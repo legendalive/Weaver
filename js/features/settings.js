@@ -201,6 +201,19 @@ function renderGeneralTab(contentEl, settings) {
         el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
       ]),
     ]),
+         el('div', { class: 'set-section' }, [
+      el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
+      el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
+      ...[0, 1, 2].map((i) => el('input', {
+        class: 'input',
+        placeholder: `Quick prompt ${i + 1}…`,
+        value: (g.quickPrompts && g.quickPrompts[i]) || '',
+        oninput: (e) => saveAndFlash((s) => {
+          if (!Array.isArray(s.general.quickPrompts)) s.general.quickPrompts = ['', '', ''];
+          s.general.quickPrompts[i] = e.target.value;
+        }),
+      })),
+    ]),
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Aesthetics' }),
       el('div', { class: 'set-field' }, [
