@@ -41,8 +41,10 @@ const CSS = `
   border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
 .scribe-chip[hidden]{display:none;}
 .scribe-qp-row{display:flex;flex-wrap:wrap;gap:4px;}
-.scribe-qp-row .btn{font-size:.66rem;padding:2px 9px;border-radius:999px;
-  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.scribe-qp-row .btn{font-size:.66rem;padding:2px 10px;border-radius:999px;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  border:1px solid var(--border-strong);background:var(--surface-2);}
+.scribe-qp-row .btn:hover{border-color:rgba(224,168,60,.55);color:var(--accent);}
 @media (max-width:860px){ .scribe-bar{display:none;} }
 `;
 
