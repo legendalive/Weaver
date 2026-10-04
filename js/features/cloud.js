@@ -57,10 +57,26 @@ export async function connectGithub(token, repo) {
     r = await gh(`/repos/${me.login}/${repo}`, { token });
   } catch (e) {
     if (!/Not Found/i.test(e.message)) throw e;
-    r = await gh('/user/repos', { method: 'POST', token, body: { name: repo, private: true, auto_init: false } });
+    try {
+      r = await gh('/user/repos', { method: 'POST', token, body: { name: repo, private: true, auto_init: false } });
+    } catch (e2) {
+      throw new Error(
+        `Repo "${repo}" is not accessible to this token and the token cannot create it. ` +
+        `Fix: create a PRIVATE repo named "${repo}" at github.com/new, then edit the token → ` +
+        `Repository access → select it, and Permissions → Contents: Read and write.`
+      );
+    }
   }
   if (!r.private) {
     throw new Error(`"${repo}" is PUBLIC. Novels sync only to private repos — make it private or choose another name.`);
+  }
+  /* Permission probe: 404 = empty repo (fine), 403 = missing Contents permission */
+  try {
+    await gh(`/repos/${me.login}/${repo}/contents/`, { token });
+  } catch (e) {
+    if (/not accessible|403/i.test(e.message)) {
+      throw new Error('Token lacks Contents permission on this repo. Edit the token → Permissions → Repository permissions → Contents: Read and write → Save.');
+    }
   }
   return { owner: me.login, branch: r.default_branch || 'main' };
 }
