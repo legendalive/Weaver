@@ -154,6 +154,12 @@ function updateChip() {
   chip.hidden = !t;
   if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
+/* ---------- FAB visibility (inline, cascade-proof) ---------- */
+function positionFab() {
+  if (!fab) return;
+  fab.style.display = window.matchMedia('(max-width: 860px)').matches ? 'flex' : 'none';
+  fab.style.zIndex = '120';
+}
 
 /* ---------- Quick prompts (always-visible pill row) ---------- */
 function renderQuickRow() {
@@ -347,13 +353,15 @@ function openPromptSheet() {
 
 export function initScribe() {
   ensureStyle();
-  if (!fab) {
+    if (!fab) {
     fab = el('button', {
       class: 'scribe-fab', title: 'Scribe', 'aria-label': 'Open Scribe',
       onclick: openPromptSheet,
     }, [icon('feather', 'icon-lg')]);
     document.body.appendChild(fab);
+    window.addEventListener('resize', positionFab);
   }
+  positionFab();
   if (!chipBound) {
     chipBound = true;
     let tick = false;
