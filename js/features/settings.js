@@ -101,7 +101,7 @@ function dataSection() {
   });
 
   const tokenInput = el('input', { class: 'input', type: 'password', placeholder: 'Fine-grained personal access token', value: g.token || '' });
-  const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'weaver-backup', value: g.repo || '' });
+    const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'repo name', value: g.repo || '' });
   const cloudBadge = el('span', { class: 'badge', text: g.token && g.repo ? 'configured' : 'off' });
 
   const autoBox = el('input', {
