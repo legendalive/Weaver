@@ -224,3 +224,14 @@
 .mn-h2 { font-family: var(--font-ui); font-size: 1.18rem; font-weight: 600; margin-top: 12px; }
 .mn-h3 { font-family: var(--font-ui); font-size: 1.02rem; font-weight: 600; color: var(--muted); margin-top: 8px; }
 .mn-word-count { margin-right: 12px; }
+/* =========================================================
+   Step 26: slim mobile panel footers
+   ========================================================= */
+@media (max-width: 860px) {
+  .panel-footer { padding: 4px 6px; gap: 4px; }
+  .panel-footer .btn { padding: 6px 8px; font-size: .72rem; }
+}
+@media (max-width: 640px) {
+  .panel-footer .btn-label { display: none; }
+  .panel-footer .btn { padding: 6px 12px; }
+}
