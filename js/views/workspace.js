@@ -25,7 +25,6 @@ const CSS = `
   .panel-header{
     padding:2px 8px;
     min-height:26px;
-    flex-direction:row-reverse;
     justify-content:space-between;
     align-items:center;
     border-bottom:1px solid var(--border);
@@ -44,12 +43,25 @@ const CSS = `
   .panel-title .icon{display:none;}
   .panel-actions .btn-icon{display:none;}
   .ms-tb-btn{padding:2px 5px;font-size:.6rem;min-width:22px;}
-  .panel-footer{padding:4px 6px;gap:4px;}
-  .panel-footer .btn{padding:5px 8px;font-size:.7rem;}
-}
-@media (max-width:640px){
+  .panel-footer{
+    padding:3px 8px;
+    gap:8px;
+    justify-content:flex-end;
+    border-top:1px solid var(--border);
+  }
+  .panel-footer .btn{
+    flex:0 0 auto;
+    width:34px;
+    height:30px;
+    padding:0;
+    border:1px solid transparent;
+    background:transparent;
+    border-radius:var(--radius-sm);
+    opacity:.85;
+  }
+  .panel-footer .btn:active{background:var(--surface-2);opacity:1;}
   .panel-footer .btn-label{display:none;}
-  .panel-footer .btn{padding:6px 12px;}
+  .panel-footer .btn .icon{width:15px;height:15px;}
 }
 `;
 
@@ -102,7 +114,7 @@ function topBtn(key, iconName, label, onclick) {
 }
 
 function footerBtn(label, iconName, onclick, danger = false) {
-  return el('button', { class: 'btn' + (danger ? ' btn-danger' : ''), onclick }, [
+  return el('button', { class: 'btn' + (danger ? ' btn-danger' : ''), title: label, onclick }, [
     icon(iconName),
     el('span', { class: 'btn-label', text: label }),
   ]);
