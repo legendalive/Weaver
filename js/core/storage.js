@@ -265,7 +265,64 @@ export function getSettings() {
     },
   };
 }
+/* ---------- Step 28: backup / restore + series upsert ---------- */
+function sanitizedSettings() {
+  const s = JSON.parse(JSON.stringify(read('settings', {})));
+  if (s.ai && s.ai.providers) {
+    for (const k of Object.keys(s.ai.providers)) s.ai.providers[k].key = '';
+  }
+  delete s.github; // sync token never leaves this browser
+  return s;
+}
 
+export function exportAllData() {
+  const projectIds = read('project_ids', []);
+  const seriesIds = read('series_ids', []);
+  return {
+    app: 'weaver', version: 1, exportedAt: Date.now(),
+    settings: sanitizedSettings(),
+    activeProjectId: read('active_project_id', null),
+    projects: projectIds
+      .map((id) => ({ id, data: read(`project_data_${id}`), meta: read(`project_meta_${id}`) }))
+      .filter((p) => p.data),
+    series: seriesIds
+      .map((id) => ({ id, meta: read(`series_meta_${id}`), config: read(`series_config_${id}`) }))
+      .filter((s) => s.meta),
+  };
+}
+
+export function importAllData(bundle) {
+  if (!bundle || bundle.app !== 'weaver' || bundle.version !== 1 || !Array.isArray(bundle.projects)) {
+    throw new Error('not a Weaver backup file');
+  }
+  const ids = read('project_ids', []);
+  for (const p of bundle.projects) {
+    write(`project_data_${p.id}`, p.data);
+    if (p.meta) write(`project_meta_${p.id}`, p.meta);
+    if (!ids.includes(p.id)) ids.push(p.id);
+  }
+  write('project_ids', ids);
+
+  const sids = read('series_ids', []);
+  for (const s of (bundle.series || [])) {
+    write(`series_meta_${s.id}`, s.meta);
+    if (s.config) write(`series_config_${s.id}`, s.config);
+    if (!sids.includes(s.id)) sids.push(s.id);
+  }
+  write('series_ids', sids);
+
+  if (bundle.settings) write('settings', bundle.settings);
+  if (bundle.activeProjectId) write('active_project_id', bundle.activeProjectId);
+  return bundle.projects.length;
+}
+
+export function upsertSeries(sid, meta, config) {
+  write(`series_meta_${sid}`, meta);
+  if (config) write(`series_config_${sid}`, config);
+  const ids = read('series_ids', []);
+  if (!ids.includes(sid)) { ids.push(sid); write('series_ids', ids); }
+  return true;
+}
 export function saveSettings(settings) {
   return write('settings', settings);
 }
