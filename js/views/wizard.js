@@ -109,7 +109,7 @@ export function openProjectWizard() {
     text: 'Drop a .txt / .md file here, or click to choose one.',
   });
   const fileInput = el('input', {
-    type: 'file', accept: '.txt,.md,.markdown,text/plain', hidden: true,
+        type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
     onchange: (e) => { const f = e.target.files?.[0]; if (f) readFile(f); },
   });
   const uploadBox = el('div', {
