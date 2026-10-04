@@ -59,7 +59,7 @@ function topBtn(key, iconName, label, onclick) {
 function footerBtn(label, iconName, onclick, danger = false) {
   return el('button', { class: 'btn' + (danger ? ' btn-danger' : ''), onclick }, [
     icon(iconName),
-    label,
+    el('span', { class: 'btn-label', text: label }),
   ]);
 }
 
