@@ -237,7 +237,8 @@ const DEFAULT_SETTINGS = {
     sentencesPerPage: 15,
     autosaveInterval: 3000,
         panelSizes: [33.4, 33.3, 33.3],
-    acceptMovesText: false,
+       acceptMovesText: false,
+    quickPrompts: ['Improve prose', 'Continue the scene from here', 'Rewrite in third person, past tense'],
   },
   ai: {
     providers: {
