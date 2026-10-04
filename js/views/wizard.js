@@ -1,9 +1,8 @@
 /* =========================================================
    Weaver — js/views/wizard.js
-   Step 7 + Step 7.5: New Project wizard — name, scope (with
-   series name + book title + add-to-existing-series), source
-   (scratch/upload), config-bible init with bypass. Series books
-   inherit the shared series config bible automatically.
+   Step 7 + 7.5 + 26: New Project wizard — name, scope (series
+   name + book title + add-to-existing), source (scratch/upload
+   including silent .docx conversion), config-bible init.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -15,6 +14,8 @@ import {
 } from '../core/storage.js';
 import { openProject } from '../core/state.js';
 import { setOpenWizard } from './launch.js';
+import { readDocx } from '../utils/docx.js';
+import { normalizeNewlines } from '../utils/text.js';
 
 /* ---------- Segmented picker helper ---------- */
 function segmented(options, initial) {
@@ -70,7 +71,7 @@ export function openProjectWizard() {
     seriesHint,
   ]);
 
-    const bookInput = el('input', {
+  const bookInput = el('input', {
     class: 'input', type: 'text', maxlength: '80',
     placeholder: 'e.g. Book One: Ashfall',
   });
@@ -103,13 +104,13 @@ export function openProjectWizard() {
     configHint,
   ]);
 
-  /* ----- upload zone ----- */
+  /* ----- upload zone (txt / md / docx) ----- */
   const uploadLabel = el('span', {
     class: 'wizard-upload-hint',
-    text: 'Drop a .txt / .md file here, or click to choose one.',
+    text: 'Drop a .txt / .md / .docx file here, or click to choose one.',
   });
   const fileInput = el('input', {
-        type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
+    type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
     onchange: (e) => { const f = e.target.files?.[0]; if (f) readFile(f); },
   });
   const uploadBox = el('div', {
@@ -131,7 +132,7 @@ export function openProjectWizard() {
   ]);
   sourceSeg.onChange((v) => { uploadRow.hidden = v !== 'upload'; });
 
-    async function readFile(file) {
+  async function readFile(file) {
     try {
       if (/\.docx$/i.test(file.name)) {
         const buf = await file.arrayBuffer();
@@ -145,7 +146,7 @@ export function openProjectWizard() {
       uploadLabel.textContent = `${file.name} — ${words.toLocaleString()} words loaded`;
       uploadBox.classList.add('is-loaded');
     } catch (err) {
-      toast('Could not read that file.', 'danger');
+      toast(err.message || 'Could not read that file.', 'danger');
     }
   }
 
