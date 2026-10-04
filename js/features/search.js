@@ -1,10 +1,11 @@
 /* =========================================================
    Weaver — js/features/search.js
-   Step 27.5: Word/phrase search across Manuscript + Main Novel.
-   - Case-insensitive phrase matching on stored text.
-   - Next/Prev jump the virtual window to the hit's block and
-     paint a temporary <mark> (sync-transparent, re-render-safe).
-   - Order: Manuscript matches, then Main Novel matches, wrap.
+   Step 27.5 + final polish: phrase search across Manuscript
+   and Main Novel.
+   - Expand-on-focus pill: 150px at rest, 280px in use; height
+     matched to the topbar buttons; placeholder "Search".
+   - Project title truncates with ellipsis (never squeezed).
+   - Next/Prev jump the virtual window + paint a temp <mark>.
    ========================================================= */
 
 import { el, clear } from '../utils/dom.js';
@@ -16,15 +17,19 @@ import { jumpNovelToBlock } from '../panels/main-novel.js';
 
 const STYLE_ID = 'search-style';
 const CSS = `
-.ws-bar{display:flex;align-items:center;gap:4px;width:230px;
+.ws-bar{display:flex;align-items:center;gap:4px;width:150px;height:36px;box-sizing:border-box;
   background:var(--surface-2);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:3px 6px;}
+  border-radius:var(--radius-md);padding:0 8px;transition:width .18s ease;flex:none;}
+.ws-bar.is-open{width:280px;}
 .ws-bar .input{border:none;background:transparent;box-shadow:none;
   padding:2px 4px;flex:1;min-width:0;font-size:.8rem;}
 .ws-bar .input:focus{outline:none;}
 .ws-badge{font-family:var(--font-mono);font-size:.66rem;color:var(--faint);flex:none;}
 .ws-badge.is-novel{color:var(--accent);}
-.ws-bar .btn{padding:2px 5px;font-size:.8rem;line-height:1;}
+.ws-bar .btn{padding:2px 5px;font-size:.8rem;line-height:1;height:26px;flex:none;}
+.topbar-center{min-width:0;}
+.topbar-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar-sub{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 mark.ws-hit{background:rgba(224,168,60,.35);color:inherit;border-radius:2px;}
 @media (max-width:860px){ .ws-bar{display:none;} }
 `;
@@ -138,21 +143,30 @@ function goto(k) {
 }
 
 /* ---------- UI ---------- */
+function setOpen(open) {
+  if (bar) bar.classList.toggle('is-open', open);
+}
+
 function buildBar() {
   input = el('input', {
     class: 'input', type: 'text',
-    placeholder: 'Search manuscript & novel…',
+    placeholder: 'Search',
   });
   badge = el('span', { class: 'ws-badge' });
 
   const prev = el('button', { class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '‹', onclick: () => goto(pos - 1) });
   const next = el('button', { class: 'btn btn-ghost', title: 'Next match (Enter)', text: '›', onclick: () => goto(pos + 1) });
-  const clr = el('button', { class: 'btn btn-ghost btn-icon', title: 'Clear search', onclick: () => { input.value = ''; onInput(); } }, [icon('x', 'icon-sm')]);
+  const clr = el('button', {
+    class: 'btn btn-ghost btn-icon', title: 'Clear search',
+    onclick: () => { input.value = ''; onInput(); },
+  }, [icon('x', 'icon-sm')]);
 
   input.addEventListener('input', onInput);
+  input.addEventListener('focus', () => setOpen(true));
+  input.addEventListener('blur', () => { if (!(input.value || '').trim()) setOpen(false); });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); goto(e.shiftKey ? pos - 1 : pos + 1); }
-    if (e.key === 'Escape') { input.value = ''; onInput(); input.blur(); }
+    if (e.key === 'Escape') { input.value = ''; onInput(); input.blur(); setOpen(false); }
   });
 
   return el('div', { class: 'ws-bar', dataset: { wsBound: '1' } }, [
@@ -164,6 +178,7 @@ function onInput() {
   clearTimeout(debounce);
   debounce = setTimeout(() => {
     query = (input.value || '').trim();
+    setOpen(Boolean(query));
     clearMarks();
     if (!query) { msHits = []; nvHits = []; pos = -1; updateBadge(); return; }
     recompute();
