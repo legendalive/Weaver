@@ -1,11 +1,9 @@
 /* =========================================================
    Weaver — js/features/scribe.js
-   Step 21 + patches (v5, SIMPLIFIED): Scribe bundling.
-   - Bundle = the manuscript's live selection, CONSUMED on send
-     (no stale reuse, no cross-send / cross-project leakage).
-   - No PREVIOUS-GENERATION chaining (removed: caused garbage loops).
-   - Short crisp system rules + "never open with an interjection".
-   - Gold tint = "currently bundled"; clears after send/edit.
+   Step 21 + patches (v6): Scribe bundling + QUICK PROMPTS.
+   - Bundle = manuscript selection, consumed on send.
+   - Quick prompts: configurable in Settings ▸ General;
+     desktop popover below the Scribe input; mobile sheet row.
    ========================================================= */
 
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -42,6 +40,12 @@ const CSS = `
   border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
   border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
 .scribe-chip[hidden]{display:none;}
+.scribe-qp{position:fixed;z-index:95;display:flex;flex-direction:column;gap:4px;
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:var(--radius-md);padding:6px;box-shadow:var(--shadow-2);min-width:230px;}
+.scribe-qp .btn{justify-content:flex-start;text-align:left;}
+.scribe-qp[hidden]{display:none;}
+.scribe-qp-row{display:flex;flex-wrap:wrap;gap:6px;}
 `;
 
 function ensureStyle() {
@@ -67,12 +71,16 @@ let fab = null;
 let chip = null;
 let chipText = null;
 let chipBound = false;
+let qpPop = null;
 const blocks = [];
 
 export function getAiBlocks() { return blocks; }
 
 function cap(s, n) { return s.length > n ? s.slice(0, Math.max(0, n - 1)) + '…' : s; }
 function flat(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
+function quickPrompts() {
+  return (getState().settings.general.quickPrompts || []).filter((p) => (p || '').trim());
+}
 
 /* ---------- Token-efficient bible compiler ---------- */
 export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
@@ -145,6 +153,44 @@ function updateChip() {
   const t = sel ? sel.text : '';
   chip.hidden = !t;
   if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
+}
+
+/* ---------- Quick prompts popover ---------- */
+function hideQuick() { if (qpPop) qpPop.hidden = true; }
+
+function toggleQuickPrompts(bar) {
+  if (!qpPop) {
+    qpPop = el('div', { class: 'scribe-qp', hidden: true });
+    document.body.appendChild(qpPop);
+    document.addEventListener('click', (e) => {
+      if (qpPop && !qpPop.hidden && !qpPop.contains(e.target) && !e.target.closest('.scribe-bar')) hideQuick();
+    });
+  }
+  if (!qpPop.hidden) { hideQuick(); return; }
+
+  clear(qpPop);
+  const prompts = quickPrompts();
+  if (!prompts.length) {
+    qpPop.appendChild(el('span', {
+      class: 'scribe-sheet-hint',
+      text: 'No quick prompts yet — add them in Settings ▸ General.',
+    }));
+  }
+  for (const p of prompts) {
+    qpPop.appendChild(el('button', {
+      class: 'btn btn-sm', text: p,
+      onclick: () => { hideQuick(); runScribePrompt(p); },
+    }));
+  }
+  const rect = bar.getBoundingClientRect();
+  pop_position(rect);
+  qpPop.hidden = false;
+}
+
+function pop_position(rect) {
+  qpPop.style.top = (rect.bottom + 6) + 'px';
+  qpPop.style.right = (window.innerWidth - rect.right) + 'px';
+  qpPop.style.left = 'auto';
 }
 
 /* ---------- AI Output blocks ---------- */
@@ -238,17 +284,13 @@ export function runScribePrompt(prompt) {
   const block = createBlock(p, context);
   if (!block) return;
 
-  // Consume the bundle so it can never be re-sent stale.
   clearManuscriptSelection();
   updateChip();
 
   streamInto(block);
 }
 
-/* Rewrite: resend THIS block's stored prompt + context. */
-export function rerunBlock(block) {
-  streamInto(block);
-}
+export function rerunBlock(block) { streamInto(block); }
 
 /* ---------- Prompt bar (desktop) + FAB/sheet (mobile) ---------- */
 function buildBar() {
@@ -266,7 +308,12 @@ function buildBar() {
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
   }, [icon('send')]);
-  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [chip, input, send]);
+  const qpBtn = el('button', {
+    class: 'btn btn-ghost btn-icon', title: 'Quick prompts',
+    onclick: (e) => { e.stopPropagation(); toggleQuickPrompts(bar); },
+  }, [icon('sparkles', 'icon-sm')]);
+
+  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [chip, input, send, qpBtn]);
   const fire = () => { runScribePrompt(input.value); input.value = ''; };
   send.addEventListener('click', fire);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
@@ -300,9 +347,18 @@ function openPromptSheet() {
       clearBtn.hidden = true;
     },
   });
+
+  const qpRow = el('div', { class: 'scribe-qp-row' });
+  for (const p of quickPrompts()) {
+    qpRow.appendChild(el('button', {
+      class: 'btn btn-sm', text: p,
+      onclick: () => { m.close(); runScribePrompt(p); },
+    }));
+  }
+
   const m = modal({
     title: 'Scribe',
-    body: [hint, ta],
+    body: quickPrompts().length ? [hint, qpRow, ta] : [hint, ta],
     footer: [
       el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() }),
       clearBtn,
