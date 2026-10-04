@@ -1,14 +1,16 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   Step 20 + Step 25: Settings Modal.
-   - AI Tab: providers (key/test/enable) + generation controls
-     (temperature, max tokens).
-   - General Tab: paging, autosave, font scale, accept move-mode.
+   Step 20 + 25 + 26 + 28: Settings Modal.
+   - AI Tab: providers (key/test/enable) + generation controls.
+   - General Tab: editor behavior, quick prompts, aesthetics,
+     Data & Backup + GitHub cloud sync (private repo only).
    ========================================================= */
 
-import { el, clear, modal, toast } from '../utils/dom.js';
+import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
+import { exportAllData, importAllData } from '../core/storage.js';
+import { connectGithub, syncNow } from './cloud.js';
 import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
 import gemini from '../ai/providers/gemini.js';
@@ -67,6 +69,101 @@ function saveAndFlash(mutator) {
     savedBadge.hidden = false;
     setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
   }
+}
+
+/* ---------- Data, Backup & Cloud section ---------- */
+function dataSection() {
+  const g = getState().settings.github || {};
+
+  const fileInput = el('input', {
+    type: 'file', accept: '.json,application/json', hidden: true,
+    onchange: async (e) => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      try {
+        const bundle = JSON.parse(await f.text());
+        const count = (bundle.projects || []).length;
+        const ok = await confirmDialog({
+          title: 'Restore backup',
+          message: `This backup contains ${count} project(s). Restoring merges them into this browser and reloads the app. Projects with the same ID are overwritten by the backup. Continue?`,
+          confirmLabel: 'Restore & reload',
+          danger: true,
+        });
+        if (!ok) return;
+        const n = importAllData(bundle);
+        toast(`Restored ${n} project(s). Reloading…`, 'success');
+        setTimeout(() => location.reload(), 900);
+      } catch (err) {
+        toast('Not a valid Weaver backup: ' + err.message, 'danger');
+      }
+    },
+  });
+
+  const tokenInput = el('input', { class: 'input', type: 'password', placeholder: 'Fine-grained personal access token', value: g.token || '' });
+  const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'weaver-backup', value: g.repo || '' });
+  const cloudBadge = el('span', { class: 'badge', text: g.token && g.repo ? 'configured' : 'off' });
+
+  const autoBox = el('input', {
+    type: 'checkbox', checked: g.autoSync !== false,
+    onchange: (e) => updateSettings((s) => { s.github = { ...(s.github || {}), token: (s.github || {}).token || '', repo: (s.github || {}).repo || '', autoSync: e.target.checked }; }),
+  });
+
+  const connectBtn = el('button', {
+    class: 'btn btn-sm', text: 'Connect',
+    onclick: async () => {
+      const token = tokenInput.value.trim();
+      const repo = repoInput.value.trim();
+      if (!token || !repo) { toast('Paste the token and repo name first.', 'info'); return; }
+      connectBtn.disabled = true;
+      connectBtn.textContent = 'Connecting…';
+      try {
+        const info = await connectGithub(token, repo);
+        updateSettings((s) => { s.github = { token, repo, autoSync: autoBox.checked }; });
+        cloudBadge.textContent = `connected · ${info.owner}`;
+        cloudBadge.className = 'badge badge-success';
+        toast(`Connected to ${info.owner}/${repo} (private).`, 'success');
+      } catch (e) {
+        cloudBadge.textContent = 'failed';
+        cloudBadge.className = 'badge badge-danger';
+        toast('Connect failed: ' + e.message, 'danger');
+      }
+      connectBtn.disabled = false;
+      connectBtn.textContent = 'Connect';
+    },
+  });
+
+  const syncBtn = el('button', {
+    class: 'btn btn-sm', text: 'Sync now',
+    onclick: () => syncNow(),
+  });
+
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Data & Backup' }),
+    el('p', { class: 'set-hint', text: 'Full backup of every project and series bible (API keys and sync token excluded). Keep the file anywhere.' }),
+    el('div', { class: 'set-row' }, [
+      el('button', {
+        class: 'btn btn-sm', text: 'Download full backup',
+        onclick: () => {
+          const blob = new Blob([JSON.stringify(exportAllData(), null, 1)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = el('a', { href: url, download: `weaver-backup-${new Date().toISOString().slice(0, 10)}.json` });
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          toast('Backup downloaded.', 'success');
+        },
+      }),
+      el('button', { class: 'btn btn-sm', text: 'Restore from backup…', onclick: () => fileInput.click() }),
+      fileInput,
+    ]),
+    el('h4', { text: 'GitHub Cloud Sync (private repo)' }),
+    el('p', { class: 'set-hint', text: '1) Create a PRIVATE repo (e.g. weaver-backup). 2) Create a fine-grained token scoped to it with Contents: Read and write. 3) Paste both, Connect. Public repos are refused.' }),
+    el('div', { class: 'set-row' }, [tokenInput]),
+    el('div', { class: 'set-row' }, [repoInput, connectBtn, syncBtn, cloudBadge]),
+    el('label', { class: 'set-toggle' }, [autoBox, el('span', { text: 'Auto-sync when leaving a project (Library)' })]),
+  ]);
 }
 
 /* ---------- AI Tab ---------- */
@@ -201,7 +298,7 @@ function renderGeneralTab(contentEl, settings) {
         el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
       ]),
     ]),
-         el('div', { class: 'set-section' }, [
+    el('div', { class: 'set-section' }, [
       el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
       el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
       ...[0, 1, 2].map((i) => el('input', {
@@ -231,7 +328,8 @@ function renderGeneralTab(contentEl, settings) {
           el('option', { value: '1.2', text: 'Extra Large (1.2x)', selected: g.fontScale === 1.2 }),
         ]),
       ]),
-    ])
+    ]),
+    dataSection(),
   );
 }
 
