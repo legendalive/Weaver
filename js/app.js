@@ -12,6 +12,7 @@ import { initWorkspace } from './views/workspace.js';
 import { initScribe } from './features/scribe.js';
 import { initAiOutput } from './panels/ai-output.js';
 import { initSearch } from './features/search.js';
+import { initCapture } from './features/capture.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { renderMainNovel } from './panels/main-novel.js';
 
@@ -59,7 +60,8 @@ function boot() {
   initWorkspace();
   initScribe();
   initAiOutput();
-  initSearch();
+    initSearch();
+  initCapture();
 
   applyFontScale();
 
