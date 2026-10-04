@@ -1,13 +1,11 @@
 /* =========================================================
    Weaver — js/panels/manuscript.js
-   CONSOLIDATED (Steps 11-14 + 21 + 24 + 25 + final scroll/dup fixes).
-   - Editable, virtualized (spacer) windowed rendering.
-   - Sticky bundle: last highlight persists as Scribe context;
-     captured bulletproof via sel.toString().
-   - Resume: reopens at saved window position (viewStart).
-   - Accept-as-is: operates on the SELECTION only; move-mode cuts;
-     includes duplicate-detection guard.
-   - Sticky-bottom scroll (rAF pinned) + one-page bottom runway.
+   CONSOLIDATED FINAL (Steps 11-27): editor + paging engine.
+   - Sticky-bottom scroll, hardened: sync pin after appends,
+     sticky-aware prune, rAF confirm, debounced runway recompute.
+   - One-page bottom runway; resume via viewStart.
+   - Sticky bundle (sel.toString capture); selection-based
+     Accept-as-is with duplicate guard + move mode.
    ========================================================= */
 
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
@@ -37,10 +35,11 @@ let syncProjectId = null;
 let selectionInfo = null;
 let docBound = false;
 let selTick = false;
+let isStickyBottom = true;
+let runwayTimer = null;
 
 let topSpacer = null;
 let bottomSpacer = null;
-let isStickyBottom = true; // Tracks if user is scrolled to the bottom
 
 export function getManuscriptSelection() { return selectionInfo; }
 
@@ -91,7 +90,7 @@ export function mountManuscript(panel) {
     });
     const persist = () => { flushManuscriptSync(); flushSave(); };
     window.addEventListener('beforeunload', persist);
-    window.addEventListener('resize', updateRunway);
+    window.addEventListener('resize', updateRunwaySoon);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') persist();
     });
@@ -422,12 +421,11 @@ export function flushManuscriptSync() {
   touchProject({ silent: true });
 }
 
-/* ---------- Paging Engine (virtualization, sticky bottom) ---------- */
+/* ---------- Paging Engine: hardened sticky-bottom ---------- */
 function onScroll() {
   if (!bodyEl || !index.length) return;
   const { scrollTop, scrollHeight, clientHeight } = bodyEl;
 
-  // If we are within 30px of the bottom, we consider the user "sticky" at the bottom
   isStickyBottom = (scrollTop + clientHeight >= scrollHeight - 30);
 
   const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
@@ -439,6 +437,7 @@ function onScroll() {
     if (end > mounted.to) {
       appendBlocks(mounted.to, end);
       pruneTop();
+      if (isStickyBottom) bodyEl.scrollTop = bodyEl.scrollHeight; // sync pin: no flicker frame
     }
   }
 
@@ -456,12 +455,8 @@ function onScroll() {
     }
   }
 
-  // If the user was at the bottom before DOM mutations, pin them to the new bottom
-  // using rAF so it happens AFTER the browser calculates the new scrollHeight.
   if (isStickyBottom) {
-    requestAnimationFrame(() => {
-      bodyEl.scrollTop = bodyEl.scrollHeight;
-    });
+    requestAnimationFrame(() => { bodyEl.scrollTop = bodyEl.scrollHeight; });
   }
 }
 
@@ -492,7 +487,7 @@ function pruneTop() {
   const oldTop = bodyEl.scrollTop;
   for (let i = 0; i < removeCount; i++) nodes[i].remove();
   topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
-  bodyEl.scrollTop = oldTop;
+  if (!isStickyBottom) bodyEl.scrollTop = oldTop; // sticky pin owns the position instead
   mounted.from += removeCount;
 }
 
@@ -506,9 +501,17 @@ function pruneBottom() {
   mounted.to -= removeCount;
 }
 
-/* One empty page of runway below the last text */
+/* ---------- Runway: one empty page below the last text ---------- */
 function updateRunway() {
   if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
+}
+
+function updateRunwaySoon() {
+  clearTimeout(runwayTimer);
+  runwayTimer = setTimeout(() => {
+    updateRunway();
+    if (isStickyBottom && bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+  }, 150);
 }
 
 /* ---------- Accept as Is (selection-based + duplicate guard) ---------- */
@@ -526,7 +529,6 @@ export async function acceptAsIs() {
 
   const currentNovel = project.mainNovel.text || '';
 
-  // DUPLICATE GUARD
   if (currentNovel.includes(textToPush)) {
     const ok = await confirmDialog({
       title: 'Duplicate text detected',
