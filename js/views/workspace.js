@@ -1,9 +1,9 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   Step 8-26: workspace shell + mobile section tabs.
-   - Mobile (<=860px): one section visible at a time; the three
-     section names sit on the right edge as button-tabs; the
-     only border left is the single header underline.
+   Step 8-26 (v27): workspace shell.
+   - Mobile (<=860px): hairline panel headers — icons hidden,
+     panel name as a small pill on the far right; resizer lines
+     remain draggable; slim footers (icon-only <=640px).
    - Desktop unchanged: three panels, drag borders, expand.
    ========================================================= */
 
@@ -21,13 +21,36 @@ import { exportProject } from '../features/export.js';
 
 const STYLE_ID = 'workspace-extra-style';
 const CSS = `
-.mob-tabs{position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:70;
-  display:none;flex-direction:column;gap:6px;}
-.mob-tabs .btn{padding:6px 9px;font-size:.68rem;border-radius:var(--radius-md);
-  background:var(--surface);border:1px solid var(--border-strong);box-shadow:var(--shadow-2);}
-.mob-tabs .btn.is-selected{background:var(--accent-soft);color:var(--accent);
-  border-color:rgba(224,168,60,.55);}
-@media (max-width:860px){ .mob-tabs{display:flex;} }
+@media (max-width:860px){
+  .panel-header{
+    padding:2px 8px;
+    min-height:26px;
+    flex-direction:row-reverse;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--border);
+  }
+  .panel-title{
+    font-size:.64rem;
+    letter-spacing:.04em;
+    text-transform:none;
+    padding:1px 9px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:var(--surface-2);
+    color:var(--muted);
+    font-weight:600;
+  }
+  .panel-title .icon{display:none;}
+  .panel-actions .btn-icon{display:none;}
+  .ms-tb-btn{padding:2px 5px;font-size:.6rem;min-width:22px;}
+  .panel-footer{padding:4px 6px;gap:4px;}
+  .panel-footer .btn{padding:5px 8px;font-size:.7rem;}
+}
+@media (max-width:640px){
+  .panel-footer .btn-label{display:none;}
+  .panel-footer .btn{padding:6px 12px;}
+}
 `;
 
 function ensureStyle() {
@@ -120,17 +143,6 @@ function buildPanel(key, iconName, title, placeholder, footerButtons) {
   return panel;
 }
 
-function mobTab(key, label) {
-  const b = el('button', {
-    class: 'btn',
-    text: label,
-    onclick: () => setUI({ expandedPanel: key }),
-  });
-  refs.mobTabBtns = refs.mobTabBtns || {};
-  refs.mobTabBtns[key] = b;
-  return b;
-}
-
 /* ---------- Expansion ---------- */
 function toggleExpand(key) {
   const current = getState().ui.expandedPanel;
@@ -150,8 +162,6 @@ function applyExpansion() {
       btn.appendChild(icon(expanded === key ? 'collapse' : 'expand'));
       btn.title = expanded === key ? 'Restore layout' : 'Expand panel';
     }
-    const tab = refs.mobTabBtns ? refs.mobTabBtns[key] : null;
-    if (tab) tab.classList.toggle('is-selected', expanded === key);
   }
   for (const r of refs.resizers || []) r.style.display = expanded ? 'none' : '';
   refreshLayout();
@@ -215,13 +225,7 @@ export function renderWorkspace() {
       ]),
   ]);
 
-  const mobTabs = el('div', { class: 'mob-tabs' }, [
-    mobTab('manuscript', 'Manuscript'),
-    mobTab('novel', 'Main Novel'),
-    mobTab('ai', 'AI Output'),
-  ]);
-
-  root.append(topbar, panels, mobTabs);
+  root.append(topbar, panels);
   bindResizers({
     container: panels,
     panels: [refs.manuscript, refs.novel, refs.ai],
@@ -229,10 +233,5 @@ export function renderWorkspace() {
   });
   mountManuscript(refs.manuscript);
   mountMainNovel(refs.novel);
-
-  // Mobile default: one section at a time, starting with Manuscript.
-  if (window.matchMedia('(max-width: 860px)').matches && !getState().ui.expandedPanel) {
-    setUI({ expandedPanel: 'manuscript' });
-  }
   applyExpansion();
 }
