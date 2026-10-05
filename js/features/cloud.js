@@ -2,12 +2,12 @@
    Weaver — js/features/cloud.js
    Step 28: GitHub private-repo sync (Git Data API, size-safe).
    - Two-way merge by updatedAt; every sync = one commit.
-   - Refuses public repos. Token stays in this browser only.
-   - Payload: projects + series bibles (settings stay local).
+   - Refuses public repos; token stays in this browser only.
+   - Branch-robust remote read; empty-repo bootstrap commit.
    ========================================================= */
 
 import { toast } from '../utils/dom.js';
-import { getState, updateSettings } from '../core/state.js';
+import { getState } from '../core/state.js';
 import {
   listProjects, getProject, saveProject,
   listSeries, getSeriesConfig, upsertSeries,
@@ -70,7 +70,6 @@ export async function connectGithub(token, repo) {
   if (!r.private) {
     throw new Error(`"${repo}" is PUBLIC. Novels sync only to private repos — make it private or choose another name.`);
   }
-  /* Permission probe: 404 = empty repo (fine), 403 = missing Contents permission */
   try {
     await gh(`/repos/${me.login}/${repo}/contents/`, { token });
   } catch (e) {
@@ -78,17 +77,16 @@ export async function connectGithub(token, repo) {
       throw new Error('Token lacks Contents permission on this repo. Edit the token → Permissions → Repository permissions → Contents: Read and write → Save.');
     }
   }
-     return { owner: me.login, repo, branch: r.default_branch || 'main', token };
+  return { owner: me.login, repo, branch: r.default_branch || 'main', token };
 }
 
-/* ---------- Remote tree ---------- */
+/* ---------- Remote tree (branch-robust) ---------- */
 async function readRemote(ctx) {
   let branch = ctx.branch;
   let ref = null;
   try {
     ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
   } catch {
-    // Freshly-bootstrapped or renamed default branch: discover the real one.
     try {
       const branches = await gh(`/repos/${ctx.owner}/${ctx.repo}/branches`, { token: ctx.token });
       if (branches && branches.length) {
@@ -140,7 +138,7 @@ export async function syncNow({ quiet = false } = {}) {
     return false;
   }
   try {
-        const base = await connectGithub(g.token, g.repo);
+    const base = await connectGithub(g.token, g.repo);
     let ctx = await readRemote(base);
 
     let remoteIndex = { projects: {}, series: {} };
@@ -187,10 +185,9 @@ export async function syncNow({ quiet = false } = {}) {
     for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
     pushFiles.push({ path: 'weaver/index.json', obj: finalIndex });
 
-        if (pushFiles.length) {
+    if (pushFiles.length) {
       if (!ctx.commitSha) {
-        // Empty repo: bootstrap a first commit via the Contents API,
-        // then run the normal single-commit sync on top of it.
+        // Empty repo: bootstrap a first commit via the Contents API.
         await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
           method: 'PUT',
           token: ctx.token,
