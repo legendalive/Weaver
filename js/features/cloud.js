@@ -1,13 +1,13 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   Step 28 FINAL+: GitHub private-repo sync (Git Data API).
+   Step 28 FINAL: GitHub private-repo sync (Git Data API).
    - Two-way merge by updatedAt; every sync = one commit.
    - Refuses public repos; token stays in this browser only.
    - Mutex: one sync at a time per tab.
-   - commitAll re-reads the branch head immediately before
-     committing and retries with a rebase if GitHub reports
-     "not a fast forward" — concurrent writers self-heal.
-   - Bootstrap (first commit) only when the repo is truly empty.
+   - commitAll: fresh-head commit + rebase retry on 422;
+     "no head" is concluded ONLY from 404/empty responses,
+     never from rate-limits or network errors (the old bug).
+   - Bootstrap first commit only when repo is truly empty.
    ========================================================= */
 
 import { toast } from '../utils/dom.js';
@@ -110,8 +110,8 @@ async function readBlob(ctx, sha) {
   return JSON.parse(fromB64(b.content));
 }
 
-/* ---------- Commit with fresh-head + rebase retry ---------- */
-async function commitAll(ctx, files) {
+/* ---------- Commit: fresh head, rebase retry, honest errors ---------- */
+async function commitAll(ctx, files, allowRoot = false) {
   const items = [];
   for (const f of files) {
     const b = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/blobs`, {
@@ -121,14 +121,20 @@ async function commitAll(ctx, files) {
     items.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha });
   }
 
+  let rootOk = allowRoot;
   for (let attempt = 1; attempt <= 3; attempt++) {
-    /* Fresh head, read as late as possible */
     let head = null;
     try {
       const ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${ctx.branch}`, { token: ctx.token });
       const headCommit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
       head = { commitSha: headCommit.sha, treeSha: headCommit.tree.sha };
-    } catch { head = null; }
+      rootOk = false;
+    } catch (e) {
+      // ONLY a missing ref means "empty repo". Rate limits / network
+      // errors must surface, not be mistaken for emptiness.
+      if (!rootOk || !/Not Found|Git Repository is empty/i.test(e.message)) throw e;
+      head = null;
+    }
 
     const treeBody = { tree: items };
     if (head) treeBody.base_tree = head.treeSha;
@@ -146,7 +152,7 @@ async function commitAll(ctx, files) {
       }
       return;
     } catch (e) {
-      if (/fast forward/i.test(e.message) && attempt < 3) continue; // rebase onto new head, retry
+      if (/fast forward/i.test(e.message) && attempt < 3) { rootOk = false; continue; }
       throw e;
     }
   }
@@ -215,6 +221,7 @@ export async function syncNow({ quiet = false } = {}) {
     pushFiles.push({ path: 'weaver/index.json', obj: finalIndex });
 
     if (pushFiles.length) {
+      let allowRoot = ctx.empty;
       if (ctx.empty) {
         // Truly empty repo: bootstrap a first commit via the Contents API.
         await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
@@ -226,8 +233,9 @@ export async function syncNow({ quiet = false } = {}) {
           },
         });
         ctx = await readRemote(ctx);
+        allowRoot = false;
       }
-      await commitAll(ctx, pushFiles);
+      await commitAll(ctx, pushFiles, allowRoot);
     }
 
     if (!quiet) {
