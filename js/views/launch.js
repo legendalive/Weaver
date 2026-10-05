@@ -11,6 +11,7 @@ import { icon } from '../utils/icons.js';
 import { listProjects, deleteProject, getActiveProject } from '../core/storage.js';
 import { openProject, subscribe } from '../core/state.js';
 import { openGuide } from '../features/guide.js';
+import { openSettings } from '../features/settings.js';
 
 let root = null;
 let openWizardFn = null;
@@ -86,12 +87,13 @@ export function renderLaunch() {
   const projects = listProjects();
 
   root.append(
-    el('header', { class: 'launch-header' }, [
-      el('div', {}, [
-        el('h1', { class: 'launch-title' }, [icon('feather'), 'Weaver']),
-        el('p', { class: 'launch-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
-      ]),
-      el('div', { class: 'launch-actions' }, [
+          el('div', { class: 'launch-actions' }, [
+        el('button', {
+          class: 'btn btn-ghost btn-icon',
+          title: 'Settings (backup, restore, cloud sync)',
+          'aria-label': 'Settings',
+          onclick: () => openSettings(),
+        }, [icon('gear')]),
         el('button', {
           class: 'btn',
           title: 'Read the quick-start guide',
