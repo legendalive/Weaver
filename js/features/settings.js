@@ -155,8 +155,10 @@ function dataSection() {
           toast('Backup downloaded.', 'success');
         },
       }),
-      el('button', { class: 'btn btn-sm', text: 'Restore from backup…', onclick: () => fileInput.click() }),
+            el('button', { class: 'btn btn-sm', text: 'Restore from this PC…', onclick: () => fileInput.click() }),
+      el('button', { class: 'btn btn-sm', text: 'Pull from cloud', onclick: () => syncNow() }),
       fileInput,
+    ]),
     ]),
     el('h4', { text: 'GitHub Cloud Sync (private repo)' }),
     el('p', { class: 'set-hint', text: '1) Create a PRIVATE repo (e.g. weaver-backup). 2) Create a fine-grained token scoped to it with Contents: Read and write. 3) Paste both, Connect. Public repos are refused.' }),
