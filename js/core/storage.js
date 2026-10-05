@@ -258,11 +258,12 @@ export function getSettings() {
   const saved = read('settings', {});
   return {
     general: { ...DEFAULT_SETTINGS.general, ...(saved.general || {}) },
-    ai: {
+        ai: {
       ...DEFAULT_SETTINGS.ai,
       ...(saved.ai || {}),
       providers: { ...DEFAULT_SETTINGS.ai.providers, ...((saved.ai || {}).providers || {}) },
     },
+    github: saved.github || { token: '', repo: '', autoSync: true },
   };
 }
 /* ---------- Step 28: backup / restore + series upsert ---------- */
