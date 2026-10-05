@@ -1,13 +1,11 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   Step 28 FINAL: GitHub private-repo sync (Git Data API).
+   Step 28 FINAL+deletions: GitHub private-repo sync.
    - Two-way merge by updatedAt; every sync = one commit.
-   - Refuses public repos; token stays in this browser only.
-   - Mutex: one sync at a time per tab.
-   - commitAll: fresh-head commit + rebase retry on 422;
-     "no head" is concluded ONLY from 404/empty responses,
-     never from rate-limits or network errors (the old bug).
-   - Bootstrap first commit only when repo is truly empty.
+   - Deletion propagation via local sync ledger: ids known at
+     last sync but gone now are removed from the repo.
+   - Mutex; fresh-head commit + rebase retry; honest errors;
+     public-repo refusal; token never leaves this browser.
    ========================================================= */
 
 import { toast } from '../utils/dom.js';
@@ -18,6 +16,15 @@ import {
 } from '../core/storage.js';
 
 const API = 'https://api.github.com';
+const LEDGER_KEY = 'weaver_sync_ledger';
+
+function readLedger() {
+  try {
+    const l = JSON.parse(localStorage.getItem(LEDGER_KEY));
+    return (l && Array.isArray(l.projects)) ? l : { projects: [], series: [] };
+  } catch { return { projects: [], series: [] }; }
+}
+function writeLedger(l) { localStorage.setItem(LEDGER_KEY, JSON.stringify(l)); }
 
 async function gh(path, { method = 'GET', body, token } = {}) {
   const res = await fetch(API + path, {
@@ -84,7 +91,7 @@ export async function connectGithub(token, repo) {
   return { owner: me.login, repo, branch: r.default_branch || 'main', token };
 }
 
-/* ---------- Remote tree (branch-robust, honest-empty) ---------- */
+/* ---------- Remote tree ---------- */
 async function readRemote(ctx) {
   let branch = ctx.branch;
   let ref = null;
@@ -110,10 +117,14 @@ async function readBlob(ctx, sha) {
   return JSON.parse(fromB64(b.content));
 }
 
-/* ---------- Commit: fresh head, rebase retry, honest errors ---------- */
+/* ---------- Commit: fresh head, rebase retry, deletions ---------- */
 async function commitAll(ctx, files, allowRoot = false) {
   const items = [];
   for (const f of files) {
+    if (f.delete) {
+      items.push({ path: f.path, mode: '100644', type: 'blob', sha: null });
+      continue;
+    }
     const b = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/blobs`, {
       method: 'POST', token: ctx.token,
       body: { content: toB64(JSON.stringify(f.obj)), encoding: 'base64' },
@@ -130,8 +141,6 @@ async function commitAll(ctx, files, allowRoot = false) {
       head = { commitSha: headCommit.sha, treeSha: headCommit.tree.sha };
       rootOk = false;
     } catch (e) {
-      // ONLY a missing ref means "empty repo". Rate limits / network
-      // errors must surface, not be mistaken for emptiness.
       if (!rootOk || !/Not Found|Git Repository is empty/i.test(e.message)) throw e;
       head = null;
     }
@@ -158,7 +167,7 @@ async function commitAll(ctx, files, allowRoot = false) {
   }
 }
 
-/* ---------- Two-way sync (mutex-guarded) ---------- */
+/* ---------- Two-way sync (mutex + deletions) ---------- */
 let syncing = false;
 
 export async function syncNow({ quiet = false } = {}) {
@@ -179,9 +188,17 @@ export async function syncNow({ quiet = false } = {}) {
     let remoteIndex = { projects: {}, series: {} };
     if (ctx.byPath['weaver/index.json']) remoteIndex = await readBlob(ctx, ctx.byPath['weaver/index.json']);
 
-    /* PULL: remote newer than local */
+    /* Deletions: known last sync, gone now */
+    const ledger = readLedger();
+    const localIds = new Set(listProjects().map((p) => p.id));
+    const localSeriesIds = new Set(listSeries().map((s) => s.id));
+    const deletedProjects = ledger.projects.filter((id) => !localIds.has(id));
+    const deletedSeries = ledger.series.filter((id) => !localSeriesIds.has(id));
+
+    /* PULL: remote newer than local (skip intentional deletions) */
     let pulled = 0;
     for (const [id, info] of Object.entries(remoteIndex.projects || {})) {
+      if (deletedProjects.includes(id)) continue;
       const lm = listProjects().find((p) => p.id === id);
       const sha = ctx.byPath[`weaver/projects/${id}.json`];
       if (sha && (!lm || lm.updatedAt < info.updatedAt)) {
@@ -191,6 +208,7 @@ export async function syncNow({ quiet = false } = {}) {
       }
     }
     for (const [id, info] of Object.entries(remoteIndex.series || {})) {
+      if (deletedSeries.includes(id)) continue;
       const ls = listSeries().find((s) => s.id === id);
       const sha = ctx.byPath[`weaver/series/${id}.json`];
       if (sha && (!ls || ls.updatedAt < info.updatedAt)) {
@@ -215,6 +233,17 @@ export async function syncNow({ quiet = false } = {}) {
       }
     }
 
+    /* DELETE from repo: locally-deleted, still remote */
+    let deletedCount = 0;
+    for (const id of deletedProjects) {
+      const path = `weaver/projects/${id}.json`;
+      if (ctx.byPath[path]) { pushFiles.push({ path, delete: true }); deletedCount++; }
+    }
+    for (const id of deletedSeries) {
+      const path = `weaver/series/${id}.json`;
+      if (ctx.byPath[path]) { pushFiles.push({ path, delete: true }); deletedCount++; }
+    }
+
     const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
     for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
     for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
@@ -223,7 +252,6 @@ export async function syncNow({ quiet = false } = {}) {
     if (pushFiles.length) {
       let allowRoot = ctx.empty;
       if (ctx.empty) {
-        // Truly empty repo: bootstrap a first commit via the Contents API.
         await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
           method: 'PUT',
           token: ctx.token,
@@ -238,9 +266,15 @@ export async function syncNow({ quiet = false } = {}) {
       await commitAll(ctx, pushFiles, allowRoot);
     }
 
+    writeLedger({ projects: listProjects().map((p) => p.id), series: listSeries().map((s) => s.id) });
+
     if (!quiet) {
-      const pushed = Math.max(0, pushFiles.length - 1);
-      toast(pushed || pulled ? `Synced: ${pushed} pushed, ${pulled} pulled.` : 'Sync complete — already up to date.', 'success');
+      const pushed = pushFiles.filter((f) => !f.delete).length - 1;
+      const parts = [];
+      if (pushed > 0) parts.push(`${pushed} pushed`);
+      if (pulled > 0) parts.push(`${pulled} pulled`);
+      if (deletedCount > 0) parts.push(`${deletedCount} removed`);
+      toast(parts.length ? `Synced: ${parts.join(', ')}.` : 'Sync complete — already up to date.', 'success');
     }
     return true;
   } catch (e) {
