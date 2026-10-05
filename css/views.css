@@ -235,3 +235,21 @@
   .panel-footer .btn-label { display: none; }
   .panel-footer .btn { padding: 6px 12px; }
 }
+/* =========================================================
+   Step 28.6: centered Library hero
+   ========================================================= */
+.launch-header,
+.launch-grid,
+.launch-empty{
+  max-width:1100px;
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+}
+.launch-empty{
+  min-height:calc(100vh - 240px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
