@@ -2,7 +2,8 @@
    Weaver — js/views/launch.js
    Step 5 + 6 + 24 + 28.5: Library dashboard.
    - Project cards: name, scope, word count, edited-ago, active ring.
-   - New Project + Getting Started (guide) buttons.
+   - Settings gear + Getting Started + New Project buttons
+     (Settings reachable even with zero projects).
    - Delete with rich, series-aware confirmation.
    ========================================================= */
 
@@ -87,7 +88,12 @@ export function renderLaunch() {
   const projects = listProjects();
 
   root.append(
-          el('div', { class: 'launch-actions' }, [
+    el('header', { class: 'launch-header' }, [
+      el('div', {}, [
+        el('h1', { class: 'launch-title' }, [icon('feather'), 'Weaver']),
+        el('p', { class: 'launch-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
+      ]),
+      el('div', { class: 'launch-actions' }, [
         el('button', {
           class: 'btn btn-ghost btn-icon',
           title: 'Settings (backup, restore, cloud sync)',
