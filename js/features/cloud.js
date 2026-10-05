@@ -1,11 +1,13 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   Step 28 FINAL: GitHub private-repo sync (Git Data API).
+   Step 28 FINAL+: GitHub private-repo sync (Git Data API).
    - Two-way merge by updatedAt; every sync = one commit.
    - Refuses public repos; token stays in this browser only.
-   - Branch-robust remote read; empty-repo bootstrap commit.
-   - Mutex: only one sync may run at a time (prevents
-     "not a fast forward" from overlapping syncs).
+   - Mutex: one sync at a time per tab.
+   - commitAll re-reads the branch head immediately before
+     committing and retries with a rebase if GitHub reports
+     "not a fast forward" — concurrent writers self-heal.
+   - Bootstrap (first commit) only when the repo is truly empty.
    ========================================================= */
 
 import { toast } from '../utils/dom.js';
@@ -82,27 +84,25 @@ export async function connectGithub(token, repo) {
   return { owner: me.login, repo, branch: r.default_branch || 'main', token };
 }
 
-/* ---------- Remote tree (branch-robust) ---------- */
+/* ---------- Remote tree (branch-robust, honest-empty) ---------- */
 async function readRemote(ctx) {
   let branch = ctx.branch;
   let ref = null;
   try {
     ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
-  } catch {
-    try {
-      const branches = await gh(`/repos/${ctx.owner}/${ctx.repo}/branches`, { token: ctx.token });
-      if (branches && branches.length) {
-        branch = branches[0].name;
-        ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
-      }
-    } catch { /* genuinely empty repo */ }
+  } catch (firstErr) {
+    const branches = await gh(`/repos/${ctx.owner}/${ctx.repo}/branches`, { token: ctx.token });
+    if (!branches || !branches.length) {
+      return { ...ctx, branch, commitSha: null, treeSha: null, byPath: {}, empty: true };
+    }
+    branch = branches[0].name;
+    ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
   }
-  if (!ref) return { ...ctx, branch, commitSha: null, treeSha: null, byPath: {} };
   const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
   const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees/${commit.tree.sha}?recursive=1`, { token: ctx.token });
   const byPath = {};
   for (const t of tree.tree) if (t.type === 'blob' && t.path.startsWith('weaver/')) byPath[t.path] = t.sha;
-  return { ...ctx, branch, commitSha: commit.sha, treeSha: commit.tree.sha, byPath };
+  return { ...ctx, branch, commitSha: commit.sha, treeSha: commit.tree.sha, byPath, empty: false };
 }
 
 async function readBlob(ctx, sha) {
@@ -110,6 +110,7 @@ async function readBlob(ctx, sha) {
   return JSON.parse(fromB64(b.content));
 }
 
+/* ---------- Commit with fresh-head + rebase retry ---------- */
 async function commitAll(ctx, files) {
   const items = [];
   for (const f of files) {
@@ -119,16 +120,35 @@ async function commitAll(ctx, files) {
     });
     items.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha });
   }
-  const treeBody = { tree: items };
-  if (ctx.treeSha) treeBody.base_tree = ctx.treeSha;
-  const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees`, { method: 'POST', token: ctx.token, body: treeBody });
-  const commitBody = { message: `Weaver sync ${new Date().toISOString()}`, tree: tree.sha };
-  if (ctx.commitSha) commitBody.parents = [ctx.commitSha];
-  const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits`, { method: 'POST', token: ctx.token, body: commitBody });
-  if (ctx.commitSha) {
-    await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs/heads/${ctx.branch}`, { method: 'PATCH', token: ctx.token, body: { sha: commit.sha } });
-  } else {
-    await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs`, { method: 'POST', token: ctx.token, body: { ref: `refs/heads/${ctx.branch}`, sha: commit.sha } });
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    /* Fresh head, read as late as possible */
+    let head = null;
+    try {
+      const ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${ctx.branch}`, { token: ctx.token });
+      const headCommit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
+      head = { commitSha: headCommit.sha, treeSha: headCommit.tree.sha };
+    } catch { head = null; }
+
+    const treeBody = { tree: items };
+    if (head) treeBody.base_tree = head.treeSha;
+    const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees`, { method: 'POST', token: ctx.token, body: treeBody });
+
+    const commitBody = { message: `Weaver sync ${new Date().toISOString()}`, tree: tree.sha };
+    if (head) commitBody.parents = [head.commitSha];
+    const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits`, { method: 'POST', token: ctx.token, body: commitBody });
+
+    try {
+      if (head) {
+        await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs/heads/${ctx.branch}`, { method: 'PATCH', token: ctx.token, body: { sha: commit.sha } });
+      } else {
+        await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs`, { method: 'POST', token: ctx.token, body: { ref: `refs/heads/${ctx.branch}`, sha: commit.sha } });
+      }
+      return;
+    } catch (e) {
+      if (/fast forward/i.test(e.message) && attempt < 3) continue; // rebase onto new head, retry
+      throw e;
+    }
   }
 }
 
@@ -195,8 +215,8 @@ export async function syncNow({ quiet = false } = {}) {
     pushFiles.push({ path: 'weaver/index.json', obj: finalIndex });
 
     if (pushFiles.length) {
-      if (!ctx.commitSha) {
-        // Empty repo: bootstrap a first commit via the Contents API.
+      if (ctx.empty) {
+        // Truly empty repo: bootstrap a first commit via the Contents API.
         await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
           method: 'PUT',
           token: ctx.token,
