@@ -131,8 +131,8 @@ export async function syncNow({ quiet = false } = {}) {
     return false;
   }
   try {
-    const base = await connectGithub(g.token, g.repo);
-    const ctx = await readRemote(base);
+        const base = await connectGithub(g.token, g.repo);
+    let ctx = await readRemote(base);
 
     let remoteIndex = { projects: {}, series: {} };
     if (ctx.byPath['weaver/index.json']) remoteIndex = await readBlob(ctx, ctx.byPath['weaver/index.json']);
@@ -178,7 +178,22 @@ export async function syncNow({ quiet = false } = {}) {
     for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
     pushFiles.push({ path: 'weaver/index.json', obj: finalIndex });
 
-    if (pushFiles.length) await commitAll(ctx, pushFiles);
+        if (pushFiles.length) {
+      if (!ctx.commitSha) {
+        // Empty repo: bootstrap a first commit via the Contents API,
+        // then run the normal single-commit sync on top of it.
+        await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
+          method: 'PUT',
+          token: ctx.token,
+          body: {
+            message: 'Weaver backup repository',
+            content: toB64('Weaver novel backup — managed by the Weaver app.\n'),
+          },
+        });
+        ctx = await readRemote(ctx);
+      }
+      await commitAll(ctx, pushFiles);
+    }
 
     if (!quiet) {
       const pushed = Math.max(0, pushFiles.length - 1);
