@@ -1,36 +1,23 @@
 /* =========================================================
    Weaver — js/views/launch.js
-   Step 6: launch dashboard — logo, project list, resume-last-edit,
-   delete with confirmation, New Project entry point.
-   (The real wizard registers itself via setOpenWizard in Step 7.)
+   Step 5 + 6 + 24 + 28.5: Library dashboard.
+   - Project cards: name, scope, word count, edited-ago, active ring.
+   - New Project + Getting Started (guide) buttons.
+   - Delete with rich, series-aware confirmation.
    ========================================================= */
 
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { listProjects, deleteProject, getActiveProject } from '../core/storage.js';
-import { subscribe, openProject } from '../core/state.js';
+import { openProject, subscribe } from '../core/state.js';
+import { openGuide } from '../features/guide.js';
 
 let root = null;
-let openWizardHook = null;
+let openWizardFn = null;
 
-export function setOpenWizard(fn) { openWizardHook = fn; }
+export function setOpenWizard(fn) { openWizardFn = fn; }
 
-export function initLaunch() {
-  root = document.getElementById('view-launch');
-  subscribe((state, change) => {
-    if ((change.view && state.view === 'launch') || change.projects) renderLaunch();
-  });
-  renderLaunch();
-}
-
-/* ---------- Helpers ---------- */
-function logoMark() {
-  return el('div', {
-    class: 'launch-logo',
-    html: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M14 20l9 26 9-18 9 18 9-26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  });
-}
-
+/* ---------- helpers ---------- */
 function timeAgo(ts) {
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
@@ -40,16 +27,9 @@ function timeAgo(ts) {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   if (d < 30) return `${d}d ago`;
-  return new Date(ts).toLocaleDateString();
-}
-
-function openWizard() {
-  if (openWizardHook) openWizardHook();
-  else toast('Project wizard arrives in Step 7.', 'info');
-}
-
-function enterProject(id) {
-  if (!openProject(id)) toast('Could not open project — data missing.', 'danger');
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
 }
 
 async function askDelete(project) {
@@ -69,64 +49,80 @@ async function askDelete(project) {
   renderLaunch();
 }
 
-/* ---------- Render ---------- */
-function projectCard(project, activeId) {
-  return el('div', {
-    class: 'project-card' + (project.id === activeId ? ' is-active' : ''),
-    tabindex: '0',
-    role: 'button',
-    onclick: () => enterProject(project.id),
-    onkeydown: (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterProject(project.id); }
-    },
+/* ---------- project card ---------- */
+function projectCard(p) {
+  const active = getActiveProject() === p.id;
+  const subtitle = p.seriesName
+    ? `${p.seriesName} · ${p.name}`
+    : (p.scope === 'series' ? 'series installment' : 'standalone');
+
+  return el('button', {
+    class: 'project-card' + (active ? ' is-active' : ''),
+    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
   }, [
-    el('h3', { class: 'project-name', text: project.name }),
-        el('div', { class: 'project-meta' }, [
-      el('span', { class: 'badge badge-accent', text: project.scope === 'series' ? 'series' : 'standalone' }),
-      project.seriesName ? el('span', { class: 'badge', text: project.seriesName }) : null,
-      el('span', { class: 'badge', text: project.source === 'upload' ? 'uploaded' : 'from scratch' }),
-      el('span', { class: 'badge', text: `${project.wordCount || 0} words` }),
+    el('div', { class: 'project-card-head' }, [
+      el('h3', { class: 'project-card-title', text: p.name }),
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        title: 'Delete project',
+        'aria-label': `Delete ${p.name}`,
+        onclick: (e) => { e.stopPropagation(); askDelete(p); },
+      }, [icon('trash', 'icon-sm')]),
     ]),
-    el('span', { class: 'project-updated', text: `edited ${timeAgo(project.updatedAt)}` }),
-    el('button', {
-      class: 'btn btn-ghost btn-icon btn-sm project-delete',
-      'aria-label': `Delete ${project.name}`,
-      onclick: (e) => { e.stopPropagation(); askDelete(project); },
-    }, [icon('trash', 'icon-sm')]),
+    el('span', { class: 'project-card-sub', text: subtitle }),
+    el('div', { class: 'project-card-meta' }, [
+      el('span', { class: 'badge' + (p.seriesName ? ' badge-accent' : ''), text: p.seriesName ? 'series' : 'standalone' }),
+      el('span', { class: 'project-card-words', text: `${(p.wordCount || 0).toLocaleString()} words` }),
+      el('span', { class: 'project-card-time', text: `edited ${timeAgo(p.updatedAt)}` }),
+    ]),
   ]);
 }
 
+/* ---------- render ---------- */
 export function renderLaunch() {
   if (!root) return;
   clear(root);
 
   const projects = listProjects();
-  const activeId = getActiveProject();
 
-  const content = projects.length
-    ? el('div', { class: 'launch-grid' }, projects.map((p) => projectCard(p, activeId)))
-    : el('div', { class: 'launch-empty' }, [
-        icon('folder', 'icon-lg'),
-        el('p', { text: 'No projects yet.' }),
-        el('p', {
-          class: 'launch-empty-hint',
-          text: 'Weave your first story — start from scratch or upload an existing manuscript.',
-        }),
-        el('button', { class: 'btn btn-primary', onclick: openWizard }, [icon('plus'), 'New Project']),
-      ]);
-
-  const wrap = el('div', { class: 'launch-wrap' }, [
+  root.append(
     el('header', { class: 'launch-header' }, [
-      logoMark(),
-      el('div', { class: 'launch-titles' }, [
-        el('h1', { class: 'launch-title', text: 'Weaver' }),
-        el('p', { class: 'launch-tag', text: 'Structure · Refine · Generate' }),
+      el('div', {}, [
+        el('h1', { class: 'launch-title' }, [icon('feather'), 'Weaver']),
+        el('p', { class: 'launch-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
       ]),
-      el('div', { class: 'launch-spacer' }),
-      el('button', { class: 'btn btn-primary', onclick: openWizard }, [icon('plus'), 'New Project']),
-    ]),
-    content,
-  ]);
+      el('div', { class: 'launch-actions' }, [
+        el('button', {
+          class: 'btn',
+          title: 'Read the quick-start guide',
+          onclick: () => openGuide(),
+        }, [icon('book'), 'Getting Started']),
+        el('button', {
+          class: 'btn btn-primary',
+          onclick: () => { if (openWizardFn) openWizardFn(); },
+        }, [icon('plus'), 'New Project']),
+      ]),
+    ])
+  );
 
-  root.appendChild(wrap);
+  if (!projects.length) {
+    root.appendChild(el('div', { class: 'launch-empty' }, [
+      icon('library', 'icon-lg'),
+      el('p', { text: 'No projects yet.' }),
+      el('p', { class: 'launch-empty-hint', text: 'Create your first novel — or read the Getting Started guide first.' }),
+    ]));
+    return;
+  }
+
+  root.appendChild(el('div', { class: 'launch-grid' }, projects.map(projectCard)));
+}
+
+/* ---------- init ---------- */
+export function initLaunch() {
+  root = document.getElementById('view-launch');
+  subscribe((state, change) => {
+    if (state.view !== 'launch') return;
+    if (change.view || change.project) renderLaunch();
+  });
+  renderLaunch();
 }
