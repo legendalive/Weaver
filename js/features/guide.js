@@ -1,13 +1,13 @@
 /* =========================================================
    Weaver — js/features/guide.js
-   Step 28.5: Onboarding guide modal.
-   - Accessible from Launch, Workspace top bar, and Settings.
-   - Sections: welcome, first project, workspace, Scribe (optional),
-     cloud backup (optional), export, quick reference.
+   Step 28.5 FINAL: onboarding guide modal.
+   - Opened from Library (Getting Started) and workspace (?).
+   - Sections: welcome, first project, workspace, Scribe
+     (optional), cloud backup (optional, with patience note and
+     restore/migrate doors), export, quick reference.
    ========================================================= */
 
 import { el, modal } from '../utils/dom.js';
-import { icon } from '../utils/icons.js';
 
 const STYLE_ID = 'guide-style';
 const CSS = `
@@ -108,9 +108,10 @@ function buildBody() {
         'At github.com/settings/tokens, create a Fine-grained token scoped to that repo with Contents: Read and write.',
         'In Weaver ▸ Settings ▸ General ▸ GitHub Cloud Sync, paste the token and repo name, click Connect, then Sync now.',
       ]),
-      p('Every sync is a git commit, so GitHub\'s history is your time machine. Public repos are refused by design. The token never leaves this browser.'),
-      h3('Portable backup file'),
-      p('Settings ▸ General ▸ Data & Backup ▸ Download full backup gives you a single JSON file of every project and series bible (API keys excluded). Restore from backup merges it back on any machine.'),
+      p("Every sync is a git commit, so GitHub's history is your time machine. Public repos are refused by design. The token never leaves this browser."),
+      p('Be patient: a sync uploads your library as one commit and can take a minute or two for large projects. Wait for the "Synced" toast before pressing again — pressing twice at once is the one way to confuse it.'),
+      h3('Restore & migrate (works even with no projects)'),
+      p('On any machine — even before creating a project — open the Library gear ▸ Settings ▸ General ▸ Data & Backup. Two doors: "Restore from this PC…" (a backup JSON file) and "Pull from cloud" (connect + sync from your private repo). "Download full backup" produces that JSON, with API keys and the sync token excluded.'),
     ]),
 
     section('5. Export & Migration', [
@@ -125,7 +126,6 @@ function buildBody() {
         row(['Find a word/phrase', 'Search field in the top bar. › next, ‹ prev, Esc clears.']),
         row(['Add selection to Config', 'Click the ＋ Config pill that floats above any selection.']),
         row(['Move instead of copy on Accept', 'Settings ▸ General → enable "Accept-as-is MOVES text".']),
-        row(['Force-save', 'Ctrl/Cmd + S (if enabled).']),
         row(['Leave a project', 'Library button (top-right); auto-syncs if configured.']),
       ]),
     ]),
@@ -134,10 +134,10 @@ function buildBody() {
 
 export function openGuide() {
   ensureStyle();
-  modal({
+  const m = modal({
     title: 'Weaver — Quick Start',
     size: 'lg',
     body: buildBody(),
-    footer: [el('button', { class: 'btn btn-primary', text: 'Close', onclick: () => modal.__last && modal.__last.close && modal.__last.close() })],
+    footer: [el('button', { class: 'btn btn-primary', text: 'Close', onclick: () => m.close() })],
   });
 }
