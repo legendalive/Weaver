@@ -78,7 +78,7 @@ export async function connectGithub(token, repo) {
       throw new Error('Token lacks Contents permission on this repo. Edit the token → Permissions → Repository permissions → Contents: Read and write → Save.');
     }
   }
-  return { owner: me.login, branch: r.default_branch || 'main' };
+    return { owner: me.login, branch: r.default_branch || 'main', token };
 }
 
 /* ---------- Remote tree ---------- */
