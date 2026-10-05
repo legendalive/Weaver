@@ -1,9 +1,11 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   Step 28: GitHub private-repo sync (Git Data API, size-safe).
+   Step 28 FINAL: GitHub private-repo sync (Git Data API).
    - Two-way merge by updatedAt; every sync = one commit.
    - Refuses public repos; token stays in this browser only.
    - Branch-robust remote read; empty-repo bootstrap commit.
+   - Mutex: only one sync may run at a time (prevents
+     "not a fast forward" from overlapping syncs).
    ========================================================= */
 
 import { toast } from '../utils/dom.js';
@@ -19,8 +21,8 @@ async function gh(path, { method = 'GET', body, token } = {}) {
   const res = await fetch(API + path, {
     method,
     headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json',
       'Content-Type': 'application/json',
       'X-GitHub-Api-Version': '2022-11-28',
     },
@@ -130,13 +132,20 @@ async function commitAll(ctx, files) {
   }
 }
 
-/* ---------- Two-way sync ---------- */
+/* ---------- Two-way sync (mutex-guarded) ---------- */
+let syncing = false;
+
 export async function syncNow({ quiet = false } = {}) {
+  if (syncing) {
+    if (!quiet) toast('A sync is already running — give it a moment.', 'info');
+    return false;
+  }
   const g = getState().settings.github || {};
   if (!g.token || !g.repo) {
     if (!quiet) toast('Configure GitHub sync in Settings ▸ General first.', 'info');
     return false;
   }
+  syncing = true;
   try {
     const base = await connectGithub(g.token, g.repo);
     let ctx = await readRemote(base);
@@ -209,6 +218,8 @@ export async function syncNow({ quiet = false } = {}) {
   } catch (e) {
     if (!quiet) toast('GitHub sync failed: ' + e.message, 'danger');
     return false;
+  } finally {
+    syncing = false;
   }
 }
 
