@@ -3,7 +3,7 @@
    Step 20 + 25 + 26 + 28: Settings Modal.
    - AI Tab: providers (key/test/enable) + generation controls.
    - General Tab: editor behavior, quick prompts, aesthetics,
-     Data & Backup + GitHub cloud sync (private repo only).
+     Data & Backup (this PC / cloud) + GitHub cloud sync.
    ========================================================= */
 
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
@@ -101,12 +101,12 @@ function dataSection() {
   });
 
   const tokenInput = el('input', { class: 'input', type: 'password', placeholder: 'Fine-grained personal access token', value: g.token || '' });
-    const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'repo name', value: g.repo || '' });
+  const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'repo name', value: g.repo || '' });
   const cloudBadge = el('span', { class: 'badge', text: g.token && g.repo ? 'configured' : 'off' });
 
   const autoBox = el('input', {
     type: 'checkbox', checked: g.autoSync !== false,
-    onchange: (e) => updateSettings((s) => { s.github = { ...(s.github || {}), token: (s.github || {}).token || '', repo: (s.github || {}).repo || '', autoSync: e.target.checked }; }),
+    onchange: (e) => updateSettings((s) => { s.github = { ...(s.github || {}), autoSync: e.target.checked }; }),
   });
 
   const connectBtn = el('button', {
@@ -155,10 +155,9 @@ function dataSection() {
           toast('Backup downloaded.', 'success');
         },
       }),
-            el('button', { class: 'btn btn-sm', text: 'Restore from this PC…', onclick: () => fileInput.click() }),
+      el('button', { class: 'btn btn-sm', text: 'Restore from this PC…', onclick: () => fileInput.click() }),
       el('button', { class: 'btn btn-sm', text: 'Pull from cloud', onclick: () => syncNow() }),
       fileInput,
-    ]),
     ]),
     el('h4', { text: 'GitHub Cloud Sync (private repo)' }),
     el('p', { class: 'set-hint', text: '1) Create a PRIVATE repo (e.g. weaver-backup). 2) Create a fine-grained token scoped to it with Contents: Read and write. 3) Paste both, Connect. Public repos are refused.' }),
@@ -181,7 +180,6 @@ function renderAiTab(contentEl, settings) {
     }))
   ]));
 
-  /* Generation controls */
   const tempVal = el('span', { class: 'badge', text: String(settings.ai.temperature ?? 0.85) });
   contentEl.appendChild(el('div', { class: 'set-section' }, [
     el('h4', { text: 'Generation' }),
