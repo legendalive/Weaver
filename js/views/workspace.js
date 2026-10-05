@@ -18,6 +18,7 @@ import { openConfigBible } from '../features/config-bible.js';
 import { openSettings } from '../features/settings.js';
 import { acceptAiBlock, rewriteAiBlock, discardAiBlock } from '../panels/ai-output.js';
 import { exportProject } from '../features/export.js';
+import { openGuide } from '../features/guide.js';
 import { autoSync } from '../features/cloud.js';
 
 const STYLE_ID = 'workspace-extra-style';
@@ -241,6 +242,11 @@ export function renderWorkspace() {
         'aria-label': 'Library',
                 onclick: () => { flushManuscriptSync(); autoSync(); closeProject(); },
       }, [icon('library')]),
+             el('button', {
+        class: 'btn btn-ghost btn-icon', title: 'Quick Start Guide',
+        'aria-label': 'Guide',
+        onclick: () => openGuide(),
+      }, [icon('help-circle')]),
       topBtn('export', 'download', 'Export', () => exportProject()),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
       scribeBarPlaceholder(),
