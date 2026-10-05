@@ -246,7 +246,7 @@ export function renderWorkspace() {
         class: 'btn btn-ghost btn-icon', title: 'Quick Start Guide',
         'aria-label': 'Guide',
         onclick: () => openGuide(),
-      }, [icon('help-circle')]),
+               }, [icon('book')]),
       topBtn('export', 'download', 'Export', () => exportProject()),
       topBtn('settings', 'gear', 'Settings', () => openSettings()),
       scribeBarPlaceholder(),
