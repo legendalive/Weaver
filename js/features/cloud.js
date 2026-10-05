@@ -83,17 +83,26 @@ export async function connectGithub(token, repo) {
 
 /* ---------- Remote tree ---------- */
 async function readRemote(ctx) {
-  let ref;
+  let branch = ctx.branch;
+  let ref = null;
   try {
-    ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${ctx.branch}`, { token: ctx.token });
+    ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
   } catch {
-    return { ...ctx, commitSha: null, treeSha: null, byPath: {} };
+    // Freshly-bootstrapped or renamed default branch: discover the real one.
+    try {
+      const branches = await gh(`/repos/${ctx.owner}/${ctx.repo}/branches`, { token: ctx.token });
+      if (branches && branches.length) {
+        branch = branches[0].name;
+        ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
+      }
+    } catch { /* genuinely empty repo */ }
   }
+  if (!ref) return { ...ctx, branch, commitSha: null, treeSha: null, byPath: {} };
   const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
   const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees/${commit.tree.sha}?recursive=1`, { token: ctx.token });
   const byPath = {};
   for (const t of tree.tree) if (t.type === 'blob' && t.path.startsWith('weaver/')) byPath[t.path] = t.sha;
-  return { ...ctx, commitSha: commit.sha, treeSha: commit.tree.sha, byPath };
+  return { ...ctx, branch, commitSha: commit.sha, treeSha: commit.tree.sha, byPath };
 }
 
 async function readBlob(ctx, sha) {
