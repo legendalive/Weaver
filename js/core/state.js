@@ -1,13 +1,9 @@
 /* =========================================================
    Weaver — js/core/state.js
-   Step 5: reactive application state store.
-   Single source of truth for: current view, active project,
-   settings, and transient UI state (panel sizes, expansion).
-   Exports: getState, subscribe, setView, openProject,
-            closeProject, touchProject, markDirty, flushSave,
-            updateSettings, setUI
+   v2.0 Stage 2: reactive application state store.
+   v1 unchanged + reloadSettings() so app.js can refresh
+   settings after the per-user namespace is set.
    ========================================================= */
-
 import {
   getProject, saveProject, setActiveProject,
   getSettings, saveSettings,
@@ -38,12 +34,14 @@ function emit(change) {
 }
 
 /* ---------- View ---------- */
+
 export function setView(view) {
   state.view = view;
   emit({ view: true });
 }
 
 /* ---------- Project session ---------- */
+
 export function openProject(id) {
   const project = getProject(id);
   if (!project) return false;
@@ -70,6 +68,7 @@ export function touchProject(change = {}) {
 }
 
 /* ---------- Autosave ---------- */
+
 let saveTimer = null;
 
 export function markDirty() {
@@ -93,13 +92,20 @@ export function updateSettings(mutator) {
   emit({ settings: true });
 }
 
+/* v2.0: re-read settings after setUserNamespace() switches the storage scope. */
+export function reloadSettings() {
+  state.settings = getSettings();
+}
+
 /* ---------- Transient UI ---------- */
+
 export function setUI(patch) {
   Object.assign(state.ui, patch);
   emit({ ui: true });
 }
 
 /* ---------- Never lose work: persist on tab close / hide ---------- */
+
 window.addEventListener('beforeunload', flushSave);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flushSave();
