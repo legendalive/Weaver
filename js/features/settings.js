@@ -1,16 +1,18 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   Step 20 + 25 + 26 + 28: Settings Modal.
-   - AI Tab: providers (key/test/enable) + generation controls.
-   - General Tab: editor behavior, quick prompts, aesthetics,
-     Data & Backup (this PC / cloud) + GitHub cloud sync.
+   v2.0 Stage 5: Settings Modal.
+   AI Tab: providers + generation controls (unchanged).
+   General Tab: Account (sign out) · Cloud Sync (Supabase
+   Storage) · Data & Backup · editor behavior · quick prompts
+   · aesthetics.
    ========================================================= */
-
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
 import { exportAllData, importAllData } from '../core/storage.js';
-import { connectGithub, syncNow } from './cloud.js';
+import {
+  syncNow, isCloudConfigured, getCloudUserEmail, signOutAndReload,
+} from './cloud.js';
 import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
 import gemini from '../ai/providers/gemini.js';
@@ -19,38 +21,7 @@ import mistral from '../ai/providers/mistral.js';
 const PROVIDERS = [groq, openrouter, gemini, mistral];
 
 const STYLE_ID = 'settings-style';
-const CSS = `
-.set-wrap{display:flex;gap:16px;min-height:380px;}
-.set-rail{flex:none;width:180px;display:flex;flex-direction:column;gap:4px;
-  border-right:1px solid var(--border);padding-right:12px;}
-.set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;
-  border-radius:var(--radius-sm);background:transparent;color:var(--muted);
-  font-size:.82rem;text-align:left;cursor:pointer;}
-.set-rail-btn:hover{background:var(--surface-2);color:var(--text);}
-.set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;}
-.set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;}
-.set-section{display:flex;flex-direction:column;gap:10px;}
-.set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.set-card{display:flex;flex-direction:column;gap:10px;padding:14px;
-  border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);}
-.set-card-head{display:flex;align-items:center;justify-content:space-between;}
-.set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;}
-.set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.set-row .input{flex:1;min-width:150px;}
-.set-field{display:flex;flex-direction:column;gap:6px;}
-.set-field label{font-size:.78rem;color:var(--muted);}
-.set-field .input, .set-field .select{max-width:220px;}
-.set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;}
-.set-order{display:flex;gap:6px;flex-wrap:wrap;}
-.set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;}
-.set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;}
-.set-range-row{display:flex;align-items:center;gap:10px;}
-.set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);}
-@media (max-width:640px){
-  .set-wrap{flex-direction:column;}
-  .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;}
-}
-`;
+const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:180px;display:flex;flex-direction:column;gap:4px; border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none; border-radius:var(--radius-sm);background:transparent;color:var(--muted); font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px; border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -62,7 +33,6 @@ function ensureStyle() {
 }
 
 let savedBadge = null;
-
 function saveAndFlash(mutator) {
   updateSettings(mutator);
   if (savedBadge) {
@@ -71,10 +41,63 @@ function saveAndFlash(mutator) {
   }
 }
 
-/* ---------- Data, Backup & Cloud section ---------- */
-function dataSection() {
-  const g = getState().settings.github || {};
+/* ---------- Account section (sign out) ---------- */
+function accountSection() {
+  const emailBadge = el('span', { class: 'badge', text: 'checking…' });
+  getCloudUserEmail().then((email) => {
+    emailBadge.textContent = email || 'signed in';
+    emailBadge.className = 'badge badge-success';
+  });
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Account' }),
+    el('div', { class: 'set-card' }, [
+      el('div', { class: 'set-row' }, [
+        emailBadge,
+        el('button', {
+          class: 'btn btn-sm btn-danger',
+          onclick: async () => {
+            const ok = await confirmDialog({
+              title: 'Sign out',
+              message: 'You will be signed out of Weaver. Your projects stay safe in this browser and in your private cloud vault. Sign back in any time.',
+              confirmLabel: 'Sign out',
+              danger: true,
+            });
+            if (!ok) return;
+            await signOutAndReload();
+          },
+        }, [icon('x', 'icon-sm'), el('span', { text: 'Sign out' })]),
+      ]),
+    ]),
+  ]);
+}
 
+/* ---------- Cloud Sync section (Supabase Storage) ---------- */
+function cloudSection() {
+  if (!isCloudConfigured()) {
+    return el('div', { class: 'set-section' }, [
+      el('h4', { text: 'Cloud Sync' }),
+      el('p', { class: 'set-hint', text: 'Cloud sync is not configured yet. Paste your Supabase Project URL and anon key at the top of js/features/cloud.js, then reload.' }),
+    ]);
+  }
+  const cloud = getState().settings.cloud || {};
+  const autoBox = el('input', {
+    type: 'checkbox', checked: cloud.autoSync !== false,
+    onchange: (e) => updateSettings((s) => {
+      s.cloud = { ...(s.cloud || {}), provider: 'supabase', autoSync: e.target.checked };
+    }),
+  });
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Cloud Sync' }),
+    el('p', { class: 'set-hint', text: 'Your library syncs to your own private Supabase Storage vault. It is locked to your account on the server — no one else can read it.' }),
+    el('div', { class: 'set-row' }, [
+      el('button', { class: 'btn btn-sm', text: 'Sync now', onclick: () => syncNow() }, [icon('refresh', 'icon-sm'), el('span', { text: 'Sync now' })]),
+    ]),
+    el('label', { class: 'set-toggle' }, [autoBox, el('span', { text: 'Auto-sync when leaving a project (Library)' })]),
+  ]);
+}
+
+/* ---------- Data & Backup section ---------- */
+function dataSection() {
   const fileInput = el('input', {
     type: 'file', accept: '.json,application/json', hidden: true,
     onchange: async (e) => {
@@ -99,48 +122,9 @@ function dataSection() {
       }
     },
   });
-
-  const tokenInput = el('input', { class: 'input', type: 'password', placeholder: 'Fine-grained personal access token', value: g.token || '' });
-  const repoInput = el('input', { class: 'input', type: 'text', placeholder: 'repo name', value: g.repo || '' });
-  const cloudBadge = el('span', { class: 'badge', text: g.token && g.repo ? 'configured' : 'off' });
-
-  const autoBox = el('input', {
-    type: 'checkbox', checked: g.autoSync !== false,
-    onchange: (e) => updateSettings((s) => { s.github = { ...(s.github || {}), autoSync: e.target.checked }; }),
-  });
-
-  const connectBtn = el('button', {
-    class: 'btn btn-sm', text: 'Connect',
-    onclick: async () => {
-      const token = tokenInput.value.trim();
-      const repo = repoInput.value.trim();
-      if (!token || !repo) { toast('Paste the token and repo name first.', 'info'); return; }
-      connectBtn.disabled = true;
-      connectBtn.textContent = 'Connecting…';
-      try {
-        const info = await connectGithub(token, repo);
-        updateSettings((s) => { s.github = { token, repo, autoSync: autoBox.checked }; });
-        cloudBadge.textContent = `connected · ${info.owner}`;
-        cloudBadge.className = 'badge badge-success';
-        toast(`Connected to ${info.owner}/${repo} (private).`, 'success');
-      } catch (e) {
-        cloudBadge.textContent = 'failed';
-        cloudBadge.className = 'badge badge-danger';
-        toast('Connect failed: ' + e.message, 'danger');
-      }
-      connectBtn.disabled = false;
-      connectBtn.textContent = 'Connect';
-    },
-  });
-
-  const syncBtn = el('button', {
-    class: 'btn btn-sm', text: 'Sync now',
-    onclick: () => syncNow(),
-  });
-
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Data & Backup' }),
-    el('p', { class: 'set-hint', text: 'Full backup of every project and series bible (API keys and sync token excluded). Keep the file anywhere.' }),
+    el('p', { class: 'set-hint', text: 'Full backup of every project and series bible (API keys excluded). Keep the file anywhere.' }),
     el('div', { class: 'set-row' }, [
       el('button', {
         class: 'btn btn-sm', text: 'Download full backup',
@@ -159,18 +143,12 @@ function dataSection() {
       el('button', { class: 'btn btn-sm', text: 'Pull from cloud', onclick: () => syncNow() }),
       fileInput,
     ]),
-    el('h4', { text: 'GitHub Cloud Sync (private repo)' }),
-    el('p', { class: 'set-hint', text: '1) Create a PRIVATE repo (e.g. weaver-backup). 2) Create a fine-grained token scoped to it with Contents: Read and write. 3) Paste both, Connect. Public repos are refused.' }),
-    el('div', { class: 'set-row' }, [tokenInput]),
-    el('div', { class: 'set-row' }, [repoInput, connectBtn, syncBtn, cloudBadge]),
-    el('label', { class: 'set-toggle' }, [autoBox, el('span', { text: 'Auto-sync when leaving a project (Library)' })]),
   ]);
 }
 
 /* ---------- AI Tab ---------- */
 function renderAiTab(contentEl, settings) {
   clear(contentEl);
-
   contentEl.appendChild(el('div', { class: 'set-section' }, [
     el('h4', { text: 'Fallback Order' }),
     el('p', { class: 'set-hint', text: 'If a provider fails or rate-limits, the app silently tries the next one in this list.' }),
@@ -211,7 +189,6 @@ function renderAiTab(contentEl, settings) {
 
   for (const p of PROVIDERS) {
     const pCfg = settings.ai.providers[p.id];
-
     const input = el('input', {
       class: 'input',
       type: 'password',
@@ -223,9 +200,7 @@ function renderAiTab(contentEl, settings) {
         statusBadge.className = 'badge';
       },
     });
-
     const statusBadge = el('span', { class: 'badge', text: pCfg.key ? 'saved' : 'untested' });
-
     const testBtn = el('button', {
       class: 'btn btn-sm',
       text: 'Test Connection',
@@ -246,7 +221,6 @@ function renderAiTab(contentEl, settings) {
         }
       },
     });
-
     const toggleLabel = el('label', { class: 'set-toggle' }, [
       el('input', {
         type: 'checkbox',
@@ -255,7 +229,6 @@ function renderAiTab(contentEl, settings) {
       }),
       el('span', { text: 'Enable for fallback chain' }),
     ]);
-
     contentEl.appendChild(el('div', { class: 'set-card' }, [
       el('div', { class: 'set-card-head' }, [
         el('h4', { text: p.label }),
@@ -271,8 +244,11 @@ function renderAiTab(contentEl, settings) {
 function renderGeneralTab(contentEl, settings) {
   clear(contentEl);
   const g = settings.general;
-
   contentEl.append(
+    accountSection(),
+    cloudSection(),
+    dataSection(),
+
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Editor Behavior' }),
       el('div', { class: 'set-field' }, [
@@ -298,6 +274,7 @@ function renderGeneralTab(contentEl, settings) {
         el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
       ]),
     ]),
+
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
       el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
@@ -311,6 +288,7 @@ function renderGeneralTab(contentEl, settings) {
         }),
       })),
     ]),
+
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Aesthetics' }),
       el('div', { class: 'set-field' }, [
@@ -329,7 +307,6 @@ function renderGeneralTab(contentEl, settings) {
         ]),
       ]),
     ]),
-    dataSection(),
   );
 }
 
@@ -338,7 +315,6 @@ export function openSettings() {
   ensureStyle();
   const state = getState();
   let activeTab = 'ai';
-
   const railEl = el('div', { class: 'set-rail' });
   const contentEl = el('div', { class: 'set-content' });
   savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
@@ -356,7 +332,6 @@ export function openSettings() {
       }, [icon(tab.icon, 'icon-sm'), el('span', { text: tab.label })]));
     }
   }
-
   function renderContent() {
     if (activeTab === 'ai') renderAiTab(contentEl, state.settings);
     else renderGeneralTab(contentEl, state.settings);
@@ -371,7 +346,6 @@ export function openSettings() {
     ],
     footer: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() })],
   });
-
   renderRail();
   renderContent();
 }
