@@ -1,173 +1,137 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   Step 28 FINAL+deletions: GitHub private-repo sync.
-   - Two-way merge by updatedAt; every sync = one commit.
-   - Deletion propagation via local sync ledger: ids known at
-     last sync but gone now are removed from the repo.
-   - Mutex; fresh-head commit + rebase retry; honest errors;
-     public-repo refusal; token never leaves this browser.
+   v2.0 Stage 5: Supabase Storage cloud sync.
+   Two-way merge by updatedAt; deletion propagation via the
+   local sync ledger; mutex; honest errors.
+   Every file lives in the signed-in user's own folder
+   ({userId}/weaver/…) — locked server-side by bucket policy,
+   so one user can never read another's vault.
+   Keeps its own Supabase client (shares the login session
+   automatically via the browser), so no secrets move between
+   modules.
    ========================================================= */
-
 import { toast } from '../utils/dom.js';
 import { getState } from '../core/state.js';
 import {
   listProjects, getProject, saveProject,
   listSeries, getSeriesConfig, upsertSeries,
+  readStore, writeStore,
 } from '../core/storage.js';
 
-const API = 'https://api.github.com';
+/* ── Paste the SAME two values you used in js/auth/auth.js ── */
+const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+/* ─────────────────────────────────────────────────────────── */
+
+const BUCKET = 'weaver-vault';
 const LEDGER_KEY = 'weaver_sync_ledger';
 
-function readLedger() {
-  try {
-    const l = JSON.parse(localStorage.getItem(LEDGER_KEY));
-    return (l && Array.isArray(l.projects)) ? l : { projects: [], series: [] };
-  } catch { return { projects: [], series: [] }; }
-}
-function writeLedger(l) { localStorage.setItem(LEDGER_KEY, JSON.stringify(l)); }
+let sb = null;
+let sbLoadPromise = null;
+let cachedUid = null;
 
-async function gh(path, { method = 'GET', body, token } = {}) {
-  const res = await fetch(API + path, {
-    method,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-    body: body ? JSON.stringify(body) : undefined,
+function configured() {
+  return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
+}
+export function isCloudConfigured() { return configured(); }
+
+function loadScript() {
+  return new Promise((resolve, reject) => {
+    if (window.supabase) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load the Supabase script.'));
+    document.head.appendChild(s);
   });
-  if (!res.ok) {
-    let msg = `HTTP ${res.status}`;
-    try { const j = await res.json(); if (j && j.message) msg = j.message; } catch { /* ignore */ }
-    throw new Error(msg);
+}
+
+async function getClient() {
+  if (sb) return sb;
+  if (!sbLoadPromise) {
+    sbLoadPromise = (async () => {
+      await loadScript();
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return sb;
+    })();
   }
-  return res.status === 204 ? null : res.json();
+  return sbLoadPromise;
 }
 
-function toB64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) {
-    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  }
-  return btoa(bin);
+/* Signed-in user id (from the shared session) — builds per-user paths. */
+async function userId() {
+  if (cachedUid) return cachedUid;
+  const client = await getClient();
+  const { data: { session } } = await client.auth.getSession();
+  cachedUid = session?.user?.id || null;
+  return cachedUid;
 }
 
-function fromB64(b64) {
-  const bin = atob(b64.replace(/\s/g, ''));
-  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-/* ---------- Connect / ensure ---------- */
-export async function connectGithub(token, repo) {
-  const me = await gh('/user', { token });
-  let r;
+export async function getCloudUserEmail() {
+  if (!configured()) return '';
   try {
-    r = await gh(`/repos/${me.login}/${repo}`, { token });
-  } catch (e) {
-    if (!/Not Found/i.test(e.message)) throw e;
-    try {
-      r = await gh('/user/repos', { method: 'POST', token, body: { name: repo, private: true, auto_init: false } });
-    } catch (e2) {
-      throw new Error(
-        `Repo "${repo}" is not accessible to this token and the token cannot create it. ` +
-        `Fix: create a PRIVATE repo named "${repo}" at github.com/new, then edit the token → ` +
-        `Repository access → select it, and Permissions → Contents: Read and write.`
-      );
-    }
-  }
-  if (!r.private) {
-    throw new Error(`"${repo}" is PUBLIC. Novels sync only to private repos — make it private or choose another name.`);
-  }
-  try {
-    await gh(`/repos/${me.login}/${repo}/contents/`, { token });
-  } catch (e) {
-    if (/not accessible|403/i.test(e.message)) {
-      throw new Error('Token lacks Contents permission on this repo. Edit the token → Permissions → Repository permissions → Contents: Read and write → Save.');
-    }
-  }
-  return { owner: me.login, repo, branch: r.default_branch || 'main', token };
+    const client = await getClient();
+    const { data: { session } } = await client.auth.getSession();
+    return session?.user?.email || '';
+  } catch { return ''; }
 }
 
-/* ---------- Remote tree ---------- */
-async function readRemote(ctx) {
-  let branch = ctx.branch;
-  let ref = null;
-  try {
-    ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
-  } catch (firstErr) {
-    const branches = await gh(`/repos/${ctx.owner}/${ctx.repo}/branches`, { token: ctx.token });
-    if (!branches || !branches.length) {
-      return { ...ctx, branch, commitSha: null, treeSha: null, byPath: {}, empty: true };
-    }
-    branch = branches[0].name;
-    ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${branch}`, { token: ctx.token });
-  }
-  const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
-  const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees/${commit.tree.sha}?recursive=1`, { token: ctx.token });
-  const byPath = {};
-  for (const t of tree.tree) if (t.type === 'blob' && t.path.startsWith('weaver/')) byPath[t.path] = t.sha;
-  return { ...ctx, branch, commitSha: commit.sha, treeSha: commit.tree.sha, byPath, empty: false };
+/* Storage path helper: {userId}/weaver/<rel> */
+async function path(rel) {
+  const uid = await userId();
+  if (!uid) throw new Error('You are not signed in.');
+  return `${uid}/weaver/${rel}`;
 }
 
-async function readBlob(ctx, sha) {
-  const b = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/blobs/${sha}`, { token: ctx.token });
-  return JSON.parse(fromB64(b.content));
+/* ---------- low-level storage ops ---------- */
+
+async function getJson(rel) {
+  const client = await getClient();
+  const full = await path(rel);
+  const { data, error } = await client.storage.from(BUCKET).download(full);
+  if (error) {
+    if (/not found/i.test(error.message || '')) return null; // not uploaded yet
+    throw new Error(error.message || 'download failed');
+  }
+  const text = await data.text();
+  try { return JSON.parse(text); } catch { return null; }
 }
 
-/* ---------- Commit: fresh head, rebase retry, deletions ---------- */
-async function commitAll(ctx, files, allowRoot = false) {
-  const items = [];
-  for (const f of files) {
-    if (f.delete) {
-      items.push({ path: f.path, mode: '100644', type: 'blob', sha: null });
-      continue;
-    }
-    const b = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/blobs`, {
-      method: 'POST', token: ctx.token,
-      body: { content: toB64(JSON.stringify(f.obj)), encoding: 'base64' },
-    });
-    items.push({ path: f.path, mode: '100644', type: 'blob', sha: b.sha });
-  }
-
-  let rootOk = allowRoot;
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    let head = null;
-    try {
-      const ref = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/ref/heads/${ctx.branch}`, { token: ctx.token });
-      const headCommit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits/${ref.object.sha}`, { token: ctx.token });
-      head = { commitSha: headCommit.sha, treeSha: headCommit.tree.sha };
-      rootOk = false;
-    } catch (e) {
-      if (!rootOk || !/Not Found|Git Repository is empty/i.test(e.message)) throw e;
-      head = null;
-    }
-
-    const treeBody = { tree: items };
-    if (head) treeBody.base_tree = head.treeSha;
-    const tree = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/trees`, { method: 'POST', token: ctx.token, body: treeBody });
-
-    const commitBody = { message: `Weaver sync ${new Date().toISOString()}`, tree: tree.sha };
-    if (head) commitBody.parents = [head.commitSha];
-    const commit = await gh(`/repos/${ctx.owner}/${ctx.repo}/git/commits`, { method: 'POST', token: ctx.token, body: commitBody });
-
-    try {
-      if (head) {
-        await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs/heads/${ctx.branch}`, { method: 'PATCH', token: ctx.token, body: { sha: commit.sha } });
-      } else {
-        await gh(`/repos/${ctx.owner}/${ctx.repo}/git/refs`, { method: 'POST', token: ctx.token, body: { ref: `refs/heads/${ctx.branch}`, sha: commit.sha } });
-      }
-      return;
-    } catch (e) {
-      if (/fast forward/i.test(e.message) && attempt < 3) { rootOk = false; continue; }
-      throw e;
-    }
-  }
+async function putJson(rel, obj) {
+  const client = await getClient();
+  const full = await path(rel);
+  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
+  const { error } = await client.storage.from(BUCKET).upload(full, blob, {
+    upsert: true,
+    contentType: 'application/json',
+  });
+  if (error) throw new Error(error.message || 'upload failed');
 }
 
-/* ---------- Two-way sync (mutex + deletions) ---------- */
+async function removeRel(rel) {
+  const client = await getClient();
+  const full = await path(rel);
+  const { error } = await client.storage.from(BUCKET).remove([full]);
+  if (error) throw new Error(error.message || 'delete failed');
+}
+
+/* ---------- ledger (deletion memory) ---------- */
+function readLedger() {
+  const l = readStore(LEDGER_KEY, null);
+  return (l && Array.isArray(l.projects)) ? l : { projects: [], series: [] };
+}
+function writeLedger(l) { writeStore(LEDGER_KEY, l); }
+
+/* ---------- connect check ---------- */
+export async function connectCloud() {
+  if (!configured()) throw new Error('Cloud sync is not configured (paste your Supabase URL + anon key into js/features/cloud.js).');
+  const uid = await userId();
+  if (!uid) throw new Error('You are not signed in.');
+  return { userId: uid };
+}
+
+/* ---------- two-way sync (mutex + deletions) ---------- */
 let syncing = false;
 
 export async function syncNow({ quiet = false } = {}) {
@@ -175,101 +139,83 @@ export async function syncNow({ quiet = false } = {}) {
     if (!quiet) toast('A sync is already running — give it a moment.', 'info');
     return false;
   }
-  const g = getState().settings.github || {};
-  if (!g.token || !g.repo) {
-    if (!quiet) toast('Configure GitHub sync in Settings ▸ General first.', 'info');
+  if (!configured()) {
+    if (!quiet) toast('Cloud sync is not configured yet.', 'info');
     return false;
   }
   syncing = true;
   try {
-    const base = await connectGithub(g.token, g.repo);
-    let ctx = await readRemote(base);
+    await connectCloud();
 
+    // Read remote index
     let remoteIndex = { projects: {}, series: {} };
-    if (ctx.byPath['weaver/index.json']) remoteIndex = await readBlob(ctx, ctx.byPath['weaver/index.json']);
+    const idx = await getJson('index.json');
+    if (idx && typeof idx === 'object') remoteIndex = idx;
 
-    /* Deletions: known last sync, gone now */
+    // Deletions: known at last sync, gone locally now
     const ledger = readLedger();
-    const localIds = new Set(listProjects().map((p) => p.id));
+    const localIds = new Set(listProjects().map((pr) => pr.id));
     const localSeriesIds = new Set(listSeries().map((s) => s.id));
     const deletedProjects = ledger.projects.filter((id) => !localIds.has(id));
     const deletedSeries = ledger.series.filter((id) => !localSeriesIds.has(id));
 
-    /* PULL: remote newer than local (skip intentional deletions) */
+    // PULL: remote newer than local (skip intentional deletions)
     let pulled = 0;
     for (const [id, info] of Object.entries(remoteIndex.projects || {})) {
       if (deletedProjects.includes(id)) continue;
-      const lm = listProjects().find((p) => p.id === id);
-      const sha = ctx.byPath[`weaver/projects/${id}.json`];
-      if (sha && (!lm || lm.updatedAt < info.updatedAt)) {
-        const obj = await readBlob(ctx, sha);
-        saveProject(obj.data);
-        pulled++;
+      const lm = listProjects().find((pr) => pr.id === id);
+      if (!lm || lm.updatedAt < info.updatedAt) {
+        const obj = await getJson(`projects/${id}.json`);
+        if (obj && obj.data) { saveProject(obj.data); pulled++; }
       }
     }
     for (const [id, info] of Object.entries(remoteIndex.series || {})) {
       if (deletedSeries.includes(id)) continue;
       const ls = listSeries().find((s) => s.id === id);
-      const sha = ctx.byPath[`weaver/series/${id}.json`];
-      if (sha && (!ls || ls.updatedAt < info.updatedAt)) {
-        const obj = await readBlob(ctx, sha);
-        upsertSeries(obj.id, obj.meta, obj.config);
-        pulled++;
+      if (!ls || ls.updatedAt < info.updatedAt) {
+        const obj = await getJson(`series/${id}.json`);
+        if (obj && obj.meta) { upsertSeries(obj.id, obj.meta, obj.config); pulled++; }
       }
     }
 
-    /* PUSH: local newer than remote index */
-    const pushFiles = [];
+    // PUSH: local newer than remote index
+    let pushed = 0;
     for (const m of listProjects()) {
       const ri = (remoteIndex.projects || {})[m.id];
       if (!ri || ri.updatedAt < m.updatedAt) {
-        pushFiles.push({ path: `weaver/projects/${m.id}.json`, obj: { id: m.id, data: getProject(m.id), meta: m } });
+        await putJson(`projects/${m.id}.json`, { id: m.id, data: getProject(m.id), meta: m });
+        pushed++;
       }
     }
     for (const s of listSeries()) {
       const ri = (remoteIndex.series || {})[s.id];
       if (!ri || ri.updatedAt < s.updatedAt) {
-        pushFiles.push({ path: `weaver/series/${s.id}.json`, obj: { id: s.id, meta: s, config: getSeriesConfig(s.id) } });
+        await putJson(`series/${s.id}.json`, { id: s.id, meta: s, config: getSeriesConfig(s.id) });
+        pushed++;
       }
     }
 
-    /* DELETE from repo: locally-deleted, still remote */
+    // DELETE remotely: locally deleted but still in the remote index
     let deletedCount = 0;
     for (const id of deletedProjects) {
-      const path = `weaver/projects/${id}.json`;
-      if (ctx.byPath[path]) { pushFiles.push({ path, delete: true }); deletedCount++; }
+      if ((remoteIndex.projects || {})[id]) { await removeRel(`projects/${id}.json`); deletedCount++; }
     }
     for (const id of deletedSeries) {
-      const path = `weaver/series/${id}.json`;
-      if (ctx.byPath[path]) { pushFiles.push({ path, delete: true }); deletedCount++; }
+      if ((remoteIndex.series || {})[id]) { await removeRel(`series/${id}.json`); deletedCount++; }
     }
 
+    // Write fresh index
     const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
     for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
     for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
-    pushFiles.push({ path: 'weaver/index.json', obj: finalIndex });
+    await putJson('index.json', finalIndex);
 
-    if (pushFiles.length) {
-      let allowRoot = ctx.empty;
-      if (ctx.empty) {
-        await gh(`/repos/${ctx.owner}/${ctx.repo}/contents/README.md`, {
-          method: 'PUT',
-          token: ctx.token,
-          body: {
-            message: 'Weaver backup repository',
-            content: toB64('Weaver novel backup — managed by the Weaver app.\n'),
-          },
-        });
-        ctx = await readRemote(ctx);
-        allowRoot = false;
-      }
-      await commitAll(ctx, pushFiles, allowRoot);
-    }
-
-    writeLedger({ projects: listProjects().map((p) => p.id), series: listSeries().map((s) => s.id) });
+    writeLedger({
+      projects: listProjects().map((pr) => pr.id),
+      series: listSeries().map((s) => s.id),
+    });
 
     if (!quiet) {
-      const pushed = pushFiles.filter((f) => !f.delete).length - 1;
       const parts = [];
       if (pushed > 0) parts.push(`${pushed} pushed`);
       if (pulled > 0) parts.push(`${pulled} pulled`);
@@ -278,7 +224,7 @@ export async function syncNow({ quiet = false } = {}) {
     }
     return true;
   } catch (e) {
-    if (!quiet) toast('GitHub sync failed: ' + e.message, 'danger');
+    if (!quiet) toast('Cloud sync failed: ' + e.message, 'danger');
     return false;
   } finally {
     syncing = false;
@@ -287,6 +233,20 @@ export async function syncNow({ quiet = false } = {}) {
 
 /* Fire-and-forget, used on Library exit */
 export function autoSync() {
-  const g = getState().settings.github || {};
-  if (g.token && g.repo && g.autoSync !== false) syncNow({ quiet: true });
+  if (!configured()) return;
+  const c = getState().settings.cloud || {};
+  if (c.autoSync === false) return;
+  syncNow({ quiet: true });
+}
+
+/* Sign out via this client, then hard-reload back to the auth screen.
+   The session is shared in the browser, so this logs out the whole app. */
+export async function signOutAndReload() {
+  try {
+    const client = await getClient();
+    await client.auth.signOut();
+  } catch (e) {
+    console.warn('[Cloud] signOut:', e);
+  }
+  location.reload();
 }
