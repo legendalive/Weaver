@@ -1,13 +1,30 @@
 /* =========================================================
    Weaver — js/core/storage.js
-   Step 4 + 7.5 + 9 + 24: namespaced localStorage engine.
-   Projects, series registry (shared config bible per series),
-   settings, resume state, and orphan-safe deletion.
+   v2.0 Stage 2: namespaced localStorage engine.
+   v1 core preserved + per-user namespace (Clerk userId),
+   one-time legacy-data migration helpers, cloud settings
+   block (secrets stripped from backups).
    ========================================================= */
 
-const PREFIX = 'weaver_';
+let PREFIX = 'weaver_';
+const LEGACY_PREFIX = 'weaver_';
+
+/* ---------- Namespace (set by app.js after sign-in) ---------- */
+
+export function setUserNamespace(userId) {
+  PREFIX = userId ? `weaver_u_${userId}_` : LEGACY_PREFIX;
+}
+
+export function storageKey(name) { return PREFIX + name; }
+
+/* Namespaced raw access for modules that manage their own keys
+   (e.g. the cloud sync ledger in Stage 4). */
+export function readStore(key, fallback = null) { return read(key, fallback); }
+export function writeStore(key, value) { return write(key, value); }
+export function removeStore(key) { remove(key); }
 
 /* ---------- Helpers ---------- */
+
 function read(key, fallback = null) {
   try {
     const raw = localStorage.getItem(PREFIX + key);
@@ -32,6 +49,13 @@ function remove(key) {
   localStorage.removeItem(PREFIX + key);
 }
 
+function readRawKey(fullKey, fallback = null) {
+  try {
+    const raw = localStorage.getItem(fullKey);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+
 function genId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -39,7 +63,49 @@ function genId() {
   return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+/* ---------- Legacy (v1, un-scoped) data ---------- */
+
+export function hasLegacyData() {
+  if (PREFIX === LEGACY_PREFIX) return false;
+  const ids = readRawKey(LEGACY_PREFIX + 'project_ids');
+  return Array.isArray(ids) && ids.length > 0;
+}
+
+export function namespaceIsEmpty() {
+  return read('project_ids', []).length === 0 && read('series_ids', []).length === 0;
+}
+
+/* Copies every `weaver_*` key into the user namespace, then deletes
+   the legacy keys (they must not linger where another signed-in user
+   could be offered them). Returns the number of keys moved. */
+export function migrateLegacyData() {
+  if (PREFIX === LEGACY_PREFIX) return 0;
+  const toMove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(LEGACY_PREFIX)) continue;
+    if (key.startsWith(PREFIX)) continue; // already namespaced
+    toMove.push(key);
+  }
+  for (const key of toMove) {
+    const val = localStorage.getItem(key);
+    localStorage.setItem(PREFIX + key.slice(LEGACY_PREFIX.length), val);
+  }
+  for (const key of toMove) localStorage.removeItem(key);
+  return toMove.length;
+}
+
+export function clearUserData() {
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(PREFIX)) toDelete.push(key);
+  }
+  toDelete.forEach((k) => localStorage.removeItem(k));
+}
+
 /* ---------- Config bible schema (7 sections) ---------- */
+
 export function blankConfig() {
   return {
     characters: [],
@@ -66,6 +132,7 @@ export function configHasContent(cfg) {
 }
 
 /* ---------- Project schema ---------- */
+
 function createBlankProject({ name = 'Untitled Project', scope = 'standalone', source = 'scratch' } = {}) {
   const now = Date.now();
   return {
@@ -88,6 +155,7 @@ function createBlankProject({ name = 'Untitled Project', scope = 'standalone', s
 }
 
 /* ---------- Project CRUD ---------- */
+
 export function listProjects() {
   const ids = read('project_ids', []);
   const projects = [];
@@ -104,12 +172,9 @@ export function getProject(id) {
 
 export function saveProject(project) {
   if (!project || !project.id) return false;
-
   const now = Date.now();
   project.updatedAt = now;
-
   write(`project_data_${project.id}`, project);
-
   const meta = {
     id: project.id,
     name: project.name,
@@ -122,7 +187,6 @@ export function saveProject(project) {
     wordCount: (project.mainNovel?.text || '').trim().split(/\s+/).filter(Boolean).length,
   };
   write(`project_meta_${project.id}`, meta);
-
   const ids = read('project_ids', []);
   if (!ids.includes(project.id)) {
     ids.push(project.id);
@@ -131,15 +195,13 @@ export function saveProject(project) {
   return true;
 }
 
-/* Step 24: orphan-safe deletion — removing the last book of a
+/* Orphan-safe deletion — removing the last book of a
    series also removes the series registry entry and its bible. */
 export function deleteProject(id) {
   remove(`project_data_${id}`);
   remove(`project_meta_${id}`);
-
   const ids = read('project_ids', []);
   write('project_ids', ids.filter((x) => x !== id));
-
   for (const sid of read('series_ids', [])) {
     const meta = read(`series_meta_${sid}`);
     if (meta && meta.bookIds.includes(id)) {
@@ -153,7 +215,6 @@ export function deleteProject(id) {
       }
     }
   }
-
   if (getActiveProject() === id) setActiveProject(null);
   return true;
 }
@@ -165,6 +226,7 @@ export function createProject(opts) {
 }
 
 /* ---------- Series registry (config bible lives here) ---------- */
+
 export function listSeries() {
   const ids = read('series_ids', []);
   return ids
@@ -220,6 +282,7 @@ export function saveEffectiveConfig(project, config) {
 }
 
 /* ---------- Active project (resume state) ---------- */
+
 export function setActiveProject(id) {
   if (id) write('active_project_id', id);
   else remove('active_project_id');
@@ -230,14 +293,15 @@ export function getActiveProject() {
 }
 
 /* ---------- Settings ---------- */
+
 const DEFAULT_SETTINGS = {
   general: {
     theme: 'charcoal-gold',
     fontScale: 1.0,
     sentencesPerPage: 15,
     autosaveInterval: 3000,
-        panelSizes: [33.4, 33.3, 33.3],
-       acceptMovesText: false,
+    panelSizes: [33.4, 33.3, 33.3],
+    acceptMovesText: false,
     quickPrompts: ['Improve prose', 'Continue the scene from here', 'Rewrite in third person, past tense'],
   },
   ai: {
@@ -247,10 +311,20 @@ const DEFAULT_SETTINGS = {
       gemini: { key: '', enabled: false },
       mistral: { key: '', enabled: false },
     },
-        fallbackOrder: ['gemini', 'openrouter', 'groq', 'mistral'],
+    fallbackOrder: ['gemini', 'openrouter', 'groq', 'mistral'],
     activeModel: null,
     temperature: 0.85,
     maxTokens: 2048,
+  },
+  /* v2.0 cloud storage (Backblaze B2, S3-compatible).
+     Secrets here never leave the browser — see sanitizedSettings. */
+  cloud: {
+    provider: 'b2',
+    endpoint: '',
+    bucket: '',
+    keyId: '',
+    appKey: '',
+    autoSync: true,
   },
 };
 
@@ -258,21 +332,26 @@ export function getSettings() {
   const saved = read('settings', {});
   return {
     general: { ...DEFAULT_SETTINGS.general, ...(saved.general || {}) },
-        ai: {
+    ai: {
       ...DEFAULT_SETTINGS.ai,
       ...(saved.ai || {}),
       providers: { ...DEFAULT_SETTINGS.ai.providers, ...((saved.ai || {}).providers || {}) },
     },
+    /* github kept until Stage 5 retires the old settings UI — do not remove early. */
     github: saved.github || { token: '', repo: '', autoSync: true },
+    cloud: { ...DEFAULT_SETTINGS.cloud, ...(saved.cloud || {}) },
   };
 }
-/* ---------- Step 28: backup / restore + series upsert ---------- */
+
+/* ---------- Backup / restore + series upsert ---------- */
+
 function sanitizedSettings() {
   const s = JSON.parse(JSON.stringify(read('settings', {})));
   if (s.ai && s.ai.providers) {
     for (const k of Object.keys(s.ai.providers)) s.ai.providers[k].key = '';
   }
-  delete s.github; // sync token never leaves this browser
+  delete s.github; // legacy v1 sync token — never leaves this browser
+  delete s.cloud;  // v2 cloud credentials — never leaves this browser
   return s;
 }
 
@@ -303,7 +382,6 @@ export function importAllData(bundle) {
     if (!ids.includes(p.id)) ids.push(p.id);
   }
   write('project_ids', ids);
-
   const sids = read('series_ids', []);
   for (const s of (bundle.series || [])) {
     write(`series_meta_${s.id}`, s.meta);
@@ -311,7 +389,6 @@ export function importAllData(bundle) {
     if (!sids.includes(s.id)) sids.push(s.id);
   }
   write('series_ids', sids);
-
   if (bundle.settings) write('settings', bundle.settings);
   if (bundle.activeProjectId) write('active_project_id', bundle.activeProjectId);
   return bundle.projects.length;
@@ -324,6 +401,7 @@ export function upsertSeries(sid, meta, config) {
   if (!ids.includes(sid)) { ids.push(sid); write('series_ids', ids); }
   return true;
 }
+
 export function saveSettings(settings) {
   return write('settings', settings);
 }
