@@ -16,7 +16,7 @@ import { el, clear } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 
 /* ── STAGE 0: paste your Clerk PUBLISHABLE key (pk_live_… or pk_test_…) ── */
-const CLERK_PUBLISHABLE_KEY = 'PASTE_YOUR_CLERK_PUBLISHABLE_KEY';
+const CLERK_PUBLISHABLE_KEY = 'pk_live_Y2xlcmsubGVnZW5kYWxpdmUuZ2l0aHViLmlvJA';
 /* ───────────────────────────────────────────────────────────────────────── */
 
 let loadPromise = null;
