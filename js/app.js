@@ -1,11 +1,19 @@
 /* =========================================================
    Weaver — js/app.js
-   Application entry point.
-   Step 25: boot + routing + resume + live preferences pass.
+   v2.0 Stage 2: boot + Clerk auth gate + per-user namespace.
+   Flow: splash → initAuth() → signed in ? namespaced boot
+   : auth view. Session transitions use full reloads so no
+   module ever initializes twice.
    ========================================================= */
-
-import { getState, subscribe, openProject } from './core/state.js';
-import { getActiveProject } from './core/storage.js';
+import { getState, subscribe, openProject, reloadSettings } from './core/state.js';
+import {
+  getActiveProject, setUserNamespace,
+  hasLegacyData, namespaceIsEmpty, migrateLegacyData,
+} from './core/storage.js';
+import { toast, confirmDialog } from './utils/dom.js';
+import {
+  initAuth, authConfigured, currentUserId, onAuthChange, renderAuthView,
+} from './auth/auth.js';
 import { initLaunch } from './views/launch.js';
 import { initWizard } from './views/wizard.js';
 import { initWorkspace } from './views/workspace.js';
@@ -16,16 +24,28 @@ import { initCapture } from './features/capture.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { renderMainNovel } from './panels/main-novel.js';
 
-const APP_VERSION = '0.9.0';
-const VIEWS = ['launch', 'workspace'];
+const APP_VERSION = '2.0.0';
+const VIEWS = ['auth', 'launch', 'workspace'];
+
+let inApp = false;
+
+function setStatus(text) {
+  const status = document.getElementById('boot-status');
+  if (status) status.textContent = text;
+}
 
 function switchView(name) {
   if (!VIEWS.includes(name)) return false;
   for (const v of VIEWS) {
-    const el = document.getElementById(`view-${v}`);
-    if (el) el.classList.toggle('is-active', v === name);
+    const node = document.getElementById(`view-${v}`);
+    if (node) node.classList.toggle('is-active', v === name);
   }
   return true;
+}
+
+function showAuthView() {
+  switchView('auth');
+  renderAuthView(document.getElementById('view-auth'));
 }
 
 function applyFontScale() {
@@ -35,10 +55,28 @@ function applyFontScale() {
 
 let settingsTimer = null;
 
-function boot() {
-  const status = document.getElementById('boot-status');
-  if (status) {
-    status.textContent = `foundation online · v${APP_VERSION}`;
+/* Runs exactly once per page load, after a Clerk session is confirmed. */
+async function enterApp() {
+  const userId = currentUserId();
+  if (!userId) return;
+  inApp = true;
+
+  /* All storage reads/writes from here on are user-scoped. */
+  setUserNamespace(userId);
+  reloadSettings();
+
+  /* One-time offer: adopt pre-account (v1) data found on this device. */
+  if (namespaceIsEmpty() && hasLegacyData()) {
+    const ok = await confirmDialog({
+      title: 'Import your existing projects?',
+      message: 'This browser holds projects from a previous (account-less) version of Weaver. Import them into your account now? They will be moved into your private space on this device.',
+      confirmLabel: 'Import',
+    });
+    if (ok) {
+      migrateLegacyData();
+      reloadSettings();
+      toast('Imported your local library.', 'success');
+    }
   }
 
   subscribe((state, change) => {
@@ -60,20 +98,52 @@ function boot() {
   initWorkspace();
   initScribe();
   initAiOutput();
-    initSearch();
+  initSearch();
   initCapture();
-
   applyFontScale();
 
   const activeId = getActiveProject();
-  if (activeId) {
-    openProject(activeId);
-  } else {
-    switchView(getState().view);
+  if (activeId) openProject(activeId);
+  else switchView(getState().view === 'workspace' ? 'launch' : getState().view);
+}
+
+async function boot() {
+  setStatus('contacting auth service…');
+
+  const result = await initAuth();
+
+  if (!authConfigured()) {
+    setStatus('auth setup required');
+    showAuthView();
+    return;
   }
 
+  if (result.reason === 'load-failed') {
+    setStatus('auth service unreachable');
+    showAuthView();
+    toast('Could not reach the auth service. Check your connection and reload.', 'danger');
+    return;
+  }
+
+  if (result.signedIn) {
+    setStatus('session found · opening your library…');
+    await enterApp();
+    if (!inApp) { showAuthView(); return; }
+    setStatus(`foundation online · v${APP_VERSION}`);
+  } else {
+    setStatus('awaiting sign-in');
+    showAuthView();
+  }
+
+  /* Session transitions = full reload (no double-init landmines). */
+  onAuthChange((payload) => {
+    const session = payload && payload.session;
+    if (session && !inApp) location.reload();
+    else if (!session && inApp) location.reload();
+  });
+
   console.info(
-    `%cWeaver v${APP_VERSION}%c preferences live`,
+    `%cWeaver v${APP_VERSION}%c auth gate online`,
     'color:#e0a83c;font-weight:bold', 'color:inherit'
   );
 }
