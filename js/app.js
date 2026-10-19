@@ -1,6 +1,6 @@
 /* =========================================================
    Weaver — js/app.js
-   v2.0 Stage 2: boot + Clerk auth gate + per-user namespace.
+   v2.0 Stage 2: boot + Supabase auth gate + per-user namespace.
    Flow: splash → initAuth() → signed in ? namespaced boot
    : auth view. Session transitions use full reloads so no
    module ever initializes twice.
@@ -10,7 +10,7 @@ import {
   getActiveProject, setUserNamespace,
   hasLegacyData, namespaceIsEmpty, migrateLegacyData,
 } from './core/storage.js';
-import { toast, confirmDialog } from './utils/dom.js';
+import { toast } from './utils/dom.js';
 import {
   initAuth, authConfigured, currentUserId, onAuthChange, renderAuthView,
 } from './auth/auth.js';
@@ -55,7 +55,7 @@ function applyFontScale() {
 
 let settingsTimer = null;
 
-/* Runs exactly once per page load, after a Clerk session is confirmed. */
+/* Runs exactly once per page load, after a session is confirmed. */
 async function enterApp() {
   const userId = currentUserId();
   if (!userId) return;
@@ -65,18 +65,11 @@ async function enterApp() {
   setUserNamespace(userId);
   reloadSettings();
 
-  /* One-time offer: adopt pre-account (v1) data found on this device. */
+  /* SILENT migration: adopt pre-account (v1) data found on this device.
+     No blocking prompt — just move it to the user namespace and proceed. */
   if (namespaceIsEmpty() && hasLegacyData()) {
-    const ok = await confirmDialog({
-      title: 'Import your existing projects?',
-      message: 'This browser holds projects from a previous (account-less) version of Weaver. Import them into your account now? They will be moved into your private space on this device.',
-      confirmLabel: 'Import',
-    });
-    if (ok) {
-      migrateLegacyData();
-      reloadSettings();
-      toast('Imported your local library.', 'success');
-    }
+    migrateLegacyData();
+    reloadSettings();
   }
 
   subscribe((state, change) => {
