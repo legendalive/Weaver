@@ -1,0 +1,111 @@
+/* =========================================================
+   Weaver — css/auth.css
+   v2.0 Stage 1: sign-in gate (Clerk). Desktop + mobile.
+   Dormant until app.js activates #view-auth in Stage 2.
+   ========================================================= */
+
+/* ---------- Shell ---------- */
+.auth-wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 32px 18px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(224, 168, 60, .06), transparent 60%),
+    var(--bg);
+}
+
+/* ---------- Card ---------- */
+.auth-card {
+  width: min(430px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.auth-head { display: flex; align-items: center; gap: 12px; }
+.auth-logo { width: 44px; height: 44px; color: var(--accent); flex: none; }
+.auth-logo svg { width: 100%; height: 100%; display: block; }
+.auth-title { font-size: 1.45rem; font-weight: 650; letter-spacing: .03em; line-height: 1.15; }
+.auth-tag {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .66rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+/* ---------- Tabs ---------- */
+.auth-tabs { display: flex; gap: 8px; }
+.auth-tabs .btn { flex: 1; justify-content: center; }
+.auth-tabs .btn.is-selected {
+  border-color: rgba(224, 168, 60, .55);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- Form ---------- */
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-form .field { gap: 6px; }
+.auth-form .btn-primary { width: 100%; margin-top: 4px; }
+
+.auth-error {
+  font-size: .8rem;
+  line-height: 1.45;
+  color: var(--danger);
+  background: rgba(212, 96, 79, .1);
+  border: 1px solid rgba(212, 96, 79, .35);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.auth-error[hidden] { display: none; }
+
+.auth-hint {
+  font-size: .74rem;
+  color: var(--faint);
+  line-height: 1.55;
+}
+
+.auth-code-row { display: flex; gap: 8px; }
+.auth-code-row .input {
+  flex: 1;
+  letter-spacing: .35em;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+.auth-code-row .btn { flex: none; }
+
+/* ---------- Setup notice (shown only if no Clerk key pasted) ---------- */
+.auth-notice {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  font-size: .85rem;
+  line-height: 1.6;
+}
+.auth-notice code {
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .78rem;
+}
+
+@media (max-width: 640px) {
+  .auth-wrap { padding: 24px 14px; }
+  .auth-card { padding: 20px; }
+}
