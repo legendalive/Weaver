@@ -1,12 +1,13 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   v2.0 Stage 6.3.1: Supabase Storage cloud sync + continuous
+   v2.0 Stage 6.3.2: Supabase Storage cloud sync + continuous
    autosync + cloud-save badge.
    - CONTINUOUS AUTOSYNC: ~3s after any edit, the ACTIVE
      project (Main Novel + Config Bible, series-aware) is
      pushed quietly. Debounced; scoped to the open project.
-   - BADGE: "cloud · HH:MM" pill in the Manuscript footer
-     flashes on every successful push; "cloud · failed" on error.
+   - BADGE: "cloud · HH:MM" pill in the Manuscript panel
+     HEADER (next to the expand button); flashes green on
+     every successful push, red "cloud · failed" on error.
    - Manual Backup/Restore = full two-way merge by updatedAt
      with the deletion ledger.
    - Per-user paths {userId}/weaver/… locked server-side.
@@ -137,7 +138,7 @@ export async function connectCloud() {
 }
 
 /* =========================================================
-   CLOUD-SAVE BADGE — Manuscript footer, self-styled
+   CLOUD-SAVE BADGE — Manuscript panel header, self-styled
    ========================================================= */
 
 const BADGE_STYLE_ID = 'cloud-badge-style';
@@ -155,15 +156,15 @@ function ensureBadgeStyle() {
   }
 }
 
-function renderBadgeInto(footer) {
-  let b = footer.querySelector('.cloud-badge');
+function renderBadgeInto(host) {
+  let b = host.querySelector('.cloud-badge');
   if (!lastStamp && !lastError) {
     if (b) b.hidden = true;
     return;
   }
   if (!b) {
     b = el('span', { class: 'cloud-badge' });
-    footer.insertBefore(b, footer.firstChild);
+    host.appendChild(b);
   }
   b.hidden = false;
   clear(b);
@@ -181,8 +182,8 @@ function renderBadgeInto(footer) {
 function refreshBadge() {
   if (getState().view !== 'workspace') return;
   ensureBadgeStyle();
-  const footer = document.querySelector('.panel[data-panel="manuscript"] .panel-footer');
-  if (footer) renderBadgeInto(footer);
+  const host = document.querySelector('.panel[data-panel="manuscript"] .panel-actions');
+  if (host) renderBadgeInto(host);
 }
 
 function stampBadge() {
