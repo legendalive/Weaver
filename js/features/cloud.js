@@ -1,14 +1,18 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   v2.0 Stage 6.3: Supabase Storage cloud sync.
+   v2.0 Stage 6.3.1: Supabase Storage cloud sync + continuous
+   autosync + cloud-save badge.
    - CONTINUOUS AUTOSYNC: ~3s after any edit, the ACTIVE
      project (Main Novel + Config Bible, series-aware) is
      pushed quietly. Debounced; scoped to the open project.
+   - BADGE: "cloud · HH:MM" pill in the Manuscript footer
+     flashes on every successful push; "cloud · failed" on error.
    - Manual Backup/Restore = full two-way merge by updatedAt
      with the deletion ledger.
    - Per-user paths {userId}/weaver/… locked server-side.
    ========================================================= */
-import { toast } from '../utils/dom.js';
+import { el, clear, toast } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
 import {
   listProjects, getProject, saveProject,
@@ -133,6 +137,66 @@ export async function connectCloud() {
 }
 
 /* =========================================================
+   CLOUD-SAVE BADGE — Manuscript footer, self-styled
+   ========================================================= */
+
+const BADGE_STYLE_ID = 'cloud-badge-style';
+const BADGE_CSS = `.cloud-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--faint);font-size:.66rem;font-family:var(--font-mono);white-space:nowrap;pointer-events:none;flex:none;transition:color .3s ease,border-color .3s ease;} .cloud-badge.is-ok{color:var(--success);border-color:rgba(127,176,105,.45);} .cloud-badge.is-error{color:var(--danger);border-color:rgba(212,96,79,.45);} .cloud-badge .icon{width:11px;height:11px;} .cloud-badge[hidden]{display:none;}`;
+
+let lastStamp = null;   // HH:MM of the last successful cloud save
+let lastError = false;
+
+function ensureBadgeStyle() {
+  if (!document.getElementById(BADGE_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = BADGE_STYLE_ID;
+    s.textContent = BADGE_CSS;
+    document.head.appendChild(s);
+  }
+}
+
+function renderBadgeInto(footer) {
+  let b = footer.querySelector('.cloud-badge');
+  if (!lastStamp && !lastError) {
+    if (b) b.hidden = true;
+    return;
+  }
+  if (!b) {
+    b = el('span', { class: 'cloud-badge' });
+    footer.insertBefore(b, footer.firstChild);
+  }
+  b.hidden = false;
+  clear(b);
+  if (lastError) {
+    b.classList.add('is-error');
+    b.classList.remove('is-ok');
+    b.append(icon('alert', 'icon-sm'), el('span', { text: 'cloud · failed' }));
+  } else {
+    b.classList.add('is-ok');
+    b.classList.remove('is-error');
+    b.append(icon('check', 'icon-sm'), el('span', { text: `cloud · ${lastStamp}` }));
+  }
+}
+
+function refreshBadge() {
+  if (getState().view !== 'workspace') return;
+  ensureBadgeStyle();
+  const footer = document.querySelector('.panel[data-panel="manuscript"] .panel-footer');
+  if (footer) renderBadgeInto(footer);
+}
+
+function stampBadge() {
+  lastStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  lastError = false;
+  refreshBadge();
+}
+
+function failBadge() {
+  lastError = true;
+  refreshBadge();
+}
+
+/* =========================================================
    CONTINUOUS AUTOSYNC — save as they write
    ========================================================= */
 
@@ -196,16 +260,21 @@ async function pushActiveProject({ quiet = true } = {}) {
     if (!ledger.projects.includes(project.id)) ledger.projects.push(project.id);
     if (project.seriesId && !ledger.series.includes(project.seriesId)) ledger.series.push(project.seriesId);
     writeLedger(ledger);
+
+    stampBadge();
   } catch (e) {
+    failBadge();
     if (!quiet) toast('Cloud save failed: ' + e.message, 'danger');
   } finally {
     pushing = false;
   }
 }
 
-/* Every project edit (manuscript autosave, Accept, Recheck…) reschedules. */
+/* Every project edit reschedules the push; view/project changes
+   re-seat the badge (rAF waits out the workspace rebuild). */
 subscribe((state, change) => {
   if (change.project) scheduleCloudSave();
+  if (change.project || change.view) requestAnimationFrame(refreshBadge);
 });
 
 /* Best effort: push the moment the tab is hidden (phone switch, tab hop). */
@@ -299,6 +368,8 @@ export async function syncNow({ quiet = false } = {}) {
       series: listSeries().map((s) => s.id),
     });
 
+    stampBadge();
+
     if (!quiet) {
       const parts = [];
       if (pushed > 0) parts.push(`${pushed} pushed`);
@@ -308,6 +379,7 @@ export async function syncNow({ quiet = false } = {}) {
     }
     return true;
   } catch (e) {
+    failBadge();
     if (!quiet) toast('Cloud sync failed: ' + e.message, 'danger');
     return false;
   } finally {
