@@ -81,3 +81,47 @@ Files: js/auth/auth.js.
 - End-to-end QA of 6.1–6.7 on desktop AND phone (owner tests with screenshots).
 - Delete dormant js/cloud/sigv4.js + js/cloud/s3.js.
 - Sync docs/HANDOFF.md to the Supabase reality + CHANGELOG + tag release.
+---
+
+## V3 — Commercialization & expansion (parked by owner, post Stage 7)
+
+> These items change Weaver's architecture: several require a real server
+> component. Supabase Edge Functions are the natural home, since Supabase
+> already holds auth + storage. Flagged per item.
+
+### V3.1 Admin dashboard (+ hosting research)
+Owner-facing dashboard: users, subscriptions, storage usage, AI spend.
+Research targets: Streamlit, Gradio, Retool/Appsmith, or a small JS admin
+page (Vite + Supabase admin API) on Vercel/Netlify/Cloudflare Pages free tiers.
+NOTE: must run server-side — it needs the Supabase `service_role` key,
+which must NEVER ship in the browser app.
+
+### V3.2 Paywall — cloud storage + AI behind it
+Entitlements table in Supabase (plan, status, renewal); gate storage quota
+and AI access on it. Stripe/PayPal webhooks update entitlements (see V3.6).
+Free tier keeps local-only writing; paid unlocks sync + AI.
+
+### V3.3 AI-powered Plot Builder
+New panel/feature: beats, arcs, tension maps. AI-assisted for paid users;
+fully manual scaffolding for free users. Design before code — decide where
+it lives (fourth panel vs. modal vs. tab in Config).
+
+### V3.4 Centralize AI keys (remove from user Settings)
+Owner's keys live in the admin dashboard / server only. Users call a
+server-side proxy (Supabase Edge Function or Cloudflare Worker) that holds
+the keys and forwards to Groq/Gemini/OpenRouter/Mistral. Enables metering,
+per-plan limits, and kills key-sharing. Large refactor of js/ai/manager.js.
+
+### V3.5 Free EU domain for the app
+Research: truly-free TLDs are effectively dead (freenom collapse); realistic
+options are free subdomains (eu.org, is-a.dev, js.org) or a cheap .eu/.de
+(~€5/yr). Pair with GDPR-friendly hosting. Replaces legendalive.github.io as
+the canonical URL (update Supabase redirect URLs when it happens).
+
+### V3.6 Payments: Stripe and/or PayPal
+Stripe recommended as primary (developer experience, webhooks, EU VAT
+handling via Stripe Tax); PayPal optional for reach. Flow: checkout →
+webhook → Supabase entitlements row → app unlocks features.
+
+### V3 dependency order (suggested)
+V3.1 → V3.6 → V3.2 → V3.4 → V3.3 → V3.5 (domain last, once stable). 
