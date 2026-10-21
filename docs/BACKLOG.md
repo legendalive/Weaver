@@ -78,7 +78,17 @@ set-new-password screen (recovery-token interception + auth.updateUser) and
 consider custom SMTP (e.g. Resend) for headroom before Gumroad launch.
 Files: js/auth/auth.js (+ Supabase dashboard SMTP settings).
 ---
-
+### 6.9 Mobile Library (welcome screen) cascade layout
+Owner-reported (phone): the Library header squeezes logo/name/tagline to the
+left and truncates Getting Started / New Project on the right; ~80% of the
+screen sits empty with "No projects yet" floating mid-screen.
+Target on mobile: stacked cascade — logo + name top-center, tagline centered
+beneath it, then Getting Started + New Project side-by-side below (generous,
+near-full-width buttons); empty state fills the remaining space properly.
+Desktop layout unchanged. Revisits the 6.4 `.launch-actions` rule inside a
+mobile media query (margin-left:auto must reset there).
+Files: css/views.css (@media for .launch-header/.launch-actions/.launch-empty),
+js/views/launch.js only if markup order must change.
 ## STAGE 7 — Close out
 - End-to-end QA of 6.1–6.7 on desktop AND phone (owner tests with screenshots).
 - Delete dormant js/cloud/sigv4.js + js/cloud/s3.js.
