@@ -1,10 +1,13 @@
 /* =========================================================
    Weaver — js/views/wizard.js
-   Step 7 + 7.5 + 26: New Project wizard — name, scope (series
-   name + book title + add-to-existing), source (scratch/upload
-   including silent .docx conversion), config-bible init.
+   v2 Stage 6.6: New Project wizard.
+   Name, scope (series name + book title + add-to-existing),
+   source (scratch/upload incl. silent .docx conversion).
+   Config bible: single "open Config Bible after creating"
+   checkbox + optional hint line. The old "Skip for later"
+   card is gone, and "now" actually opens the bible (the old
+   control set a flag nothing consumed).
    ========================================================= */
-
 import { el, clear, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
@@ -14,14 +17,27 @@ import {
 } from '../core/storage.js';
 import { openProject } from '../core/state.js';
 import { setOpenWizard } from './launch.js';
+import { openConfigBible } from '../features/config-bible.js';
 import { readDocx } from '../utils/docx.js';
 import { normalizeNewlines } from '../utils/text.js';
+
+/* ---------- self-styled module (checkbox row) ---------- */
+const STYLE_ID = 'wizard-style';
+const CSS = `.wizard-toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;user-select:none;color:var(--text);} .wizard-toggle input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
 
 /* ---------- Segmented picker helper ---------- */
 function segmented(options, initial) {
   let value = initial;
   let onChange = null;
-
   const buttons = options.map((opt) =>
     el('button', {
       class: 'btn wizard-seg-btn' + (opt.value === initial ? ' is-selected' : ''),
@@ -33,7 +49,6 @@ function segmented(options, initial) {
       },
     }, [icon(opt.icon), opt.label])
   );
-
   return {
     node: el('div', { class: 'wizard-seg' }, buttons),
     get: () => value,
@@ -41,10 +56,12 @@ function segmented(options, initial) {
   };
 }
 
-const DEFAULT_CONFIG_HINT = 'Stores characters, settings, plot arcs, world rules & physics, items, general prose style, and standing AI instructions.';
+const DEFAULT_CONFIG_HINT =
+  'Optional — characters, places, plot arcs, world rules, prose style, and AI instructions. Add them any time from the Config button.';
 
 /* ---------- Wizard ---------- */
 export function openProjectWizard() {
+  ensureStyle();
   let uploadedText = null;
   let uploadedName = null;
 
@@ -92,15 +109,15 @@ export function openProjectWizard() {
     { value: 'upload', label: 'Upload manuscript', icon: 'upload' },
   ], 'scratch');
 
-  /* ----- config ----- */
-  const configSeg = segmented([
-    { value: 'now', label: 'Create config now', icon: 'sliders' },
-    { value: 'later', label: 'Skip for later', icon: 'clock' },
-  ], 'later');
+  /* ----- config bible: one checkbox + one hint line ----- */
+  const configCheck = el('input', { type: 'checkbox' });
   const configHint = el('span', { class: 'field-hint', text: DEFAULT_CONFIG_HINT });
   const configField = el('div', { class: 'field' }, [
     el('span', { class: 'field-label', text: 'Config bible' }),
-    configSeg.node,
+    el('label', { class: 'wizard-toggle' }, [
+      configCheck,
+      el('span', { text: 'Open the Config Bible right after creating this project' }),
+    ]),
     configHint,
   ]);
 
@@ -125,7 +142,6 @@ export function openProjectWizard() {
       if (f) readFile(f);
     },
   }, [icon('upload', 'icon-lg'), uploadLabel, fileInput]);
-
   const uploadRow = el('div', { class: 'field', hidden: true }, [
     el('span', { class: 'field-label', text: 'Manuscript file' }),
     uploadBox,
@@ -134,7 +150,7 @@ export function openProjectWizard() {
 
   async function readFile(file) {
     try {
-      if (/\.docx$/i.test(file.name)) {
+      if (/.docx$/i.test(file.name)) {
         const buf = await file.arrayBuffer();
         const { text } = await readDocx(buf);
         uploadedText = normalizeNewlines(text);
@@ -167,22 +183,19 @@ export function openProjectWizard() {
   function refreshSeriesUI() {
     const isNew = seriesSelect.value === '__new';
     seriesNameInput.hidden = !isNew;
-
     const sid = isNew ? null : seriesSelect.value;
     const inherited = sid && configHasContent(getSeriesConfig(sid));
-
     configField.hidden = Boolean(inherited);
     seriesHint.hidden = !inherited;
     if (inherited) {
-      seriesHint.textContent = `Inherits the shared config bible of "${getSeries(sid).name}" — one bible persisted across every book in the series.`;
+      seriesHint.textContent = `Inherits the shared config bible of "${getSeries(sid).name}" — one bible persists across every book in the series.`;
     } else if (!isNew) {
-      configHint.textContent = 'This bible will be shared with every book in the series.';
+      configHint.textContent = 'Optional — this bible will be shared with every book in the series. Add it any time from the Config button.';
     } else {
       configHint.textContent = DEFAULT_CONFIG_HINT;
     }
     validate();
   }
-
   seriesSelect.addEventListener('change', refreshSeriesUI);
 
   scopeSeg.onChange((v) => {
@@ -199,7 +212,6 @@ export function openProjectWizard() {
     class: 'btn btn-primary', text: 'Create Project', disabled: true,
     onclick: () => create(),
   });
-
   function validate() {
     let ok;
     if (scopeSeg.get() === 'standalone') {
@@ -243,7 +255,6 @@ export function openProjectWizard() {
     const scope = scopeSeg.get();
     let seriesId = null;
     let seriesName = null;
-
     if (scope === 'series') {
       if (seriesSelect.value === '__new') {
         const s = createSeries(seriesNameInput.value.trim());
@@ -254,7 +265,6 @@ export function openProjectWizard() {
         seriesName = getSeries(seriesId)?.name || 'Series';
       }
     }
-
     const displayName = scope === 'series' ? bookInput.value.trim() : nameInput.value.trim();
     if (!displayName) return;
     if (sourceSeg.get() === 'upload' && !uploadedText) {
@@ -262,24 +272,30 @@ export function openProjectWizard() {
       return;
     }
 
+    const inherited = seriesId && configHasContent(getSeriesConfig(seriesId));
+    const wantsConfigNow = configCheck.checked && !inherited;
+
     const project = createProject({ name: displayName, scope, source: sourceSeg.get() });
     project.seriesId = seriesId;
     project.seriesName = seriesName;
     project.bookTitle = scope === 'series' ? displayName : null;
     if (uploadedText) project.manuscript.text = uploadedText;
     project.uploadedFileName = uploadedName || null;
-
-    const inherited = seriesId && configHasContent(getSeriesConfig(seriesId));
-    project.configInitialized = scope === 'series'
-      ? Boolean(inherited) || configSeg.get() === 'now'
-      : configSeg.get() === 'now';
-
+    project.configInitialized = Boolean(inherited) || wantsConfigNow;
     if (seriesId) addBookToSeries(seriesId, project.id);
     saveProject(project);
-
     m.close();
-    if (!openProject(project.id)) toast('Project created but could not open.', 'danger');
-    else toast(seriesName ? `"${displayName}" added to series "${seriesName}".` : `Project "${displayName}" created.`, 'success');
+
+    if (!openProject(project.id)) {
+      toast('Project created but could not open.', 'danger');
+      return;
+    }
+    toast(
+      seriesName ? `"${displayName}" added to series "${seriesName}".` : `Project "${displayName}" created.`,
+      'success'
+    );
+    /* The control now does what it says: straight into the bible. */
+    if (wantsConfigNow) openConfigBible();
   }
 
   setTimeout(() => nameInput.focus(), 50);
