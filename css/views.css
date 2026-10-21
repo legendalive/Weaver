@@ -260,3 +260,156 @@
   gap: 10px;
   margin-left: auto; /* push actions to the right edge of the header */
 }
+
+/* =========================================================
+   Stage 6.9 — Library hero: centered emblem, wordmark, tagline
+   and a prominent CTA. Compacts to a masthead once projects exist.
+   ========================================================= */
+
+.launch-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  min-height: 56vh;
+  padding: 48px 20px 36px;
+}
+
+.launch-hero-logo {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: radial-gradient(circle at 32% 28%, rgba(224,168,60,.22), rgba(224,168,60,.05) 70%);
+  border: 1px solid rgba(224,168,60,.38);
+  box-shadow: 0 0 0 10px rgba(224,168,60,.04), var(--shadow-2);
+}
+.launch-hero-logo .icon { width: 40px; height: 40px; }
+
+.launch-hero-title {
+  font-family: var(--font-ui);
+  font-size: clamp(2.6rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-indent: .16em; /* optically re-center the letter-spacing */
+  background: linear-gradient(180deg, #f6dda6 0%, var(--accent) 55%, #b9822a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.launch-hero-tag {
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: .95rem;
+  line-height: 1.65;
+}
+
+.launch-hero-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* The call to action — the loudest thing on the screen. */
+.launch-cta {
+  min-width: 280px;
+  padding: 15px 32px;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: .05em;
+  border-radius: 999px;
+  justify-content: center;
+  box-shadow: 0 8px 26px rgba(224,168,60,.26);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.launch-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(224,168,60,.34);
+  filter: brightness(1.06);
+}
+.launch-cta:active { transform: translateY(0); }
+.launch-cta .icon { width: 18px; height: 18px; }
+
+.launch-hero-sub { display: flex; align-items: center; gap: 10px; }
+
+.launch-hero-hint {
+  max-width: 44ch;
+  color: var(--faint);
+  font-size: .8rem;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* ---------- Library bar (shown once projects exist) ---------- */
+.launch-lib-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 24px 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 18px;
+}
+.launch-lib-count {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- Compact hero: masthead above the grid ---------- */
+.launch-hero.is-compact {
+  min-height: 0;
+  gap: 8px;
+  padding: 26px 20px 18px;
+}
+.launch-hero.is-compact .launch-hero-logo {
+  width: 44px;
+  height: 44px;
+  box-shadow: none;
+}
+.launch-hero.is-compact .launch-hero-logo .icon { width: 22px; height: 22px; }
+.launch-hero.is-compact .launch-hero-title {
+  font-size: 1.5rem;
+  letter-spacing: .14em;
+  text-indent: .14em;
+}
+.launch-hero.is-compact .launch-hero-tag { font-size: .8rem; max-width: 46ch; }
+.launch-hero.is-compact .launch-hero-actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.launch-hero.is-compact .launch-cta {
+  min-width: 0;
+  padding: 10px 22px;
+  font-size: .88rem;
+  box-shadow: 0 4px 16px rgba(224,168,60,.22);
+}
+.launch-hero.is-compact .launch-hero-sub { gap: 8px; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .launch-hero { min-height: 62vh; padding: 44px 18px 30px; gap: 14px; }
+  .launch-hero-logo { width: 72px; height: 72px; box-shadow: 0 0 0 8px rgba(224,168,60,.04); }
+  .launch-hero-logo .icon { width: 34px; height: 34px; }
+  .launch-hero-tag { font-size: .88rem; max-width: 30ch; }
+  .launch-hero-actions { width: 100%; gap: 14px; }
+  .launch-cta { width: 100%; max-width: 360px; min-width: 0; padding: 16px 24px; }
+  .launch-hero-sub { width: 100%; justify-content: center; }
+  .launch-lib-bar { padding: 16px 16px 12px; }
+  .launch-hero.is-compact { padding: 20px 16px 14px; }
+  .launch-hero.is-compact .launch-hero-actions { width: auto; }
+  .launch-hero.is-compact .launch-cta { width: auto; }
+}
