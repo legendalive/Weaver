@@ -1,12 +1,10 @@
 /* =========================================================
    Weaver — js/auth/auth.js
-   v2.0 Stage 6.2: Supabase auth gate + password reset.
-   Modes: sign in · create account · forgot password ·
-   set new password (via the emailed reset link).
-   
-   SECURITY:
-   - The URL and ANON key below are public by design.
-   - Never add the `service_role` key to this repository.
+   v2.0 Stage 6.2b: Supabase auth gate.
+   Modes: sign in · create account · email login link.
+   "Forgot password? Log in using email." sends a link that
+   signs the user straight into the app.
+   PARKED: a true password CHANGE via that link (BACKLOG 6.8).
    ========================================================= */
 import { el, clear } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -20,7 +18,6 @@ let sb = null;
 let loadPromise = null;
 let cachedUserId = null;
 let cachedUserEmail = '';
-let recoveryTokens = null;
 
 export function authConfigured() {
   return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
@@ -50,36 +47,14 @@ async function getClient() {
   return loadPromise;
 }
 
-/* Detect password reset redirect BEFORE the client consumes the tokens.
-   Extracts tokens and strips the hash so Supabase doesn't auto-login. */
-function checkRecovery() {
-  const hash = window.location.hash;
-  if (!hash.includes('type=recovery')) return false;
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const access_token = params.get('access_token');
-  const refresh_token = params.get('refresh_token');
-  if (access_token && refresh_token) {
-    recoveryTokens = { access_token, refresh_token };
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    return true;
-  }
-  return false;
-}
-
 export async function initAuth() {
   if (!authConfigured()) return { signedIn: false, reason: 'not-configured' };
-  
-  const isRecovery = checkRecovery();
-  
   try {
     const client = await getClient();
-    if (isRecovery) {
-      return { signedIn: false, reason: 'recovery' };
-    }
     const { data: { session } } = await client.auth.getSession();
-    if (session) { 
-      cachedUserId = session.user.id; 
-      cachedUserEmail = session.user.email || ''; 
+    if (session) {
+      cachedUserId = session.user.id;
+      cachedUserEmail = session.user.email || '';
     }
     return { signedIn: !!session, reason: 'ok' };
   } catch (e) {
@@ -101,11 +76,11 @@ export function onAuthChange(cb) {
 }
 
 export async function signOutUser() {
-  try { 
-    const client = await getClient(); 
-    await client.auth.signOut(); 
-  } catch (e) { 
-    console.warn('[Auth] signOut:', e); 
+  try {
+    const client = await getClient();
+    await client.auth.signOut();
+  } catch (e) {
+    console.warn('[Auth] signOut:', e);
   }
 }
 
@@ -132,7 +107,6 @@ function showErr(box, msg) { box.textContent = msg; box.hidden = !msg; }
 export function renderAuthView(container) {
   clear(container);
   if (!authConfigured()) { renderSetupNotice(container); return; }
-  if (recoveryTokens) { renderSetNewPassword(container); return; }
   renderSignInSignUp(container);
 }
 
@@ -169,8 +143,9 @@ function renderSignInSignUp(container) {
 
     if (mode === 'signin') {
       formEl.appendChild(el('button', {
-        class: 'btn btn-ghost btn-sm', type: 'button', text: 'Forgot password?',
-        onclick: () => renderResetRequest(container),
+        class: 'btn btn-ghost btn-sm', type: 'button',
+        text: 'Forgot password? Log in using email.',
+        onclick: () => renderLoginLink(container),
       }));
     }
 
@@ -189,8 +164,8 @@ function renderSignInSignUp(container) {
         } else {
           const { data, error } = await client.auth.signUp({ email, password });
           if (error) throw error;
-          if (data.session) { 
-            location.reload(); 
+          if (data.session) {
+            location.reload();
           } else {
             showErr(err, 'Account created. Check your email to confirm it, then sign in.');
             submit.disabled = false; submit.textContent = 'Create my account';
@@ -209,14 +184,14 @@ function renderSignInSignUp(container) {
   renderForm();
 }
 
-/* ---------- forgot password: request the email ---------- */
-function renderResetRequest(container) {
+/* ---------- email login link (request screen) ---------- */
+function renderLoginLink(container) {
   clear(container);
   const err = errorBox();
-  const ok = el('div', { class: 'auth-error', hidden: true, style: { color: 'var(--success)', borderColor: 'rgba(127,176,105,.35)', background: 'rgba(127,176,105,.1)' } });
   const emailInput = el('input', { class: 'input', type: 'email', required: true, placeholder: 'you@example.com' });
-  const sendBtn = el('button', { class: 'btn btn-primary', type: 'submit', text: 'Send reset link' });
+  const sendBtn = el('button', { class: 'btn btn-primary', type: 'submit', text: 'Send login link' });
   const formEl = el('form', { class: 'auth-form', onsubmit: (e) => e.preventDefault() }, [
+    el('p', { class: 'auth-hint', text: 'Enter your account email. We will send you a link that signs you straight into Weaver — no password needed.' }),
     el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Account email' }), emailInput]),
     sendBtn,
     el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => renderSignInSignUp(container) }),
@@ -224,67 +199,40 @@ function renderResetRequest(container) {
 
   formEl.onsubmit = async (e) => {
     e.preventDefault();
-    showErr(err, ''); ok.hidden = true;
+    showErr(err, '');
     sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
     try {
       const client = await getClient();
+      const email = emailInput.value.trim();
       const redirectTo = window.location.origin + window.location.pathname;
-      const { error } = await client.auth.resetPasswordForEmail(emailInput.value.trim(), { redirectTo });
+      /* resetPasswordForEmail is used deliberately: its link establishes a
+         signed-in session when opened — exactly our "log in using email". */
+      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
-      ok.textContent = 'Reset link sent. Check your inbox, then click the link to set a new password.';
-      ok.hidden = false;
+      renderLinkSent(container, email);
     } catch (e2) {
-      showErr(err, e2.message || 'Could not send the reset link.');
-    }
-    sendBtn.disabled = false; sendBtn.textContent = 'Send reset link';
-  };
-
-  container.appendChild(authCard([err, ok, formEl]));
-  setTimeout(() => emailInput.focus(), 60);
-}
-
-/* ---------- set new password (arrived via reset link) ---------- */
-function renderSetNewPassword(container) {
-  clear(container);
-  const err = errorBox();
-  const passInput = el('input', { class: 'input', type: 'password', required: true, placeholder: 'New password' });
-  const confirmInput = el('input', { class: 'input', type: 'password', required: true, placeholder: 'Confirm new password' });
-  const saveBtn = el('button', { class: 'btn btn-primary', type: 'submit', text: 'Set new password' });
-  const formEl = el('form', { class: 'auth-form', onsubmit: (e) => e.preventDefault() }, [
-    el('p', { class: 'auth-hint', text: 'Choose a new password for your account.' }),
-    el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'New password' }), passInput]),
-    el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Confirm' }), confirmInput]),
-    saveBtn,
-  ]);
-
-  formEl.onsubmit = async (e) => {
-    e.preventDefault();
-    showErr(err, '');
-    if (passInput.value.length < 6) { showErr(err, 'Password must be at least 6 characters.'); return; }
-    if (passInput.value !== confirmInput.value) { showErr(err, 'Passwords do not match.'); return; }
-    saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
-    try {
-      const client = await getClient();
-      if (recoveryTokens) {
-        const { error: sessionError } = await client.auth.setSession({
-          access_token: recoveryTokens.access_token,
-          refresh_token: recoveryTokens.refresh_token,
-        });
-        if (sessionError) throw sessionError;
-      }
-      const { error } = await client.auth.updateUser({ password: passInput.value });
-      if (error) throw error;
-      
-      recoveryTokens = null;
-      location.reload();
-    } catch (e2) {
-      showErr(err, e2.message || 'Could not set the new password.');
-      saveBtn.disabled = false; saveBtn.textContent = 'Set new password';
+      showErr(err, e2.message || 'Could not send the link.');
+      sendBtn.disabled = false; sendBtn.textContent = 'Send login link';
     }
   };
 
   container.appendChild(authCard([err, formEl]));
-  setTimeout(() => passInput.focus(), 60);
+  setTimeout(() => emailInput.focus(), 60);
+}
+
+/* ---------- "link sent" screen ---------- */
+function renderLinkSent(container, email) {
+  clear(container);
+  container.appendChild(authCard([
+    el('div', {
+      class: 'auth-error',
+      style: { color: 'var(--success)', borderColor: 'rgba(127,176,105,.35)', background: 'rgba(127,176,105,.1)' },
+      text: 'Link sent — check your email.',
+    }),
+    el('p', { class: 'auth-hint', text: `Open the message we sent to ${email} and click the link inside. It signs you straight into Weaver.` }),
+    el('p', { class: 'auth-hint', text: 'Nothing there? Check your spam folder, then come back and send another.' }),
+    el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => renderSignInSignUp(container) }),
+  ]));
 }
 
 /* ---------- setup notice ---------- */
