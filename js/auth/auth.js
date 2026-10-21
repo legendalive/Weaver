@@ -1,9 +1,6 @@
 /* =========================================================
    Weaver — js/auth/auth.js
-   v2 Stage 6.8.1: Supabase auth + ROBUST password reset.
-   Recovery lock: while a reset is in progress the app cannot
-   be reloaded into the workspace, and the reset tokens survive
-   a reload via sessionStorage.
+   v2 Stage 6.8.2: Supabase auth + ROBUST password reset + CSS.
    ========================================================= */
 import { el, clear } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -14,6 +11,19 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 /* ─────────────────────────────────────────────────────────── */
 
 const RECOVERY_FLAG = 'weaver_pw_recovery';
+const AUTH_STYLE_ID = 'auth-style';
+
+/* ---------- Injected CSS for auth screens ---------- */
+const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;align-items:center;gap:14px;} .auth-logo{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--accent);background:rgba(224,168,60,.12);border:1px solid rgba(224,168,60,.35);} .auth-logo .icon{width:24px;height:24px;} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(AUTH_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = AUTH_STYLE_ID;
+    s.textContent = AUTH_CSS;
+    document.head.appendChild(s);
+  }
+}
 
 let sb = null;
 let loadPromise = null;
@@ -51,9 +61,6 @@ async function getClient() {
   return loadPromise;
 }
 
-/* Detect a password-reset redirect. Captures the tokens into memory
-   AND sessionStorage (so a reload can't lose the flow), then strips
-   the hash. On a bare reload it restores from sessionStorage. */
 function detectRecovery() {
   const hash = window.location.hash;
   if (hash && hash.includes('type=recovery')) {
@@ -106,8 +113,6 @@ export async function initAuth() {
 export function currentUserId() { return cachedUserId; }
 export function currentUserEmail() { return cachedUserEmail; }
 
-/* RECOVERY LOCK: while a reset is in progress, session events are
-   swallowed so the app can't reload the user into the workspace. */
 export function onAuthChange(cb) {
   if (!sb) return () => {};
   const { data } = sb.auth.onAuthStateChange((event, session) => {
@@ -130,6 +135,7 @@ export async function signOutUser() {
 
 /* ---------- shared card chrome ---------- */
 function authCard(children) {
+  ensureStyle();
   return el('div', { class: 'auth-wrap' }, [
     el('div', { class: 'auth-card' }, [
       el('div', { class: 'auth-head' }, [
@@ -149,6 +155,7 @@ function showErr(box, msg) { box.textContent = msg; box.hidden = !msg; }
 
 /* ---------- entry ---------- */
 export function renderAuthView(container) {
+  ensureStyle();
   clear(container);
   if (!authConfigured()) { renderSetupNotice(container); return; }
   if (recoveryTokens) { renderResetPassword(container); return; }
