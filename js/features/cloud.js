@@ -1,13 +1,14 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   v2.0 Stage 6.3.2: Supabase Storage cloud sync + continuous
+   v2.0 Stage 6.3.3: Supabase Storage cloud sync + continuous
    autosync + cloud-save badge.
    - CONTINUOUS AUTOSYNC: ~3s after any edit, the ACTIVE
-     project (Main Novel + Config Bible, series-aware) is
-     pushed quietly. Debounced; scoped to the open project.
-   - BADGE: "cloud · HH:MM" pill in the Manuscript panel
-     HEADER (next to the expand button); flashes green on
-     every successful push, red "cloud · failed" on error.
+     project (Manuscript + Main Novel + Config Bible — the
+     whole project object, series-aware) is pushed quietly.
+     Debounced; scoped to the open project.
+   - BADGE: "saved to cloud · HH:MM" pill in the MAIN NOVEL
+     panel header (next to the word count, before the expand
+     button); turns red "cloud save failed" on error.
    - Manual Backup/Restore = full two-way merge by updatedAt
      with the deletion ledger.
    - Per-user paths {userId}/weaver/… locked server-side.
@@ -138,7 +139,7 @@ export async function connectCloud() {
 }
 
 /* =========================================================
-   CLOUD-SAVE BADGE — Manuscript panel header, self-styled
+   CLOUD-SAVE BADGE — Main Novel panel header, self-styled
    ========================================================= */
 
 const BADGE_STYLE_ID = 'cloud-badge-style';
@@ -164,25 +165,25 @@ function renderBadgeInto(host) {
   }
   if (!b) {
     b = el('span', { class: 'cloud-badge' });
-    host.appendChild(b);
+    host.insertBefore(b, host.firstChild); // sits before the expand button
   }
   b.hidden = false;
   clear(b);
   if (lastError) {
     b.classList.add('is-error');
     b.classList.remove('is-ok');
-    b.append(icon('alert', 'icon-sm'), el('span', { text: 'cloud · failed' }));
+    b.append(icon('alert', 'icon-sm'), el('span', { text: 'cloud save failed' }));
   } else {
     b.classList.add('is-ok');
     b.classList.remove('is-error');
-    b.append(icon('check', 'icon-sm'), el('span', { text: `cloud · ${lastStamp}` }));
+    b.append(icon('check', 'icon-sm'), el('span', { text: `saved to cloud · ${lastStamp}` }));
   }
 }
 
 function refreshBadge() {
   if (getState().view !== 'workspace') return;
   ensureBadgeStyle();
-  const host = document.querySelector('.panel[data-panel="manuscript"] .panel-actions');
+  const host = document.querySelector('.panel[data-panel="novel"] .panel-actions');
   if (host) renderBadgeInto(host);
 }
 
@@ -219,8 +220,8 @@ async function pushActiveProject({ quiet = true } = {}) {
     const uid = await userId();
     if (!uid) return;
 
-    /* The project object already carries mainNovel.text AND
-       configBible, so one blob always holds BOTH (Backlog 6.7). */
+    /* The project object carries manuscript.text, mainNovel.text
+       AND configBible — one blob always holds ALL of it (Backlog 6.7). */
     const meta = {
       id: project.id,
       name: project.name,
