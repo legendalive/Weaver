@@ -1,10 +1,10 @@
 /* =========================================================
    Weaver — js/features/export.js
-   Step 23 + Step 26: Export.
-   - Main Novel -> real .docx with Word heading styles.
-   - Config Bible -> readable .txt (unchanged).
+   v2 Stage 6.7: Export ALWAYS produces BOTH files.
+   Main Novel -> real .docx (blank doc if the novel is empty).
+   Config Bible -> readable .txt.
+   Neither file is ever silently omitted.
    ========================================================= */
-
 import { getState } from '../core/state.js';
 import { getEffectiveConfig } from '../core/storage.js';
 import { buildBlockIndex, headingPrefix } from '../utils/text.js';
@@ -15,12 +15,10 @@ function downloadFile(filename, content) {
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   triggerDownload(filename, blob);
 }
-
 function downloadBlob(filename, data, mime) {
   const blob = new Blob([data], { type: mime });
   triggerDownload(filename, blob);
 }
-
 function triggerDownload(filename, blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -38,19 +36,22 @@ export function exportProject() {
     toast('No active project to export.', 'danger');
     return;
   }
-
   const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-  /* ----- Main Novel as DOCX ----- */
+  /* ----- Main Novel as DOCX (always built) ----- */
   const novelText = project.mainNovel.text || '';
-  const hasNovel = novelText.trim().length > 0;
+  const idx = buildBlockIndex(novelText);
+  const blocks = idx.map((b) => {
+    const raw = novelText.slice(b.s, b.e).replace(/\n$/, '');
+    return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
+  });
+  const docx = buildDocx(blocks.length ? blocks : [{ level: 0, text: '' }]);
 
-  /* ----- Config Bible as TXT ----- */
+  /* ----- Config Bible as TXT (always built) ----- */
   const cfg = getEffectiveConfig(project);
   let bibleText = `# Project Bible: ${project.name}\n`;
   if (project.seriesName) bibleText += `Series: ${project.seriesName}\n`;
   bibleText += `Exported: ${new Date().toLocaleString()}\n\n`;
-
   const sections = [
     { key: 'characters', label: 'Characters' },
     { key: 'settings', label: 'Settings & Places' },
@@ -67,23 +68,17 @@ export function exportProject() {
   bibleText += `## General Prose\n\n${cfg.generalProse || '(Empty)'}\n\n`;
   bibleText += `## General AI Instructions\n\n${cfg.generalAiInstructions || '(Empty)'}\n\n`;
 
-  /* ----- Downloads ----- */
-  if (hasNovel) {
-    const idx = buildBlockIndex(novelText);
-    const blocks = idx.map((b) => {
-      const raw = novelText.slice(b.s, b.e).replace(/\n$/, '');
-      return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
-    });
-    const docx = buildDocx(blocks.length ? blocks : [{ level: 0, text: '' }]);
-    downloadBlob(
-      `${safeName}_main_novel.docx`,
-      docx,
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    );
-    setTimeout(() => downloadFile(`${safeName}_config_bible.txt`, bibleText), 600);
-    toast('Exporting Main Novel (.docx) and Config Bible (.txt)…', 'success');
-  } else {
-    downloadFile(`${safeName}_config_bible.txt`, bibleText);
-    toast('Main Novel is empty. Exported Config Bible only.', 'info');
-  }
+  /* ----- Downloads: BOTH files, always ----- */
+  downloadBlob(
+    `${safeName}_main_novel.docx`,
+    docx,
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  );
+  setTimeout(() => downloadFile(`${safeName}_config_bible.txt`, bibleText), 600);
+  toast(
+    novelText.trim()
+      ? 'Exporting Main Novel (.docx) and Config Bible (.txt)…'
+      : 'Main Novel is empty — exported it blank, plus the Config Bible.',
+    'success'
+  );
 }
