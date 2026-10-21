@@ -1,10 +1,9 @@
 /* =========================================================
    Weaver — js/auth/auth.js
-   v2 Stage 6.8: Supabase auth gate + TRUE password reset.
-   Modes: sign in · create account · forgot password.
-   The reset link opens a "Set a new password" screen
-   (recovery-token interception + auth.updateUser).
-   detectSessionInUrl is OFF so reset links can't auto-sign-in.
+   v2 Stage 6.8.1: Supabase auth + ROBUST password reset.
+   Recovery lock: while a reset is in progress the app cannot
+   be reloaded into the workspace, and the reset tokens survive
+   a reload via sessionStorage.
    ========================================================= */
 import { el, clear } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -13,6 +12,8 @@ import { icon } from '../utils/icons.js';
 const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
 /* ─────────────────────────────────────────────────────────── */
+
+const RECOVERY_FLAG = 'weaver_pw_recovery';
 
 let sb = null;
 let loadPromise = null;
@@ -50,18 +51,39 @@ async function getClient() {
   return loadPromise;
 }
 
-/* Detect a password-reset redirect BEFORE any client sees it.
-   Captures the tokens, strips the hash, and flags recovery mode. */
+/* Detect a password-reset redirect. Captures the tokens into memory
+   AND sessionStorage (so a reload can't lose the flow), then strips
+   the hash. On a bare reload it restores from sessionStorage. */
 function detectRecovery() {
   const hash = window.location.hash;
-  if (!hash || !hash.includes('type=recovery')) return false;
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const access_token = params.get('access_token');
-  const refresh_token = params.get('refresh_token');
-  if (!access_token || !refresh_token) return false;
-  recoveryTokens = { access_token, refresh_token };
-  window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  return true;
+  if (hash && hash.includes('type=recovery')) {
+    const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    if (access_token && refresh_token) {
+      recoveryTokens = { access_token, refresh_token };
+      try { sessionStorage.setItem(RECOVERY_FLAG, JSON.stringify(recoveryTokens)); } catch {}
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      return true;
+    }
+  }
+  try {
+    const saved = sessionStorage.getItem(RECOVERY_FLAG);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.access_token && parsed.refresh_token) {
+        recoveryTokens = parsed;
+        return true;
+      }
+      sessionStorage.removeItem(RECOVERY_FLAG);
+    }
+  } catch {}
+  return false;
+}
+
+function clearRecovery() {
+  recoveryTokens = null;
+  try { sessionStorage.removeItem(RECOVERY_FLAG); } catch {}
 }
 
 export async function initAuth() {
@@ -84,11 +106,14 @@ export async function initAuth() {
 export function currentUserId() { return cachedUserId; }
 export function currentUserEmail() { return cachedUserEmail; }
 
+/* RECOVERY LOCK: while a reset is in progress, session events are
+   swallowed so the app can't reload the user into the workspace. */
 export function onAuthChange(cb) {
   if (!sb) return () => {};
   const { data } = sb.auth.onAuthStateChange((event, session) => {
     cachedUserId = session?.user?.id || null;
     cachedUserEmail = session?.user?.email || '';
+    if (recoveryTokens) return;
     cb({ session, event });
   });
   return () => { if (data && data.subscription) data.subscription.unsubscribe(); };
@@ -264,6 +289,7 @@ function renderResetPassword(container) {
     el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'New password' }), passInput]),
     el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Confirm new password' }), confirmInput]),
     submit,
+    el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => { clearRecovery(); renderSignInSignUp(container); } }),
   ]);
 
   formEl.onsubmit = async (e) => {
@@ -274,8 +300,6 @@ function renderResetPassword(container) {
     if (pw !== confirmInput.value) { showErr(err, 'Passwords do not match.'); return; }
     submit.disabled = true; submit.textContent = 'Saving…';
     try {
-      /* Dedicated client: keeps the reset from tripping the app's
-         session-reload watcher before the password is saved. */
       const resetClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { detectSessionInUrl: false },
       });
@@ -286,7 +310,8 @@ function renderResetPassword(container) {
       if (sessErr) throw new Error('This reset link has expired or is invalid. Go back and request a new one.');
       const { error } = await resetClient.auth.updateUser({ password: pw });
       if (error) throw error;
-      recoveryTokens = null;
+      clearRecovery();
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
       location.reload();
     } catch (e2) {
       showErr(err, e2.message || 'Could not reset the password.');
