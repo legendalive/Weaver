@@ -70,7 +70,11 @@ Audit: exportProject() (docx+txt), exportAllData()/importAllData() (JSON),
 cloud push/pull (projects/<id>.json must hold mainNovel.text + configBible /
 series config).
 Files: js/features/export.js, js/core/storage.js, js/features/cloud.js.
-
+### 6.8 True password change via email link (parked from Stage 6.2)
+The "Forgot password? Log in using email." link currently SIGNS THE USER IN
+without changing the password (accepted behavior for now). Implement a real
+set-new-password screen (recovery-token interception + auth.updateUser) later.
+Files: js/auth/auth.js.
 ---
 
 ## STAGE 7 — Close out
