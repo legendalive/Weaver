@@ -70,11 +70,13 @@ Audit: exportProject() (docx+txt), exportAllData()/importAllData() (JSON),
 cloud push/pull (projects/<id>.json must hold mainNovel.text + configBible /
 series config).
 Files: js/features/export.js, js/core/storage.js, js/features/cloud.js.
-### 6.8 True password change via email link (parked from Stage 6.2)
-The "Forgot password? Log in using email." link currently SIGNS THE USER IN
-without changing the password (accepted behavior for now). Implement a real
-set-new-password screen (recovery-token interception + auth.updateUser) later.
-Files: js/auth/auth.js.
+### 6.8 True password change via email link (PRIORITY auth item)
+Owner decision: Supabase free-tier email rate limits make the "log in using
+email" flow costly; TRUE password RESET is the priority. The emailed link
+currently signs the user in without changing the password. Implement the
+set-new-password screen (recovery-token interception + auth.updateUser) and
+consider custom SMTP (e.g. Resend) for headroom before Gumroad launch.
+Files: js/auth/auth.js (+ Supabase dashboard SMTP settings).
 ---
 
 ## STAGE 7 — Close out
