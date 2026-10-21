@@ -36,6 +36,14 @@ export function el(tag, attrs = {}, children = []) {
   appendChildren(node, children);
   return node;
 }
+/* ---------- Weaver Logo ---------- */
+export function weaverLogo(size = 'md') {
+  const span = document.createElement('span');
+  span.className = `weaver-logo logo-${size}`;
+  span.textContent = 'W';
+  span.setAttribute('aria-hidden', 'true');
+  return span;
+}
 
 function appendChildren(node, children) {
   const list = Array.isArray(children) ? children : [children];
