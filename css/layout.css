@@ -125,3 +125,20 @@
 @media (max-width: 860px) {
   .resizer { height: 10px; } /* fatter touch target on phones */
 }
+/* ---------- Stage 6.5: topbar — shrinkable center, truncating title ---------- */
+.topbar { grid-template-columns: auto minmax(0, 1fr) auto; }
+.topbar-center { min-width: 0; }
+.topbar-title {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-sub {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
