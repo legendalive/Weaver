@@ -1,18 +1,15 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   v2.0 Stage 5: Settings Modal.
-   AI Tab: providers + generation controls (unchanged).
-   General Tab: Account (sign out) · Cloud Sync (Supabase
-   Storage) · Data & Backup · editor behavior · quick prompts
-   · aesthetics.
+   v2.0 Stage 6.1: Settings Modal — 3 tabs.
+   AI Providers · Data & Storage · General.
+   Data & Storage = account (sign out) + Backup/Export/Restore.
+   General = editor behavior, quick prompts, aesthetics.
    ========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
-import { exportAllData, importAllData } from '../core/storage.js';
-import {
-  syncNow, isCloudConfigured, getCloudUserEmail, signOutAndReload,
-} from './cloud.js';
+import { syncNow, getCloudUserEmail, signOutAndReload } from './cloud.js';
+import { exportProject } from './export.js';
 import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
 import gemini from '../ai/providers/gemini.js';
@@ -21,7 +18,7 @@ import mistral from '../ai/providers/mistral.js';
 const PROVIDERS = [groq, openrouter, gemini, mistral];
 
 const STYLE_ID = 'settings-style';
-const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:180px;display:flex;flex-direction:column;gap:4px; border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none; border-radius:var(--radius-sm);background:transparent;color:var(--muted); font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px; border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
+const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:190px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -41,7 +38,7 @@ function saveAndFlash(mutator) {
   }
 }
 
-/* ---------- Account section (sign out) ---------- */
+/* ---------- Account (sign out) ---------- */
 function accountSection() {
   const emailBadge = el('span', { class: 'badge', text: 'checking…' });
   getCloudUserEmail().then((email) => {
@@ -58,7 +55,7 @@ function accountSection() {
           onclick: async () => {
             const ok = await confirmDialog({
               title: 'Sign out',
-              message: 'You will be signed out of Weaver. Your projects stay safe in this browser and in your private cloud vault. Sign back in any time.',
+              message: 'You will be signed out of Weaver. Your projects stay safe in this browser and in your private cloud vault.',
               confirmLabel: 'Sign out',
               danger: true,
             });
@@ -71,82 +68,20 @@ function accountSection() {
   ]);
 }
 
-/* ---------- Cloud Sync section (Supabase Storage) ---------- */
-function cloudSection() {
-  if (!isCloudConfigured()) {
-    return el('div', { class: 'set-section' }, [
-      el('h4', { text: 'Cloud Sync' }),
-      el('p', { class: 'set-hint', text: 'Cloud sync is not configured yet. Paste your Supabase Project URL and anon key at the top of js/features/cloud.js, then reload.' }),
-    ]);
-  }
-  const cloud = getState().settings.cloud || {};
-  const autoBox = el('input', {
-    type: 'checkbox', checked: cloud.autoSync !== false,
-    onchange: (e) => updateSettings((s) => {
-      s.cloud = { ...(s.cloud || {}), provider: 'supabase', autoSync: e.target.checked };
-    }),
-  });
+/* ---------- Data & Storage: the three actions ---------- */
+function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Cloud Sync' }),
-    el('p', { class: 'set-hint', text: 'Your library syncs to your own private Supabase Storage vault. It is locked to your account on the server — no one else can read it.' }),
+    el('h4', { text: 'Backup & Restore' }),
+    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write. Use these to back up, export, or restore manually.' }),
     el('div', { class: 'set-row' }, [
-      el('button', { class: 'btn btn-sm', text: 'Sync now', onclick: () => syncNow() }, [icon('refresh', 'icon-sm'), el('span', { text: 'Sync now' })]),
-    ]),
-    el('label', { class: 'set-toggle' }, [autoBox, el('span', { text: 'Auto-sync when leaving a project (Library)' })]),
-  ]);
-}
-
-/* ---------- Data & Backup section ---------- */
-function dataSection() {
-  const fileInput = el('input', {
-    type: 'file', accept: '.json,application/json', hidden: true,
-    onchange: async (e) => {
-      const f = e.target.files && e.target.files[0];
-      e.target.value = '';
-      if (!f) return;
-      try {
-        const bundle = JSON.parse(await f.text());
-        const count = (bundle.projects || []).length;
-        const ok = await confirmDialog({
-          title: 'Restore backup',
-          message: `This backup contains ${count} project(s). Restoring merges them into this browser and reloads the app. Projects with the same ID are overwritten by the backup. Continue?`,
-          confirmLabel: 'Restore & reload',
-          danger: true,
-        });
-        if (!ok) return;
-        const n = importAllData(bundle);
-        toast(`Restored ${n} project(s). Reloading…`, 'success');
-        setTimeout(() => location.reload(), 900);
-      } catch (err) {
-        toast('Not a valid Weaver backup: ' + err.message, 'danger');
-      }
-    },
-  });
-  return el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Data & Backup' }),
-    el('p', { class: 'set-hint', text: 'Full backup of every project and series bible (API keys excluded). Keep the file anywhere.' }),
-    el('div', { class: 'set-row' }, [
-      el('button', {
-        class: 'btn btn-sm', text: 'Download full backup',
-        onclick: () => {
-          const blob = new Blob([JSON.stringify(exportAllData(), null, 1)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = el('a', { href: url, download: `weaver-backup-${new Date().toISOString().slice(0, 10)}.json` });
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-          toast('Backup downloaded.', 'success');
-        },
-      }),
-      el('button', { class: 'btn btn-sm', text: 'Restore from this PC…', onclick: () => fileInput.click() }),
-      el('button', { class: 'btn btn-sm', text: 'Pull from cloud', onclick: () => syncNow() }),
-      fileInput,
+      el('button', { class: 'btn btn-sm', text: 'Backup to cloud', onclick: () => syncNow() }),
+      el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
+      el('button', { class: 'btn btn-sm', text: 'Restore', onclick: () => syncNow() }),
     ]),
   ]);
 }
 
-/* ---------- AI Tab ---------- */
+/* ---------- AI Providers tab ---------- */
 function renderAiTab(contentEl, settings) {
   clear(contentEl);
   contentEl.appendChild(el('div', { class: 'set-section' }, [
@@ -167,10 +102,7 @@ function renderAiTab(contentEl, settings) {
         el('input', {
           type: 'range', min: '0', max: '1', step: '0.05',
           value: String(settings.ai.temperature ?? 0.85),
-          oninput: (e) => {
-            tempVal.textContent = e.target.value;
-            saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); });
-          },
+          oninput: (e) => { tempVal.textContent = e.target.value; saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); }); },
         }),
         tempVal,
       ]),
@@ -180,9 +112,7 @@ function renderAiTab(contentEl, settings) {
       el('input', {
         type: 'number', class: 'input', min: '256', max: '8192', step: '256',
         value: String(settings.ai.maxTokens ?? 2048),
-        oninput: (e) => saveAndFlash(s => {
-          s.ai.maxTokens = Math.max(256, Math.min(8192, parseInt(e.target.value) || 2048));
-        }),
+        oninput: (e) => saveAndFlash(s => { s.ai.maxTokens = Math.max(256, Math.min(8192, parseInt(e.target.value) || 2048)); }),
       }),
     ]),
   ]));
@@ -190,43 +120,23 @@ function renderAiTab(contentEl, settings) {
   for (const p of PROVIDERS) {
     const pCfg = settings.ai.providers[p.id];
     const input = el('input', {
-      class: 'input',
-      type: 'password',
-      placeholder: 'Paste API key...',
+      class: 'input', type: 'password', placeholder: 'Paste API key…',
       value: pCfg.key || '',
-      oninput: (e) => {
-        saveAndFlash(s => { s.ai.providers[p.id].key = e.target.value; });
-        statusBadge.textContent = 'untested';
-        statusBadge.className = 'badge';
-      },
+      oninput: (e) => { saveAndFlash(s => { s.ai.providers[p.id].key = e.target.value; }); statusBadge.textContent = 'untested'; statusBadge.className = 'badge'; },
     });
     const statusBadge = el('span', { class: 'badge', text: pCfg.key ? 'saved' : 'untested' });
     const testBtn = el('button', {
-      class: 'btn btn-sm',
-      text: 'Test Connection',
+      class: 'btn btn-sm', text: 'Test Connection',
       onclick: async () => {
-        testBtn.disabled = true;
-        testBtn.textContent = 'Testing...';
+        testBtn.disabled = true; testBtn.textContent = 'Testing…';
         const res = await p.testKey(input.value);
-        testBtn.disabled = false;
-        testBtn.textContent = 'Test Connection';
-        if (res.ok) {
-          statusBadge.textContent = 'connected';
-          statusBadge.className = 'badge badge-success';
-          toast(`${p.label} connected successfully.`, 'success');
-        } else {
-          statusBadge.textContent = 'failed';
-          statusBadge.className = 'badge badge-danger';
-          toast(`${p.label} failed: ${res.message}`, 'danger');
-        }
+        testBtn.disabled = false; testBtn.textContent = 'Test Connection';
+        if (res.ok) { statusBadge.textContent = 'connected'; statusBadge.className = 'badge badge-success'; toast(`${p.label} connected.`, 'success'); }
+        else { statusBadge.textContent = 'failed'; statusBadge.className = 'badge badge-danger'; toast(`${p.label} failed: ${res.message}`, 'danger'); }
       },
     });
     const toggleLabel = el('label', { class: 'set-toggle' }, [
-      el('input', {
-        type: 'checkbox',
-        checked: pCfg.enabled,
-        onchange: (e) => saveAndFlash(s => { s.ai.providers[p.id].enabled = e.target.checked; }),
-      }),
+      el('input', { type: 'checkbox', checked: pCfg.enabled, onchange: (e) => saveAndFlash(s => { s.ai.providers[p.id].enabled = e.target.checked; }) }),
       el('span', { text: 'Enable for fallback chain' }),
     ]);
     contentEl.appendChild(el('div', { class: 'set-card' }, [
@@ -240,15 +150,17 @@ function renderAiTab(contentEl, settings) {
   }
 }
 
-/* ---------- General Tab ---------- */
+/* ---------- Data & Storage tab ---------- */
+function renderDataTab(contentEl) {
+  clear(contentEl);
+  contentEl.append(accountSection(), backupRestoreSection());
+}
+
+/* ---------- General tab ---------- */
 function renderGeneralTab(contentEl, settings) {
   clear(contentEl);
   const g = settings.general;
   contentEl.append(
-    accountSection(),
-    cloudSection(),
-    dataSection(),
-
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Editor Behavior' }),
       el('div', { class: 'set-field' }, [
@@ -266,21 +178,15 @@ function renderGeneralTab(contentEl, settings) {
         }),
       ]),
       el('label', { class: 'set-toggle' }, [
-        el('input', {
-          type: 'checkbox',
-          checked: Boolean(g.acceptMovesText),
-          onchange: (e) => saveAndFlash(s => { s.general.acceptMovesText = e.target.checked; }),
-        }),
+        el('input', { type: 'checkbox', checked: Boolean(g.acceptMovesText), onchange: (e) => saveAndFlash(s => { s.general.acceptMovesText = e.target.checked; }) }),
         el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
       ]),
     ]),
-
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
       el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
       ...[0, 1, 2].map((i) => el('input', {
-        class: 'input',
-        placeholder: `Quick prompt ${i + 1}…`,
+        class: 'input', placeholder: `Quick prompt ${i + 1}…`,
         value: (g.quickPrompts && g.quickPrompts[i]) || '',
         oninput: (e) => saveAndFlash((s) => {
           if (!Array.isArray(s.general.quickPrompts)) s.general.quickPrompts = ['', '', ''];
@@ -288,17 +194,13 @@ function renderGeneralTab(contentEl, settings) {
         }),
       })),
     ]),
-
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Aesthetics' }),
       el('div', { class: 'set-field' }, [
         el('label', { text: 'Font Scale' }),
         el('select', {
           class: 'select',
-          onchange: (e) => {
-            saveAndFlash(s => { s.general.fontScale = parseFloat(e.target.value); });
-            document.documentElement.style.setProperty('--font-scale', e.target.value);
-          },
+          onchange: (e) => { saveAndFlash(s => { s.general.fontScale = parseFloat(e.target.value); }); document.documentElement.style.setProperty('--font-scale', e.target.value); },
         }, [
           el('option', { value: '0.9', text: 'Small (0.9x)', selected: g.fontScale === 0.9 }),
           el('option', { value: '1.0', text: 'Default (1.0x)', selected: g.fontScale === 1.0 || !g.fontScale }),
@@ -310,7 +212,7 @@ function renderGeneralTab(contentEl, settings) {
   );
 }
 
-/* ---------- Entry Point ---------- */
+/* ---------- Entry Point (3 tabs) ---------- */
 export function openSettings() {
   ensureStyle();
   const state = getState();
@@ -323,6 +225,7 @@ export function openSettings() {
     clear(railEl);
     const tabs = [
       { id: 'ai', label: 'AI Providers', icon: 'sparkles' },
+      { id: 'data', label: 'Data & Storage', icon: 'folder' },
       { id: 'general', label: 'General', icon: 'gear' },
     ];
     for (const tab of tabs) {
@@ -334,6 +237,7 @@ export function openSettings() {
   }
   function renderContent() {
     if (activeTab === 'ai') renderAiTab(contentEl, state.settings);
+    else if (activeTab === 'data') renderDataTab(contentEl);
     else renderGeneralTab(contentEl, state.settings);
   }
 
