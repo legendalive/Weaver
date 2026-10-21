@@ -3,19 +3,24 @@
    v2.0 Stage 6.2: Supabase auth gate + password reset.
    Modes: sign in · create account · forgot password ·
    set new password (via the emailed reset link).
+   
+   SECURITY:
+   - The URL and ANON key below are public by design.
+   - Never add the `service_role` key to this repository.
    ========================================================= */
 import { el, clear } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 
-/* ── Paste the SAME two values you used before ── */
+/* ── PASTE YOUR SUPABASE CREDENTIALS HERE ── */
 const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-/* ─────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
 
 let sb = null;
 let loadPromise = null;
 let cachedUserId = null;
 let cachedUserEmail = '';
+let recoveryTokens = null;
 
 export function authConfigured() {
   return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
@@ -45,19 +50,37 @@ async function getClient() {
   return loadPromise;
 }
 
-/* A reset link lands here with "#…&type=recovery" in the URL. */
-function isRecoveryUrl() {
-  return window.location.hash.includes('type=recovery');
+/* Detect password reset redirect BEFORE the client consumes the tokens.
+   Extracts tokens and strips the hash so Supabase doesn't auto-login. */
+function checkRecovery() {
+  const hash = window.location.hash;
+  if (!hash.includes('type=recovery')) return false;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const access_token = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (access_token && refresh_token) {
+    recoveryTokens = { access_token, refresh_token };
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    return true;
+  }
+  return false;
 }
 
 export async function initAuth() {
   if (!authConfigured()) return { signedIn: false, reason: 'not-configured' };
+  
+  const isRecovery = checkRecovery();
+  
   try {
     const client = await getClient();
-    // If this is a password-reset redirect, force the reset screen.
-    if (isRecoveryUrl()) return { signedIn: false, reason: 'recovery' };
+    if (isRecovery) {
+      return { signedIn: false, reason: 'recovery' };
+    }
     const { data: { session } } = await client.auth.getSession();
-    if (session) { cachedUserId = session.user.id; cachedUserEmail = session.user.email || ''; }
+    if (session) { 
+      cachedUserId = session.user.id; 
+      cachedUserEmail = session.user.email || ''; 
+    }
     return { signedIn: !!session, reason: 'ok' };
   } catch (e) {
     return { signedIn: false, reason: 'load-failed', error: e.message };
@@ -78,8 +101,12 @@ export function onAuthChange(cb) {
 }
 
 export async function signOutUser() {
-  try { const client = await getClient(); await client.auth.signOut(); }
-  catch (e) { console.warn('[Auth] signOut:', e); }
+  try { 
+    const client = await getClient(); 
+    await client.auth.signOut(); 
+  } catch (e) { 
+    console.warn('[Auth] signOut:', e); 
+  }
 }
 
 /* ---------- shared card chrome ---------- */
@@ -97,6 +124,7 @@ function authCard(children) {
     ]),
   ]);
 }
+
 function errorBox() { return el('div', { class: 'auth-error', hidden: true }); }
 function showErr(box, msg) { box.textContent = msg; box.hidden = !msg; }
 
@@ -104,7 +132,7 @@ function showErr(box, msg) { box.textContent = msg; box.hidden = !msg; }
 export function renderAuthView(container) {
   clear(container);
   if (!authConfigured()) { renderSetupNotice(container); return; }
-  if (isRecoveryUrl()) { renderSetNewPassword(container); return; }
+  if (recoveryTokens) { renderSetNewPassword(container); return; }
   renderSignInSignUp(container);
 }
 
@@ -161,8 +189,9 @@ function renderSignInSignUp(container) {
         } else {
           const { data, error } = await client.auth.signUp({ email, password });
           if (error) throw error;
-          if (data.session) { location.reload(); }
-          else {
+          if (data.session) { 
+            location.reload(); 
+          } else {
             showErr(err, 'Account created. Check your email to confirm it, then sign in.');
             submit.disabled = false; submit.textContent = 'Create my account';
             return;
@@ -236,10 +265,18 @@ function renderSetNewPassword(container) {
     saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
     try {
       const client = await getClient();
+      if (recoveryTokens) {
+        const { error: sessionError } = await client.auth.setSession({
+          access_token: recoveryTokens.access_token,
+          refresh_token: recoveryTokens.refresh_token,
+        });
+        if (sessionError) throw sessionError;
+      }
       const { error } = await client.auth.updateUser({ password: passInput.value });
       if (error) throw error;
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      renderSignInSignUp(container);
+      
+      recoveryTokens = null;
+      location.reload();
     } catch (e2) {
       showErr(err, e2.message || 'Could not set the new password.');
       saveBtn.disabled = false; saveBtn.textContent = 'Set new password';
