@@ -1,9 +1,10 @@
 /* =========================================================
    Weaver — js/app.js
-   v2 Stage 6.9: boot + Supabase auth gate + per-user namespace.
+   v2 Stage 6.9.1: boot + Supabase auth gate + per-user namespace.
    HARDENED: boot() can never leave the user trapped on the
    splash. Exceptions surface on screen, and a watchdog reveals
    a retry card if no view has activated within 15s.
+   Splash screen is explicitly hidden on view activation.
    ========================================================= */
 import { getState, subscribe, openProject, reloadSettings } from './core/state.js';
 import {
@@ -39,6 +40,10 @@ function setStatus(text) {
 
 function switchView(name) {
   if (!VIEWS.includes(name)) return false;
+  // CRITICAL: Hide the static splash screen as soon as any view activates
+  const splash = document.querySelector('.splash');
+  if (splash) splash.style.display = 'none';
+  
   for (const v of VIEWS) {
     const node = document.getElementById(`view-${v}`);
     if (node) node.classList.toggle('is-active', v === name);
@@ -63,6 +68,10 @@ function showAuthView() {
 function bootFailed(message) {
   inApp = false;
   setStatus('could not start');
+  // CRITICAL: Hide splash before showing error card
+  const splash = document.querySelector('.splash');
+  if (splash) splash.style.display = 'none';
+  
   switchView('auth');
   const container = document.getElementById('view-auth');
   if (!container) return;
