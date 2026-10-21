@@ -1,16 +1,17 @@
 /* =========================================================
    Weaver — js/app.js
-   v2.0 Stage 2: boot + Supabase auth gate + per-user namespace.
-   Flow: splash → initAuth() → signed in ? namespaced boot
-   : auth view. Session transitions use full reloads so no
-   module ever initializes twice.
+   v2 Stage 6.9: boot + Supabase auth gate + per-user namespace.
+   HARDENED: boot() can never leave the user trapped on the
+   splash. Exceptions surface on screen, and a watchdog reveals
+   a retry card if no view has activated within 15s.
    ========================================================= */
 import { getState, subscribe, openProject, reloadSettings } from './core/state.js';
 import {
   getActiveProject, setUserNamespace,
   hasLegacyData, namespaceIsEmpty, migrateLegacyData,
 } from './core/storage.js';
-import { toast } from './utils/dom.js';
+import { el, clear, toast } from './utils/dom.js';
+import { icon } from './utils/icons.js';
 import {
   initAuth, authConfigured, currentUserId, onAuthChange, renderAuthView,
 } from './auth/auth.js';
@@ -26,8 +27,10 @@ import { renderMainNovel } from './panels/main-novel.js';
 
 const APP_VERSION = '2.0.0';
 const VIEWS = ['auth', 'launch', 'workspace'];
+const WATCHDOG_MS = 15000;
 
 let inApp = false;
+let watchdog = null;
 
 function setStatus(text) {
   const status = document.getElementById('boot-status');
@@ -43,10 +46,56 @@ function switchView(name) {
   return true;
 }
 
+function anyViewActive() {
+  return VIEWS.some((v) => {
+    const node = document.getElementById(`view-${v}`);
+    return node && node.classList.contains('is-active');
+  });
+}
+
 function showAuthView() {
   switchView('auth');
-  renderAuthView(document.getElementById('view-auth'));
+  const container = document.getElementById('view-auth');
+  if (container) renderAuthView(container);
 }
+
+/* Last resort: never leave the user staring at the splash. */
+function bootFailed(message) {
+  inApp = false;
+  setStatus('could not start');
+  switchView('auth');
+  const container = document.getElementById('view-auth');
+  if (!container) return;
+  clear(container);
+  container.appendChild(el('div', { class: 'auth-wrap' }, [
+    el('div', { class: 'auth-card' }, [
+      el('div', { class: 'auth-head' }, [
+        el('div', { class: 'auth-logo' }, [icon('alert', 'icon-lg')]),
+        el('div', {}, [
+          el('div', { class: 'auth-title', text: 'Weaver could not start' }),
+          el('div', { class: 'auth-tag', text: 'Your work is safe' }),
+        ]),
+      ]),
+      el('div', { class: 'auth-error', text: message || 'An unexpected error occurred during startup.' }),
+      el('p', {
+        class: 'auth-hint',
+        text: 'Nothing has been lost — your projects are stored in this browser. Reload to try again; if it persists, check your connection (the sign-in service may be unreachable).',
+      }),
+      el('button', { class: 'btn btn-primary', text: 'Reload Weaver', onclick: () => location.reload() }),
+    ]),
+  ]));
+}
+
+function armWatchdog() {
+  clearTimeout(watchdog);
+  watchdog = setTimeout(() => {
+    if (!anyViewActive()) {
+      bootFailed('Startup timed out. The sign-in service may be unreachable.');
+    }
+  }, WATCHDOG_MS);
+}
+
+function disarmWatchdog() { clearTimeout(watchdog); watchdog = null; }
 
 function applyFontScale() {
   const fs = getState().settings.general.fontScale ?? 1;
@@ -65,8 +114,7 @@ async function enterApp() {
   setUserNamespace(userId);
   reloadSettings();
 
-  /* SILENT migration: adopt pre-account (v1) data found on this device.
-     No blocking prompt — just move it to the user namespace and proceed. */
+  /* Silent one-time adoption of pre-account (v1) data on this device. */
   if (namespaceIsEmpty() && hasLegacyData()) {
     migrateLegacyData();
     reloadSettings();
@@ -96,49 +144,67 @@ async function enterApp() {
   applyFontScale();
 
   const activeId = getActiveProject();
-  if (activeId) openProject(activeId);
-  else switchView(getState().view === 'workspace' ? 'launch' : getState().view);
+  if (activeId) {
+    if (!openProject(activeId)) switchView('launch');
+  } else {
+    switchView(getState().view === 'workspace' ? 'launch' : getState().view);
+  }
 }
 
 async function boot() {
-  setStatus('contacting auth service…');
+  armWatchdog();
+  try {
+    setStatus('contacting auth service…');
 
-  const result = await initAuth();
+    const result = await initAuth();
 
-  if (!authConfigured()) {
-    setStatus('auth setup required');
-    showAuthView();
-    return;
+    if (!authConfigured()) {
+      setStatus('auth setup required');
+      showAuthView();
+      disarmWatchdog();
+      return;
+    }
+
+    if (result.reason === 'load-failed') {
+      setStatus('auth service unreachable');
+      showAuthView();
+      disarmWatchdog();
+      toast('Could not reach the auth service. Check your connection and reload.', 'danger');
+      return;
+    }
+
+    if (result.signedIn) {
+      setStatus('session found · opening your library…');
+      await enterApp();
+      if (!inApp || !anyViewActive()) {
+        showAuthView();
+        disarmWatchdog();
+        return;
+      }
+      setStatus(`foundation online · v${APP_VERSION}`);
+    } else {
+      setStatus('awaiting sign-in');
+      showAuthView();
+    }
+
+    disarmWatchdog();
+
+    /* Session transitions = full reload (no double-init landmines). */
+    onAuthChange((payload) => {
+      const session = payload && payload.session;
+      if (session && !inApp) location.reload();
+      else if (!session && inApp) location.reload();
+    });
+
+    console.info(
+      `%cWeaver v${APP_VERSION}%c auth gate online`,
+      'color:#e0a83c;font-weight:bold', 'color:inherit'
+    );
+  } catch (e) {
+    console.error('[Boot] failed:', e);
+    disarmWatchdog();
+    bootFailed(e && e.message ? e.message : String(e));
   }
-
-  if (result.reason === 'load-failed') {
-    setStatus('auth service unreachable');
-    showAuthView();
-    toast('Could not reach the auth service. Check your connection and reload.', 'danger');
-    return;
-  }
-
-  if (result.signedIn) {
-    setStatus('session found · opening your library…');
-    await enterApp();
-    if (!inApp) { showAuthView(); return; }
-    setStatus(`foundation online · v${APP_VERSION}`);
-  } else {
-    setStatus('awaiting sign-in');
-    showAuthView();
-  }
-
-  /* Session transitions = full reload (no double-init landmines). */
-  onAuthChange((payload) => {
-    const session = payload && payload.session;
-    if (session && !inApp) location.reload();
-    else if (!session && inApp) location.reload();
-  });
-
-  console.info(
-    `%cWeaver v${APP_VERSION}%c auth gate online`,
-    'color:#e0a83c;font-weight:bold', 'color:inherit'
-  );
 }
 
 boot();
