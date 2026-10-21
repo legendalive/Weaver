@@ -253,3 +253,10 @@
   align-items:center;
   justify-content:center;
 }
+/* ---------- Stage 6.4: Library action buttons ---------- */
+.launch-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto; /* push actions to the right edge of the header */
+}
