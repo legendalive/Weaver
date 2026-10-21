@@ -1,12 +1,9 @@
 /* =========================================================
    Weaver — js/views/launch.js
-   Step 5 + 6 + 24 + 28.5: Library dashboard.
-   - Project cards: name, scope, word count, edited-ago, active ring.
-   - Settings gear + Getting Started + New Project buttons
-     (Settings reachable even with zero projects).
-   - Delete with rich, series-aware confirmation.
+   Library dashboard.
+   v2 Stage 6.4: harmonized action buttons (Settings +
+   Getting Started = ghost; New Project = primary).
    ========================================================= */
-
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { listProjects, deleteProject, getActiveProject } from '../core/storage.js';
@@ -16,10 +13,8 @@ import { openSettings } from '../features/settings.js';
 
 let root = null;
 let openWizardFn = null;
-
 export function setOpenWizard(fn) { openWizardFn = fn; }
 
-/* ---------- helpers ---------- */
 function timeAgo(ts) {
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
@@ -37,7 +32,7 @@ function timeAgo(ts) {
 async function askDelete(project) {
   const words = project.wordCount || 0;
   const seriesNote = project.seriesName
-    ? ` It belongs to the series "${project.seriesName}" — if this is the last book in it, the shared series bible will also be removed.`
+    ? `It belongs to the series "${project.seriesName}" — if this is the last book in it, the shared series bible will also be removed.`
     : '';
   const ok = await confirmDialog({
     title: 'Delete project',
@@ -51,13 +46,11 @@ async function askDelete(project) {
   renderLaunch();
 }
 
-/* ---------- project card ---------- */
 function projectCard(p) {
   const active = getActiveProject() === p.id;
   const subtitle = p.seriesName
     ? `${p.seriesName} · ${p.name}`
     : (p.scope === 'series' ? 'series installment' : 'standalone');
-
   return el('button', {
     class: 'project-card' + (active ? ' is-active' : ''),
     onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
@@ -80,13 +73,10 @@ function projectCard(p) {
   ]);
 }
 
-/* ---------- render ---------- */
 export function renderLaunch() {
   if (!root) return;
   clear(root);
-
   const projects = listProjects();
-
   root.append(
     el('header', { class: 'launch-header' }, [
       el('div', {}, [
@@ -101,7 +91,7 @@ export function renderLaunch() {
           onclick: () => openSettings(),
         }, [icon('gear')]),
         el('button', {
-          class: 'btn',
+          class: 'btn btn-ghost',
           title: 'Read the quick-start guide',
           onclick: () => openGuide(),
         }, [icon('book'), 'Getting Started']),
@@ -112,7 +102,6 @@ export function renderLaunch() {
       ]),
     ])
   );
-
   if (!projects.length) {
     root.appendChild(el('div', { class: 'launch-empty' }, [
       icon('library', 'icon-lg'),
@@ -121,11 +110,9 @@ export function renderLaunch() {
     ]));
     return;
   }
-
   root.appendChild(el('div', { class: 'launch-grid' }, projects.map(projectCard)));
 }
 
-/* ---------- init ---------- */
 export function initLaunch() {
   root = document.getElementById('view-launch');
   subscribe((state, change) => {
