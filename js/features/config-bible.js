@@ -12,6 +12,7 @@ import { el, clear, modal, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState } from '../core/state.js';
 import { getEffectiveConfig, saveEffectiveConfig } from '../core/storage.js';
+import { scheduleCloudSave } from './cloud.js';
 
 const STYLE_ID = 'config-bible-style';
 const CSS = `
@@ -132,6 +133,7 @@ function saveNow() {
   saveTimer = null;
   if (!projectRef || !cfg) return;
   saveEffectiveConfig(projectRef, cfg);
+     scheduleCloudSave();
   if (savedBadge) {
     savedBadge.hidden = false;
     setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
