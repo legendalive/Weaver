@@ -1,8 +1,11 @@
 /* =========================================================
    Weaver — js/views/launch.js
    Library dashboard.
-   v2 Stage 6.4: harmonized action buttons (Settings +
-   Getting Started = ghost; New Project = primary).
+   v2 Stage 6.9: hero-first layout. Centered emblem, wordmark,
+   tagline and a prominent New Project CTA; Getting Started and
+   Settings sit beneath as secondary actions. The hero compacts
+   to a slim masthead once projects exist, giving the library
+   grid the room. Same spirit on desktop and mobile.
    ========================================================= */
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -73,43 +76,57 @@ function projectCard(p) {
   ]);
 }
 
+/* ---------- Hero (full when the library is empty, compact once it has books) ---------- */
+function hero(compact) {
+  const cta = el('button', {
+    class: 'btn btn-primary launch-cta',
+    title: 'Create a new project',
+    onclick: () => { if (openWizardFn) openWizardFn(); },
+  }, [icon('plus'), el('span', { text: 'New Project' })]);
+
+  const secondary = el('div', { class: 'launch-hero-sub' }, [
+    el('button', {
+      class: 'btn btn-ghost',
+      title: 'Read the quick-start guide',
+      onclick: () => openGuide(),
+    }, [icon('book'), el('span', { text: 'Getting Started' })]),
+    el('button', {
+      class: 'btn btn-ghost btn-icon',
+      title: 'Settings (account, backup, restore, cloud sync)',
+      'aria-label': 'Settings',
+      onclick: () => openSettings(),
+    }, [icon('gear')]),
+  ]);
+
+  const kids = [
+    el('div', { class: 'launch-hero-logo' }, [icon('feather', 'icon-lg')]),
+    el('h1', { class: 'launch-hero-title', text: 'Weaver' }),
+    el('p', { class: 'launch-hero-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
+    el('div', { class: 'launch-hero-actions' }, [cta, secondary]),
+  ];
+
+  if (!compact) {
+    kids.push(el('p', {
+      class: 'launch-hero-hint',
+      text: 'Your library is empty — begin your first novel above, or read the quick-start guide first.',
+    }));
+  }
+
+  return el('section', { class: 'launch-hero' + (compact ? ' is-compact' : '') }, kids);
+}
+
 export function renderLaunch() {
   if (!root) return;
   clear(root);
   const projects = listProjects();
-  root.append(
-    el('header', { class: 'launch-header' }, [
-      el('div', {}, [
-        el('h1', { class: 'launch-title' }, [icon('feather'), 'Weaver']),
-        el('p', { class: 'launch-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
-      ]),
-      el('div', { class: 'launch-actions' }, [
-        el('button', {
-          class: 'btn btn-ghost btn-icon',
-          title: 'Settings (backup, restore, cloud sync)',
-          'aria-label': 'Settings',
-          onclick: () => openSettings(),
-        }, [icon('gear')]),
-        el('button', {
-          class: 'btn btn-ghost',
-          title: 'Read the quick-start guide',
-          onclick: () => openGuide(),
-        }, [icon('book'), 'Getting Started']),
-        el('button', {
-          class: 'btn btn-primary',
-          onclick: () => { if (openWizardFn) openWizardFn(); },
-        }, [icon('plus'), 'New Project']),
-      ]),
-    ])
-  );
-  if (!projects.length) {
-    root.appendChild(el('div', { class: 'launch-empty' }, [
-      icon('library', 'icon-lg'),
-      el('p', { text: 'No projects yet.' }),
-      el('p', { class: 'launch-empty-hint', text: 'Create your first novel — or read the Getting Started guide first.' }),
-    ]));
-    return;
-  }
+
+  root.appendChild(hero(projects.length > 0));
+
+  if (!projects.length) return;
+
+  root.appendChild(el('div', { class: 'launch-lib-bar' }, [
+    el('span', { class: 'launch-lib-count', text: `Your library · ${projects.length} project${projects.length === 1 ? '' : 's'}` }),
+  ]));
   root.appendChild(el('div', { class: 'launch-grid' }, projects.map(projectCard)));
 }
 
