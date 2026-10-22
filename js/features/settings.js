@@ -113,7 +113,7 @@ function overflowSection(rerender) {
   });
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Overflow Storage (Puter) — optional' }),
-    el('p', { class: 'set-hint', text: 'Optional — Weaver works fully without it. Puter is used automatically only if the primary vault is full or unreachable; each user\'s own free Puter account holds their overflow at no cost to anyone.' }),
+    el('p', { class: 'set-hint', text: 'Optional — Weaver works fully without it. Puter is used automatically only if the primary vault is full or unreachable; each user\'s own free Puter account holds their overflow at no additional cost.' }),
     el('div', { class: 'set-card' }, [
       el('div', { class: 'set-row' }, [status, connectBtn]),
       el('div', { class: 'set-row' }, [
