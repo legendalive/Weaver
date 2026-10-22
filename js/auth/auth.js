@@ -1,9 +1,11 @@
 /* =========================================================
    Weaver — js/auth/auth.js
-   v2 Stage 6.8.2: Supabase auth + ROBUST password reset + CSS.
+   v2 Stage 6.8.3: Supabase auth + ROBUST password reset.
+   Recovery lock: while a reset is in progress the app cannot
+   be reloaded into the workspace, and the reset tokens survive
+   a reload via sessionStorage. Brand mark: golden W emblem.
    ========================================================= */
-import { el, clear } from '../utils/dom.js';
-import { icon } from '../utils/icons.js';
+import { el, clear, weaverLogo } from '../utils/dom.js';
 
 /* ── PASTE YOUR SUPABASE CREDENTIALS HERE ── */
 const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
@@ -14,7 +16,7 @@ const RECOVERY_FLAG = 'weaver_pw_recovery';
 const AUTH_STYLE_ID = 'auth-style';
 
 /* ---------- Injected CSS for auth screens ---------- */
-const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;align-items:center;gap:14px;} .auth-logo{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;color:var(--accent);background:rgba(224,168,60,.12);border:1px solid rgba(224,168,60,.35);} .auth-logo .icon{width:24px;height:24px;} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
+const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;align-items:center;gap:14px;} .auth-logo{width:48px;height:48px;flex:none;display:grid;place-items:center;border-radius:50%;background:rgba(224,168,60,.10);border:1px solid rgba(224,168,60,.35);} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(AUTH_STYLE_ID)) {
@@ -113,6 +115,8 @@ export async function initAuth() {
 export function currentUserId() { return cachedUserId; }
 export function currentUserEmail() { return cachedUserEmail; }
 
+/* RECOVERY LOCK: while a reset is in progress, session events are
+   swallowed so the app can't reload the user into the workspace. */
 export function onAuthChange(cb) {
   if (!sb) return () => {};
   const { data } = sb.auth.onAuthStateChange((event, session) => {
@@ -139,7 +143,7 @@ function authCard(children) {
   return el('div', { class: 'auth-wrap' }, [
     el('div', { class: 'auth-card' }, [
       el('div', { class: 'auth-head' }, [
-        el('div', { class: 'auth-logo' }, [icon('feather', 'icon-lg')]),
+        el('div', { class: 'auth-logo' }, [weaverLogo('md')]),
         el('div', {}, [
           el('div', { class: 'auth-title', text: 'Weaver' }),
           el('div', { class: 'auth-tag', text: 'Structure · Refine · Generate' }),
@@ -307,6 +311,8 @@ function renderResetPassword(container) {
     if (pw !== confirmInput.value) { showErr(err, 'Passwords do not match.'); return; }
     submit.disabled = true; submit.textContent = 'Saving…';
     try {
+      /* Dedicated client: keeps the reset from tripping the app's
+         session-reload watcher before the password is saved. */
       const resetClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { detectSessionInUrl: false },
       });
