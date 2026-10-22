@@ -1,17 +1,18 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   v2 Stage 6.1: Settings Modal — 3 tabs.
+   v2 Stage 6.1-final: Settings Modal — 3 tabs.
    AI Providers · Data & Storage · General.
    Data & Storage = account + Backup/Export/Restore +
-   Secondary cloud mirror (Puter).
+   OPTIONAL Puter overflow (clearly marked optional).
    ========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
-import { syncNow, getCloudUserEmail, signOutAndReload } from './cloud.js';
 import {
-  puterSignedIn, connectPuter, disconnectPuter, mirrorNow, restoreFromMirror,
-} from './puter-mirror.js';
+  syncNow, getCloudUserEmail, signOutAndReload,
+  copyAllToPuter, restoreFromPuter,
+} from './cloud.js';
+import { puterSignedIn, connectPuter, disconnectPuter } from './puter-mirror.js';
 import { exportProject } from './export.js';
 import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
@@ -75,7 +76,7 @@ function accountSection() {
 function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Backup & Restore' }),
-    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write. Use these to back up, export, or restore manually.' }),
+    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write (compressed, ~3–5× more room). Use these to back up, export, or restore manually.' }),
     el('div', { class: 'set-row' }, [
       el('button', { class: 'btn btn-sm', text: 'Backup to cloud', onclick: () => syncNow() }),
       el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
@@ -84,8 +85,8 @@ function backupRestoreSection() {
   ]);
 }
 
-/* ---------- Secondary cloud mirror (Puter) ---------- */
-function mirrorSection(rerender) {
+/* ---------- Optional Puter overflow ---------- */
+function overflowSection(rerender) {
   const status = el('span', {
     class: 'badge' + (puterSignedIn() ? ' badge-success' : ''),
     text: puterSignedIn() ? 'connected' : 'not connected',
@@ -98,10 +99,10 @@ function mirrorSection(rerender) {
       try {
         if (puterSignedIn()) {
           await disconnectPuter();
-          toast('Mirror disconnected.', 'success');
+          toast('Overflow storage disconnected.', 'success');
         } else {
           await connectPuter();
-          toast('Mirror connected — a redundant copy of your work will follow you to Puter.', 'success');
+          toast('Overflow storage connected.', 'success');
         }
       } catch (e) {
         toast('Could not reach Puter: ' + e.message, 'danger');
@@ -111,35 +112,35 @@ function mirrorSection(rerender) {
     },
   });
   return el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Secondary Cloud Mirror' }),
-    el('p', { class: 'set-hint', text: 'Optional redundancy: a silent second copy of every project in your own Puter account (free tier, no payment details, no keys). Supabase remains the primary vault.' }),
+    el('h4', { text: 'Overflow Storage (Puter) — optional' }),
+    el('p', { class: 'set-hint', text: 'Optional — Weaver works fully without it. Puter is used automatically only if the primary vault is full or unreachable; each user\'s own free Puter account holds their overflow at no cost to anyone.' }),
     el('div', { class: 'set-card' }, [
       el('div', { class: 'set-row' }, [status, connectBtn]),
       el('div', { class: 'set-row' }, [
         el('button', {
-          class: 'btn btn-sm', text: 'Mirror now',
+          class: 'btn btn-sm', text: 'Copy all to Puter',
           onclick: async () => {
             try {
-              const n = await mirrorNow();
-              toast(`Mirrored ${n} project(s) to Puter.`, 'success');
+              const n = await copyAllToPuter();
+              toast(`Copied ${n} project(s) to Puter overflow.`, 'success');
             } catch (e) {
-              toast('Mirror failed: ' + e.message, 'danger');
+              toast('Copy failed: ' + e.message, 'danger');
             }
           },
         }),
         el('button', {
-          class: 'btn btn-sm', text: 'Restore from mirror',
+          class: 'btn btn-sm', text: 'Restore from Puter',
           onclick: async () => {
             const ok = await confirmDialog({
-              title: 'Restore from mirror',
-              message: 'This pulls every project stored in your Puter mirror into this browser, overwriting local copies with the same ID. Continue?',
+              title: 'Restore from Puter',
+              message: 'This pulls every project stored in your Puter overflow into this browser, overwriting local copies with the same ID. Continue?',
               confirmLabel: 'Restore',
               danger: true,
             });
             if (!ok) return;
             try {
-              const n = await restoreFromMirror();
-              toast(`Restored ${n} project(s) from mirror. Reloading…`, 'success');
+              const n = await restoreFromPuter();
+              toast(`Restored ${n} project(s) from Puter. Reloading…`, 'success');
               setTimeout(() => location.reload(), 900);
             } catch (e) {
               toast('Restore failed: ' + e.message, 'danger');
@@ -223,7 +224,7 @@ function renderAiTab(contentEl, settings) {
 /* ---------- Data & Storage tab ---------- */
 function renderDataTab(contentEl, rerender) {
   clear(contentEl);
-  contentEl.append(accountSection(), backupRestoreSection(), mirrorSection(rerender));
+  contentEl.append(accountSection(), backupRestoreSection(), overflowSection(rerender));
 }
 
 /* ---------- General tab ---------- */
