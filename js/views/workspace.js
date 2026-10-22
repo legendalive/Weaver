@@ -1,30 +1,62 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   v2 Stage 6.11-final: 3-panel writing workspace wired to the
-   VERIFIED panel APIs:
-   - main-novel: mountMainNovel(panel) / renderMainNovel / recheck
-   - ai-output:  initAiOutput / accept / rewrite / discard
-   - resizers:   bindResizers(ctx) / refreshLayout (flex-based)
-   - hierarchy:  toggleHierarchyDrawer
-   Small script W brand mark pinned to the topbar-left.
+   v2 Stage 6.11-final / BLANK-PROOF EDITION.
+   - Panels/hierarchy/resizers imported as NAMESPACES: a renamed
+     or missing export can NEVER break the module graph again.
+   - Functions resolved from candidate name lists at load time.
+   - Every mount/render guarded by safe(): a throw degrades one
+     panel, never the app.
+   - If anything critical is unresolved, a gold diagnostic banner
+     names it inside the app (screenshot = one-line fix).
+   - Small script W brand mark pinned to topbar-left.
    ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
   getState, setUI, closeProject, flushSave, subscribe,
 } from '../core/state.js';
-import { renderManuscript, initManuscript } from '../panels/manuscript.js';
-import { mountMainNovel, renderMainNovel, recheck } from '../panels/main-novel.js';
-import {
-  initAiOutput, acceptAiBlock, rewriteAiBlock, discardAiBlock,
-} from '../panels/ai-output.js';
-import { toggleHierarchyDrawer } from '../features/hierarchy.js';
-import { bindResizers, refreshLayout } from '../core/resizers.js';
+import * as msApi from '../panels/manuscript.js';
+import * as nvApi from '../panels/main-novel.js';
+import * as aiApi from '../panels/ai-output.js';
+import * as hrApi from '../features/hierarchy.js';
+import * as rzApi from '../core/resizers.js';
 import { openSettings } from '../features/settings.js';
 import { openGuide } from '../features/guide.js';
 import { exportProject } from '../features/export.js';
 import { openConfigBible } from '../features/config-bible.js';
 import { autoSync } from '../features/cloud.js';
+
+/* ---------- defensive resolution ---------- */
+function pick(api, names) {
+  for (const n of names) if (typeof api[n] === 'function') return api[n];
+  return null;
+}
+const mountManuscript = pick(msApi, ['mountManuscript', 'initManuscript', 'mount', 'setup', 'init']);
+const renderManuscript = pick(msApi, ['renderManuscript', 'render']);
+const acceptAsIs = pick(msApi, ['acceptAsIs', 'accept', 'acceptBlock', 'acceptManuscript', 'acceptSelection']);
+const mountNovel = pick(nvApi, ['mountMainNovel', 'initMainNovel', 'mount', 'init']);
+const renderNovel = pick(nvApi, ['renderMainNovel', 'render']);
+const recheckFn = pick(nvApi, ['recheck']);
+const initAi = pick(aiApi, ['initAiOutput', 'init', 'mount']);
+const acceptAi = pick(aiApi, ['acceptAiBlock']);
+const rewriteAi = pick(aiApi, ['rewriteAiBlock']);
+const discardAi = pick(aiApi, ['discardAiBlock']);
+const toggleHier = pick(hrApi, ['toggleHierarchyDrawer', 'toggleHierarchy', 'toggle']);
+const bindRz = pick(rzApi, ['bindResizers', 'initResizers']);
+const refreshRz = pick(rzApi, ['refreshLayout', 'refresh']);
+
+const MISSING = [];
+if (!mountManuscript) MISSING.push('manuscript mount (mountManuscript/initManuscript)');
+if (!renderManuscript) MISSING.push('manuscript render (renderManuscript)');
+if (!mountNovel) MISSING.push('main-novel mount (mountMainNovel)');
+if (!renderNovel) MISSING.push('main-novel render (renderMainNovel)');
+if (MISSING.length) console.warn('[Workspace] unresolved panel functions:', MISSING.join('; '));
+
+function safe(label, fn, ...args) {
+  if (typeof fn !== 'function') return false;
+  try { fn(...args); return true; }
+  catch (e) { console.warn(`[Workspace] ${label} failed:`, e); return false; }
+}
 
 const STYLE_ID = 'workspace-style';
 const CSS = `
@@ -62,7 +94,7 @@ function ensureStyle() {
 
 let root = null;
 let panelsEl = null;
-let panelRefs = null; // { panels: [3], resizers: [2] }
+let panelRefs = null;
 
 function topBtn(key, iconName, label, onclick) {
   return el('button', {
@@ -104,7 +136,9 @@ export function renderWorkspace() {
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-      topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
+      topBtn('hierarchy', 'tree', 'Hierarchy', () => {
+        if (toggleHier) toggleHier();
+      }),
     ]),
     el('div', { class: 'topbar-center' }, [
       el('h1', { class: 'topbar-title', text: project.name }),
@@ -132,24 +166,21 @@ export function renderWorkspace() {
   const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
   const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
 
-  /* Main Novel footer: Recheck (cut selection back to Manuscript). */
-  novel.footer.appendChild(el('button', {
-    class: 'btn btn-sm',
-    title: 'Cut selected Main Novel text back into the Manuscript',
-    onclick: () => recheck(),
-  }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
+  /* Main Novel footer: Recheck */
+  if (recheckFn) {
+    novel.footer.appendChild(el('button', {
+      class: 'btn btn-sm',
+      title: 'Cut selected Main Novel text back into the Manuscript',
+      onclick: () => recheckFn(),
+    }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
+  }
 
-  /* AI Output footer: the three block actions. */
-  ai.footer.append(
-    el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAiBlock() },
-      [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]),
-    el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAiBlock() },
-      [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]),
-    el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAiBlock() },
-      [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]),
-  );
+  /* AI Output footer: Accept / Rewrite / Discard */
+  if (acceptAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAi() }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]));
+  if (rewriteAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAi() }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]));
+  if (discardAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAi() }, [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]));
 
-  /* AI empty state (ai-output.js has no render function of its own). */
+  /* AI empty state (ai-output.js renders nothing on its own) */
   ai.body.appendChild(el('div', { class: 'empty-state' }, [
     icon('sparkles', 'icon-lg'),
     el('p', { text: 'AI generations will appear here.' }),
@@ -167,19 +198,45 @@ export function renderWorkspace() {
     resizers: [r1, r2],
   };
 
-  root.append(topbar, panelsEl);
+  const kids = [];
+  if (MISSING.length) {
+    kids.push(el('div', {
+      style: {
+        padding: '8px 14px',
+        background: 'rgba(224,168,60,.12)',
+        border: '1px solid rgba(224,168,60,.4)',
+        color: 'var(--accent)',
+        fontSize: '.78rem',
+      },
+      text: `Workspace degraded — unresolved: ${MISSING.join('; ')}. Screenshot this for support.`,
+    }));
+  }
+  kids.push(topbar, panelsEl);
+  root.append(...kids);
 
-  /* Wire the drag-resize engine (flex-based; it also applies saved sizes). */
-  bindResizers({ container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
-
+  if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
   applyExpanded();
-  mountMainNovel(novel.panel);
-  renderManuscript();
-  renderMainNovel();
+
+  /* Mount panels; if a mount rejects the panel root, retry with its body. */
+  if (!safe('mountManuscript(panel)', mountManuscript, manuscript.panel)) {
+    safe('mountManuscript(body)', mountManuscript, manuscript.body);
+  }
+  if (!safe('mountMainNovel(panel)', mountNovel, novel.panel)) {
+    safe('mountMainNovel(body)', mountNovel, novel.body);
+  }
+  safe('renderManuscript', renderManuscript);
+  safe('renderMainNovel', renderNovel);
+
+  /* If manuscript.js did not wire its own footer, wire Accept-as-is here. */
+  if (acceptAsIs && manuscript.footer.children.length === 0) {
+    manuscript.footer.appendChild(el('button', {
+      class: 'btn btn-sm btn-primary',
+      title: 'Accept the current manuscript text into Main Novel as-is',
+      onclick: () => acceptAsIs(),
+    }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept as is' })]));
+  }
 }
 
-/* Expansion: show one panel full-bleed, hide the rest, then let the
-   resizer engine clear its inline flex sizes. */
 function applyExpanded() {
   if (!panelRefs) return;
   const expanded = getState().ui.expandedPanel;
@@ -188,13 +245,12 @@ function applyExpanded() {
     panelRefs.panels[i].style.display = (!expanded || expanded === key) ? '' : 'none';
   });
   panelRefs.resizers.forEach((r) => { r.style.display = expanded ? 'none' : ''; });
-  refreshLayout();
+  if (refreshRz) safe('refreshLayout', refreshRz);
 }
 
 export function initWorkspace() {
   root = document.getElementById('view-workspace');
-  initManuscript();
-  initAiOutput();
+  safe('initAiOutput', initAi);
   subscribeWorkspace();
 }
 
@@ -202,8 +258,6 @@ function subscribeWorkspace() {
   subscribe((state, change) => {
     if (change.ui) applyExpanded();
     if (state.view !== 'workspace') return;
-    /* Rebuild only on view transitions (open/close project). Content
-       edits flow through each panel's own subscription. */
     if (change.view) renderWorkspace();
   });
 }
