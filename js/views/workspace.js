@@ -1,12 +1,12 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   v2 Stage 6.11-fix: 3-panel writing workspace; small script W
+   v2 Stage 6.11-fix2: 3-panel writing workspace; small script W
    brand mark pinned to the topbar-left of every open project.
-   CORRECTS the previous delivery's broken subscribe wiring
-   (the require_state / window.__weaverSubscribe placeholder is
-   gone; subscribe is imported from core/state.js directly).
+   hierarchy.js is imported as a NAMESPACE so a renamed export
+   can never blank the app again; drawer calls are resolved
+   defensively and guarded.
    ========================================================= */
-import { el, clear, weaverLogo } from '../utils/dom.js';
+import { el, clear, weaverLogo, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
   getState, setUI, closeProject, flushSave, updateSettings, subscribe,
@@ -18,9 +18,27 @@ import { openSettings } from '../features/settings.js';
 import { openGuide } from '../features/guide.js';
 import { exportProject } from '../features/export.js';
 import { openConfigBible } from '../features/config-bible.js';
-import { ensureHierarchyDrawer, toggleHierarchyDrawer, refreshHierarchy } from '../features/hierarchy.js';
+import * as hierarchyApi from '../features/hierarchy.js';
 import { initResizers } from '../core/resizers.js';
 import { autoSync } from '../features/cloud.js';
+
+/* Resolve hierarchy drawer functions defensively — export names have
+   varied between builds, and a missing named export blanks the app. */
+const ensureHierarchyDrawer =
+  hierarchyApi.ensureHierarchyDrawer ||
+  hierarchyApi.initHierarchyDrawer ||
+  hierarchyApi.initHierarchy ||
+  hierarchyApi.ensureDrawer ||
+  null;
+const toggleHierarchyDrawer =
+  hierarchyApi.toggleHierarchyDrawer ||
+  hierarchyApi.toggleHierarchy ||
+  hierarchyApi.toggleDrawer ||
+  null;
+const refreshHierarchy =
+  hierarchyApi.refreshHierarchy ||
+  hierarchyApi.refresh ||
+  null;
 
 const STYLE_ID = 'workspace-style';
 const CSS = `
@@ -99,7 +117,10 @@ export function renderWorkspace() {
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-      topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
+      topBtn('hierarchy', 'tree', 'Hierarchy', () => {
+        if (toggleHierarchyDrawer) toggleHierarchyDrawer();
+        else toast('Hierarchy drawer is unavailable in this build.', 'danger');
+      }),
     ]),
     el('div', { class: 'topbar-center' }, [
       el('h1', { class: 'topbar-title', text: project.name }),
@@ -137,7 +158,7 @@ export function renderWorkspace() {
   ]);
 
   root.append(topbar, panelsEl);
-  ensureHierarchyDrawer();
+  if (ensureHierarchyDrawer) ensureHierarchyDrawer();
   applyPanelSizes();
   renderManuscript();
   renderMainNovel();
@@ -179,6 +200,6 @@ function subscribeWorkspace() {
     if (change.ui) applyPanelSizes();
     if (state.view !== 'workspace') return;
     if (change.view || (change.project && !change.silent)) renderWorkspace();
-    if (change.hierarchy) refreshHierarchy();
+    if (change.hierarchy && refreshHierarchy) refreshHierarchy();
   });
 }
