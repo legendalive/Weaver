@@ -1,22 +1,16 @@
 /* =========================================================
    Weaver — js/auth/auth.js
-   v2 Stage 6.8.3: Supabase auth + ROBUST password reset.
-   Recovery lock: while a reset is in progress the app cannot
-   be reloaded into the workspace, and the reset tokens survive
-   a reload via sessionStorage. Brand mark: golden W emblem.
+   v2 Stage 6.11: Supabase auth + robust password reset on the
+   SHARED client (js/core/supabase.js). Auth card shows a
+   free-floating script W — no circular badge.
    ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
-
-/* ── PASTE YOUR SUPABASE CREDENTIALS HERE ── */
-const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-/* ─────────────────────────────────────────────────────────── */
+import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
 
 const RECOVERY_FLAG = 'weaver_pw_recovery';
 const AUTH_STYLE_ID = 'auth-style';
 
-/* ---------- Injected CSS for auth screens ---------- */
-const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;align-items:center;gap:14px;} .auth-logo{width:48px;height:48px;flex:none;display:grid;place-items:center;border-radius:50%;background:rgba(224,168,60,.10);border:1px solid rgba(224,168,60,.35);} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
+const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;align-items:center;gap:18px;} .auth-logo{display:flex;align-items:center;justify-content:center;flex:none;} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(AUTH_STYLE_ID)) {
@@ -27,41 +21,17 @@ function ensureStyle() {
   }
 }
 
-let sb = null;
-let loadPromise = null;
+let client = null;
 let cachedUserId = null;
 let cachedUserEmail = '';
 let recoveryTokens = null;
 
-export function authConfigured() {
-  return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
+async function ensureClient() {
+  client = client || (await getSupabaseClient());
+  return client;
 }
 
-function loadSupabaseScript() {
-  return new Promise((resolve, reject) => {
-    if (window.supabase) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.async = true;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('Could not load the Supabase script.'));
-    document.head.appendChild(s);
-  });
-}
-
-async function getClient() {
-  if (sb) return sb;
-  if (!loadPromise) {
-    loadPromise = (async () => {
-      await loadSupabaseScript();
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { detectSessionInUrl: false },
-      });
-      return sb;
-    })();
-  }
-  return loadPromise;
-}
+export function authConfigured() { return supabaseConfigured(); }
 
 function detectRecovery() {
   const hash = window.location.hash;
@@ -99,9 +69,9 @@ export async function initAuth() {
   if (!authConfigured()) return { signedIn: false, reason: 'not-configured' };
   try {
     const isRecovery = detectRecovery();
-    const client = await getClient();
+    const c = await ensureClient();
     if (isRecovery) return { signedIn: false, reason: 'recovery' };
-    const { data: { session } } = await client.auth.getSession();
+    const { data: { session } } = await c.auth.getSession();
     if (session) {
       cachedUserId = session.user.id;
       cachedUserEmail = session.user.email || '';
@@ -115,11 +85,10 @@ export async function initAuth() {
 export function currentUserId() { return cachedUserId; }
 export function currentUserEmail() { return cachedUserEmail; }
 
-/* RECOVERY LOCK: while a reset is in progress, session events are
-   swallowed so the app can't reload the user into the workspace. */
+/* RECOVERY LOCK: suppress app reloads while a reset is in progress. */
 export function onAuthChange(cb) {
-  if (!sb) return () => {};
-  const { data } = sb.auth.onAuthStateChange((event, session) => {
+  if (!client) return () => {};
+  const { data } = client.auth.onAuthStateChange((event, session) => {
     cachedUserId = session?.user?.id || null;
     cachedUserEmail = session?.user?.email || '';
     if (recoveryTokens) return;
@@ -130,8 +99,8 @@ export function onAuthChange(cb) {
 
 export async function signOutUser() {
   try {
-    const client = await getClient();
-    await client.auth.signOut();
+    const c = await ensureClient();
+    await c.auth.signOut();
   } catch (e) {
     console.warn('[Auth] signOut:', e);
   }
@@ -210,15 +179,15 @@ function renderSignInSignUp(container) {
       showErr(err, '');
       submit.disabled = true; submit.textContent = 'One moment…';
       try {
-        const client = await getClient();
+        const c = await ensureClient();
         const email = emailInput.value.trim();
         const password = passInput.value;
         if (mode === 'signin') {
-          const { error } = await client.auth.signInWithPassword({ email, password });
+          const { error } = await c.auth.signInWithPassword({ email, password });
           if (error) throw error;
           location.reload();
         } else {
-          const { data, error } = await client.auth.signUp({ email, password });
+          const { data, error } = await c.auth.signUp({ email, password });
           if (error) throw error;
           if (data.session) {
             location.reload();
@@ -258,10 +227,10 @@ function renderForgotPassword(container) {
     showErr(err, '');
     sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
     try {
-      const client = await getClient();
+      const c = await ensureClient();
       const email = emailInput.value.trim();
       const redirectTo = window.location.origin + window.location.pathname;
-      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+      const { error } = await c.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
       renderLinkSent(container, email);
     } catch (e2) {
@@ -311,17 +280,15 @@ function renderResetPassword(container) {
     if (pw !== confirmInput.value) { showErr(err, 'Passwords do not match.'); return; }
     submit.disabled = true; submit.textContent = 'Saving…';
     try {
-      /* Dedicated client: keeps the reset from tripping the app's
-         session-reload watcher before the password is saved. */
-      const resetClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { detectSessionInUrl: false },
-      });
-      const { error: sessErr } = await resetClient.auth.setSession({
+      /* Shared client; the recovery lock above keeps app.js from
+         reloading mid-reset. */
+      const c = await ensureClient();
+      const { error: sessErr } = await c.auth.setSession({
         access_token: recoveryTokens.access_token,
         refresh_token: recoveryTokens.refresh_token,
       });
       if (sessErr) throw new Error('This reset link has expired or is invalid. Go back and request a new one.');
-      const { error } = await resetClient.auth.updateUser({ password: pw });
+      const { error } = await c.auth.updateUser({ password: pw });
       if (error) throw error;
       clearRecovery();
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -341,7 +308,7 @@ function renderSetupNotice(container) {
   container.appendChild(el('div', { class: 'auth-wrap' }, [
     el('div', { class: 'auth-notice' }, [
       el('strong', { text: 'Authentication is not configured yet.' }),
-      el('p', { text: 'Paste your Supabase Project URL and anon key at the top of js/auth/auth.js.' }),
+      el('p', { text: 'Paste your Supabase Project URL and anon key at the top of js/core/supabase.js.' }),
     ]),
   ]));
 }
