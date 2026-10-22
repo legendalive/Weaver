@@ -1,14 +1,17 @@
 /* =========================================================
    Weaver — js/features/settings.js
-   v2.0 Stage 6.1: Settings Modal — 3 tabs.
+   v2 Stage 6.1: Settings Modal — 3 tabs.
    AI Providers · Data & Storage · General.
-   Data & Storage = account (sign out) + Backup/Export/Restore.
-   General = editor behavior, quick prompts, aesthetics.
+   Data & Storage = account + Backup/Export/Restore +
+   Secondary cloud mirror (Puter).
    ========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
 import { syncNow, getCloudUserEmail, signOutAndReload } from './cloud.js';
+import {
+  puterSignedIn, connectPuter, disconnectPuter, mirrorNow, restoreFromMirror,
+} from './puter-mirror.js';
 import { exportProject } from './export.js';
 import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
@@ -38,7 +41,7 @@ function saveAndFlash(mutator) {
   }
 }
 
-/* ---------- Account (sign out) ---------- */
+/* ---------- Account ---------- */
 function accountSection() {
   const emailBadge = el('span', { class: 'badge', text: 'checking…' });
   getCloudUserEmail().then((email) => {
@@ -68,7 +71,7 @@ function accountSection() {
   ]);
 }
 
-/* ---------- Data & Storage: the three actions ---------- */
+/* ---------- Backup & Restore (3 actions) ---------- */
 function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Backup & Restore' }),
@@ -81,7 +84,74 @@ function backupRestoreSection() {
   ]);
 }
 
-/* ---------- AI Providers tab ---------- */
+/* ---------- Secondary cloud mirror (Puter) ---------- */
+function mirrorSection(rerender) {
+  const status = el('span', {
+    class: 'badge' + (puterSignedIn() ? ' badge-success' : ''),
+    text: puterSignedIn() ? 'connected' : 'not connected',
+  });
+  const connectBtn = el('button', {
+    class: 'btn btn-sm',
+    text: puterSignedIn() ? 'Disconnect' : 'Connect Puter',
+    onclick: async () => {
+      connectBtn.disabled = true;
+      try {
+        if (puterSignedIn()) {
+          await disconnectPuter();
+          toast('Mirror disconnected.', 'success');
+        } else {
+          await connectPuter();
+          toast('Mirror connected — a redundant copy of your work will follow you to Puter.', 'success');
+        }
+      } catch (e) {
+        toast('Could not reach Puter: ' + e.message, 'danger');
+      }
+      connectBtn.disabled = false;
+      rerender();
+    },
+  });
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Secondary Cloud Mirror' }),
+    el('p', { class: 'set-hint', text: 'Optional redundancy: a silent second copy of every project in your own Puter account (free tier, no payment details, no keys). Supabase remains the primary vault.' }),
+    el('div', { class: 'set-card' }, [
+      el('div', { class: 'set-row' }, [status, connectBtn]),
+      el('div', { class: 'set-row' }, [
+        el('button', {
+          class: 'btn btn-sm', text: 'Mirror now',
+          onclick: async () => {
+            try {
+              const n = await mirrorNow();
+              toast(`Mirrored ${n} project(s) to Puter.`, 'success');
+            } catch (e) {
+              toast('Mirror failed: ' + e.message, 'danger');
+            }
+          },
+        }),
+        el('button', {
+          class: 'btn btn-sm', text: 'Restore from mirror',
+          onclick: async () => {
+            const ok = await confirmDialog({
+              title: 'Restore from mirror',
+              message: 'This pulls every project stored in your Puter mirror into this browser, overwriting local copies with the same ID. Continue?',
+              confirmLabel: 'Restore',
+              danger: true,
+            });
+            if (!ok) return;
+            try {
+              const n = await restoreFromMirror();
+              toast(`Restored ${n} project(s) from mirror. Reloading…`, 'success');
+              setTimeout(() => location.reload(), 900);
+            } catch (e) {
+              toast('Restore failed: ' + e.message, 'danger');
+            }
+          },
+        }),
+      ]),
+    ]),
+  ]);
+}
+
+/* ---------- AI tab ---------- */
 function renderAiTab(contentEl, settings) {
   clear(contentEl);
   contentEl.appendChild(el('div', { class: 'set-section' }, [
@@ -151,9 +221,9 @@ function renderAiTab(contentEl, settings) {
 }
 
 /* ---------- Data & Storage tab ---------- */
-function renderDataTab(contentEl) {
+function renderDataTab(contentEl, rerender) {
   clear(contentEl);
-  contentEl.append(accountSection(), backupRestoreSection());
+  contentEl.append(accountSection(), backupRestoreSection(), mirrorSection(rerender));
 }
 
 /* ---------- General tab ---------- */
@@ -237,7 +307,7 @@ export function openSettings() {
   }
   function renderContent() {
     if (activeTab === 'ai') renderAiTab(contentEl, state.settings);
-    else if (activeTab === 'data') renderDataTab(contentEl);
+    else if (activeTab === 'data') renderDataTab(contentEl, renderContent);
     else renderGeneralTab(contentEl, state.settings);
   }
 
