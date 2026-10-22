@@ -413,3 +413,18 @@
   .launch-hero.is-compact .launch-hero-actions { width: auto; }
   .launch-hero.is-compact .launch-cta { width: auto; }
 }
+
+/* ---------- Stage 6.10: hero logo — drop the circle ---------- */
+.launch-hero-logo {
+  width: auto;
+  height: auto;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.launch-hero.is-compact .launch-hero-logo {
+  width: auto;
+  height: auto;
+  box-shadow: none;
+}
