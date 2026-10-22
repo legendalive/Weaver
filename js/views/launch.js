@@ -1,13 +1,10 @@
 /* =========================================================
    Weaver — js/views/launch.js
    Library dashboard.
-   v2 Stage 6.9: hero-first layout. Centered emblem, wordmark,
-   tagline and a prominent New Project CTA; Getting Started and
-   Settings sit beneath as secondary actions. The hero compacts
-   to a slim masthead once projects exist, giving the library
-   grid the room. Same spirit on desktop and mobile.
+   v2 Stage 6.9 + logo: hero-first layout with the freehand
+   script W; compacts to a masthead once projects exist.
    ========================================================= */
-import { el, clear, toast, confirmDialog } from '../utils/dom.js';
+import { el, clear, toast, confirmDialog, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { listProjects, deleteProject, getActiveProject } from '../core/storage.js';
 import { openProject, subscribe } from '../core/state.js';
@@ -76,7 +73,7 @@ function projectCard(p) {
   ]);
 }
 
-/* ---------- Hero (full when the library is empty, compact once it has books) ---------- */
+/* ---------- Hero: script W + wordmark + CTA ---------- */
 function hero(compact) {
   const cta = el('button', {
     class: 'btn btn-primary launch-cta',
@@ -99,7 +96,7 @@ function hero(compact) {
   ]);
 
   const kids = [
-    el('div', { class: 'launch-hero-logo' }, [icon('feather', 'icon-lg')]),
+    el('div', { class: 'launch-hero-logo' }, [weaverLogo(compact ? 'md' : 'xl')]),
     el('h1', { class: 'launch-hero-title', text: 'Weaver' }),
     el('p', { class: 'launch-hero-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
     el('div', { class: 'launch-hero-actions' }, [cta, secondary]),
