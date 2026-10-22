@@ -1,60 +1,30 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   v2 Stage 6.11-fix3: 3-panel writing workspace; small script W
-   brand mark pinned to the topbar-left of every open project.
-   BLANK-PROOF: panels, hierarchy and resizers are imported as
-   NAMESPACES and resolved defensively, so a renamed export can
-   never break the module graph again. Unresolved functions are
-   skipped safely and reported once via console.warn.
+   v2 Stage 6.11-final: 3-panel writing workspace wired to the
+   VERIFIED panel APIs:
+   - main-novel: mountMainNovel(panel) / renderMainNovel / recheck
+   - ai-output:  initAiOutput / accept / rewrite / discard
+   - resizers:   bindResizers(ctx) / refreshLayout (flex-based)
+   - hierarchy:  toggleHierarchyDrawer
+   Small script W brand mark pinned to the topbar-left.
    ========================================================= */
-import { el, clear, weaverLogo, toast } from '../utils/dom.js';
+import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
-  getState, setUI, closeProject, flushSave, updateSettings, subscribe,
+  getState, setUI, closeProject, flushSave, subscribe,
 } from '../core/state.js';
-import * as manuscriptApi from '../panels/manuscript.js';
-import * as novelApi from '../panels/main-novel.js';
-import * as aiApi from '../panels/ai-output.js';
-import * as hierarchyApi from '../features/hierarchy.js';
-import * as resizersApi from '../core/resizers.js';
+import { renderManuscript, initManuscript } from '../panels/manuscript.js';
+import { mountMainNovel, renderMainNovel, recheck } from '../panels/main-novel.js';
+import {
+  initAiOutput, acceptAiBlock, rewriteAiBlock, discardAiBlock,
+} from '../panels/ai-output.js';
+import { toggleHierarchyDrawer } from '../features/hierarchy.js';
+import { bindResizers, refreshLayout } from '../core/resizers.js';
 import { openSettings } from '../features/settings.js';
 import { openGuide } from '../features/guide.js';
 import { exportProject } from '../features/export.js';
 import { openConfigBible } from '../features/config-bible.js';
 import { autoSync } from '../features/cloud.js';
-
-/* ---------- defensive resolution of panel APIs ---------- */
-const renderManuscript = manuscriptApi.renderManuscript || null;
-const initManuscript = manuscriptApi.initManuscript || null;
-const renderMainNovel = novelApi.renderMainNovel || null;
-const mountMainNovel = novelApi.mountMainNovel || novelApi.initMainNovel || null;
-const renderAiOutput = aiApi.renderAiOutput || null;
-const mountAiOutput = aiApi.mountAiOutput || aiApi.initAiOutput || null;
-const toggleHierarchyDrawer = hierarchyApi.toggleHierarchyDrawer || hierarchyApi.toggleHierarchy || null;
-const ensureHierarchyDrawer = hierarchyApi.ensureHierarchyDrawer || hierarchyApi.initHierarchyDrawer || null;
-const refreshHierarchy = hierarchyApi.refreshHierarchy || null;
-
-let warned = false;
-function warnMissingOnce() {
-  if (warned) return;
-  warned = true;
-  const missing = [];
-  if (!renderManuscript) missing.push('manuscript.renderManuscript');
-  if (!initManuscript) missing.push('manuscript.initManuscript');
-  if (!renderMainNovel) missing.push('main-novel.renderMainNovel');
-  if (!mountMainNovel) missing.push('main-novel.mountMainNovel|initMainNovel');
-  if (!renderAiOutput) missing.push('ai-output.renderAiOutput');
-  if (!mountAiOutput) missing.push('ai-output.mountAiOutput|initAiOutput');
-  if (!toggleHierarchyDrawer) missing.push('hierarchy.toggleHierarchyDrawer');
-  if (missing.length) console.warn('[Workspace] unresolved panel functions:', missing.join(', '));
-}
-
-/* Call a maybe-function without ever letting it kill the boot. */
-function safe(label, fn, ...args) {
-  if (typeof fn !== 'function') return false;
-  try { fn(...args); return true; }
-  catch (e) { console.warn(`[Workspace] ${label} failed:`, e); return false; }
-}
 
 const STYLE_ID = 'workspace-style';
 const CSS = `
@@ -92,6 +62,7 @@ function ensureStyle() {
 
 let root = null;
 let panelsEl = null;
+let panelRefs = null; // { panels: [3], resizers: [2] }
 
 function topBtn(key, iconName, label, onclick) {
   return el('button', {
@@ -117,7 +88,7 @@ function resizer(after) {
   return el('div', {
     class: 'panel-resizer',
     dataset: { resizerAfter: after },
-    title: 'Drag to resize',
+    title: 'Drag to resize · double-click to reset',
   }, [el('div', { class: 'resizer-line' })]);
 }
 
@@ -133,10 +104,7 @@ export function renderWorkspace() {
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-      topBtn('hierarchy', 'tree', 'Hierarchy', () => {
-        if (toggleHierarchyDrawer) toggleHierarchyDrawer();
-        else toast('Hierarchy drawer is unavailable in this build.', 'danger');
-      }),
+      topBtn('hierarchy', 'tree', 'Hierarchy', () => toggleHierarchyDrawer()),
     ]),
     el('div', { class: 'topbar-center' }, [
       el('h1', { class: 'topbar-title', text: project.name }),
@@ -164,65 +132,78 @@ export function renderWorkspace() {
   const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
   const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
 
+  /* Main Novel footer: Recheck (cut selection back to Manuscript). */
+  novel.footer.appendChild(el('button', {
+    class: 'btn btn-sm',
+    title: 'Cut selected Main Novel text back into the Manuscript',
+    onclick: () => recheck(),
+  }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
+
+  /* AI Output footer: the three block actions. */
+  ai.footer.append(
+    el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAiBlock() },
+      [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]),
+    el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAiBlock() },
+      [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]),
+    el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAiBlock() },
+      [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]),
+  );
+
+  /* AI empty state (ai-output.js has no render function of its own). */
+  ai.body.appendChild(el('div', { class: 'empty-state' }, [
+    icon('sparkles', 'icon-lg'),
+    el('p', { text: 'AI generations will appear here.' }),
+  ]));
+
+  const r1 = resizer('manuscript');
+  const r2 = resizer('novel');
   panelsEl = el('div', {
     class: 'workspace-panels',
     dataset: { active: 'manuscript' },
-  }, [
-    manuscript.panel, resizer('manuscript'),
-    novel.panel, resizer('novel'),
-    ai.panel,
-  ]);
+  }, [manuscript.panel, r1, novel.panel, r2, ai.panel]);
+
+  panelRefs = {
+    panels: [manuscript.panel, novel.panel, ai.panel],
+    resizers: [r1, r2],
+  };
 
   root.append(topbar, panelsEl);
 
-  safe('ensureHierarchyDrawer', ensureHierarchyDrawer);
-  /* Mount helpers may expect the panel root or its body — try both, guarded. */
-  if (!safe('mountMainNovel(panel)', mountMainNovel, novel.panel)) {
-    safe('mountMainNovel(body)', mountMainNovel, novel.body);
-  }
-  if (!safe('mountAiOutput(panel)', mountAiOutput, ai.panel)) {
-    safe('mountAiOutput(body)', mountAiOutput, ai.body);
-  }
-  applyPanelSizes();
-  safe('renderManuscript', renderManuscript);
-  safe('renderMainNovel', renderMainNovel);
-  safe('renderAiOutput', renderAiOutput);
+  /* Wire the drag-resize engine (flex-based; it also applies saved sizes). */
+  bindResizers({ container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
+
+  applyExpanded();
+  mountMainNovel(novel.panel);
+  renderManuscript();
+  renderMainNovel();
 }
 
-function applyPanelSizes() {
-  if (!panelsEl) return;
-  const state = getState();
-  const expanded = state.ui.expandedPanel;
-  if (expanded) {
-    const cols = {
-      manuscript: '1fr 0px 0px 0px 0px',
-      novel: '0px 0px 1fr 0px 0px',
-      ai: '0px 0px 0px 0px 1fr',
-    }[expanded];
-    panelsEl.style.gridTemplateColumns = cols;
-  } else {
-    const [a, b, c] = state.ui.panelSizes;
-    panelsEl.style.gridTemplateColumns = `${a}fr 6px ${b}fr 6px ${c}fr`;
-  }
+/* Expansion: show one panel full-bleed, hide the rest, then let the
+   resizer engine clear its inline flex sizes. */
+function applyExpanded() {
+  if (!panelRefs) return;
+  const expanded = getState().ui.expandedPanel;
+  const keys = ['manuscript', 'novel', 'ai'];
+  keys.forEach((key, i) => {
+    panelRefs.panels[i].style.display = (!expanded || expanded === key) ? '' : 'none';
+  });
+  panelRefs.resizers.forEach((r) => { r.style.display = expanded ? 'none' : ''; });
+  refreshLayout();
 }
 
 export function initWorkspace() {
   root = document.getElementById('view-workspace');
-  safe('initManuscript', initManuscript);
-  safe('initResizers', resizersApi.initResizers, () => panelsEl, onResizeEnd);
+  initManuscript();
+  initAiOutput();
   subscribeWorkspace();
-  warnMissingOnce();
-}
-
-function onResizeEnd(sizes) {
-  updateSettings((s) => { s.general.panelSizes = sizes; });
 }
 
 function subscribeWorkspace() {
   subscribe((state, change) => {
-    if (change.ui) applyPanelSizes();
+    if (change.ui) applyExpanded();
     if (state.view !== 'workspace') return;
-    if (change.view || (change.project && !change.silent)) renderWorkspace();
-    if (change.hierarchy) safe('refreshHierarchy', refreshHierarchy);
+    /* Rebuild only on view transitions (open/close project). Content
+       edits flow through each panel's own subscription. */
+    if (change.view) renderWorkspace();
   });
 }
