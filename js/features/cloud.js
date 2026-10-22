@@ -1,17 +1,9 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   v2.0 Stage 6.3.3: Supabase Storage cloud sync + continuous
-   autosync + cloud-save badge.
-   - CONTINUOUS AUTOSYNC: ~3s after any edit, the ACTIVE
-     project (Manuscript + Main Novel + Config Bible — the
-     whole project object, series-aware) is pushed quietly.
-     Debounced; scoped to the open project.
-   - BADGE: "saved to cloud · HH:MM" pill in the MAIN NOVEL
-     panel header (next to the word count, before the expand
-     button); turns red "cloud save failed" on error.
-   - Manual Backup/Restore = full two-way merge by updatedAt
-     with the deletion ledger.
-   - Per-user paths {userId}/weaver/… locked server-side.
+   v2 Stage 6.11: Supabase Storage sync on the SHARED client.
+   - Continuous autosync (~3s debounce, active project only).
+   - Badge "saved to cloud · HH:MM" in the Main Novel header.
+   - Manual Backup/Restore = full two-way merge + ledger.
    ========================================================= */
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -21,55 +13,23 @@ import {
   listSeries, getSeries, getSeriesConfig, upsertSeries,
   readStore, writeStore,
 } from '../core/storage.js';
-
-/* ── Paste the SAME two values you used in js/auth/auth.js ── */
-const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-/* ─────────────────────────────────────────────────────────── */
+import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
 
 const BUCKET = 'weaver-vault';
 const LEDGER_KEY = 'weaver_sync_ledger';
 const AUTOSYNC_DELAY = 3000;
 
-let sb = null;
-let sbLoadPromise = null;
 let cachedUid = null;
 let syncing = false;
 let pushing = false;
 let autoTimer = null;
 
-function configured() {
-  return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
-}
+function configured() { return supabaseConfigured(); }
 export function isCloudConfigured() { return configured(); }
-
-function loadScript() {
-  return new Promise((resolve, reject) => {
-    if (window.supabase) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.async = true;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('Could not load the Supabase script.'));
-    document.head.appendChild(s);
-  });
-}
-
-async function getClient() {
-  if (sb) return sb;
-  if (!sbLoadPromise) {
-    sbLoadPromise = (async () => {
-      await loadScript();
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      return sb;
-    })();
-  }
-  return sbLoadPromise;
-}
 
 async function userId() {
   if (cachedUid) return cachedUid;
-  const client = await getClient();
+  const client = await getSupabaseClient();
   const { data: { session } } = await client.auth.getSession();
   cachedUid = session?.user?.id || null;
   return cachedUid;
@@ -78,13 +38,12 @@ async function userId() {
 export async function getCloudUserEmail() {
   if (!configured()) return '';
   try {
-    const client = await getClient();
+    const client = await getSupabaseClient();
     const { data: { session } } = await client.auth.getSession();
     return session?.user?.email || '';
   } catch { return ''; }
 }
 
-/* Storage path helper: {userId}/weaver/<rel> */
 async function path(rel) {
   const uid = await userId();
   if (!uid) throw new Error('You are not signed in.');
@@ -92,9 +51,8 @@ async function path(rel) {
 }
 
 /* ---------- low-level storage ops ---------- */
-
 async function getJson(rel) {
-  const client = await getClient();
+  const client = await getSupabaseClient();
   const full = await path(rel);
   const { data, error } = await client.storage.from(BUCKET).download(full);
   if (error) {
@@ -106,7 +64,7 @@ async function getJson(rel) {
 }
 
 async function putJson(rel, obj) {
-  const client = await getClient();
+  const client = await getSupabaseClient();
   const full = await path(rel);
   const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
   const { error } = await client.storage.from(BUCKET).upload(full, blob, {
@@ -117,35 +75,33 @@ async function putJson(rel, obj) {
 }
 
 async function removeRel(rel) {
-  const client = await getClient();
+  const client = await getSupabaseClient();
   const full = await path(rel);
   const { error } = await client.storage.from(BUCKET).remove([full]);
   if (error) throw new Error(error.message || 'delete failed');
 }
 
-/* ---------- ledger (deletion memory) ---------- */
+/* ---------- ledger ---------- */
 function readLedger() {
   const l = readStore(LEDGER_KEY, null);
   return (l && Array.isArray(l.projects)) ? l : { projects: [], series: [] };
 }
 function writeLedger(l) { writeStore(LEDGER_KEY, l); }
 
-/* ---------- connect check ---------- */
 export async function connectCloud() {
-  if (!configured()) throw new Error('Cloud sync is not configured (paste your Supabase URL + anon key into js/features/cloud.js).');
+  if (!configured()) throw new Error('Cloud sync is not configured (paste your Supabase URL + anon key into js/core/supabase.js).');
   const uid = await userId();
   if (!uid) throw new Error('You are not signed in.');
   return { userId: uid };
 }
 
 /* =========================================================
-   CLOUD-SAVE BADGE — Main Novel panel header, self-styled
+   CLOUD-SAVE BADGE — Main Novel panel header
    ========================================================= */
-
 const BADGE_STYLE_ID = 'cloud-badge-style';
 const BADGE_CSS = `.cloud-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--faint);font-size:.66rem;font-family:var(--font-mono);white-space:nowrap;pointer-events:none;flex:none;transition:color .3s ease,border-color .3s ease;} .cloud-badge.is-ok{color:var(--success);border-color:rgba(127,176,105,.45);} .cloud-badge.is-error{color:var(--danger);border-color:rgba(212,96,79,.45);} .cloud-badge .icon{width:11px;height:11px;} .cloud-badge[hidden]{display:none;}`;
 
-let lastStamp = null;   // HH:MM of the last successful cloud save
+let lastStamp = null;
 let lastError = false;
 
 function ensureBadgeStyle() {
@@ -165,7 +121,7 @@ function renderBadgeInto(host) {
   }
   if (!b) {
     b = el('span', { class: 'cloud-badge' });
-    host.insertBefore(b, host.firstChild); // sits before the expand button
+    host.insertBefore(b, host.firstChild);
   }
   b.hidden = false;
   clear(b);
@@ -199,11 +155,8 @@ function failBadge() {
 }
 
 /* =========================================================
-   CONTINUOUS AUTOSYNC — save as they write
+   CONTINUOUS AUTOSYNC
    ========================================================= */
-
-/* Debounced: every edit resets the timer; the push fires ~3s
-   after typing stops. Exported so config-bible.js can call it. */
 export function scheduleCloudSave() {
   if (!configured()) return;
   clearTimeout(autoTimer);
@@ -220,8 +173,6 @@ async function pushActiveProject({ quiet = true } = {}) {
     const uid = await userId();
     if (!uid) return;
 
-    /* The project object carries manuscript.text, mainNovel.text
-       AND configBible — one blob always holds ALL of it (Backlog 6.7). */
     const meta = {
       id: project.id,
       name: project.name,
@@ -235,7 +186,6 @@ async function pushActiveProject({ quiet = true } = {}) {
     };
     await putJson(`projects/${project.id}.json`, { id: project.id, data: project, meta });
 
-    /* Series books share one bible — keep it fresh too. */
     if (project.seriesId) {
       const sm = getSeries(project.seriesId);
       if (sm) {
@@ -245,7 +195,6 @@ async function pushActiveProject({ quiet = true } = {}) {
       }
     }
 
-    /* Patch the index (read-modify-write, single project). */
     const idx = (await getJson('index.json')) || { projects: {}, series: {} };
     idx.projects = idx.projects || {};
     idx.series = idx.series || {};
@@ -257,7 +206,6 @@ async function pushActiveProject({ quiet = true } = {}) {
     idx.updatedAt = Date.now();
     await putJson('index.json', idx);
 
-    /* Keep the deletion ledger aware of what we've pushed. */
     const ledger = readLedger();
     if (!ledger.projects.includes(project.id)) ledger.projects.push(project.id);
     if (project.seriesId && !ledger.series.includes(project.seriesId)) ledger.series.push(project.seriesId);
@@ -272,14 +220,11 @@ async function pushActiveProject({ quiet = true } = {}) {
   }
 }
 
-/* Every project edit reschedules the push; view/project changes
-   re-seat the badge (rAF waits out the workspace rebuild). */
 subscribe((state, change) => {
   if (change.project) scheduleCloudSave();
   if (change.project || change.view) requestAnimationFrame(refreshBadge);
 });
 
-/* Best effort: push the moment the tab is hidden (phone switch, tab hop). */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && configured()) {
     clearTimeout(autoTimer);
@@ -290,7 +235,6 @@ document.addEventListener('visibilitychange', () => {
 /* =========================================================
    FULL TWO-WAY SYNC (Backup to cloud / Restore)
    ========================================================= */
-
 export async function syncNow({ quiet = false } = {}) {
   if (syncing) {
     if (!quiet) toast('A sync is already running — give it a moment.', 'info');
@@ -314,7 +258,6 @@ export async function syncNow({ quiet = false } = {}) {
     const deletedProjects = ledger.projects.filter((id) => !localIds.has(id));
     const deletedSeries = ledger.series.filter((id) => !localSeriesIds.has(id));
 
-    /* PULL: remote newer than local (skip intentional deletions) */
     let pulled = 0;
     for (const [id, info] of Object.entries(remoteIndex.projects || {})) {
       if (deletedProjects.includes(id)) continue;
@@ -333,7 +276,6 @@ export async function syncNow({ quiet = false } = {}) {
       }
     }
 
-    /* PUSH: local newer than remote index */
     let pushed = 0;
     for (const m of listProjects()) {
       const ri = (remoteIndex.projects || {})[m.id];
@@ -350,7 +292,6 @@ export async function syncNow({ quiet = false } = {}) {
       }
     }
 
-    /* DELETE remotely: locally deleted but still in the remote index */
     let deletedCount = 0;
     for (const id of deletedProjects) {
       if ((remoteIndex.projects || {})[id]) { await removeRel(`projects/${id}.json`); deletedCount++; }
@@ -359,7 +300,6 @@ export async function syncNow({ quiet = false } = {}) {
       if ((remoteIndex.series || {})[id]) { await removeRel(`series/${id}.json`); deletedCount++; }
     }
 
-    /* Fresh index */
     const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
     for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
     for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
@@ -389,16 +329,14 @@ export async function syncNow({ quiet = false } = {}) {
   }
 }
 
-/* Fire-and-forget full sync, still used as the Library-exit safety net. */
 export function autoSync() {
   if (!configured()) return;
   syncNow({ quiet: true });
 }
 
-/* Sign out via this client, then hard-reload to the auth screen. */
 export async function signOutAndReload() {
   try {
-    const client = await getClient();
+    const client = await getSupabaseClient();
     await client.auth.signOut();
   } catch (e) {
     console.warn('[Cloud] signOut:', e);
