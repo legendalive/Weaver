@@ -1,15 +1,19 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   v2 + logo: 3-panel writing workspace; small script W brand
-   mark pinned to the topbar-left of every open project.
+   v2 Stage 6.11-fix: 3-panel writing workspace; small script W
+   brand mark pinned to the topbar-left of every open project.
+   CORRECTS the previous delivery's broken subscribe wiring
+   (the require_state / window.__weaverSubscribe placeholder is
+   gone; subscribe is imported from core/state.js directly).
    ========================================================= */
-import { el, clear } from '../utils/dom.js';
+import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
-import { getState, setUI, closeProject, touchProject, updateSettings, flushSave } from '../core/state.js';
-import { saveProject } from '../core/storage.js';
-import { renderManuscript, initManuscript, destroyManuscript, syncManuscriptView } from '../panels/manuscript.js';
-import { renderMainNovel, initMainNovel, destroyMainNovel } from '../panels/main-novel.js';
-import { renderAiOutput, initAiOutput, destroyAiOutput } from '../panels/ai-output.js';
+import {
+  getState, setUI, closeProject, flushSave, updateSettings, subscribe,
+} from '../core/state.js';
+import { renderManuscript, initManuscript } from '../panels/manuscript.js';
+import { renderMainNovel, initMainNovel } from '../panels/main-novel.js';
+import { renderAiOutput, initAiOutput } from '../panels/ai-output.js';
 import { openSettings } from '../features/settings.js';
 import { openGuide } from '../features/guide.js';
 import { exportProject } from '../features/export.js';
@@ -17,7 +21,6 @@ import { openConfigBible } from '../features/config-bible.js';
 import { ensureHierarchyDrawer, toggleHierarchyDrawer, refreshHierarchy } from '../features/hierarchy.js';
 import { initResizers } from '../core/resizers.js';
 import { autoSync } from '../features/cloud.js';
-import { weaverLogo } from '../utils/dom.js';
 
 const STYLE_ID = 'workspace-style';
 const CSS = `
@@ -163,29 +166,19 @@ export function initWorkspace() {
   initManuscript();
   initMainNovel();
   initAiOutput();
-  initResizers(panelsElGetter, onResizeEnd);
+  initResizers(() => panelsEl, onResizeEnd);
   subscribeWorkspace();
 }
-
-function panelsElGetter() { return panelsEl; }
 
 function onResizeEnd(sizes) {
   updateSettings((s) => { s.general.panelSizes = sizes; });
 }
 
 function subscribeWorkspace() {
-  const { subscribe } = require_state();
   subscribe((state, change) => {
-    if (state.view !== 'workspace') return;
     if (change.ui) applyPanelSizes();
-    if (change.project && !change.silent) {
-      renderWorkspace();
-    }
+    if (state.view !== 'workspace') return;
+    if (change.view || (change.project && !change.silent)) renderWorkspace();
     if (change.hierarchy) refreshHierarchy();
   });
-}
-
-function require_state() {
-  // late import to avoid circular init issues
-  return { subscribe: window.__weaverSubscribe };
 }
