@@ -89,6 +89,25 @@ Desktop layout unchanged. Revisits the 6.4 `.launch-actions` rule inside a
 mobile media query (margin-left:auto must reset there).
 Files: css/views.css (@media for .launch-header/.launch-actions/.launch-empty),
 js/views/launch.js only if markup order must change.
+### 6.10 Logo redesign: wavy / freehand golden W
+Owner verdict on the Cinzel version: too Roman, too dark, and the circular
+badge is wrong. Target: a flowing, calligraphic / freehand golden W —
+hand-drawn feel, bright gold, NO enclosing circle (drop the round emblem
+containers on splash/auth/hero).
+Preferred implementation: a custom SVG path (crisp at any size, no font
+dependency, room for a flourish) — the right choice for a market-facing app.
+A script webfont (e.g. Great Vibes / Allura) is only the quick interim option.
+Apply everywhere the mark appears: splash, auth card, Library hero (full +
+compact), workspace topbar, favicon.
+Files: js/utils/dom.js (weaverLogo), css/base.css (.weaver-logo),
+index.html (favicon data URI), js/views/launch.js (.launch-hero-logo circle),
+js/auth/auth.js (.auth-logo circle).
+
+### 6.11 Consolidate Supabase clients (tech debt)
+Console warns "Multiple GoTrueClient instances detected" (auth.js + cloud.js
++ transient reset client). Safe today — flows never run concurrently — but
+the long-term fix is one shared client factory used by all modules.
+Files: js/auth/auth.js, js/features/cloud.js.
 ## STAGE 7 — Close out
 - End-to-end QA of 6.1–6.7 on desktop AND phone (owner tests with screenshots).
 - Delete dormant js/cloud/sigv4.js + js/cloud/s3.js.
