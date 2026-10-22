@@ -1,10 +1,10 @@
 /* =========================================================
    Weaver — js/utils/dom.js
-   Step 3: DOM construction & UI primitives used by every module.
+   DOM construction & UI primitives used by every module.
+   v2: + weaverLogo() brand mark helper.
    Exports: el, clear, qs, qsa, delegate, escapeHtml,
-            toast, modal, confirmDialog
+   weaverLogo, toast, modal, confirmDialog
    ========================================================= */
-
 import { icon } from './icons.js';
 
 /* ---------- Element factory ----------
@@ -36,14 +36,6 @@ export function el(tag, attrs = {}, children = []) {
   appendChildren(node, children);
   return node;
 }
-/* ---------- Weaver Logo ---------- */
-export function weaverLogo(size = 'md') {
-  const span = document.createElement('span');
-  span.className = `weaver-logo logo-${size}`;
-  span.textContent = 'W';
-  span.setAttribute('aria-hidden', 'true');
-  return span;
-}
 
 function appendChildren(node, children) {
   const list = Array.isArray(children) ? children : [children];
@@ -72,8 +64,23 @@ export function delegate(root, type, selector, handler) {
 
 export function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
   }[c]));
+}
+
+/* ---------- Weaver brand mark ----------
+   The bold golden 'W'. Sizes: sm (topbar), md (cards),
+   lg / xl (hero, splash). Styled by .weaver-logo in css/base.css. */
+export function weaverLogo(size = 'md') {
+  const span = document.createElement('span');
+  span.className = `weaver-logo logo-${size}`;
+  span.textContent = 'W';
+  span.setAttribute('aria-hidden', 'true');
+  return span;
 }
 
 /* ---------- Toasts ---------- */
@@ -112,6 +119,7 @@ export function modal(options = {}) {
   if (footer) appendChildren(footerNode, footer);
 
   function onKey(event) { if (event.key === 'Escape') close(); }
+
   function close() {
     document.removeEventListener('keydown', onKey);
     backdrop.remove();
@@ -146,9 +154,11 @@ export function confirmDialog(options = {}) {
     title = 'Are you sure?', message = '',
     confirmLabel = 'Confirm', danger = false,
   } = options;
+
   return new Promise((resolve) => {
     let settled = false;
     const settle = (value) => { settled = true; resolve(value); };
+
     const m = modal({
       title,
       body: el('p', {
