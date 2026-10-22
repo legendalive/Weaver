@@ -1,9 +1,17 @@
 /* =========================================================
    Weaver — js/features/cloud.js
-   v2 Stage 6.11: Supabase Storage sync on the SHARED client.
+   v2 Stage 6.1-final: compressed, failover-aware cloud sync.
+   - ENVELOPE v2: blobs gzipped via native CompressionStream
+     (~70-80% smaller); reads sniff gzip magic bytes so old
+     raw-JSON blobs keep working forever. No migration needed.
+   - FAILOVER: Supabase is always first. On quota-exceeded or
+     unreachable, writes/reads fall back to the user's own
+     Puter space (optional, per-user, zero cost to owner).
+     When Supabase is healthy again, primary writes quietly
+     retire stale Puter copies (single source of truth).
    - Continuous autosync (~3s debounce, active project only).
-   - Badge "saved to cloud · HH:MM" in the Main Novel header.
-   - Manual Backup/Restore = full two-way merge + ledger.
+   - Badge: "saved to cloud · HH:MM" / "saved via Puter · HH:MM"
+     / "cloud save failed".
    ========================================================= */
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -14,6 +22,9 @@ import {
   readStore, writeStore,
 } from '../core/storage.js';
 import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
+import {
+  puterSignedIn, connectPuter, puterPut, puterGet, puterDel, puterList,
+} from './puter-mirror.js';
 
 const BUCKET = 'weaver-vault';
 const LEDGER_KEY = 'weaver_sync_ledger';
@@ -50,8 +61,62 @@ async function path(rel) {
   return `${uid}/weaver/${rel}`;
 }
 
-/* ---------- low-level storage ops ---------- */
-async function getJson(rel) {
+/* =========================================================
+   COMPRESSION ENVELOPE (v2 gzip / v1 raw JSON, self-detecting)
+   ========================================================= */
+function canCompress() {
+  return typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+}
+
+async function packObject(obj) {
+  const json = JSON.stringify(obj);
+  if (!canCompress()) return new Blob([json], { type: 'application/json' });
+  try {
+    const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+    const gz = await new Response(stream).blob();
+    return new Blob([gz], { type: 'application/x-weaver-gzip' });
+  } catch {
+    return new Blob([json], { type: 'application/json' });
+  }
+}
+
+async function unpackBlob(blob) {
+  if (!blob) return null;
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  try {
+    if (bytes.length > 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) {
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const text = await new Response(stream).text();
+      return JSON.parse(text);
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return null;
+  }
+}
+
+/* =========================================================
+   FAILOVER CLASSIFICATION
+   Quota + network => fall over. Auth/permission => surface.
+   ========================================================= */
+function isFailoverError(e) {
+  const msg = ((e && e.message) || '') + ' ' + String((e && e.statusCode) || (e && e.status) || '');
+  return /quota|exceeded|insufficient storage|507|failed to fetch|network|load failed|timeout|abort/i.test(msg);
+}
+
+/* ---------- Supabase primitives ---------- */
+async function supabaseUpload(rel, blob) {
+  const client = await getSupabaseClient();
+  const full = await path(rel);
+  const { error } = await client.storage.from(BUCKET).upload(full, blob, {
+    upsert: true,
+    contentType: blob.type || 'application/octet-stream',
+  });
+  if (error) throw new Error(error.message || 'upload failed');
+}
+
+async function supabaseDownload(rel) {
   const client = await getSupabaseClient();
   const full = await path(rel);
   const { data, error } = await client.storage.from(BUCKET).download(full);
@@ -59,26 +124,59 @@ async function getJson(rel) {
     if (/not found/i.test(error.message || '')) return null;
     throw new Error(error.message || 'download failed');
   }
-  const text = await data.text();
-  try { return JSON.parse(text); } catch { return null; }
+  return data;
 }
 
-async function putJson(rel, obj) {
-  const client = await getSupabaseClient();
-  const full = await path(rel);
-  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
-  const { error } = await client.storage.from(BUCKET).upload(full, blob, {
-    upsert: true,
-    contentType: 'application/json',
-  });
-  if (error) throw new Error(error.message || 'upload failed');
-}
-
-async function removeRel(rel) {
+async function supabaseRemove(rel) {
   const client = await getSupabaseClient();
   const full = await path(rel);
   const { error } = await client.storage.from(BUCKET).remove([full]);
-  if (error) throw new Error(error.message || 'delete failed');
+  if (error && !/not found/i.test(error.message || '')) {
+    throw new Error(error.message || 'delete failed');
+  }
+}
+
+/* ---------- orchestrated blob ops ---------- */
+async function putBlob(rel, obj) {
+  const blob = await packObject(obj);
+  if (configured()) {
+    try {
+      await supabaseUpload(rel, blob);
+      /* Primary healthy: retire any stale overflow copy (quiet). */
+      if (puterSignedIn()) puterDel(rel);
+      return 'cloud';
+    } catch (e) {
+      if (!isFailoverError(e)) throw e;
+    }
+  }
+  await connectPuter(); /* popup only if overflow is genuinely needed */
+  await puterPut(rel, blob);
+  return 'overflow';
+}
+
+async function getBlob(rel) {
+  if (configured()) {
+    try {
+      const blob = await supabaseDownload(rel);
+      if (blob) return unpackBlob(blob);
+    } catch (e) {
+      if (!isFailoverError(e)) throw e;
+      /* unreachable: fall through to overflow */
+    }
+  }
+  if (puterSignedIn()) {
+    const blob = await puterGet(rel);
+    if (blob) return unpackBlob(blob);
+  }
+  return null;
+}
+
+async function removeBlob(rel) {
+  /* Deletions are ledger-driven and best-effort everywhere. */
+  if (configured()) {
+    try { await supabaseRemove(rel); } catch (e) { console.warn('[Cloud] primary delete:', e); }
+  }
+  if (puterSignedIn()) await puterDel(rel);
 }
 
 /* ---------- ledger ---------- */
@@ -99,9 +197,10 @@ export async function connectCloud() {
    CLOUD-SAVE BADGE — Main Novel panel header
    ========================================================= */
 const BADGE_STYLE_ID = 'cloud-badge-style';
-const BADGE_CSS = `.cloud-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--faint);font-size:.66rem;font-family:var(--font-mono);white-space:nowrap;pointer-events:none;flex:none;transition:color .3s ease,border-color .3s ease;} .cloud-badge.is-ok{color:var(--success);border-color:rgba(127,176,105,.45);} .cloud-badge.is-error{color:var(--danger);border-color:rgba(212,96,79,.45);} .cloud-badge .icon{width:11px;height:11px;} .cloud-badge[hidden]{display:none;}`;
+const BADGE_CSS = `.cloud-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--faint);font-size:.66rem;font-family:var(--font-mono);white-space:nowrap;pointer-events:none;flex:none;transition:color .3s ease,border-color .3s ease;} .cloud-badge.is-ok{color:var(--success);border-color:rgba(127,176,105,.45);} .cloud-badge.is-overflow{color:var(--accent);border-color:rgba(224,168,60,.5);} .cloud-badge.is-error{color:var(--danger);border-color:rgba(212,96,79,.45);} .cloud-badge .icon{width:11px;height:11px;} .cloud-badge[hidden]{display:none;}`;
 
 let lastStamp = null;
+let lastDest = 'cloud';
 let lastError = false;
 
 function ensureBadgeStyle() {
@@ -127,11 +226,15 @@ function renderBadgeInto(host) {
   clear(b);
   if (lastError) {
     b.classList.add('is-error');
-    b.classList.remove('is-ok');
+    b.classList.remove('is-ok', 'is-overflow');
     b.append(icon('alert', 'icon-sm'), el('span', { text: 'cloud save failed' }));
+  } else if (lastDest === 'overflow') {
+    b.classList.add('is-overflow');
+    b.classList.remove('is-ok', 'is-error');
+    b.append(icon('check', 'icon-sm'), el('span', { text: `saved via Puter · ${lastStamp}` }));
   } else {
     b.classList.add('is-ok');
-    b.classList.remove('is-error');
+    b.classList.remove('is-error', 'is-overflow');
     b.append(icon('check', 'icon-sm'), el('span', { text: `saved to cloud · ${lastStamp}` }));
   }
 }
@@ -143,8 +246,9 @@ function refreshBadge() {
   if (host) renderBadgeInto(host);
 }
 
-function stampBadge() {
+function stampBadge(dest) {
   lastStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  lastDest = dest || 'cloud';
   lastError = false;
   refreshBadge();
 }
@@ -158,17 +262,24 @@ function failBadge() {
    CONTINUOUS AUTOSYNC
    ========================================================= */
 export function scheduleCloudSave() {
-  if (!configured()) return;
+  if (!configured() && !puterSignedIn()) return;
   clearTimeout(autoTimer);
   autoTimer = setTimeout(() => pushActiveProject({ quiet: true }), AUTOSYNC_DELAY);
 }
 
+function buildIndex() {
+  const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
+  for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
+  for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
+  return finalIndex;
+}
+
 async function pushActiveProject({ quiet = true } = {}) {
   if (pushing || syncing) return;
-  if (!configured()) return;
   const project = getState().project;
   if (!project || !project.id) return;
   pushing = true;
+  let dest = 'cloud';
   try {
     const uid = await userId();
     if (!uid) return;
@@ -184,18 +295,18 @@ async function pushActiveProject({ quiet = true } = {}) {
       updatedAt: project.updatedAt,
       wordCount: (project.mainNovel?.text || '').trim().split(/\s+/).filter(Boolean).length,
     };
-    await putJson(`projects/${project.id}.json`, { id: project.id, data: project, meta });
+    dest = await putBlob(`projects/${project.id}.json`, { id: project.id, data: project, meta });
 
     if (project.seriesId) {
       const sm = getSeries(project.seriesId);
       if (sm) {
-        await putJson(`series/${project.seriesId}.json`, {
+        dest = await putBlob(`series/${project.seriesId}.json`, {
           id: project.seriesId, meta: sm, config: getSeriesConfig(project.seriesId),
         });
       }
     }
 
-    const idx = (await getJson('index.json')) || { projects: {}, series: {} };
+    const idx = (await getBlob('index.json')) || { projects: {}, series: {} };
     idx.projects = idx.projects || {};
     idx.series = idx.series || {};
     idx.projects[project.id] = { updatedAt: project.updatedAt, name: project.name };
@@ -204,14 +315,14 @@ async function pushActiveProject({ quiet = true } = {}) {
       if (sm) idx.series[project.seriesId] = { updatedAt: sm.updatedAt, name: sm.name };
     }
     idx.updatedAt = Date.now();
-    await putJson('index.json', idx);
+    dest = await putBlob('index.json', idx);
 
     const ledger = readLedger();
     if (!ledger.projects.includes(project.id)) ledger.projects.push(project.id);
     if (project.seriesId && !ledger.series.includes(project.seriesId)) ledger.series.push(project.seriesId);
     writeLedger(ledger);
 
-    stampBadge();
+    stampBadge(dest);
   } catch (e) {
     failBadge();
     if (!quiet) toast('Cloud save failed: ' + e.message, 'danger');
@@ -226,7 +337,7 @@ subscribe((state, change) => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && configured()) {
+  if (document.visibilityState === 'hidden' && (configured() || puterSignedIn())) {
     clearTimeout(autoTimer);
     pushActiveProject({ quiet: true });
   }
@@ -240,16 +351,17 @@ export async function syncNow({ quiet = false } = {}) {
     if (!quiet) toast('A sync is already running — give it a moment.', 'info');
     return false;
   }
-  if (!configured()) {
+  if (!configured() && !puterSignedIn()) {
     if (!quiet) toast('Cloud sync is not configured yet.', 'info');
     return false;
   }
   syncing = true;
+  let dest = 'cloud';
   try {
-    await connectCloud();
+    if (configured()) await connectCloud();
 
     let remoteIndex = { projects: {}, series: {} };
-    const idx = await getJson('index.json');
+    const idx = await getBlob('index.json');
     if (idx && typeof idx === 'object') remoteIndex = idx;
 
     const ledger = readLedger();
@@ -263,7 +375,7 @@ export async function syncNow({ quiet = false } = {}) {
       if (deletedProjects.includes(id)) continue;
       const lm = listProjects().find((pr) => pr.id === id);
       if (!lm || lm.updatedAt < info.updatedAt) {
-        const obj = await getJson(`projects/${id}.json`);
+        const obj = await getBlob(`projects/${id}.json`);
         if (obj && obj.data) { saveProject(obj.data); pulled++; }
       }
     }
@@ -271,7 +383,7 @@ export async function syncNow({ quiet = false } = {}) {
       if (deletedSeries.includes(id)) continue;
       const ls = listSeries().find((s) => s.id === id);
       if (!ls || ls.updatedAt < info.updatedAt) {
-        const obj = await getJson(`series/${id}.json`);
+        const obj = await getBlob(`series/${id}.json`);
         if (obj && obj.meta) { upsertSeries(obj.id, obj.meta, obj.config); pulled++; }
       }
     }
@@ -280,44 +392,42 @@ export async function syncNow({ quiet = false } = {}) {
     for (const m of listProjects()) {
       const ri = (remoteIndex.projects || {})[m.id];
       if (!ri || ri.updatedAt < m.updatedAt) {
-        await putJson(`projects/${m.id}.json`, { id: m.id, data: getProject(m.id), meta: m });
+        dest = await putBlob(`projects/${m.id}.json`, { id: m.id, data: getProject(m.id), meta: m });
         pushed++;
       }
     }
     for (const s of listSeries()) {
       const ri = (remoteIndex.series || {})[s.id];
       if (!ri || ri.updatedAt < s.updatedAt) {
-        await putJson(`series/${s.id}.json`, { id: s.id, meta: s, config: getSeriesConfig(s.id) });
+        dest = await putBlob(`series/${s.id}.json`, { id: s.id, meta: s, config: getSeriesConfig(s.id) });
         pushed++;
       }
     }
 
     let deletedCount = 0;
     for (const id of deletedProjects) {
-      if ((remoteIndex.projects || {})[id]) { await removeRel(`projects/${id}.json`); deletedCount++; }
+      if ((remoteIndex.projects || {})[id]) { await removeBlob(`projects/${id}.json`); deletedCount++; }
     }
     for (const id of deletedSeries) {
-      if ((remoteIndex.series || {})[id]) { await removeRel(`series/${id}.json`); deletedCount++; }
+      if ((remoteIndex.series || {})[id]) { await removeBlob(`series/${id}.json`); deletedCount++; }
     }
 
-    const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
-    for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
-    for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
-    await putJson('index.json', finalIndex);
+    dest = await putBlob('index.json', buildIndex());
 
     writeLedger({
       projects: listProjects().map((pr) => pr.id),
       series: listSeries().map((s) => s.id),
     });
 
-    stampBadge();
+    stampBadge(dest);
 
     if (!quiet) {
       const parts = [];
       if (pushed > 0) parts.push(`${pushed} pushed`);
       if (pulled > 0) parts.push(`${pulled} pulled`);
       if (deletedCount > 0) parts.push(`${deletedCount} removed`);
-      toast(parts.length ? `Synced: ${parts.join(', ')}.` : 'Sync complete — already up to date.', 'success');
+      const where = dest === 'overflow' ? ' (Puter overflow)' : '';
+      toast(parts.length ? `Synced${where}: ${parts.join(', ')}.` : `Sync complete${where} — already up to date.`, 'success');
     }
     return true;
   } catch (e) {
@@ -330,8 +440,39 @@ export async function syncNow({ quiet = false } = {}) {
 }
 
 export function autoSync() {
-  if (!configured()) return;
+  if (!configured() && !puterSignedIn()) return;
   syncNow({ quiet: true });
+}
+
+/* =========================================================
+   MANUAL OVERFLOW TOOLS (Settings ▸ Data & Storage)
+   ========================================================= */
+export async function copyAllToPuter() {
+  await connectPuter();
+  let n = 0;
+  for (const m of listProjects()) {
+    await puterPut(`projects/${m.id}.json`, await packObject({ id: m.id, data: getProject(m.id), meta: m }));
+    n++;
+  }
+  for (const s of listSeries()) {
+    await puterPut(`series/${s.id}.json`, await packObject({ id: s.id, meta: s, config: getSeriesConfig(s.id) }));
+  }
+  await puterPut('index.json', await packObject(buildIndex()));
+  return n;
+}
+
+export async function restoreFromPuter() {
+  await connectPuter();
+  let pulled = 0;
+  for (const name of await puterList('projects')) {
+    const obj = await unpackBlob(await puterGet(`projects/${name}`));
+    if (obj && obj.data) { saveProject(obj.data); pulled++; }
+  }
+  for (const name of await puterList('series')) {
+    const obj = await unpackBlob(await puterGet(`series/${name}`));
+    if (obj && obj.meta) upsertSeries(obj.id, obj.meta, obj.config);
+  }
+  return pulled;
 }
 
 export async function signOutAndReload() {
