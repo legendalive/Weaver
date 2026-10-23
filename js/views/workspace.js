@@ -1,13 +1,11 @@
 /* =========================================================
    Weaver — js/views/workspace.js
-   v2 Stage 6.11-final / BLANK-PROOF EDITION.
-   - Panels/hierarchy/resizers imported as NAMESPACES: a renamed
-     or missing export can NEVER break the module graph again.
-   - Functions resolved from candidate name lists at load time.
-   - Every mount/render guarded by safe(): a throw degrades one
-     panel, never the app.
-   - If anything critical is unresolved, a gold diagnostic banner
-     names it inside the app (screenshot = one-line fix).
+   v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
+   - Panels/hierarchy/resizers imported as NAMESPACES; a renamed
+     or missing export can never break the module graph again.
+   - Mobile: panel borders transparent (invisible), stacked
+     panels are a flex column, and the gaps between them are
+     16px touch-drag resizers (pointer events, touch-action none).
    - Small script W brand mark pinned to topbar-left.
    ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
@@ -62,15 +60,10 @@ const STYLE_ID = 'workspace-style';
 const CSS = `
 .resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);}
 @media (max-width:860px){
-  .panel-resizer{display:none;}
-  .workspace-panels{grid-template-columns:1fr !important;}
-  .workspace-panels[data-active="manuscript"] .panel-mid,
-  .workspace-panels[data-active="manuscript"] .panel-right{display:none;}
-  .workspace-panels[data-active="novel"] .panel-left,
-  .workspace-panels[data-active="novel"] .panel-right{display:none;}
-  .workspace-panels[data-active="ai"] .panel-left,
-  .workspace-panels[data-active="ai"] .panel-mid{display:none;}
-  .panel{border-left:none !important;border-right:none !important;}
+  .workspace-panels{display:flex !important;flex-direction:column !important;}
+  .panel{border-color:transparent !important;}
+  .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;}
+  .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;}
   .topbar .btn-label{display:none;}
   .topbar .btn{padding:8px;width:34px;height:34px;}
   .topbar .scribe-bar{display:none;}
@@ -166,7 +159,6 @@ export function renderWorkspace() {
   const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
   const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
 
-  /* Main Novel footer: Recheck */
   if (recheckFn) {
     novel.footer.appendChild(el('button', {
       class: 'btn btn-sm',
@@ -175,12 +167,10 @@ export function renderWorkspace() {
     }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
   }
 
-  /* AI Output footer: Accept / Rewrite / Discard */
   if (acceptAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAi() }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]));
   if (rewriteAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAi() }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]));
   if (discardAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAi() }, [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]));
 
-  /* AI empty state (ai-output.js renders nothing on its own) */
   ai.body.appendChild(el('div', { class: 'empty-state' }, [
     icon('sparkles', 'icon-lg'),
     el('p', { text: 'AI generations will appear here.' }),
@@ -217,7 +207,6 @@ export function renderWorkspace() {
   if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
   applyExpanded();
 
-  /* Mount panels; if a mount rejects the panel root, retry with its body. */
   if (!safe('mountManuscript(panel)', mountManuscript, manuscript.panel)) {
     safe('mountManuscript(body)', mountManuscript, manuscript.body);
   }
@@ -227,7 +216,6 @@ export function renderWorkspace() {
   safe('renderManuscript', renderManuscript);
   safe('renderMainNovel', renderNovel);
 
-  /* If manuscript.js did not wire its own footer, wire Accept-as-is here. */
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
