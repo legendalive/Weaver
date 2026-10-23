@@ -1,29 +1,14 @@
 /* =========================================================
    Weaver — js/features/guide.js
-   Step 28.5 FINAL: onboarding guide modal.
-   - Opened from Library (Getting Started) and workspace (?).
-   - Sections: welcome, first project, workspace, Scribe
-     (optional), cloud backup (optional, with patience note and
-     restore/migrate doors), export, quick reference.
+   v2 Stage 7: onboarding guide modal, refreshed for the
+   Supabase era. GitHub-sync content removed; account,
+   continuous autosync, badge states, optional Puter overflow
+   and the both-files export guarantee are documented.
    ========================================================= */
-
 import { el, modal } from '../utils/dom.js';
 
 const STYLE_ID = 'guide-style';
-const CSS = `
-.guide-body{display:flex;flex-direction:column;gap:18px;max-height:70vh;overflow-y:auto;padding-right:6px;}
-.guide-body h2{font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 2px;}
-.guide-body h3{font-size:.92rem;font-weight:650;color:var(--accent);margin:4px 0 4px;}
-.guide-body p, .guide-body li{font-size:.85rem;line-height:1.6;color:var(--muted);}
-.guide-body ul{padding-left:20px;margin:4px 0;}
-.guide-body li{margin-bottom:4px;}
-.guide-body .guide-optional{font-size:.72rem;color:var(--faint);font-style:italic;margin-top:-4px;}
-.guide-body code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:.78rem;}
-.guide-body .guide-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:6px;}
-.guide-body .guide-table td{border-bottom:1px solid var(--border);padding:5px 6px;vertical-align:top;}
-.guide-body .guide-table td:first-child{color:var(--text);font-weight:600;white-space:nowrap;}
-.guide-body .guide-welcome{padding:14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:var(--radius-sm);}
-`;
+const CSS = `.guide-body{display:flex;flex-direction:column;gap:18px;max-height:70vh;overflow-y:auto;padding-right:6px;} .guide-body h2{font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 2px;} .guide-body h3{font-size:.92rem;font-weight:650;color:var(--accent);margin:4px 0 4px;} .guide-body p, .guide-body li{font-size:.85rem;line-height:1.6;color:var(--muted);} .guide-body ul{padding-left:20px;margin:4px 0;} .guide-body li{margin-bottom:4px;} .guide-body .guide-optional{font-size:.72rem;color:var(--faint);font-style:italic;margin-top:-4px;} .guide-body code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:.78rem;} .guide-body .guide-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:6px;} .guide-body .guide-table td{border-bottom:1px solid var(--border);padding:5px 6px;vertical-align:top;} .guide-body .guide-table td:first-child{color:var(--text);font-weight:600;white-space:nowrap;} .guide-body .guide-welcome{padding:14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:var(--radius-sm);}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -40,7 +25,6 @@ function section(title, children) {
     ...children,
   ]);
 }
-
 function p(text) { return el('p', { text }); }
 function h3(text) { return el('h3', { text }); }
 function ul(items) {
@@ -53,11 +37,22 @@ function buildBody() {
   return el('div', { class: 'guide-body' }, [
     el('div', { class: 'guide-welcome' }, [
       el('h2', { text: 'Welcome to Weaver' }),
-      p('Weaver is a private, offline-first novel-writing studio that lives in your browser. Your stories never leave your device unless you choose to sync to a private GitHub repo or use the AI features. Everything is saved locally as you write.'),
+      p('Weaver is a private novel-writing studio that lives in your browser. Everything is saved locally as you write and — once you are signed in — quietly saved to your own private cloud vault as well. Your stories are yours: each vault folder is locked to its account on the server, so no one else can read it.'),
     ]),
 
-    section('1. Your First Project', [
-      p('From the Library, click + New Project.'),
+    section('1. Your Account', [
+      p('Weaver uses a simple email + password account so your library can follow you between devices.'),
+      ul([
+        'Create account — from the sign-in screen. If asked, confirm via the email, then sign in.',
+        'Sign in — email + password on any device; your library is waiting.',
+        'Forgot password? — sends a reset link; click it and set a new password.',
+        'Sign out — Settings ▸ Data & Storage ▸ Account.',
+      ]),
+      p('Every account has its own vault. Projects never mix between users — the isolation is enforced by the server, not just by the app.'),
+    ]),
+
+    section('2. Your First Project', [
+      p('From the Library, press the big New Project button.'),
       h3('Scope'),
       ul([
         'Standalone — a single novel. Give it a name.',
@@ -69,20 +64,20 @@ function buildBody() {
         'Upload manuscript — drop a .txt, .md, or .docx file. Word headings become H1/H2/H3 automatically. Only the plain text is stored; the original file is not kept.',
       ]),
       h3('Config Bible'),
-      p('Where you keep characters, settings, plot arcs, world rules, items, prose style, and standing AI instructions. Fill it in now, or come back any time via the Config button in the top bar.'),
+      p('Where you keep characters, settings, plot arcs, world rules, items, prose style, and standing AI instructions. Tick "Open the Config Bible right after creating this project" to start there — or leave it unticked and come back any time via the Config button in the top bar. It is always optional.'),
     ]),
 
-    section('2. The Workspace', [
-      p('Three panels separated by draggable borders. On phones they stack; tap the name-pills on the right to switch.'),
+    section('3. The Workspace', [
+      p('Three panels separated by draggable borders (double-click a border to reset the split). On phones they stack; tap the name-pills on the right to switch.'),
       ul([
         'Manuscript — your raw drafts. Type directly, paste, or use H1/H2/H3/¶ to mark headings. Highlight text and Scribe will rewrite, describe, or continue it.',
-        'Main Novel — the finalized canon. Send selected text here with Accept as is (or Accept on an AI block).',
+        'Main Novel — the finalized canon. Send selected text here with Accept as is (or Accept on an AI block). Recheck cuts selected novel text back into the Manuscript for revision.',
         'AI Output — streams from Scribe appear here. Accept pushes to Main Novel, Rewrite tries again, Discard removes the block.',
       ]),
       p('The Hierarchy drawer (top bar) shows a table of contents for both documents — click any heading to jump.'),
     ]),
 
-    section('3. Scribe (AI)', [
+    section('4. Scribe (AI)', [
       optional('Optional — Weaver works beautifully with zero AI.'),
       p('If you want an AI writing partner:'),
       ul([
@@ -100,33 +95,34 @@ function buildBody() {
       p('Quick prompts — the three pill-buttons under the Scribe input. Edit them in Settings ▸ General to match your workflow (e.g. Improve prose, Continue scene, Rewrite in past tense).'),
     ]),
 
-    section('4. Cloud Backup', [
-      optional('Optional — your novels live in your browser by default.'),
-      h3('GitHub private-repo sync'),
+    section('5. Cloud Save, Sync & Safety', [
+      optional('Automatic once signed in — there is nothing to configure.'),
       ul([
-        'At github.com/new, create a PRIVATE repository (e.g. weaver-backup).',
-        'At github.com/settings/tokens, create a Fine-grained token scoped to that repo with Contents: Read and write.',
-        'In Weaver ▸ Settings ▸ General ▸ GitHub Cloud Sync, paste the token and repo name, click Connect, then Sync now.',
+        'Continuous autosave — a few seconds after you stop typing, the open project (Manuscript, Main Novel and Config Bible together) is compressed and pushed to your vault.',
+        'The badge — in the Main Novel header: "saved to cloud · HH:MM" means your latest words are safe; "saved via Puter · HH:MM" means the optional overflow caught them; "cloud save failed" means retry soon — your work is still safe in this browser either way.',
+        'Manual doors — Settings ▸ Data & Storage: Backup to cloud (push everything now), Restore (pull everything from your vault), Export.',
+        'Overflow storage (Puter) — optional and off by default. If the primary vault is ever full or unreachable, Weaver silently spills into your own free Puter account. Connect or copy manually from Settings ▸ Data & Storage if you want the extra safety net.',
       ]),
-      p("Every sync is a git commit, so GitHub's history is your time machine. Public repos are refused by design. The token never leaves this browser."),
-      p('Be patient: a sync uploads your library as one commit and can take a minute or two for large projects. Wait for the "Synced" toast before pressing again — pressing twice at once is the one way to confuse it.'),
-      h3('Restore & migrate (works even with no projects)'),
-      p('On any machine — even before creating a project — open the Library gear ▸ Settings ▸ General ▸ Data & Backup. Two doors: "Restore from this PC…" (a backup JSON file) and "Pull from cloud" (connect + sync from your private repo). "Download full backup" produces that JSON, with API keys and the sync token excluded.'),
+      h3('Another computer?'),
+      p('Sign in and press Restore — your whole library arrives. API keys are deliberately never synced, so re-paste them in Settings ▸ AI Providers on the new machine.'),
+      p('Closing the tab or going offline is always safe: local storage keeps everything, and the next sync reconciles.'),
     ]),
 
-    section('5. Export & Migration', [
+    section('6. Export & Your Files', [
       ul([
-        'Export (top bar) downloads the Main Novel as a real .docx with navigable chapter headings, plus the Config Bible as .txt.',
-        'Moving to another PC: Export + download a full backup on the old machine → install the app on the new machine → Restore from backup, re-paste your API keys, open the project.',
+        'Export (top bar, or Settings ▸ Data & Storage) always downloads BOTH files: the Main Novel as a real .docx with navigable chapter headings, and the Config Bible as .txt — even if the novel is still empty.',
+        'Keep those files anywhere you like; they are plain, open formats any word processor can read.',
       ]),
     ]),
 
-    section('6. Quick Reference', [
+    section('7. Quick Reference', [
       el('table', { class: 'guide-table' }, [
         row(['Find a word/phrase', 'Search field in the top bar. › next, ‹ prev, Esc clears.']),
         row(['Add selection to Config', 'Click the ＋ Config pill that floats above any selection.']),
         row(['Move instead of copy on Accept', 'Settings ▸ General → enable "Accept-as-is MOVES text".']),
-        row(['Leave a project', 'Library button (top-right); auto-syncs if configured.']),
+        row(['Leave a project', 'Library button (top-right); anything unsaved syncs within seconds anyway.']),
+        row(['Reset a forgotten password', 'Sign-in screen → "Forgot password?" → click the emailed link.']),
+        row(['Sign out', 'Settings ▸ Data & Storage ▸ Account ▸ Sign out.']),
       ]),
     ]),
   ]);
