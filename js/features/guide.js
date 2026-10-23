@@ -48,7 +48,7 @@ function buildBody() {
         'Forgot password? — sends a reset link; click it and set a new password.',
         'Sign out — Settings ▸ Data & Storage ▸ Account.',
       ]),
-      p('Every account has its own vault. Projects never mix between users — the isolation is enforced by the server, not just by the app.'),
+      p('Every account has its own vault.'),
     ]),
 
     section('2. Your First Project', [
