@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='82' font-size='84' fill='%23e0a83c' font-family='Georgia' font-style='italic'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c; --surface:#141416; --surface-2:#1c1c20;
+  --border:#2b2b30; --border-strong:#3a3a40;
+  --text:#e8e5dd; --muted:#94918a; --faint:#6b6862;
+  --accent:#e0a83c; --accent-soft:rgba(224,168,60,.14);
+  --danger:#d4604f; --success:#7fb069;
+  --font-ui:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-ui);color:var(--text);
+  background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+.w{
+  font-family:'Great Vibes',Georgia,cursive;line-height:.85;user-select:none;
+  background:linear-gradient(160deg,#fff6da 0%,#f9d97e 40%,#eebc52 70%,#e0a83c 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
+}
+/* ---------- login ---------- */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{
+  width:min(400px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
+  background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
+}
+.login-w{font-size:3.6rem}
+.login-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em}
+.login-tag{margin-top:3px;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;text-align:left}
+.field span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+input{
+  width:100%;padding:10px 12px;font-size:.9rem;color:var(--text);
+  border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
+}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
+}
+.btn:hover{background:#232327}
+.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a}
+.btn-gold:hover{background:#ecb84e}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
+.err{
+  padding:9px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;text-align:left;
+  background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
+}
+.login-hint{font-size:.72rem;color:var(--faint)}
+/* ---------- dashboard ---------- */
+.top{
+  position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+}
+.top-w{font-size:1.8rem}
+.top-title{font-weight:650;letter-spacing:.03em}
+.top-email{
+  font-size:.68rem;color:var(--faint);font-family:var(--font-mono);
+  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.top-right{margin-left:auto;display:flex;gap:8px}
+.tabs{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto}
+.tab{
+  padding:7px 14px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;
+  background:var(--surface);color:var(--muted);font-size:.8rem;
+}
+.tab.on{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);font-weight:600}
+.tab .soon{margin-left:6px;font-size:.6rem;font-family:var(--font-mono);color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
+.card{
+  display:flex;flex-direction:column;gap:6px;padding:16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+}
+.card-num{font-size:1.9rem;font-weight:700;font-family:var(--font-mono)}
+.card-num.gold{color:var(--accent)}
+.card-num.ok{color:var(--success);font-size:1.25rem}
+.card-num.bad{color:var(--danger);font-size:1.25rem}
+.card-label{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card-sub{font-size:.72rem;color:var(--faint);overflow-wrap:anywhere}
+.notice{
+  margin:12px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+  border:1px solid rgba(212,96,79,.35);background:rgba(212,96,79,.08);color:var(--danger);
+}
+.meta{padding:4px 16px 26px;color:var(--faint);font-size:.72rem;font-family:var(--font-mono);line-height:1.7}
+.loading{padding:60px 24px;text-align:center;color:var(--muted)}
+@media (max-width:520px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .top-title{font-size:.9rem}
+  .top-email{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+Weaver Admin — V3.1a dashboard shell.
+UI lives here (GitHub Pages); all data comes from the
+JSON-only Edge Function (weaver-server repo). Credentials
+below are the PUBLIC anon set (already published in the
+main app) — the master keys never touch this page.
+========================================================= */
+const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
+
+const TOKEN_KEY = 'weaver_admin_token';
+const EMAIL_KEY = 'weaver_admin_email';
+const app = document.getElementById('app');
+
+let sb = null;
+try {
+  sb = window.supabase.createClient(SB_URL, SB_ANON, {
+    auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
+  });
+} catch (e) { sb = null; }
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function getToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+function getEmail() { try { return sessionStorage.getItem(EMAIL_KEY) || ''; } catch (e) { return ''; } }
+function setSession(token, email) {
+  try {
+    if (token) { sessionStorage.setItem(TOKEN_KEY, token); sessionStorage.setItem(EMAIL_KEY, email || ''); }
+    else { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(EMAIL_KEY); }
+  } catch (e) {}
+}
+
+/* ---------- login view ---------- */
+function renderLogin(msg) {
+  app.innerHTML =
+    '<div class="login-wrap"><div class="login-card">' +
+      '<div class="w login-w">W</div>' +
+      '<div><div class="login-title">Weaver Admin</div>' +
+      '<div class="login-tag">Owner console</div></div>' +
+      (msg ? '<div class="err">' + esc(msg) + '</div>' : '') +
+      '<div class="field"><span>Email</span>' +
+      '<input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
+      '<div class="field"><span>Password</span>' +
+      '<input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
+      '<button id="li-btn" class="btn btn-gold">Sign in</button>' +
+      '<div class="login-hint">Only the owner account can enter this console.</div>' +
+    '</div></div>';
+  const btn = document.getElementById('li-btn');
+  const email = document.getElementById('li-email');
+  const pass = document.getElementById('li-pass');
+  async function go() {
+    if (!sb) { renderLogin('The auth script could not load. Check your connection and reload.'); return; }
+    btn.disabled = true; btn.textContent = 'One moment…';
+    try {
+      const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
+      if (res.error) { renderLogin(res.error.message || 'Sign-in failed.'); return; }
+      setSession(res.data.session.access_token, res.data.user && res.data.user.email);
+      loadOverview();
+    } catch (e) {
+      renderLogin(e.message || 'Sign-in failed.');
+    }
+  }
+  btn.onclick = go;
+  pass.onkeydown = e => { if (e.key === 'Enter') go(); };
+  setTimeout(() => email.focus(), 60);
+}
+
+/* ---------- api ---------- */
+async function api(path) {
+  let res;
+  try {
+    res = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + getToken() } });
+  } catch (e) {
+    throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?');
+  }
+  if (res.status === 401) {
+    setSession('');
+    renderLogin('Session expired or wrong account — sign in again.');
+    throw new Error('unauthorized');
+  }
+  if (!res.ok) {
+    let msg = 'HTTP ' + res.status;
+    try { const j = await res.json(); if (j && j.error) msg = j.error; } catch (e) {}
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
+/* ---------- dashboard view ---------- */
+function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
+function card(value, label, sub, cls) {
+  return '<div class="card">' +
+    '<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
+    '<div class="card-label">' + esc(label) + '</div>' +
+    (sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
+  '</div>';
+}
+async function loadOverview() {
+  app.innerHTML = '<div class="loading">Loading overview…</div>';
+  let health = 'unreachable';
+  try {
+    const h = await fetch(API_BASE + '/api/health');
+    if (h.ok) health = 'online';
+  } catch (e) {}
+  try {
+    const d = await api('/api/overview');
+    renderDash(d, health);
+  } catch (e) {
+    if (e.message !== 'unauthorized') {
+      app.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
+    }
+  }
+}
+function renderDash(d, health) {
+  const problems = (d.problems && d.problems.length)
+    ? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
+  let updated = '';
+  try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
+  app.innerHTML =
+    '<div class="top">' +
+      '<span class="w top-w">W</span>' +
+      '<span class="top-title">Weaver Admin</span>' +
+      '<span class="top-email">' + esc(getEmail()) + '</span>' +
+      '<div class="top-right">' +
+        '<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
+        '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="tabs">' +
+      '<span class="tab on">Overview</span>' +
+      '<span class="tab">Users<span class="soon">soon</span></span>' +
+      '<span class="tab">Credits<span class="soon">soon</span></span>' +
+      '<span class="tab">Storage<span class="soon">soon</span></span>' +
+      '<span class="tab">Audit<span class="soon">soon</span></span>' +
+    '</div>' +
+    problems +
+    '<div class="grid">' +
+      card(num(d.usersTotal), 'Total users', 'all accounts') +
+      card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
+      card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
+      card(num(d.objects), 'Vault objects', 'compressed blobs') +
+      card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
+      card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1a', health === 'online' ? 'ok' : 'bad') +
+    '</div>' +
+    '<div class="meta">last updated ' + esc(updated) +
+    '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1a</div>';
+  document.getElementById('btn-refresh').onclick = loadOverview;
+  document.getElementById('btn-out').onclick = () => { setSession(''); renderLogin(''); };
+}
+
+/* ---------- boot ---------- */
+if (getToken()) loadOverview(); else renderLogin('');
+</script>
+</body>
+</html>
