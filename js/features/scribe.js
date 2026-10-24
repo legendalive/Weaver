@@ -1,11 +1,11 @@
 /* =========================================================
 Weaver — js/features/scribe.js
-Step 21 + patches (v8) + V3.1a UX Pivot: 
-Scribe bundling + ALWAYS-VISIBLE quick prompts.
-UX PIVOT: The Scribe input and quick prompts have been moved
-OUT of the topbar and INTO the top of the AI Output panel.
-This creates a contextual "command deck" directly above the
-streaming output, keeping the topbar pristine and balanced.
+Step 21 + patches (v9) + V3.1a UX Pivot + pill polish:
+Scribe command deck lives INSIDE the AI Output panel.
+POLISH: quick prompts are ONE row of transparent pills.
+No background fill anywhere; the deck is transparent so it
+matches the AI panel exactly. Long prompts truncate with an
+ellipsis; the full text remains in the hover/tap title.
 Mobile retains the FAB since panels stack vertically.
 ========================================================= */
 import { el, clear, toast, modal } from '../utils/dom.js';
@@ -21,92 +21,95 @@ import { streamChatWithFallback } from '../ai/manager.js';
 const STYLE_ID = 'scribe-style';
 const CSS = `
 /* ---------- Mobile FAB ---------- */
-.scribe-fab{position:fixed;right:16px;bottom:16px;z-index:80;display:none; width:52px;height:52px;border-radius:50%;background:var(--accent);color:#17130a; border:none;align-items:center;justify-content:center;box-shadow:var(--shadow-2);cursor:pointer;} 
-@media (max-width:860px){ .scribe-fab{display:flex; } } 
+.scribe-fab{
+  position:fixed;right:16px;bottom:16px;z-index:80;display:none;
+  width:52px;height:52px;border-radius:50%;background:var(--accent);color:#17130a;
+  border:none;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-2);cursor:pointer;
+}
+@media (max-width:860px){ .scribe-fab{display:flex;} }
 
-/* ---------- AI Panel Output Blocks ---------- */
-.panel[data-panel="ai"] .panel-body{padding:12px;display:flex;flex-direction:column;gap:10px;} 
-.ai-block{display:flex;flex-direction:column;gap:8px;padding:12px; border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} 
-.ai-block-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;} 
-.ai-block-body{font-family:var(--font-prose); font-size:calc(.95rem * var(--font-scale,1));line-height:1.7; white-space:pre-wrap;overflow-wrap:break-word;} 
-.ai-block.is-streaming .ai-block-body::after{content:'▍';color:var(--accent); animation:scribe-blink 1s steps(2) infinite;} 
-@keyframes scribe-blink{50%{opacity:0;}} 
-.ai-block.is-error{border-color:var(--danger);} 
+/* ---------- AI Output blocks ---------- */
+.panel[data-panel="ai"] .panel-body{
+  padding:12px;display:flex;flex-direction:column;gap:10px;
+}
+.ai-block{
+  display:flex;flex-direction:column;gap:8px;padding:12px;
+  border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);
+}
+.ai-block-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ai-block-body{
+  font-family:var(--font-prose);
+  font-size:calc(.95rem * var(--font-scale,1));line-height:1.7;
+  white-space:pre-wrap;overflow-wrap:break-word;
+}
+.ai-block.is-streaming .ai-block-body::after{
+  content:'▍';color:var(--accent);animation:scribe-blink 1s steps(2) infinite;
+}
+@keyframes scribe-blink{50%{opacity:0;}}
+.ai-block.is-error{border-color:var(--danger);}
 
-/* ---------- Context Chip (when text is highlighted) ---------- */
-.scribe-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px; border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent); border-radius:999px;font-size:.72rem;font-family:var(--font-mono);cursor:pointer;flex:none;} 
-.scribe-chip[hidden]{display:none;} 
-.ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;} 
-
-/* ---------- The New AI Panel Command Deck ---------- */
-.scribe-zone {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+/* ---------- Context chip ---------- */
+.scribe-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 10px;
+  border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
+  border-radius:999px;font-size:.72rem;font-family:var(--font-mono);cursor:pointer;flex:none;
 }
-.scribe-zone .scribe-row { 
-  display: flex; 
-  gap: 8px; 
-  align-items: center; 
-  width: 100%; 
-}
-.scribe-zone .scribe-input {
-  flex: 1; 
-  min-width: 0;
-  border-radius: 999px;
-  padding: 10px 18px;
-  background: var(--surface-2);
-  border: 1px solid var(--border-strong);
-  font-size: .88rem;
-  color: var(--text);
-}
-.scribe-zone .scribe-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-.scribe-zone .scribe-input::placeholder { color: var(--faint); }
-
-/* ---------- Quick Prompts (Pill Row) ---------- */
-.scribe-zone .scribe-qp-row { 
-  display: flex; 
-  gap: 8px; 
-  flex-wrap: wrap; 
-}
-.scribe-zone .scribe-qp-row .btn {
-  border-radius: 999px;
-  font-size: .74rem;
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--muted);
-  font-weight: 500;
-  letter-spacing: .01em;
-}
-.scribe-zone .scribe-qp-row .btn:hover {
-  border-color: rgba(224,168,60,.55);
-  color: var(--accent);
-  background: var(--accent-soft);
-}
-.scribe-zone .scribe-qp-row .btn > span {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.scribe-chip[hidden]{display:none;}
+.ms-block.is-bundled{
+  background:rgba(224,168,60,.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;
 }
 
-/* ---------- Mobile Sheet ---------- */
+/* ---------- AI Panel Command Deck (fully transparent) ---------- */
+.scribe-zone{
+  flex:none;display:flex;flex-direction:column;gap:10px;
+  padding:14px 16px;
+  background:transparent;            /* matches the panel behind it exactly */
+  border-bottom:1px solid var(--border);
+}
+.scribe-zone .scribe-row{
+  display:flex;gap:8px;align-items:center;width:100%;
+}
+.scribe-zone .scribe-input{
+  flex:1;min-width:0;border-radius:999px;padding:10px 18px;
+  background:var(--surface-2);border:1px solid var(--border-strong);
+  font-size:.88rem;color:var(--text);
+}
+.scribe-zone .scribe-input:focus{
+  outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+}
+.scribe-zone .scribe-input::placeholder{color:var(--faint);}
+
+/* ---------- Quick prompts: ONE row, transparent pearls ---------- */
+.scribe-qp-row{
+  display:flex;flex-wrap:nowrap;gap:8px;width:100%;min-width:0;
+}
+.scribe-qp-row .btn{
+  flex:1 1 0;min-width:0;max-width:none;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:999px;
+  font-size:.74rem;font-weight:500;letter-spacing:.01em;line-height:1.4;
+  padding:6px 12px;
+  background:transparent !important;   /* no gray slab, ever */
+  border:1px solid var(--border-strong);
+  color:var(--muted);
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.scribe-qp-row .btn > span{
+  display:block;min-width:0;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.scribe-qp-row .btn:hover{
+  border-color:rgba(224,168,60,.55);
+  color:var(--accent);
+  background:transparent !important;   /* hover changes the rim, not the fill */
+}
+
+/* ---------- Mobile sheet ---------- */
 .scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
 
 /* Hide the command deck on mobile (FAB takes over) */
-@media (max-width: 860px) {
-  .scribe-zone { display: none; }
-}
+@media (max-width:860px){ .scribe-zone{display:none;} }
 `;
 
 function ensureStyle() {
@@ -220,7 +223,7 @@ function positionFab() {
   fab.style.zIndex = '120';
 }
 
-/* ---------- Quick prompts (always-visible pill row) ---------- */
+/* ---------- Quick prompts (one transparent pill row) ---------- */
 function renderQuickRow() {
   if (!qpRowEl) return;
   clear(qpRowEl);
@@ -331,7 +334,7 @@ function buildBar() {
     title: 'Highlighted text bundled with your next prompt — click to clear',
     onclick: () => { clearManuscriptSelection(); updateChip(); },
   }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
-  
+
   const input = el('input', {
     class: 'scribe-input', type: 'text',
     placeholder: 'Instruct Scribe (e.g., rewrite, continue, describe)…',
@@ -339,18 +342,18 @@ function buildBar() {
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
   }, [icon('send')]);
-  
+
   const row = el('div', { class: 'scribe-row' }, [chip, input, send]);
-  
+
   qpRowEl = el('div', { class: 'scribe-qp-row' });
   renderQuickRow();
-  
+
   const zone = el('div', { class: 'scribe-zone', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
-  
+
   const fire = () => { runScribePrompt(input.value); input.value = ''; };
   send.addEventListener('click', fire);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
-  
+
   updateChip();
   return zone;
 }
@@ -359,11 +362,10 @@ function buildBar() {
 function bindPanel() {
   const aiPanel = document.querySelector('.panel[data-panel="ai"]');
   if (!aiPanel) return;
-  
+
   let zone = aiPanel.querySelector('.scribe-zone');
   if (!zone) {
     zone = buildBar();
-    // Insert right after the header, before the scrollable body
     const header = aiPanel.querySelector('.panel-header');
     if (header && header.nextSibling) {
       aiPanel.insertBefore(zone, header.nextSibling);
@@ -397,10 +399,10 @@ function openPromptSheet() {
       clearBtn.hidden = true;
     },
   });
-  const qpRow = el('div', { class: 'scribe-qp-row', style: { marginTop: '8px' } });
+  const qpRow = el('div', { class: 'scribe-qp-row' });
   for (const p of quickPrompts()) {
     qpRow.appendChild(el('button', {
-      class: 'btn btn-sm', title: p,
+      class: 'btn btn-ghost', title: p,
       onclick: () => { m.close(); runScribePrompt(p); },
     }, [el('span', { text: p })]));
   }
@@ -430,7 +432,7 @@ export function initScribe() {
     window.addEventListener('resize', positionFab);
   }
   positionFab();
-  
+
   if (!chipBound) {
     chipBound = true;
     let tick = false;
@@ -440,13 +442,12 @@ export function initScribe() {
       requestAnimationFrame(() => { tick = false; updateChip(); });
     });
   }
-  
+
   bindPanel();
-  
+
   subscribe((state, change) => {
     if (change.settings) { renderQuickRow(); return; }
     if (state.view !== 'workspace') return;
-    // Re-bind if the workspace re-renders (e.g. switching projects)
     if (change.view || (change.project && !change.silent)) bindPanel();
   });
 }
