@@ -1,9 +1,13 @@
 /* =========================================================
-   Weaver — js/features/scribe.js
-   Step 21 + patches (v7): Scribe bundling + ALWAYS-VISIBLE
-   quick prompts (pill row directly below the Scribe input).
-   ========================================================= */
-
+Weaver — js/features/scribe.js
+Step 21 + patches (v8) + V3.1a UX Pivot: 
+Scribe bundling + ALWAYS-VISIBLE quick prompts.
+UX PIVOT: The Scribe input and quick prompts have been moved
+OUT of the topbar and INTO the top of the AI Output panel.
+This creates a contextual "command deck" directly above the
+streaming output, keeping the topbar pristine and balanced.
+Mobile retains the FAB since panels stack vertically.
+========================================================= */
 import { el, clear, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
@@ -16,39 +20,93 @@ import { streamChatWithFallback } from '../ai/manager.js';
 
 const STYLE_ID = 'scribe-style';
 const CSS = `
-.scribe-fab{position:fixed;right:16px;bottom:16px;z-index:80;display:none;
-  width:52px;height:52px;border-radius:50%;background:var(--accent);color:#17130a;
-  border:none;align-items:center;justify-content:center;box-shadow:var(--shadow-2);cursor:pointer;}
-@media (max-width:860px){ .scribe-fab{display:flex; } }
-.panel[data-panel="ai"] .panel-body{padding:12px;display:flex;flex-direction:column;gap:10px;}
-.ai-block{display:flex;flex-direction:column;gap:8px;padding:12px;
-  border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);}
-.ai-block-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.ai-block-body{font-family:var(--font-prose);
-  font-size:calc(.95rem * var(--font-scale,1));line-height:1.7;
-  white-space:pre-wrap;overflow-wrap:break-word;}
-.ai-block.is-streaming .ai-block-body::after{content:'▍';color:var(--accent);
-  animation:scribe-blink 1s steps(2) infinite;}
-@keyframes scribe-blink{50%{opacity:0;}}
-.ai-block.is-error{border-color:var(--danger);}
+/* ---------- Mobile FAB ---------- */
+.scribe-fab{position:fixed;right:16px;bottom:16px;z-index:80;display:none; width:52px;height:52px;border-radius:50%;background:var(--accent);color:#17130a; border:none;align-items:center;justify-content:center;box-shadow:var(--shadow-2);cursor:pointer;} 
+@media (max-width:860px){ .scribe-fab{display:flex; } } 
+
+/* ---------- AI Panel Output Blocks ---------- */
+.panel[data-panel="ai"] .panel-body{padding:12px;display:flex;flex-direction:column;gap:10px;} 
+.ai-block{display:flex;flex-direction:column;gap:8px;padding:12px; border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} 
+.ai-block-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;} 
+.ai-block-body{font-family:var(--font-prose); font-size:calc(.95rem * var(--font-scale,1));line-height:1.7; white-space:pre-wrap;overflow-wrap:break-word;} 
+.ai-block.is-streaming .ai-block-body::after{content:'▍';color:var(--accent); animation:scribe-blink 1s steps(2) infinite;} 
+@keyframes scribe-blink{50%{opacity:0;}} 
+.ai-block.is-error{border-color:var(--danger);} 
+
+/* ---------- Context Chip (when text is highlighted) ---------- */
+.scribe-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px; border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent); border-radius:999px;font-size:.72rem;font-family:var(--font-mono);cursor:pointer;flex:none;} 
+.scribe-chip[hidden]{display:none;} 
+.ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;} 
+
+/* ---------- The New AI Panel Command Deck ---------- */
+.scribe-zone {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.scribe-zone .scribe-row { 
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+  width: 100%; 
+}
+.scribe-zone .scribe-input {
+  flex: 1; 
+  min-width: 0;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  font-size: .88rem;
+  color: var(--text);
+}
+.scribe-zone .scribe-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.scribe-zone .scribe-input::placeholder { color: var(--faint); }
+
+/* ---------- Quick Prompts (Pill Row) ---------- */
+.scribe-zone .scribe-qp-row { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+}
+.scribe-zone .scribe-qp-row .btn {
+  border-radius: 999px;
+  font-size: .74rem;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+.scribe-zone .scribe-qp-row .btn:hover {
+  border-color: rgba(224,168,60,.55);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.scribe-zone .scribe-qp-row .btn > span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Mobile Sheet ---------- */
 .scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
-.ms-block.is-bundled{background:rgba(224, 168, 60, 0.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
-.scribe-bar{width:min(430px,38vw);display:flex;flex-direction:column;gap:4px;}
-.scribe-row{display:flex;align-items:center;gap:6px;width:100%;}
-.scribe-row .input{flex:1;min-width:0;}
-.scribe-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;
-  border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
-  border-radius:999px;font-size:.68rem;font-family:var(--font-mono);cursor:pointer;flex:none;}
-.scribe-chip[hidden]{display:none;}
-.scribe-qp-row{display:flex;flex-wrap:wrap;gap:4px;}
-.scribe-qp-row{flex-wrap:nowrap;width:100%;}
-.scribe-qp-row .btn{font-size:.66rem;padding:2px 10px;border-radius:999px;
-  flex:1 1 0;min-width:0;max-width:none;
-  border:1px solid var(--border-strong);background:var(--surface-2);}
-.scribe-qp-row .btn > span{display:block;min-width:0;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap;}
-.scribe-qp-row .btn:hover{border-color:rgba(224,168,60,.55);color:var(--accent);}
-@media (max-width:860px){ .scribe-bar{display:none;} }
+
+/* Hide the command deck on mobile (FAB takes over) */
+@media (max-width: 860px) {
+  .scribe-zone { display: none; }
+}
 `;
 
 function ensureStyle() {
@@ -62,7 +120,6 @@ function ensureStyle() {
 
 const BIBLE_BUDGET = 6000;
 const CONTEXT_CAP = 8000;
-
 const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
 
 const SECTION_TAGS = {
@@ -75,12 +132,13 @@ let chip = null;
 let chipText = null;
 let chipBound = false;
 let qpRowEl = null;
-const blocks = [];
 
+const blocks = [];
 export function getAiBlocks() { return blocks; }
 
 function cap(s, n) { return s.length > n ? s.slice(0, Math.max(0, n - 1)) + '…' : s; }
 function flat(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
+
 function quickPrompts() {
   return (getState().settings.general.quickPrompts || []).filter((p) => (p || '').trim());
 }
@@ -96,12 +154,10 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
     out.push(line);
     used += line.length + 1;
   };
-
   const directives = flat(cfg.generalAiInstructions);
   if (directives) push('[DIRECTIVES] ' + cap(directives, 1200));
   const style = flat(cfg.generalProse);
   if (style) push('[STYLE] ' + cap(style, 600));
-
   const roster = [];
   for (const key of Object.keys(SECTION_TAGS)) {
     const matched = [];
@@ -135,7 +191,6 @@ function buildMessages(compiled, context, prompt) {
     '5. Start your answer directly with prose. Never open with a greeting, interjection, sound effect, or standalone exclamation (e.g. "Ah!", "Hwæt!", "Yes!").\n' +
     '6. Output only the prose (or the one clarifying question). No preamble, no explanations.';
   if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
-
   const parts = [`TASK INSTRUCTION:\n${prompt}`];
   if (context) {
     parts.push(`SOURCE TEXT (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
@@ -157,6 +212,7 @@ function updateChip() {
   chip.hidden = !t;
   if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
+
 /* ---------- FAB visibility (inline, cascade-proof) ---------- */
 function positionFab() {
   if (!fab) return;
@@ -169,7 +225,7 @@ function renderQuickRow() {
   if (!qpRowEl) return;
   clear(qpRowEl);
   for (const p of quickPrompts()) {
-        qpRowEl.appendChild(el('button', {
+    qpRowEl.appendChild(el('button', {
       class: 'btn btn-ghost', title: p,
       onclick: () => runScribePrompt(p),
     }, [el('span', { text: p })]));
@@ -182,7 +238,6 @@ function createBlock(prompt, context) {
   if (!body) return null;
   const empty = body.querySelector('.empty-state');
   if (empty) empty.remove();
-
   const badge = el('span', { class: 'badge badge-accent', text: 'connecting…' });
   const stopBtn = el('button', {
     class: 'btn btn-ghost btn-icon btn-sm', title: 'Stop generation',
@@ -192,7 +247,6 @@ function createBlock(prompt, context) {
   const blockEl = el('div', { class: 'ai-block is-streaming' }, [head, textEl]);
   body.appendChild(blockEl);
   body.scrollTop = body.scrollHeight;
-
   const block = {
     id: 'b' + Date.now() + Math.random().toString(36).slice(2, 6),
     el: blockEl, badge, textEl, stopBtn,
@@ -210,7 +264,6 @@ function streamInto(block) {
   const cfg = getEffectiveConfig(project);
   const compiled = compileBible(cfg, `${block.context} ${block.prompt}`);
   const messages = buildMessages(compiled, block.context, block.prompt);
-
   block.controller = new AbortController();
   block.done = false;
   block.full = '';
@@ -219,7 +272,6 @@ function streamInto(block) {
   clear(block.textEl);
   block.badge.textContent = 'connecting…';
   block.stopBtn.hidden = false;
-
   streamChatWithFallback({
     messages,
     signal: block.controller.signal,
@@ -245,7 +297,7 @@ function streamInto(block) {
     block.el.classList.remove('is-streaming');
     block.stopBtn.hidden = true;
     if (err.name === 'AbortError') {
-      block.badge.textContent = (block.provider ? `${block.provider.providerLabel} · ` : '') + 'stopped';
+      block.badge.textContent = (block.provider ? `${block.provider.providerLabel} ·` : '') + 'stopped';
     } else {
       block.el.classList.add('is-error');
       block.badge.textContent = 'error';
@@ -260,22 +312,18 @@ export function runScribePrompt(prompt) {
   const p = (prompt || '').trim();
   if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
   if (!getState().project) return;
-
   const sel = getManuscriptSelection();
   const context = sel ? sel.text : '';
-
   const block = createBlock(p, context);
   if (!block) return;
-
   clearManuscriptSelection();
   updateChip();
-
   streamInto(block);
 }
 
 export function rerunBlock(block) { streamInto(block); }
 
-/* ---------- Prompt bar (desktop) + FAB/sheet (mobile) ---------- */
+/* ---------- Build the Command Deck ---------- */
 function buildBar() {
   chipText = el('span', { text: '' });
   chip = el('button', {
@@ -283,30 +331,49 @@ function buildBar() {
     title: 'Highlighted text bundled with your next prompt — click to clear',
     onclick: () => { clearManuscriptSelection(); updateChip(); },
   }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
-
+  
   const input = el('input', {
-    class: 'input', type: 'text',
-    placeholder: 'Scribe: write, continue, describe, rewrite…',
+    class: 'scribe-input', type: 'text',
+    placeholder: 'Instruct Scribe (e.g., rewrite, continue, describe)…',
   });
   const send = el('button', {
     class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
   }, [icon('send')]);
-
+  
   const row = el('div', { class: 'scribe-row' }, [chip, input, send]);
+  
   qpRowEl = el('div', { class: 'scribe-qp-row' });
   renderQuickRow();
-
-  const bar = el('div', { class: 'scribe-bar', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
+  
+  const zone = el('div', { class: 'scribe-zone', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
+  
   const fire = () => { runScribePrompt(input.value); input.value = ''; };
   send.addEventListener('click', fire);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
+  
   updateChip();
-  return bar;
+  return zone;
 }
 
-function bindDesktop() {
-  const old = document.querySelector('.scribe-bar');
-  if (old && !old.dataset.scribeBound) old.replaceWith(buildBar());
+/* ---------- Inject into AI Panel ---------- */
+function bindPanel() {
+  const aiPanel = document.querySelector('.panel[data-panel="ai"]');
+  if (!aiPanel) return;
+  
+  let zone = aiPanel.querySelector('.scribe-zone');
+  if (!zone) {
+    zone = buildBar();
+    // Insert right after the header, before the scrollable body
+    const header = aiPanel.querySelector('.panel-header');
+    if (header && header.nextSibling) {
+      aiPanel.insertBefore(zone, header.nextSibling);
+    } else {
+      aiPanel.appendChild(zone);
+    }
+  } else if (!zone.dataset.scribeBound) {
+    const newZone = buildBar();
+    zone.replaceWith(newZone);
+  }
 }
 
 function openPromptSheet() {
@@ -330,15 +397,13 @@ function openPromptSheet() {
       clearBtn.hidden = true;
     },
   });
-
-  const qpRow = el('div', { class: 'scribe-qp-row' });
+  const qpRow = el('div', { class: 'scribe-qp-row', style: { marginTop: '8px' } });
   for (const p of quickPrompts()) {
-        qpRow.appendChild(el('button', {
+    qpRow.appendChild(el('button', {
       class: 'btn btn-sm', title: p,
       onclick: () => { m.close(); runScribePrompt(p); },
     }, [el('span', { text: p })]));
   }
-
   const m = modal({
     title: 'Scribe',
     body: quickPrompts().length ? [hint, qpRow, ta] : [hint, ta],
@@ -356,7 +421,7 @@ function openPromptSheet() {
 
 export function initScribe() {
   ensureStyle();
-    if (!fab) {
+  if (!fab) {
     fab = el('button', {
       class: 'scribe-fab', title: 'Scribe', 'aria-label': 'Open Scribe',
       onclick: openPromptSheet,
@@ -365,6 +430,7 @@ export function initScribe() {
     window.addEventListener('resize', positionFab);
   }
   positionFab();
+  
   if (!chipBound) {
     chipBound = true;
     let tick = false;
@@ -374,10 +440,13 @@ export function initScribe() {
       requestAnimationFrame(() => { tick = false; updateChip(); });
     });
   }
-  bindDesktop();
+  
+  bindPanel();
+  
   subscribe((state, change) => {
     if (change.settings) { renderQuickRow(); return; }
     if (state.view !== 'workspace') return;
-    if (change.view || (change.project && !change.silent)) bindDesktop();
+    // Re-bind if the workspace re-renders (e.g. switching projects)
+    if (change.view || (change.project && !change.silent)) bindPanel();
   });
 }
