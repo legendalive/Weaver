@@ -113,7 +113,7 @@ body{
 .users-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
 .users-toolbar .input{flex:1;min-width:170px}
 .create-form{
-  display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin:0 16px 12px;
+  display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin-top:10px;
   background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
 }
 .create-form .row{display:flex;gap:8px;flex-wrap:wrap}
@@ -134,6 +134,20 @@ body{
 .status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
 .status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
 .admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
+/* ---------- credits tab ---------- */
+.cred-badges{display:flex;gap:6px;flex-wrap:wrap}
+.cred-history{
+  margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
+}
+.cred-log-row{
+  display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;
+}
+.cred-log-row:last-child{border-bottom:none}
+.cred-log-amt{font-family:var(--font-mono);flex:none;width:56px;font-weight:700}
+.cred-log-amt.pos{color:var(--success)}
+.cred-log-amt.neg{color:var(--danger)}
+.cred-log-reason{flex:1;min-width:0;color:var(--text);overflow-wrap:anywhere}
+.cred-log-date{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;flex:none}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -146,9 +160,11 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1b dashboard shell.
+Weaver Admin — V3.1c dashboard shell.
 UI on GitHub Pages; all data from the JSON-only Edge Function.
-Tabs: Overview + Users live; Credits/Storage/Audit are later steps.
+Tabs: Overview + Users + Credits live; Storage/Audit later.
+"Reset password" = emails a password-reset link (Supabase
+recovery flow). It never touches credits or usage.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -167,6 +183,7 @@ try {
 
 let activeTab = 'overview';
 let allUsers = [];
+let allCredits = [];
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -182,6 +199,10 @@ function setSession(token, email) {
 }
 function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString(); } catch (e) { return iso; } }
 function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
+function creditEmailOf(uid) {
+  const r = allCredits.find(x => x.user_id === uid);
+  return r ? (r.email || '') : '';
+}
 
 /* ---------- api ---------- */
 async function api(path, opts = {}) {
@@ -240,7 +261,7 @@ function renderLogin(msg) {
 const TABS = [
   { id: 'overview', label: 'Overview', ready: true },
   { id: 'users', label: 'Users', ready: true },
-  { id: 'credits', label: 'Credits', ready: false },
+  { id: 'credits', label: 'Credits', ready: true },
   { id: 'storage', label: 'Storage', ready: false },
   { id: 'audit', label: 'Audit', ready: false },
 ];
@@ -276,6 +297,7 @@ function loadTab(tab) {
   const content = document.getElementById('admin-content');
   if (tab === 'overview') return loadOverviewInto(content);
   if (tab === 'users') return loadUsers();
+  if (tab === 'credits') return loadCredits();
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later V3.1 step.</div>';
 }
 
@@ -303,9 +325,9 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1b', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1c', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1b</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1c</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
@@ -323,7 +345,7 @@ function userCardHTML(u) {
       ? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
       : '<button class="btn btn-sm" data-action="ban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Suspend</button>';
   }
-  actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Send reset</button>';
+  actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Emails this user a password-reset link. Nothing else is reset.">Reset password</button>';
   if (!u.is_owner) {
     actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
   }
@@ -353,7 +375,7 @@ function renderUsers(list) {
     '</div>' +
     '<div id="create-form-wrap"></div>' +
     '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
-    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. The owner account is protected.</div>';
+    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. "Reset password" emails a password-reset link. The owner account is protected.</div>';
   document.getElementById('user-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
@@ -366,7 +388,7 @@ function toggleCreateForm() {
   if (!wrap) return;
   if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
   wrap.innerHTML =
-    '<div class="create-form">' +
+    '<div class="create-form" style="margin:0 16px 12px">' +
       '<div class="row">' +
         '<input id="nu-email" class="input" type="email" placeholder="user@example.com">' +
         '<input id="nu-pass" class="input" type="password" placeholder="password (min 6)">' +
@@ -404,7 +426,7 @@ async function handleUserAction(action, id, email) {
     } else if (action === 'recovery') {
       const d = await api('/api/users/' + id + '/recovery', { method: 'POST' });
       if (d && d.action_link) {
-        showNote('Reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
+        showNote('Password-reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
           '<a href="' + esc(d.action_link) + '" target="_blank" rel="noopener" style="word-break:break-all">' + esc(d.action_link) + '</a>', true);
       } else {
         showNote('Password-reset email sent to <b>' + esc(email || 'user') + '</b>.', false);
@@ -423,10 +445,123 @@ async function handleUserAction(action, id, email) {
   }
 }
 
+/* ---------- credits tab ---------- */
+function creditCardHTML(r) {
+  const planBadge = r.plan === 'pro'
+    ? '<span class="status-badge owner">pro</span>'
+    : '<span class="status-badge">free</span>';
+  const proLine = r.pro_until ? 'Pro until ' + fmtDate(r.pro_until) : 'no Pro expiry';
+  return '<div class="user-card" data-credit-card="' + esc(r.user_id) + '">' +
+    '<div class="user-card-head">' +
+      '<span class="user-email">' + esc(r.email || '(no email)') + '</span>' +
+      '<span class="cred-badges">' + planBadge +
+        '<span class="status-badge active">' + num(r.credits) + ' credits</span>' +
+      '</span>' +
+    '</div>' +
+    '<div class="user-meta">' + esc(proLine) + '</div>' +
+    '<div class="user-actions">' +
+      '<button class="btn btn-sm btn-primary" data-action="adjust" data-id="' + esc(r.user_id) + '">Adjust credits</button>' +
+      '<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
+    '</div>' +
+    '<div class="cred-slot"></div>' +
+  '</div>';
+}
+function loadCredits() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading entitlements…</div>';
+  api('/api/credits').then(d => {
+    allCredits = d.rows || [];
+    renderCredits(allCredits);
+  }).catch(e => {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  });
+}
+function renderCredits(list) {
+  const content = document.getElementById('admin-content');
+  content.innerHTML =
+    '<div class="users-toolbar">' +
+      '<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
+    '</div>' +
+    '<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
+    '<div class="admin-note">Credits are granted or revoked per user with a mandatory reason (audit trail). "Pro days" extend the paid tier — consumed by the paywall (V3.2) and the AI proxy (V3.4).</div>';
+  document.getElementById('credit-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
+    document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
+  });
+}
+function toggleAdjustForm(userId) {
+  const card = document.querySelector('[data-credit-card="' + userId + '"]');
+  if (!card) return;
+  const slot = card.querySelector('.cred-slot');
+  if (!slot) return;
+  if (slot.querySelector('.create-form')) { slot.innerHTML = ''; return; }
+  document.querySelectorAll('.cred-slot').forEach(s => { s.innerHTML = ''; });
+  slot.innerHTML =
+    '<div class="create-form">' +
+      '<div class="row">' +
+        '<input data-f="amount" class="input" type="number" step="1" placeholder="Amount (+ grant / − revoke)">' +
+        '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' +
+      '</div>' +
+      '<input data-f="reason" class="input" type="text" placeholder="Reason (required — appears in the audit log)">' +
+      '<div class="row" style="justify-content:flex-end">' +
+        '<button class="btn btn-sm" data-cred-cancel>Cancel</button>' +
+        '<button class="btn btn-sm btn-primary" data-cred-apply>Apply</button>' +
+      '</div>' +
+    '</div>';
+  slot.querySelector('[data-cred-cancel]').addEventListener('click', () => { slot.innerHTML = ''; });
+  slot.querySelector('[data-cred-apply]').addEventListener('click', async () => {
+    const amount = parseInt(slot.querySelector('[data-f="amount"]').value, 10);
+    const proDays = parseInt(slot.querySelector('[data-f="prodays"]').value || '0', 10);
+    const reason = slot.querySelector('[data-f="reason"]').value.trim();
+    if (!Number.isFinite(amount) || amount === 0) { showNote('⚠ Enter a non-zero amount.', false); return; }
+    if (!reason) { showNote('⚠ A reason is required.', false); return; }
+    try {
+      await api('/api/credits/' + userId + '/adjust', { method: 'POST', body: { amount, pro_days: proDays, reason } });
+      slot.innerHTML = '';
+      showNote('Credits updated for <b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
+      loadCredits();
+    } catch (e) {
+      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+    }
+  });
+  slot.querySelector('[data-f="amount"]').focus();
+}
+async function toggleHistory(userId) {
+  const card = document.querySelector('[data-credit-card="' + userId + '"]');
+  if (!card) return;
+  const slot = card.querySelector('.cred-slot');
+  if (!slot) return;
+  if (slot.querySelector('.cred-history')) { slot.innerHTML = ''; return; }
+  slot.innerHTML = '<div class="loading" style="padding:16px">Loading history…</div>';
+  try {
+    const d = await api('/api/credits/' + userId + '/log');
+    const log = d.log || [];
+    if (!log.length) {
+      slot.innerHTML = '<div class="cred-history"><div style="color:var(--faint);font-size:.8rem">No credit activity yet.</div></div>';
+      return;
+    }
+    slot.innerHTML = '<div class="cred-history">' + log.map(l =>
+      '<div class="cred-log-row">' +
+        '<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+        '<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+        '<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+      '</div>').join('') + '</div>';
+  } catch (e) {
+    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+  }
+}
+
 /* ---------- global click delegation ---------- */
 app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
-  if (btn) { handleUserAction(btn.dataset.action, btn.dataset.id, btn.dataset.email); return; }
+  if (btn) {
+    const a = btn.dataset.action;
+    if (a === 'adjust') { toggleAdjustForm(btn.dataset.id); return; }
+    if (a === 'history') { toggleHistory(btn.dataset.id); return; }
+    handleUserAction(a, btn.dataset.id, btn.dataset.email);
+    return;
+  }
   const tabEl = e.target.closest('[data-tab]');
   if (tabEl) { setTab(tabEl.dataset.tab); return; }
 });
