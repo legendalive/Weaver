@@ -30,6 +30,28 @@ body{
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
 }
+/* ---------- shared components ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
+  white-space:nowrap;
+}
+.btn:hover{background:#232327}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a}
+.btn-gold:hover{background:#ecb84e}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#17130a;font-weight:600}
+.btn-primary:hover{background:#ecb84e}
+.btn-danger{background:transparent;border-color:var(--border-strong);color:var(--danger)}
+.btn-danger:hover{background:rgba(212,96,79,.12);border-color:var(--danger)}
+.btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
+.input{
+  width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
+  border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
+}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder{color:var(--faint)}
 /* ---------- login ---------- */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{
@@ -42,27 +64,12 @@ body{
 .login-tag{margin-top:3px;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
 .field{display:flex;flex-direction:column;gap:6px;text-align:left}
 .field span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-input{
-  width:100%;padding:10px 12px;font-size:.9rem;color:var(--text);
-  border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
-}
-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
-  background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
-}
-.btn:hover{background:#232327}
-.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a}
-.btn-gold:hover{background:#ecb84e}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
 .err{
   padding:9px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;text-align:left;
   background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
 }
 .login-hint{font-size:.72rem;color:var(--faint)}
-/* ---------- dashboard ---------- */
+/* ---------- shell ---------- */
 .top{
   position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
   padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
@@ -77,15 +84,18 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--a
 .tabs{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto}
 .tab{
   padding:7px 14px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;
-  background:var(--surface);color:var(--muted);font-size:.8rem;
+  background:var(--surface);color:var(--muted);font-size:.8rem;cursor:pointer;
 }
 .tab.on{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);font-weight:600}
 .tab .soon{margin-left:6px;font-size:.6rem;font-family:var(--font-mono);color:var(--faint)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
-.card{
-  display:flex;flex-direction:column;gap:6px;padding:16px;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+.admin-note-bar{
+  margin:10px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+  border:1px solid rgba(224,168,60,.35);background:var(--accent-soft);color:var(--text);
 }
+.admin-note-bar a{color:var(--accent)}
+/* ---------- overview cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
+.card{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
 .card-num{font-size:1.9rem;font-weight:700;font-family:var(--font-mono)}
 .card-num.gold{color:var(--accent)}
 .card-num.ok{color:var(--success);font-size:1.25rem}
@@ -98,6 +108,32 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--a
 }
 .meta{padding:4px 16px 26px;color:var(--faint);font-size:.72rem;font-family:var(--font-mono);line-height:1.7}
 .loading{padding:60px 24px;text-align:center;color:var(--muted)}
+.empty{padding:40px 24px;text-align:center;color:var(--faint);font-size:.85rem}
+/* ---------- users tab ---------- */
+.users-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
+.users-toolbar .input{flex:1;min-width:170px}
+.create-form{
+  display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin:0 16px 12px;
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+}
+.create-form .row{display:flex;gap:8px;flex-wrap:wrap}
+.create-form .input{flex:1;min-width:150px}
+.user-card{
+  display:flex;flex-direction:column;gap:8px;padding:14px 16px;margin:0 16px 10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+}
+.user-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.user-email{font-size:.92rem;font-weight:600;color:var(--text);overflow-wrap:anywhere}
+.user-meta{font-size:.74rem;color:var(--faint);font-family:var(--font-mono)}
+.user-actions{display:flex;gap:8px;flex-wrap:wrap}
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+  font-size:.66rem;font-family:var(--font-mono);border:1px solid var(--border);color:var(--muted);
+}
+.status-badge.active{color:var(--success);border-color:rgba(127,176,105,.45);background:rgba(127,176,105,.1)}
+.status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
+.status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
+.admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -110,11 +146,9 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--a
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1a dashboard shell.
-UI lives here (GitHub Pages); all data comes from the
-JSON-only Edge Function (weaver-server repo). Credentials
-below are the PUBLIC anon set (already published in the
-main app) — the master keys never touch this page.
+Weaver Admin — V3.1b dashboard shell.
+UI on GitHub Pages; all data from the JSON-only Edge Function.
+Tabs: Overview + Users live; Credits/Storage/Audit are later steps.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -131,6 +165,9 @@ try {
   });
 } catch (e) { sb = null; }
 
+let activeTab = 'overview';
+let allUsers = [];
+
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -143,19 +180,41 @@ function setSession(token, email) {
     else { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(EMAIL_KEY); }
   } catch (e) {}
 }
+function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString(); } catch (e) { return iso; } }
+function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
 
-/* ---------- login view ---------- */
+/* ---------- api ---------- */
+async function api(path, opts = {}) {
+  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+  let res;
+  try { res = await fetch(API_BASE + path, init); }
+  catch (e) { throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?'); }
+  if (res.status === 401) { setSession(''); renderLogin('Session expired or wrong account — sign in again.'); throw new Error('unauthorized'); }
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  return data;
+}
+
+/* ---------- note bar ---------- */
+function showNote(html, sticky) {
+  const note = document.getElementById('admin-note');
+  if (!note) return;
+  note.innerHTML = html + (sticky ? ' <button class="btn btn-sm" style="margin-left:8px" onclick="this.parentElement.hidden=true">dismiss</button>' : '');
+  note.hidden = false;
+  if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 5000); }
+}
+
+/* ---------- login ---------- */
 function renderLogin(msg) {
   app.innerHTML =
     '<div class="login-wrap"><div class="login-card">' +
       '<div class="w login-w">W</div>' +
-      '<div><div class="login-title">Weaver Admin</div>' +
-      '<div class="login-tag">Owner console</div></div>' +
+      '<div><div class="login-title">Weaver Admin</div><div class="login-tag">Owner console</div></div>' +
       (msg ? '<div class="err">' + esc(msg) + '</div>' : '') +
-      '<div class="field"><span>Email</span>' +
-      '<input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
-      '<div class="field"><span>Password</span>' +
-      '<input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
+      '<div class="field"><span>Email</span><input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
+      '<div class="field"><span>Password</span><input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
       '<button id="li-btn" class="btn btn-gold">Sign in</button>' +
       '<div class="login-hint">Only the owner account can enter this console.</div>' +
     '</div></div>';
@@ -169,67 +228,24 @@ function renderLogin(msg) {
       const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
       if (res.error) { renderLogin(res.error.message || 'Sign-in failed.'); return; }
       setSession(res.data.session.access_token, res.data.user && res.data.user.email);
-      loadOverview();
-    } catch (e) {
-      renderLogin(e.message || 'Sign-in failed.');
-    }
+      renderShell('overview');
+    } catch (e) { renderLogin(e.message || 'Sign-in failed.'); }
   }
   btn.onclick = go;
   pass.onkeydown = e => { if (e.key === 'Enter') go(); };
   setTimeout(() => email.focus(), 60);
 }
 
-/* ---------- api ---------- */
-async function api(path) {
-  let res;
-  try {
-    res = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + getToken() } });
-  } catch (e) {
-    throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?');
-  }
-  if (res.status === 401) {
-    setSession('');
-    renderLogin('Session expired or wrong account — sign in again.');
-    throw new Error('unauthorized');
-  }
-  if (!res.ok) {
-    let msg = 'HTTP ' + res.status;
-    try { const j = await res.json(); if (j && j.error) msg = j.error; } catch (e) {}
-    throw new Error(msg);
-  }
-  return res.json();
-}
-
-/* ---------- dashboard view ---------- */
-function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
-function card(value, label, sub, cls) {
-  return '<div class="card">' +
-    '<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
-    '<div class="card-label">' + esc(label) + '</div>' +
-    (sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
-  '</div>';
-}
-async function loadOverview() {
-  app.innerHTML = '<div class="loading">Loading overview…</div>';
-  let health = 'unreachable';
-  try {
-    const h = await fetch(API_BASE + '/api/health');
-    if (h.ok) health = 'online';
-  } catch (e) {}
-  try {
-    const d = await api('/api/overview');
-    renderDash(d, health);
-  } catch (e) {
-    if (e.message !== 'unauthorized') {
-      app.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
-    }
-  }
-}
-function renderDash(d, health) {
-  const problems = (d.problems && d.problems.length)
-    ? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
-  let updated = '';
-  try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
+/* ---------- shell + tabs ---------- */
+const TABS = [
+  { id: 'overview', label: 'Overview', ready: true },
+  { id: 'users', label: 'Users', ready: true },
+  { id: 'credits', label: 'Credits', ready: false },
+  { id: 'storage', label: 'Storage', ready: false },
+  { id: 'audit', label: 'Audit', ready: false },
+];
+function renderShell(tab) {
+  activeTab = tab;
   app.innerHTML =
     '<div class="top">' +
       '<span class="w top-w">W</span>' +
@@ -240,30 +256,183 @@ function renderDash(d, health) {
         '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
       '</div>' +
     '</div>' +
-    '<div class="tabs">' +
-      '<span class="tab on">Overview</span>' +
-      '<span class="tab">Users<span class="soon">soon</span></span>' +
-      '<span class="tab">Credits<span class="soon">soon</span></span>' +
-      '<span class="tab">Storage<span class="soon">soon</span></span>' +
-      '<span class="tab">Audit<span class="soon">soon</span></span>' +
-    '</div>' +
-    problems +
-    '<div class="grid">' +
-      card(num(d.usersTotal), 'Total users', 'all accounts') +
-      card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
-      card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
-      card(num(d.objects), 'Vault objects', 'compressed blobs') +
-      card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-      card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1a', health === 'online' ? 'ok' : 'bad') +
-    '</div>' +
-    '<div class="meta">last updated ' + esc(updated) +
-    '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1a</div>';
-  document.getElementById('btn-refresh').onclick = loadOverview;
+    '<div class="tabs" id="admin-tabs"></div>' +
+    '<div id="admin-note" class="admin-note-bar" hidden></div>' +
+    '<div id="admin-content"><div class="loading">Loading…</div></div>';
+  renderTabs();
+  document.getElementById('btn-refresh').onclick = () => loadTab(activeTab);
   document.getElementById('btn-out').onclick = () => { setSession(''); renderLogin(''); };
+  loadTab(tab);
+}
+function renderTabs() {
+  const host = document.getElementById('admin-tabs');
+  host.innerHTML = TABS.map(t =>
+    '<span class="tab' + (t.id === activeTab ? ' on' : '') + '" data-tab="' + t.id + '">' +
+      t.label + (t.ready ? '' : '<span class="soon">soon</span>') +
+    '</span>').join('');
+}
+function setTab(tab) { activeTab = tab; renderTabs(); loadTab(tab); }
+function loadTab(tab) {
+  const content = document.getElementById('admin-content');
+  if (tab === 'overview') return loadOverviewInto(content);
+  if (tab === 'users') return loadUsers();
+  content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later V3.1 step.</div>';
 }
 
+/* ---------- overview ---------- */
+function card(value, label, sub, cls) {
+  return '<div class="card">' +
+    '<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
+    '<div class="card-label">' + esc(label) + '</div>' +
+    (sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
+  '</div>';
+}
+async function loadOverviewInto(content) {
+  content.innerHTML = '<div class="loading">Loading overview…</div>';
+  let health = 'unreachable';
+  try { const h = await fetch(API_BASE + '/api/health'); if (h.ok) health = 'online'; } catch (e) {}
+  try {
+    const d = await api('/api/overview');
+    const problems = (d.problems && d.problems.length)
+      ? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
+    let updated = ''; try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
+    content.innerHTML = problems +
+      '<div class="grid">' +
+        card(num(d.usersTotal), 'Total users', 'all accounts') +
+        card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
+        card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
+        card(num(d.objects), 'Vault objects', 'compressed blobs') +
+        card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1b', health === 'online' ? 'ok' : 'bad') +
+      '</div>' +
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1b</div>';
+  } catch (e) {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
+  }
+}
+
+/* ---------- users tab ---------- */
+function userCardHTML(u) {
+  const banned = !!u.banned_until;
+  const status = u.is_owner
+    ? '<span class="status-badge owner">owner</span>'
+    : (banned ? '<span class="status-badge banned">suspended</span>' : '<span class="status-badge active">active</span>');
+  let actions = '';
+  if (!u.is_owner) {
+    actions += banned
+      ? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
+      : '<button class="btn btn-sm" data-action="ban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Suspend</button>';
+  }
+  actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Send reset</button>';
+  if (!u.is_owner) {
+    actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
+  }
+  return '<div class="user-card">' +
+    '<div class="user-card-head"><span class="user-email">' + esc(u.email || '(no email)') + '</span>' + status + '</div>' +
+    '<div class="user-meta">created ' + fmtDate(u.created_at) + ' · last sign-in ' + (u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'never') + '</div>' +
+    '<div class="user-actions">' + actions + '</div>' +
+  '</div>';
+}
+function emptyUsersHTML() { return '<div class="empty">No users found.</div>'; }
+function loadUsers() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading users…</div>';
+  api('/api/users').then(d => {
+    allUsers = d.users || [];
+    renderUsers(allUsers);
+  }).catch(e => {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  });
+}
+function renderUsers(list) {
+  const content = document.getElementById('admin-content');
+  content.innerHTML =
+    '<div class="users-toolbar">' +
+      '<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
+      '<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
+    '</div>' +
+    '<div id="create-form-wrap"></div>' +
+    '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
+    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. The owner account is protected.</div>';
+  document.getElementById('user-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
+    document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
+  });
+  document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
+}
+function toggleCreateForm() {
+  const wrap = document.getElementById('create-form-wrap');
+  if (!wrap) return;
+  if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML =
+    '<div class="create-form">' +
+      '<div class="row">' +
+        '<input id="nu-email" class="input" type="email" placeholder="user@example.com">' +
+        '<input id="nu-pass" class="input" type="password" placeholder="password (min 6)">' +
+      '</div>' +
+      '<div class="row" style="justify-content:flex-end">' +
+        '<button class="btn btn-sm" data-create-cancel>Cancel</button>' +
+        '<button class="btn btn-sm btn-primary" data-create-go>Create account</button>' +
+      '</div>' +
+    '</div>';
+  wrap.querySelector('[data-create-cancel]').addEventListener('click', () => { wrap.innerHTML = ''; });
+  wrap.querySelector('[data-create-go]').addEventListener('click', async () => {
+    const email = document.getElementById('nu-email').value.trim();
+    const pass = document.getElementById('nu-pass').value;
+    if (!email || !pass) { showNote('⚠ Enter both an email and a password.', false); return; }
+    try {
+      await api('/api/users', { method: 'POST', body: { email, password: pass } });
+      wrap.innerHTML = '';
+      showNote('Account created for <b>' + esc(email) + '</b>.', false);
+      loadUsers();
+    } catch (e) {
+      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+    }
+  });
+  document.getElementById('nu-email').focus();
+}
+async function handleUserAction(action, id, email) {
+  if (!id) return;
+  try {
+    if (action === 'ban' || action === 'unban') {
+      const verb = action === 'ban' ? 'Suspend' : 'Unsuspend';
+      if (!confirm(verb + ' ' + (email || 'this user') + '?')) return;
+      await api('/api/users/' + id + '/' + action, { method: 'POST' });
+      showNote((action === 'ban' ? 'Suspended ' : 'Unsuspended ') + '<b>' + esc(email || 'user') + '</b>.', false);
+      loadUsers();
+    } else if (action === 'recovery') {
+      const d = await api('/api/users/' + id + '/recovery', { method: 'POST' });
+      if (d && d.action_link) {
+        showNote('Reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
+          '<a href="' + esc(d.action_link) + '" target="_blank" rel="noopener" style="word-break:break-all">' + esc(d.action_link) + '</a>', true);
+      } else {
+        showNote('Password-reset email sent to <b>' + esc(email || 'user') + '</b>.', false);
+      }
+    } else if (action === 'delete') {
+      if (!confirm('Delete ' + (email || 'this user') + '? This cannot be undone.')) return;
+      if (!confirm('This also PERMANENTLY WIPES their cloud vault. Continue deleting ' + (email || 'this user') + '?')) return;
+      const d = await api('/api/users/' + id, { method: 'DELETE' });
+      let msg = '<b>' + esc(email || 'User') + '</b> deleted.';
+      if (d && d.storageOk === false) msg += ' <span style="color:var(--danger)">Vault cleanup issue: ' + esc(d.storageMsg || 'unknown') + '.</span>';
+      showNote(msg, false);
+      loadUsers();
+    }
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+}
+
+/* ---------- global click delegation ---------- */
+app.addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (btn) { handleUserAction(btn.dataset.action, btn.dataset.id, btn.dataset.email); return; }
+  const tabEl = e.target.closest('[data-tab]');
+  if (tabEl) { setTab(tabEl.dataset.tab); return; }
+});
+
 /* ---------- boot ---------- */
-if (getToken()) loadOverview(); else renderLogin('');
+if (getToken()) renderShell('overview'); else renderLogin('');
 </script>
 </body>
 </html>
