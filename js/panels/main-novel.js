@@ -44,7 +44,7 @@ export function mountMainNovel(panel) {
 
   const header = panel.querySelector('.panel-header');
   const actions = panel.querySelector('.panel-actions');
-  wordCountEl = el('span', { class: 'badge badge-accent mn-word-count', text: '0 words' });
+  wordCountEl = el('span', { class: 'badge badge-accent mn-word-count', style: { whiteSpace: 'nowrap', flex: 'none' }, text: '0 words' });
   header.insertBefore(wordCountEl, actions);
 
   bodyEl.addEventListener('scroll', onScroll);
