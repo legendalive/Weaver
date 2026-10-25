@@ -839,14 +839,14 @@ function renderStorage(s, m) {
     rows +
     '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
 }
-
 function auditBadge(a) {
   const cls = a.indexOf('delete') >= 0 ? 'banned'
-    : a.indexOf('credits') === 0 || a.indexOf('banner') === 0 ? 'owner'
+    : a.indexOf('credits') === 0 || a.indexOf('banner') === 0 || a.indexOf('backup') === 0 ? 'owner'
     : a.indexOf('suspend') >= 0 ? 'banned'
     : 'active';
   return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
 }
+
 async function exportAuditCsv() {
   try {
     const d = await api('/api/audit');
@@ -859,6 +859,25 @@ async function exportAuditCsv() {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
   }
 }
+  async function emailBackupNow() {
+  const btn = document.getElementById('btn-backup-email');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const d = await api('/api/backup', { method: 'POST' });
+    const c = d.counts || {};
+    showNote('Ledger backup emailed to <b>' + esc(d.emailedTo || 'you') + '</b> — ' +
+      num(c.entitlements) + ' entitlements, ' + num(c.creditLog) + ' credit rows, ' + num(c.audit) +
+      ' audit rows. Check your inbox (and spam) for the three CSVs.', true);
+    loadAudit();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Email backup now';
+}
+function loadAudit() {
 function loadAudit() {
   const content = document.getElementById('admin-content');
   content.innerHTML = '<div class="loading">Loading audit log…</div>';
@@ -872,14 +891,16 @@ function loadAudit() {
         '<span class="audit-detail">' + esc(r.detail || '') + '</span>' +
       '</div>').join('')
       : '<div class="empty">No admin actions logged yet.</div>';
-    content.innerHTML =
+        content.innerHTML =
       '<div class="users-toolbar">' +
         '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">' + rows.length + ' entries · newest first</span>' +
+        '<button id="btn-backup-email" class="btn btn-primary" title="Email the three ledgers (entitlements, credit log, audit) to yourself right now">Email backup now</button>' +
         '<button id="btn-audit-csv" class="btn" title="Download the audit log as CSV">Export CSV</button>' +
       '</div>' +
       '<div class="audit-list">' + body + '</div>' +
-      '<div class="admin-note">Every account and credits action is recorded here with its reason. Latest 200 entries.</div>';
+      '<div class="admin-note">Every account, credits and banner action is recorded here with its reason (latest 200 entries). The three ledgers — entitlements, credit log, audit — are also emailed to you automatically every Monday at 04:00 UTC.</div>';
     document.getElementById('btn-audit-csv').addEventListener('click', exportAuditCsv);
+    document.getElementById('btn-backup-email').addEventListener('click', emailBackupNow);
   }).catch(e => {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
   });
