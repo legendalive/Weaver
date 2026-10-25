@@ -30,7 +30,6 @@ body{
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
 }
-/* ---------- shared components ---------- */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
@@ -46,14 +45,14 @@ body{
 .btn-danger{background:transparent;border-color:var(--border-strong);color:var(--danger)}
 .btn-danger:hover{background:rgba(212,96,79,.12);border-color:var(--danger)}
 .btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
-.input,.textarea{
+.input,.textarea,.select{
   width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
   border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
 }
+.select{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat}
 .textarea{resize:vertical;min-height:90px;line-height:1.5;font-family:var(--font-mono)}
-.input:focus,.textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input:focus,.textarea:focus,.select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .input::placeholder,.textarea::placeholder{color:var(--faint)}
-/* ---------- login ---------- */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{
   width:min(400px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
@@ -70,7 +69,6 @@ body{
   background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
 }
 .login-hint{font-size:.72rem;color:var(--faint)}
-/* ---------- shell ---------- */
 .top{
   position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
   padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
@@ -94,7 +92,6 @@ body{
   border:1px solid rgba(224,168,60,.35);background:var(--accent-soft);color:var(--text);
 }
 .admin-note-bar a{color:var(--accent)}
-/* ---------- overview cards ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
 .card{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
 .card-num{font-size:1.9rem;font-weight:700;font-family:var(--font-mono)}
@@ -110,7 +107,6 @@ body{
 .meta{padding:4px 16px 26px;color:var(--faint);font-size:.72rem;font-family:var(--font-mono);line-height:1.7}
 .loading{padding:60px 24px;text-align:center;color:var(--muted)}
 .empty{padding:40px 24px;text-align:center;color:var(--faint);font-size:.85rem}
-/* ---------- users tab ---------- */
 .users-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
 .users-toolbar .input{flex:1;min-width:170px}
 .create-form{
@@ -135,7 +131,6 @@ body{
 .status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
 .status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
 .admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
-/* ---------- user detail ---------- */
 .user-detail{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-strong)}
 .ud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
 .ud-box{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
@@ -144,7 +139,6 @@ body{
 .ud-hint{font-size:.7rem;color:var(--faint);line-height:1.5}
 .user-detail .row{display:flex;gap:8px;flex-wrap:wrap}
 .user-detail .row .input{flex:1;min-width:140px}
-/* ---------- credits tab ---------- */
 .cred-badges{display:flex;gap:6px;flex-wrap:wrap}
 .cred-history{
   margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
@@ -158,7 +152,6 @@ body{
 .cred-log-amt.neg{color:var(--danger)}
 .cred-log-reason{flex:1;min-width:0;color:var(--text);overflow-wrap:anywhere}
 .cred-log-date{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;flex:none}
-/* ---------- storage tab ---------- */
 .stor-chart-wrap{margin:4px 16px 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
 .stor-chart-title{
   font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
@@ -166,7 +159,6 @@ body{
 }
 .stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
 .stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-/* ---------- audit tab ---------- */
 .audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
 .audit-row{
   display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
@@ -176,6 +168,23 @@ body{
 .audit-time{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);flex:none}
 .audit-target{color:var(--text);font-weight:600;overflow-wrap:anywhere}
 .audit-detail{color:var(--muted);flex:1;min-width:120px;overflow-wrap:anywhere}
+/* ---------- Banner tab (V3.1g) ---------- */
+.banner-wrap{padding:16px;display:flex;flex-direction:column;gap:14px}
+.banner-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:flex;flex-direction:column;gap:12px;
+}
+.banner-card h3{font-size:.78rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.banner-preview{
+  padding:12px 16px;border-radius:8px;font-size:.85rem;line-height:1.5;
+  border:1px solid var(--border);min-height:44px;
+}
+.banner-preview.is-info{background:var(--accent-soft);border-color:rgba(224,168,60,.4);color:var(--accent)}
+.banner-preview.is-warning{background:rgba(212,96,79,.12);border-color:rgba(212,96,79,.4);color:var(--danger)}
+.banner-preview.is-maintenance{background:rgba(224,168,60,.22);border-color:rgba(224,168,60,.6);color:var(--accent);font-weight:600}
+.banner-preview.is-empty{color:var(--faint);font-style:italic;background:transparent;border-style:dashed}
+.banner-counter{font-size:.7rem;color:var(--faint);font-family:var(--font-mono);text-align:right}
+.banner-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -188,10 +197,10 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1f (rev 2) dashboard shell.
-UI on GitHub Pages; all data from the JSON-only Edge Function.
-FIX: the Details view now opens from BOTH the Users tab and
-the Credits tab — one click from wherever you manage a person.
+Weaver Admin — V3.1g dashboard shell.
+Six tabs: Overview · Users · Credits · Storage · Audit · Banner.
+Banner tab lets the owner publish/maintain the slim strip
+that appears at the top of the live app for every signed-in user.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -211,6 +220,7 @@ try {
 let activeTab = 'overview';
 let allUsers = [];
 let allCredits = [];
+let bannerState = { text: '', level: 'info', show_until: null, updated_at: null };
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -238,7 +248,6 @@ function fmtBytes(n) {
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
   return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
 }
-/* ---------- CSV helpers ---------- */
 function csvEscape(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
 function downloadCsv(filename, header, rows) {
   const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -252,7 +261,6 @@ function downloadCsv(filename, header, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* ---------- api ---------- */
 async function api(path, opts = {}) {
   const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
   if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
@@ -266,7 +274,6 @@ async function api(path, opts = {}) {
   return data;
 }
 
-/* ---------- note bar ---------- */
 function showNote(html, sticky) {
   const note = document.getElementById('admin-note');
   if (!note) return;
@@ -275,7 +282,6 @@ function showNote(html, sticky) {
   if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 6000); }
 }
 
-/* ---------- login ---------- */
 function renderLogin(msg) {
   app.innerHTML =
     '<div class="login-wrap"><div class="login-card">' +
@@ -305,13 +311,13 @@ function renderLogin(msg) {
   setTimeout(() => email.focus(), 60);
 }
 
-/* ---------- shell + tabs ---------- */
 const TABS = [
   { id: 'overview', label: 'Overview', ready: true },
   { id: 'users', label: 'Users', ready: true },
   { id: 'credits', label: 'Credits', ready: true },
   { id: 'storage', label: 'Storage', ready: true },
   { id: 'audit', label: 'Audit', ready: true },
+  { id: 'banner', label: 'Banner', ready: true },
 ];
 function renderShell(tab) {
   activeTab = tab;
@@ -348,10 +354,10 @@ function loadTab(tab) {
   if (tab === 'credits') return loadCredits();
   if (tab === 'storage') return loadStorage();
   if (tab === 'audit') return loadAudit();
+  if (tab === 'banner') return loadBanner();
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
 }
 
-/* ---------- overview ---------- */
 function card(value, label, sub, cls) {
   return '<div class="card">' +
     '<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
@@ -375,15 +381,14 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1f', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1g', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1f</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1g</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
 }
 
-/* ---------- users tab ---------- */
 function userCardHTML(u) {
   const banned = !!u.banned_until;
   const status = u.is_owner
@@ -486,7 +491,6 @@ function toggleCreateForm() {
   });
   document.getElementById('nu-email').focus();
 }
-/* ---------- bulk invite ---------- */
 function toggleBulkInvite() {
   const wrap = document.getElementById('bulk-invite-wrap');
   if (!wrap) return;
@@ -560,7 +564,6 @@ async function handleUserAction(action, id, email) {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
   }
 }
-/* ---------- user detail view (opens from Users AND Credits tabs) ---------- */
 function detailHTML(ent, st, log, audits) {
   const neverSynced = !st || !st.objects;
   const plan = ent ? ent.plan : 'free';
@@ -651,7 +654,6 @@ async function toggleUserDetails(id, email, btn) {
   }
 }
 
-/* ---------- credits tab ---------- */
 function creditCardHTML(r) {
   const planBadge = r.plan === 'pro'
     ? '<span class="status-badge owner">pro</span>'
@@ -771,7 +773,6 @@ async function toggleHistory(userId) {
   }
 }
 
-/* ---------- storage tab ---------- */
 function signupsChartSVG(days) {
   if (!days || !days.length) return '';
   const W = 640;
@@ -838,10 +839,9 @@ function renderStorage(s, m) {
     '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
 }
 
-/* ---------- audit tab ---------- */
 function auditBadge(a) {
   const cls = a.indexOf('delete') >= 0 ? 'banned'
-    : a.indexOf('credits') === 0 ? 'owner'
+    : a.indexOf('credits') === 0 || a.indexOf('banner') === 0 ? 'owner'
     : a.indexOf('suspend') >= 0 ? 'banned'
     : 'active';
   return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
@@ -884,7 +884,114 @@ function loadAudit() {
   });
 }
 
-/* ---------- global click delegation ---------- */
+/* ---------- Banner tab (V3.1g) ---------- */
+function bannerPreviewHTML(text, level) {
+  if (!text) return '<div class="banner-preview is-empty">No banner is live. Fill in the form and press Save to publish one.</div>';
+  return '<div class="banner-preview is-' + esc(level) + '">' + esc(text) + '</div>';
+}
+async function loadBanner() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading banner…</div>';
+  try {
+    const row = await api('/api/announcement');
+    bannerState = row || { text: '', level: 'info', show_until: null, updated_at: null };
+    renderBannerForm();
+  } catch (e) {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  }
+}
+function renderBannerForm() {
+  const content = document.getElementById('admin-content');
+  const untilValue = bannerState.show_until ? String(bannerState.show_until).slice(0, 16) : '';
+  const untilHint = bannerState.show_until
+    ? 'Auto-hides after ' + fmtDateTime(bannerState.show_until)
+    : 'No expiry — banner stays until you clear it.';
+  const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
+  content.innerHTML =
+    '<div class="banner-wrap">' +
+      '<div class="banner-card">' +
+        '<h3>Live preview</h3>' +
+        '<div id="bn-preview">' + bannerPreviewHTML(bannerState.text, bannerState.level) + '</div>' +
+      '</div>' +
+      '<div class="banner-card">' +
+        '<h3>Compose</h3>' +
+        '<div class="field"><span>Message (≤ 400 characters)</span>' +
+          '<textarea id="bn-text" class="textarea" rows="3" maxlength="400" placeholder="e.g. Weaver will be briefly offline tonight 8–9pm UTC for a database upgrade. Your work saves locally throughout.">' + esc(bannerState.text) + '</textarea>' +
+          '<div class="banner-counter" id="bn-counter">' + (bannerState.text || '').length + ' / 400</div>' +
+        '</div>' +
+        '<div class="field"><span>Severity</span>' +
+          '<select id="bn-level" class="select">' +
+            '<option value="info"' + (bannerState.level === 'info' ? ' selected' : '') + '>Info — news, feature launch (gold)</option>' +
+            '<option value="warning"' + (bannerState.level === 'warning' ? ' selected' : '') + '>Warning — known issue, workaround (red)</option>' +
+            '<option value="maintenance"' + (bannerState.level === 'maintenance' ? ' selected' : '') + '>Maintenance — planned downtime (bold gold)</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="field"><span>Auto-hide (optional)</span>' +
+          '<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
+          '<div class="banner-counter" id="bn-until-hint">' + esc(untilHint) + '</div>' +
+        '</div>' +
+        '<div class="banner-actions">' +
+          '<button id="bn-clear" class="btn btn-danger">Clear banner</button>' +
+          '<button id="bn-save" class="btn btn-primary">Save &amp; publish</button>' +
+        '</div>' +
+        '<div class="banner-counter">' + esc(updated) + '</div>' +
+      '</div>' +
+      '<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in. Leave the message blank and press Save to pull the banner down.</div>' +
+    '</div>';
+  const textEl = document.getElementById('bn-text');
+  const levelEl = document.getElementById('bn-level');
+  const untilEl = document.getElementById('bn-until');
+  const preview = document.getElementById('bn-preview');
+  const counter = document.getElementById('bn-counter');
+  const untilHint = document.getElementById('bn-until-hint');
+  function refreshPreview() {
+    const text = textEl.value;
+    const level = levelEl.value;
+    counter.textContent = text.length + ' / 400';
+    preview.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
+  }
+  function refreshUntilHint() {
+    const v = untilEl.value;
+    untilHint.textContent = v
+      ? 'Auto-hides after ' + new Date(v).toLocaleString()
+      : 'No expiry — banner stays until you clear it.';
+  }
+  textEl.addEventListener('input', refreshPreview);
+  levelEl.addEventListener('change', refreshPreview);
+  untilEl.addEventListener('input', refreshUntilHint);
+  document.getElementById('bn-save').addEventListener('click', saveBanner);
+  document.getElementById('bn-clear').addEventListener('click', clearBanner);
+}
+async function saveBanner() {
+  const text = document.getElementById('bn-text').value.trim();
+  const level = document.getElementById('bn-level').value;
+  const until = document.getElementById('bn-until').value;
+  try {
+    const res = await api('/api/announcement', {
+      method: 'POST',
+      body: { text, level, show_until: until ? new Date(until).toISOString() : null },
+    });
+    bannerState = res.row || bannerState;
+    showNote(text
+      ? 'Banner published — every signed-in user will see it on next page load.'
+      : 'Banner cleared — the strip is gone for every user.', false);
+    renderBannerForm();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+}
+async function clearBanner() {
+  if (bannerState.text && !confirm('Clear the current banner? It will disappear for every user.')) return;
+  try {
+    const res = await api('/api/announcement', { method: 'POST', body: { text: '', level: 'info', show_until: null } });
+    bannerState = res.row || { text: '', level: 'info', show_until: null, updated_at: null };
+    showNote('Banner cleared.', false);
+    renderBannerForm();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+}
+
 app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (btn) {
@@ -900,7 +1007,6 @@ app.addEventListener('click', e => {
   if (tabEl) { setTab(tabEl.dataset.tab); return; }
 });
 
-/* ---------- boot ---------- */
 if (getToken()) renderShell('overview'); else renderLogin('');
 </script>
 </body>
