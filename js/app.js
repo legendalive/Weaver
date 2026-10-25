@@ -23,6 +23,7 @@ import { initScribe } from './features/scribe.js';
 import { initAiOutput } from './panels/ai-output.js';
 import { initSearch } from './features/search.js';
 import { initCapture } from './features/capture.js';
+import { loadBanner } from './features/banner.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { renderMainNovel } from './panels/main-novel.js';
 
@@ -161,8 +162,9 @@ async function enterApp() {
 }
 
 async function boot() {
-  armWatchdog();
-  try {
+armWatchdog();
+loadBanner();
+try {
     setStatus('contacting auth service…');
 
     const result = await initAuth();
