@@ -910,8 +910,11 @@ async function loadBanner() {
   const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
   content.innerHTML =
     '<div class="banner-wrap">' +
-      '<div class="banner-card">' +
-        '<h3>Live preview</h3>' +
+            '<div class="banner-card">' +
+        '<div class="banner-card-head">' +
+          '<h3>Live preview</h3>' +
+          '<button id="bn-dismiss" class="btn btn-sm btn-danger"' + (bannerState.text ? '' : ' hidden') + '>Dismiss</button>' +
+        '</div>' +
         '<div id="bn-preview">' + bannerPreviewHTML(bannerState.text, bannerState.level) + '</div>' +
       '</div>' +
       '<div class="banner-card">' +
@@ -931,13 +934,12 @@ async function loadBanner() {
           '<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
           '<div class="banner-counter" id="bn-until-hint">' + esc(untilHintText) + '</div>' +
         '</div>' +
-        '<div class="banner-actions">' +
-          '<button id="bn-clear" class="btn btn-danger">Clear banner</button>' +
+                '<div class="banner-actions">' +
           '<button id="bn-save" class="btn btn-primary">Save &amp; publish</button>' +
         '</div>' +
         '<div class="banner-counter">' + esc(updated) + '</div>' +
       '</div>' +
-      '<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in. Leave the message blank and press Save to pull the banner down.</div>' +
+            '<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in. To take the banner down for everyone, press Dismiss in the preview card above.</div>' +
     '</div>';
   const textEl = document.getElementById('bn-text');
   const levelEl = document.getElementById('bn-level');
@@ -945,11 +947,14 @@ async function loadBanner() {
   const preview = document.getElementById('bn-preview');
   const counter = document.getElementById('bn-counter');
   const untilHintEl = document.getElementById('bn-until-hint');
-  function refreshPreview() {
+    function refreshPreview() {
     const text = textEl.value;
     const level = levelEl.value;
     counter.textContent = text.length + ' / 400';
-    preview.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
+    const node = document.getElementById('bn-preview');
+    if (node) node.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
+    const dismiss = document.getElementById('bn-dismiss');
+    if (dismiss) dismiss.hidden = !text;
   }
   function refreshUntilHint() {
     const v = untilEl.value;
@@ -960,8 +965,8 @@ async function loadBanner() {
   textEl.addEventListener('input', refreshPreview);
   levelEl.addEventListener('change', refreshPreview);
   untilEl.addEventListener('input', refreshUntilHint);
-  document.getElementById('bn-save').addEventListener('click', saveBanner);
-  document.getElementById('bn-clear').addEventListener('click', clearBanner);
+    document.getElementById('bn-save').addEventListener('click', saveBanner);
+  document.getElementById('bn-dismiss').addEventListener('click', clearBanner);
 }
 async function saveBanner() {
   const text = document.getElementById('bn-text').value.trim();
@@ -982,11 +987,11 @@ async function saveBanner() {
   }
 }
 async function clearBanner() {
-  if (bannerState.text && !confirm('Clear the current banner? It will disappear for every user.')) return;
+    if (bannerState.text && !confirm('Dismiss this banner? It will disappear for every user.')) return;
   try {
     const res = await api('/api/announcement', { method: 'POST', body: { text: '', level: 'info', show_until: null } });
     bannerState = res.row || { text: '', level: 'info', show_until: null, updated_at: null };
-    showNote('Banner cleared.', false);
+        showNote('Banner dismissed.', false);
     renderBannerForm();
   } catch (e) {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
