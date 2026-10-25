@@ -900,10 +900,10 @@ async function loadBanner() {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
   }
 }
-function renderBannerForm() {
+  function renderBannerForm() {
   const content = document.getElementById('admin-content');
   const untilValue = bannerState.show_until ? String(bannerState.show_until).slice(0, 16) : '';
-  const untilHint = bannerState.show_until
+  const untilHintText = bannerState.show_until
     ? 'Auto-hides after ' + fmtDateTime(bannerState.show_until)
     : 'No expiry — banner stays until you clear it.';
   const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
@@ -928,7 +928,7 @@ function renderBannerForm() {
         '</div>' +
         '<div class="field"><span>Auto-hide (optional)</span>' +
           '<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
-          '<div class="banner-counter" id="bn-until-hint">' + esc(untilHint) + '</div>' +
+          '<div class="banner-counter" id="bn-until-hint">' + esc(untilHintText) + '</div>' +
         '</div>' +
         '<div class="banner-actions">' +
           '<button id="bn-clear" class="btn btn-danger">Clear banner</button>' +
@@ -943,7 +943,7 @@ function renderBannerForm() {
   const untilEl = document.getElementById('bn-until');
   const preview = document.getElementById('bn-preview');
   const counter = document.getElementById('bn-counter');
-  const untilHint = document.getElementById('bn-until-hint');
+  const untilHintEl = document.getElementById('bn-until-hint');
   function refreshPreview() {
     const text = textEl.value;
     const level = levelEl.value;
@@ -952,7 +952,7 @@ function renderBannerForm() {
   }
   function refreshUntilHint() {
     const v = untilEl.value;
-    untilHint.textContent = v
+    untilHintEl.textContent = v
       ? 'Auto-hides after ' + new Date(v).toLocaleString()
       : 'No expiry — banner stays until you clear it.';
   }
