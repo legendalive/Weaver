@@ -148,6 +148,14 @@ body{
 .cred-log-amt.neg{color:var(--danger)}
 .cred-log-reason{flex:1;min-width:0;color:var(--text);overflow-wrap:anywhere}
 .cred-log-date{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;flex:none}
+/* ---------- storage tab ---------- */
+.stor-chart-wrap{margin:4px 16px 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.stor-chart-title{
+  font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;
+}
+.stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
+.stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -160,11 +168,11 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1c dashboard shell.
+Weaver Admin — V3.1d dashboard shell.
 UI on GitHub Pages; all data from the JSON-only Edge Function.
-Tabs: Overview + Users + Credits live; Storage/Audit later.
-"Reset password" = emails a password-reset link (Supabase
-recovery flow). It never touches credits or usage.
+Tabs: Overview · Users · Credits · Storage live; Audit later.
+Credits: explicit Grant / Revoke buttons (no hidden negatives).
+Storage: vault totals, 14-day signups chart, per-user usage.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -202,6 +210,13 @@ function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
 function creditEmailOf(uid) {
   const r = allCredits.find(x => x.user_id === uid);
   return r ? (r.email || '') : '';
+}
+function fmtBytes(n) {
+  if (!Number.isFinite(n) || n <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let i = 0; let v = n;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
 }
 
 /* ---------- api ---------- */
@@ -262,7 +277,7 @@ const TABS = [
   { id: 'overview', label: 'Overview', ready: true },
   { id: 'users', label: 'Users', ready: true },
   { id: 'credits', label: 'Credits', ready: true },
-  { id: 'storage', label: 'Storage', ready: false },
+  { id: 'storage', label: 'Storage', ready: true },
   { id: 'audit', label: 'Audit', ready: false },
 ];
 function renderShell(tab) {
@@ -298,6 +313,7 @@ function loadTab(tab) {
   if (tab === 'overview') return loadOverviewInto(content);
   if (tab === 'users') return loadUsers();
   if (tab === 'credits') return loadCredits();
+  if (tab === 'storage') return loadStorage();
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later V3.1 step.</div>';
 }
 
@@ -325,9 +341,9 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1c', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1d', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1c</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1d</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
@@ -372,6 +388,7 @@ function renderUsers(list) {
     '<div class="users-toolbar">' +
       '<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
       '<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
+      '<button id="btn-export-csv" class="btn" title="Download the user list as CSV">Export CSV</button>' +
     '</div>' +
     '<div id="create-form-wrap"></div>' +
     '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
@@ -382,6 +399,27 @@ function renderUsers(list) {
     document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
   });
   document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
+  document.getElementById('btn-export-csv').addEventListener('click', exportUsersCsv);
+}
+function exportUsersCsv() {
+  if (!allUsers.length) { showNote('⚠ No users to export.', false); return; }
+  const header = 'email,created,last_sign_in,status';
+  const lines = allUsers.map(u => [
+    '"' + String(u.email || '').replace(/"/g, '""') + '"',
+    u.created_at || '',
+    u.last_sign_in_at || '',
+    u.banned_until ? 'suspended' : 'active',
+  ].join(','));
+  const csv = header + '\n' + lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function toggleCreateForm() {
   const wrap = document.getElementById('create-form-wrap');
@@ -460,7 +498,8 @@ function creditCardHTML(r) {
     '</div>' +
     '<div class="user-meta">' + esc(proLine) + '</div>' +
     '<div class="user-actions">' +
-      '<button class="btn btn-sm btn-primary" data-action="adjust" data-id="' + esc(r.user_id) + '">Adjust credits</button>' +
+      '<button class="btn btn-sm btn-primary" data-action="grant" data-id="' + esc(r.user_id) + '" title="Add credits and/or Pro days">Grant</button>' +
+      '<button class="btn btn-sm btn-danger" data-action="revoke" data-id="' + esc(r.user_id) + '" title="Remove credits">Revoke</button>' +
       '<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
     '</div>' +
     '<div class="cred-slot"></div>' +
@@ -483,43 +522,51 @@ function renderCredits(list) {
       '<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
     '</div>' +
     '<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
-    '<div class="admin-note">Credits are granted or revoked per user with a mandatory reason (audit trail). "Pro days" extend the paid tier — consumed by the paywall (V3.2) and the AI proxy (V3.4).</div>';
+    '<div class="admin-note">Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
   document.getElementById('credit-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
     document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
   });
 }
-function toggleAdjustForm(userId) {
+function toggleAdjustForm(userId, mode) {
   const card = document.querySelector('[data-credit-card="' + userId + '"]');
   if (!card) return;
   const slot = card.querySelector('.cred-slot');
   if (!slot) return;
   if (slot.querySelector('.create-form')) { slot.innerHTML = ''; return; }
   document.querySelectorAll('.cred-slot').forEach(s => { s.innerHTML = ''; });
+  const isGrant = mode === 'grant';
   slot.innerHTML =
     '<div class="create-form">' +
       '<div class="row">' +
-        '<input data-f="amount" class="input" type="number" step="1" placeholder="Amount (+ grant / − revoke)">' +
-        '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' +
+        '<input data-f="amount" class="input" type="number" min="0" step="1" placeholder="' + (isGrant ? 'Credits to add' : 'Credits to remove') + '">' +
+        (isGrant ? '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' : '') +
       '</div>' +
       '<input data-f="reason" class="input" type="text" placeholder="Reason (required — appears in the audit log)">' +
       '<div class="row" style="justify-content:flex-end">' +
         '<button class="btn btn-sm" data-cred-cancel>Cancel</button>' +
-        '<button class="btn btn-sm btn-primary" data-cred-apply>Apply</button>' +
+        '<button class="btn btn-sm ' + (isGrant ? 'btn-primary' : 'btn-danger') + '" data-cred-apply>' + (isGrant ? 'Grant' : 'Revoke') + '</button>' +
       '</div>' +
     '</div>';
   slot.querySelector('[data-cred-cancel]').addEventListener('click', () => { slot.innerHTML = ''; });
   slot.querySelector('[data-cred-apply]').addEventListener('click', async () => {
-    const amount = parseInt(slot.querySelector('[data-f="amount"]').value, 10);
-    const proDays = parseInt(slot.querySelector('[data-f="prodays"]').value || '0', 10);
+    const amount = Math.abs(parseInt(slot.querySelector('[data-f="amount"]').value, 10) || 0);
+    const proEl = slot.querySelector('[data-f="prodays"]');
+    const proDays = proEl ? (parseInt(proEl.value, 10) || 0) : 0;
     const reason = slot.querySelector('[data-f="reason"]').value.trim();
-    if (!Number.isFinite(amount) || amount === 0) { showNote('⚠ Enter a non-zero amount.', false); return; }
+    if (amount === 0 && (!isGrant || proDays <= 0)) {
+      showNote('⚠ Enter a credit amount' + (isGrant ? ' and/or Pro days' : '') + '.', false);
+      return;
+    }
     if (!reason) { showNote('⚠ A reason is required.', false); return; }
     try {
-      await api('/api/credits/' + userId + '/adjust', { method: 'POST', body: { amount, pro_days: proDays, reason } });
+      await api('/api/credits/' + userId + '/adjust', {
+        method: 'POST',
+        body: { amount: isGrant ? amount : -amount, pro_days: isGrant ? proDays : 0, reason },
+      });
       slot.innerHTML = '';
-      showNote('Credits updated for <b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
+      showNote((isGrant ? 'Granted to ' : 'Revoked from ') + '<b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
       loadCredits();
     } catch (e) {
       if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
@@ -552,12 +599,77 @@ async function toggleHistory(userId) {
   }
 }
 
+/* ---------- storage tab (V3.1d) ---------- */
+function signupsChartSVG(days) {
+  if (!days || !days.length) return '';
+  const W = 640;
+  const H = 120;
+  const pad = 6;
+  let max = 1;
+  for (const d of days) if (d.count > max) max = d.count;
+  const bw = (W - pad * 2) / days.length;
+  let bars = '';
+  days.forEach((d, i) => {
+    const h = d.count ? Math.max(4, (d.count / max) * (H - 26)) : 2;
+    const x = (pad + i * bw + 2).toFixed(1);
+    const y = (H - 16 - h).toFixed(1);
+    const w = Math.max(2, bw - 4).toFixed(1);
+    const fill = d.count ? 'var(--accent)' : 'var(--border-strong)';
+    const op = d.count ? '0.9' : '0.5';
+    bars += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h.toFixed(1) + '" rx="3" fill="' + fill + '" opacity="' + op + '">' +
+      '<title>' + esc(d.label) + ': ' + d.count + '</title></rect>';
+  });
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" aria-label="Signups over the last 14 days">' +
+    bars +
+    '<text x="' + pad + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)">' + esc(days[0].label) + '</text>' +
+    '<text x="' + (W - pad) + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)" text-anchor="end">' + esc(days[days.length - 1].label) + '</text>' +
+  '</svg>';
+}
+function loadStorage() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading storage & metrics…</div>';
+  Promise.all([api('/api/storage'), api('/api/metrics')]).then(([s, m]) => {
+    renderStorage(s, m);
+  }).catch(e => {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  });
+}
+function renderStorage(s, m) {
+  const content = document.getElementById('admin-content');
+  const rows = (s.perUser || []).map(r =>
+    '<div class="user-card">' +
+      '<div class="user-card-head">' +
+        '<span class="user-email">' + esc(r.email) + '</span>' +
+        '<span class="cred-badges">' +
+          '<span class="status-badge active">' + num(r.objects) + ' objects</span>' +
+          '<span class="status-badge owner">' + esc(fmtBytes(r.bytes)) + '</span>' +
+        '</span>' +
+      '</div>' +
+      '<div class="user-meta">last vault activity ' + (r.last ? fmtDate(r.last) : '—') + '</div>' +
+    '</div>').join('') || '<div class="empty">No vault data yet.</div>';
+  content.innerHTML =
+    '<div class="grid">' +
+      card(num(s.totalObjects), 'Vault objects', 'weaver-vault') +
+      card(fmtBytes(s.totalBytes), 'Vault size', 'compressed blobs') +
+      card(num(m.active7d), 'Active · 7 days', 'signed in', 'gold') +
+      card(num(m.active30d), 'Active · 30 days', 'signed in', 'gold') +
+    '</div>' +
+    '<div class="stor-chart-wrap">' +
+      '<div class="stor-chart-title">Sign-ups · last 14 days <span class="stor-chart-sum">' + num(m.signups14d) + ' total</span></div>' +
+      signupsChartSVG(m.signups || []) +
+    '</div>' +
+    '<div class="stor-users-title">Vault by user · largest first</div>' +
+    rows +
+    '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. Objects include index, project and series blobs.</div>';
+}
+
 /* ---------- global click delegation ---------- */
 app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (btn) {
     const a = btn.dataset.action;
-    if (a === 'adjust') { toggleAdjustForm(btn.dataset.id); return; }
+    if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
+    if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
     if (a === 'history') { toggleHistory(btn.dataset.id); return; }
     handleUserAction(a, btn.dataset.id, btn.dataset.email);
     return;
