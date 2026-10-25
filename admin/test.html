@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin test</title></head>
+<body>
+<h1>Admin test page</h1>
+<p>If you see this, GitHub Pages is serving the /admin/ folder correctly.</p>
+<div id="out" style="color:red"></div>
+<script>
+try {
+  const r = await fetch('https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin/api/health');
+  const d = await r.json();
+  document.getElementById('out').textContent = 'Edge function: ' + JSON.stringify(d);
+} catch (e) {
+  document.getElementById('out').textContent = 'Edge function error: ' + e.message;
+}
+</script>
+</body>
+</html>
