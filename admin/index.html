@@ -156,6 +156,16 @@ body{
 }
 .stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
 .stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+/* ---------- audit tab (V3.1e) ---------- */
+.audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
+.audit-row{
+  display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  padding:10px 12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;font-size:.8rem;
+}
+.audit-time{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);flex:none}
+.audit-target{color:var(--text);font-weight:600;overflow-wrap:anywhere}
+.audit-detail{color:var(--muted);flex:1;min-width:120px;overflow-wrap:anywhere}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -168,11 +178,10 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1d dashboard shell.
+Weaver Admin — V3.1e dashboard shell. FINAL V3.1 step.
 UI on GitHub Pages; all data from the JSON-only Edge Function.
-Tabs: Overview · Users · Credits · Storage live; Audit later.
-Credits: explicit Grant / Revoke buttons (no hidden negatives).
-Storage: vault totals, 14-day signups chart, per-user usage.
+All five tabs live: Overview · Users · Credits · Storage · Audit.
+Every account/credits action is recorded in the Audit tab.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -206,6 +215,7 @@ function setSession(token, email) {
   } catch (e) {}
 }
 function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString(); } catch (e) { return iso; } }
+function fmtDateTime(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
 function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
 function creditEmailOf(uid) {
   const r = allCredits.find(x => x.user_id === uid);
@@ -278,7 +288,7 @@ const TABS = [
   { id: 'users', label: 'Users', ready: true },
   { id: 'credits', label: 'Credits', ready: true },
   { id: 'storage', label: 'Storage', ready: true },
-  { id: 'audit', label: 'Audit', ready: false },
+  { id: 'audit', label: 'Audit', ready: true },
 ];
 function renderShell(tab) {
   activeTab = tab;
@@ -314,7 +324,8 @@ function loadTab(tab) {
   if (tab === 'users') return loadUsers();
   if (tab === 'credits') return loadCredits();
   if (tab === 'storage') return loadStorage();
-  content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later V3.1 step.</div>';
+  if (tab === 'audit') return loadAudit();
+  content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
 }
 
 /* ---------- overview ---------- */
@@ -341,9 +352,9 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1d', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1e', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1d</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1e</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
@@ -661,6 +672,35 @@ function renderStorage(s, m) {
     '<div class="stor-users-title">Vault by user · largest first</div>' +
     rows +
     '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. Objects include index, project and series blobs.</div>';
+}
+
+/* ---------- audit tab (V3.1e) ---------- */
+function auditBadge(a) {
+  const cls = a.indexOf('delete') >= 0 ? 'banned'
+    : a.indexOf('credits') === 0 ? 'owner'
+    : a.indexOf('suspend') >= 0 ? 'banned'
+    : 'active';
+  return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
+}
+function loadAudit() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading audit log…</div>';
+  api('/api/audit').then(d => {
+    const rows = d.rows || [];
+    const body = rows.length ? rows.map(r =>
+      '<div class="audit-row">' +
+        '<span class="audit-time">' + fmtDateTime(r.created_at) + '</span>' +
+        auditBadge(r.action) +
+        '<span class="audit-target">' + esc(r.target || '—') + '</span>' +
+        '<span class="audit-detail">' + esc(r.detail || '') + '</span>' +
+      '</div>').join('')
+      : '<div class="empty">No admin actions logged yet.</div>';
+    content.innerHTML =
+      '<div class="audit-list">' + body + '</div>' +
+      '<div class="admin-note">Every account and credits action is recorded here with its reason. Newest first, latest 200 entries.</div>';
+  }).catch(e => {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  });
 }
 
 /* ---------- global click delegation ---------- */
