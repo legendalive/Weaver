@@ -135,7 +135,7 @@ body{
 .status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
 .status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
 .admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
-/* ---------- user detail (V3.1f) ---------- */
+/* ---------- user detail ---------- */
 .user-detail{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-strong)}
 .ud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
 .ud-box{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
@@ -188,12 +188,10 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1f dashboard shell.
+Weaver Admin — V3.1f (rev 2) dashboard shell.
 UI on GitHub Pages; all data from the JSON-only Edge Function.
-V3.1f adds: user detail view (entitlements, vault stats with
-projects + never-synced, credit history, per-user audit,
-change email, set password), bulk invite, CSV exports,
-and a Never-synced card on Storage.
+FIX: the Details view now opens from BOTH the Users tab and
+the Credits tab — one click from wherever you manage a person.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -240,7 +238,7 @@ function fmtBytes(n) {
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
   return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
 }
-/* ---------- CSV helpers (V3.1f) ---------- */
+/* ---------- CSV helpers ---------- */
 function csvEscape(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
 function downloadCsv(filename, header, rows) {
   const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -431,7 +429,7 @@ function renderUsers(list) {
     '<div id="create-form-wrap"></div>' +
     '<div id="bulk-invite-wrap"></div>' +
     '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
-    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. "Details" opens entitlements, vault stats, history and account tools. The owner account is protected.</div>';
+    '<div class="admin-note">Details opens entitlements, vault stats, history and account tools. Suspend blocks sign-in but keeps the vault. Delete removes the account AND wipes its vault. The owner account is protected.</div>';
   document.getElementById('user-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
@@ -488,7 +486,7 @@ function toggleCreateForm() {
   });
   document.getElementById('nu-email').focus();
 }
-/* ---------- bulk invite (V3.1f) ---------- */
+/* ---------- bulk invite ---------- */
 function toggleBulkInvite() {
   const wrap = document.getElementById('bulk-invite-wrap');
   if (!wrap) return;
@@ -562,7 +560,7 @@ async function handleUserAction(action, id, email) {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
   }
 }
-/* ---------- user detail view (V3.1f) ---------- */
+/* ---------- user detail view (opens from Users AND Credits tabs) ---------- */
 function detailHTML(ent, st, log, audits) {
   const neverSynced = !st || !st.objects;
   const plan = ent ? ent.plan : 'free';
@@ -610,8 +608,8 @@ function detailHTML(ent, st, log, audits) {
     '</div>' +
   '</div>';
 }
-async function toggleUserDetails(id, email) {
-  const card = document.querySelector('[data-user-card="' + id + '"]');
+async function toggleUserDetails(id, email, btn) {
+  const card = btn ? btn.closest('.user-card') : null;
   if (!card) return;
   const slot = card.querySelector('.user-detail-slot');
   if (!slot) return;
@@ -636,7 +634,7 @@ async function toggleUserDetails(id, email) {
       try {
         await api('/api/users/' + id + '/email', { method: 'POST', body: { email: newEmail } });
         showNote('Email changed to <b>' + esc(newEmail) + '</b>.', false);
-        loadUsers();
+        loadTab(activeTab);
       } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
     };
     if (passBtn) passBtn.onclick = async () => {
@@ -668,11 +666,13 @@ function creditCardHTML(r) {
     '</div>' +
     '<div class="user-meta">' + esc(proLine) + '</div>' +
     '<div class="user-actions">' +
+      '<button class="btn btn-sm" data-action="details" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>' +
       '<button class="btn btn-sm btn-primary" data-action="grant" data-id="' + esc(r.user_id) + '" title="Add credits and/or Pro days">Grant</button>' +
       '<button class="btn btn-sm btn-danger" data-action="revoke" data-id="' + esc(r.user_id) + '" title="Remove credits">Revoke</button>' +
       '<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
     '</div>' +
     '<div class="cred-slot"></div>' +
+    '<div class="user-detail-slot"></div>' +
   '</div>';
 }
 function loadCredits() {
@@ -693,7 +693,7 @@ function renderCredits(list) {
       '<button id="btn-credits-csv" class="btn" title="Download the credits ledger as CSV">Export CSV</button>' +
     '</div>' +
     '<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
-    '<div class="admin-note">Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
+    '<div class="admin-note">Details opens the full user view. Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
   document.getElementById('credit-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
@@ -889,7 +889,7 @@ app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (btn) {
     const a = btn.dataset.action;
-    if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email); return; }
+    if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email, btn); return; }
     if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
     if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
     if (a === 'history') { toggleHistory(btn.dataset.id); return; }
