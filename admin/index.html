@@ -46,12 +46,13 @@ body{
 .btn-danger{background:transparent;border-color:var(--border-strong);color:var(--danger)}
 .btn-danger:hover{background:rgba(212,96,79,.12);border-color:var(--danger)}
 .btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
-.input{
+.input,.textarea{
   width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
   border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
 }
-.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.input::placeholder{color:var(--faint)}
+.textarea{resize:vertical;min-height:90px;line-height:1.5;font-family:var(--font-mono)}
+.input:focus,.textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder,.textarea::placeholder{color:var(--faint)}
 /* ---------- login ---------- */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{
@@ -134,6 +135,15 @@ body{
 .status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
 .status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
 .admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
+/* ---------- user detail (V3.1f) ---------- */
+.user-detail{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-strong)}
+.ud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.ud-box{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ud-label{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ud-line{font-size:.8rem;color:var(--text);line-height:1.6;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ud-hint{font-size:.7rem;color:var(--faint);line-height:1.5}
+.user-detail .row{display:flex;gap:8px;flex-wrap:wrap}
+.user-detail .row .input{flex:1;min-width:140px}
 /* ---------- credits tab ---------- */
 .cred-badges{display:flex;gap:6px;flex-wrap:wrap}
 .cred-history{
@@ -156,7 +166,7 @@ body{
 }
 .stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
 .stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-/* ---------- audit tab (V3.1e) ---------- */
+/* ---------- audit tab ---------- */
 .audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
 .audit-row{
   display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
@@ -178,10 +188,12 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* =========================================================
-Weaver Admin — V3.1e dashboard shell. FINAL V3.1 step.
+Weaver Admin — V3.1f dashboard shell.
 UI on GitHub Pages; all data from the JSON-only Edge Function.
-All five tabs live: Overview · Users · Credits · Storage · Audit.
-Every account/credits action is recorded in the Audit tab.
+V3.1f adds: user detail view (entitlements, vault stats with
+projects + never-synced, credit history, per-user audit,
+change email, set password), bulk invite, CSV exports,
+and a Never-synced card on Storage.
 ========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
@@ -228,6 +240,19 @@ function fmtBytes(n) {
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
   return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
 }
+/* ---------- CSV helpers (V3.1f) ---------- */
+function csvEscape(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+function downloadCsv(filename, header, rows) {
+  const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 /* ---------- api ---------- */
 async function api(path, opts = {}) {
@@ -249,7 +274,7 @@ function showNote(html, sticky) {
   if (!note) return;
   note.innerHTML = html + (sticky ? ' <button class="btn btn-sm" style="margin-left:8px" onclick="this.parentElement.hidden=true">dismiss</button>' : '');
   note.hidden = false;
-  if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 5000); }
+  if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 6000); }
 }
 
 /* ---------- login ---------- */
@@ -352,9 +377,9 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1e', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1f', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1e</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1f</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
@@ -366,7 +391,7 @@ function userCardHTML(u) {
   const status = u.is_owner
     ? '<span class="status-badge owner">owner</span>'
     : (banned ? '<span class="status-badge banned">suspended</span>' : '<span class="status-badge active">active</span>');
-  let actions = '';
+  let actions = '<button class="btn btn-sm" data-action="details" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>';
   if (!u.is_owner) {
     actions += banned
       ? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
@@ -376,10 +401,11 @@ function userCardHTML(u) {
   if (!u.is_owner) {
     actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
   }
-  return '<div class="user-card">' +
+  return '<div class="user-card" data-user-card="' + esc(u.id) + '">' +
     '<div class="user-card-head"><span class="user-email">' + esc(u.email || '(no email)') + '</span>' + status + '</div>' +
     '<div class="user-meta">created ' + fmtDate(u.created_at) + ' · last sign-in ' + (u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'never') + '</div>' +
     '<div class="user-actions">' + actions + '</div>' +
+    '<div class="user-detail-slot"></div>' +
   '</div>';
 }
 function emptyUsersHTML() { return '<div class="empty">No users found.</div>'; }
@@ -399,43 +425,42 @@ function renderUsers(list) {
     '<div class="users-toolbar">' +
       '<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
       '<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
+      '<button id="btn-bulk-invite" class="btn" title="Create many accounts at once with a generic password — no emails sent">Bulk invite</button>' +
       '<button id="btn-export-csv" class="btn" title="Download the user list as CSV">Export CSV</button>' +
     '</div>' +
     '<div id="create-form-wrap"></div>' +
+    '<div id="bulk-invite-wrap"></div>' +
     '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
-    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. "Reset password" emails a password-reset link. The owner account is protected.</div>';
+    '<div class="admin-note">Suspend blocks sign-in but keeps the account and vault. Delete removes the account AND permanently wipes its cloud vault. "Details" opens entitlements, vault stats, history and account tools. The owner account is protected.</div>';
   document.getElementById('user-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
     document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
   });
   document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
+  document.getElementById('btn-bulk-invite').addEventListener('click', toggleBulkInvite);
   document.getElementById('btn-export-csv').addEventListener('click', exportUsersCsv);
 }
 function exportUsersCsv() {
   if (!allUsers.length) { showNote('⚠ No users to export.', false); return; }
-  const header = 'email,created,last_sign_in,status';
-  const lines = allUsers.map(u => [
-    '"' + String(u.email || '').replace(/"/g, '""') + '"',
-    u.created_at || '',
-    u.last_sign_in_at || '',
-    u.banned_until ? 'suspended' : 'active',
-  ].join(','));
-  const csv = header + '\n' + lines.join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadCsv('weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv',
+    'email,created,last_sign_in,status',
+    allUsers.map(u => [
+      csvEscape(u.email), u.created_at || '', u.last_sign_in_at || '',
+      u.banned_until ? 'suspended' : 'active',
+    ].join(',')));
+}
+function exportCreditsCsv() {
+  if (!allCredits.length) { showNote('⚠ No credits data to export.', false); return; }
+  downloadCsv('weaver-credits-' + new Date().toISOString().slice(0, 10) + '.csv',
+    'email,plan,credits,pro_until',
+    allCredits.map(r => [csvEscape(r.email), csvEscape(r.plan), r.credits || 0, r.pro_until || ''].join(',')));
 }
 function toggleCreateForm() {
   const wrap = document.getElementById('create-form-wrap');
   if (!wrap) return;
   if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+  const bw = document.getElementById('bulk-invite-wrap'); if (bw) bw.innerHTML = '';
   wrap.innerHTML =
     '<div class="create-form" style="margin:0 16px 12px">' +
       '<div class="row">' +
@@ -462,6 +487,50 @@ function toggleCreateForm() {
     }
   });
   document.getElementById('nu-email').focus();
+}
+/* ---------- bulk invite (V3.1f) ---------- */
+function toggleBulkInvite() {
+  const wrap = document.getElementById('bulk-invite-wrap');
+  if (!wrap) return;
+  if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+  const cf = document.getElementById('create-form-wrap'); if (cf) cf.innerHTML = '';
+  wrap.innerHTML =
+    '<div class="create-form" style="margin:0 16px 12px">' +
+      '<div class="field"><span>Emails — one per line</span>' +
+        '<textarea id="bi-emails" class="textarea" rows="5" placeholder="reader1@example.com&#10;reader2@example.com"></textarea>' +
+      '</div>' +
+      '<div class="row">' +
+        '<input id="bi-pass" class="input" type="text" placeholder="Generic password for all invites (min 6)">' +
+        '<button class="btn btn-sm btn-primary" data-bi-go>Create all accounts</button>' +
+      '</div>' +
+      '<div class="admin-note" style="padding:0">No emails are sent — your email quota is untouched. Share the generic password with your invitees; after first sign-in each uses "Forgot password?" to choose their own.</div>' +
+    '</div>';
+  wrap.querySelector('[data-bi-go]').addEventListener('click', runBulkInvite);
+  document.getElementById('bi-emails').focus();
+}
+async function runBulkInvite() {
+  const emails = (document.getElementById('bi-emails').value || '')
+    .split(/[\n,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+  const pass = document.getElementById('bi-pass').value;
+  if (!emails.length) { showNote('⚠ Enter at least one email.', false); return; }
+  if (pass.length < 6) { showNote('⚠ The generic password must be at least 6 characters.', false); return; }
+  let ok = 0;
+  const failed = [];
+  for (const email of emails) {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { failed.push(email + ' (invalid)'); continue; }
+    try {
+      await api('/api/users', { method: 'POST', body: { email, password: pass } });
+      ok++;
+    } catch (e) {
+      if (e.message === 'unauthorized') return;
+      failed.push(email + ' (' + e.message + ')');
+    }
+  }
+  let msg = 'Bulk invite: <b>' + ok + '</b> account' + (ok === 1 ? '' : 's') + ' created.';
+  if (failed.length) msg += ' <span style="color:var(--danger)">Failed: ' + esc(failed.join('; ')) + '</span>';
+  showNote(msg, true);
+  document.getElementById('bulk-invite-wrap').innerHTML = '';
+  loadUsers();
 }
 async function handleUserAction(action, id, email) {
   if (!id) return;
@@ -491,6 +560,96 @@ async function handleUserAction(action, id, email) {
     }
   } catch (e) {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+}
+/* ---------- user detail view (V3.1f) ---------- */
+function detailHTML(ent, st, log, audits) {
+  const neverSynced = !st || !st.objects;
+  const plan = ent ? ent.plan : 'free';
+  const credits = ent ? ent.credits : 0;
+  const proUntil = ent && ent.pro_until ? fmtDate(ent.pro_until) : '—';
+  const credRows = (log || []).slice(0, 8).map(l =>
+    '<div class="cred-log-row">' +
+      '<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+      '<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+      '<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+    '</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No credit activity yet.</div>';
+  const auditRows = (audits || []).map(a =>
+    '<div class="audit-row" style="padding:6px 10px">' +
+      '<span class="audit-time">' + fmtDateTime(a.created_at) + '</span>' +
+      '<span class="status-badge">' + esc(a.action) + '</span>' +
+      '<span class="audit-detail">' + esc(a.detail || '') + '</span>' +
+    '</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No admin actions recorded for this user.</div>';
+  return '<div class="user-detail">' +
+    '<div class="ud-grid">' +
+      '<div class="ud-box"><div class="ud-label">Entitlements</div>' +
+        '<div class="ud-line">plan <b>' + esc(plan) + '</b> · credits <b>' + num(credits) + '</b> · pro until <b>' + esc(proUntil) + '</b></div>' +
+      '</div>' +
+      '<div class="ud-box"><div class="ud-label">Vault</div>' +
+        (neverSynced
+          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
+          : '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
+      '</div>' +
+    '</div>' +
+    '<div class="ud-box"><div class="ud-label">Recent credit history</div>' + credRows + '</div>' +
+    '<div class="ud-box"><div class="ud-label">Admin actions on this user</div>' + auditRows + '</div>' +
+    '<div class="ud-grid">' +
+      '<div class="ud-box"><div class="ud-label">Change email</div>' +
+        '<div class="row">' +
+          '<input data-f="newemail" class="input" type="email" placeholder="new@email.com">' +
+          '<button class="btn btn-sm" data-detail-action="email">Change</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ud-box"><div class="ud-label">Set password</div>' +
+        '<div class="row">' +
+          '<input data-f="newpass" class="input" type="text" placeholder="temporary password (min 6)">' +
+          '<button class="btn btn-sm" data-detail-action="password">Set</button>' +
+        '</div>' +
+        '<div class="ud-hint">The user signs in with this once, then uses "Forgot password?" to choose their own. Consumes no email quota.</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+async function toggleUserDetails(id, email) {
+  const card = document.querySelector('[data-user-card="' + id + '"]');
+  if (!card) return;
+  const slot = card.querySelector('.user-detail-slot');
+  if (!slot) return;
+  if (slot.querySelector('.user-detail')) { slot.innerHTML = ''; return; }
+  document.querySelectorAll('.user-detail-slot').forEach(s => { s.innerHTML = ''; });
+  slot.innerHTML = '<div class="loading" style="padding:16px">Loading details…</div>';
+  try {
+    const [credits, storage, audit] = await Promise.all([
+      api('/api/credits'), api('/api/storage'), api('/api/audit'),
+    ]);
+    const log = await api('/api/credits/' + id + '/log').catch(() => ({ log: [] }));
+    const ent = (credits.rows || []).find(r => r.user_id === id) || null;
+    const st = (storage.perUser || []).find(r => r.user_id === id) || null;
+    const audits = (audit.rows || []).filter(a => (a.target || '') === email || (a.target || '') === id).slice(0, 10);
+    slot.innerHTML = detailHTML(ent, st, log.log || [], audits);
+    const emailBtn = slot.querySelector('[data-detail-action="email"]');
+    const passBtn = slot.querySelector('[data-detail-action="password"]');
+    if (emailBtn) emailBtn.onclick = async () => {
+      const newEmail = slot.querySelector('[data-f="newemail"]').value.trim();
+      if (!newEmail || newEmail.indexOf('@') < 0) { showNote('⚠ Enter a valid email address.', false); return; }
+      if (!confirm('Change the email of ' + (email || 'this user') + ' to ' + newEmail + '?')) return;
+      try {
+        await api('/api/users/' + id + '/email', { method: 'POST', body: { email: newEmail } });
+        showNote('Email changed to <b>' + esc(newEmail) + '</b>.', false);
+        loadUsers();
+      } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+    };
+    if (passBtn) passBtn.onclick = async () => {
+      const newPass = slot.querySelector('[data-f="newpass"]').value;
+      if (!newPass || newPass.length < 6) { showNote('⚠ Password must be at least 6 characters.', false); return; }
+      if (!confirm('Set a new password for ' + (email || 'this user') + '? Advise them to change it via "Forgot password?" afterwards.')) return;
+      try {
+        await api('/api/users/' + id + '/password', { method: 'POST', body: { password: newPass } });
+        showNote('Password set for <b>' + esc(email || 'user') + '</b>. Remind them to change it after first sign-in.', false);
+      } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+    };
+  } catch (e) {
+    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
   }
 }
 
@@ -531,6 +690,7 @@ function renderCredits(list) {
   content.innerHTML =
     '<div class="users-toolbar">' +
       '<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
+      '<button id="btn-credits-csv" class="btn" title="Download the credits ledger as CSV">Export CSV</button>' +
     '</div>' +
     '<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
     '<div class="admin-note">Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
@@ -539,6 +699,7 @@ function renderCredits(list) {
     const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
     document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
   });
+  document.getElementById('btn-credits-csv').addEventListener('click', exportCreditsCsv);
 }
 function toggleAdjustForm(userId, mode) {
   const card = document.querySelector('[data-credit-card="' + userId + '"]');
@@ -610,7 +771,7 @@ async function toggleHistory(userId) {
   }
 }
 
-/* ---------- storage tab (V3.1d) ---------- */
+/* ---------- storage tab ---------- */
 function signupsChartSVG(days) {
   if (!days || !days.length) return '';
   const W = 640;
@@ -647,11 +808,13 @@ function loadStorage() {
 }
 function renderStorage(s, m) {
   const content = document.getElementById('admin-content');
+  const neverSynced = Math.max(0, (m.usersTotal || 0) - (s.perUser || []).length);
   const rows = (s.perUser || []).map(r =>
     '<div class="user-card">' +
       '<div class="user-card-head">' +
         '<span class="user-email">' + esc(r.email) + '</span>' +
         '<span class="cred-badges">' +
+          '<span class="status-badge owner">' + num(r.projects) + ' projects</span>' +
           '<span class="status-badge active">' + num(r.objects) + ' objects</span>' +
           '<span class="status-badge owner">' + esc(fmtBytes(r.bytes)) + '</span>' +
         '</span>' +
@@ -664,6 +827,7 @@ function renderStorage(s, m) {
       card(fmtBytes(s.totalBytes), 'Vault size', 'compressed blobs') +
       card(num(m.active7d), 'Active · 7 days', 'signed in', 'gold') +
       card(num(m.active30d), 'Active · 30 days', 'signed in', 'gold') +
+      card(num(neverSynced), 'Never synced', 'signed up, empty vault', neverSynced ? 'bad' : 'ok') +
     '</div>' +
     '<div class="stor-chart-wrap">' +
       '<div class="stor-chart-title">Sign-ups · last 14 days <span class="stor-chart-sum">' + num(m.signups14d) + ' total</span></div>' +
@@ -671,16 +835,28 @@ function renderStorage(s, m) {
     '</div>' +
     '<div class="stor-users-title">Vault by user · largest first</div>' +
     rows +
-    '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. Objects include index, project and series blobs.</div>';
+    '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
 }
 
-/* ---------- audit tab (V3.1e) ---------- */
+/* ---------- audit tab ---------- */
 function auditBadge(a) {
   const cls = a.indexOf('delete') >= 0 ? 'banned'
     : a.indexOf('credits') === 0 ? 'owner'
     : a.indexOf('suspend') >= 0 ? 'banned'
     : 'active';
   return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
+}
+async function exportAuditCsv() {
+  try {
+    const d = await api('/api/audit');
+    const rows = d.rows || [];
+    if (!rows.length) { showNote('⚠ No audit entries to export.', false); return; }
+    downloadCsv('weaver-audit-' + new Date().toISOString().slice(0, 10) + '.csv',
+      'time,action,target,detail',
+      rows.map(r => [csvEscape(r.created_at), csvEscape(r.action), csvEscape(r.target), csvEscape(r.detail)].join(',')));
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
 }
 function loadAudit() {
   const content = document.getElementById('admin-content');
@@ -696,8 +872,13 @@ function loadAudit() {
       '</div>').join('')
       : '<div class="empty">No admin actions logged yet.</div>';
     content.innerHTML =
+      '<div class="users-toolbar">' +
+        '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">' + rows.length + ' entries · newest first</span>' +
+        '<button id="btn-audit-csv" class="btn" title="Download the audit log as CSV">Export CSV</button>' +
+      '</div>' +
       '<div class="audit-list">' + body + '</div>' +
-      '<div class="admin-note">Every account and credits action is recorded here with its reason. Newest first, latest 200 entries.</div>';
+      '<div class="admin-note">Every account and credits action is recorded here with its reason. Latest 200 entries.</div>';
+    document.getElementById('btn-audit-csv').addEventListener('click', exportAuditCsv);
   }).catch(e => {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
   });
@@ -708,6 +889,7 @@ app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (btn) {
     const a = btn.dataset.action;
+    if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email); return; }
     if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
     if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
     if (a === 'history') { toggleHistory(btn.dataset.id); return; }
