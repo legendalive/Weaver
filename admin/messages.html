@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weaver Admin — Messages</title>
 <style>
-:root{
-  --bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;
-  --border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;
-  --muted:#94918a;--faint:#6b6862;--accent:#e0a83c;
-  --soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069;
-}
+:root{--bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;--border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;--muted:#94918a;--faint:#6b6862;--accent:#e0a83c;--soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px}
 a{color:var(--accent);text-decoration:none}
@@ -19,15 +14,9 @@ h1{font-size:1.35rem}
 .sub{color:var(--faint);font-size:.78rem;margin-bottom:20px}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:9px;border:1px solid var(--strong);background:var(--surface-2);color:var(--text);font-size:.8rem;cursor:pointer;font-weight:600}
 .btn:hover{background:#232327}
-.btn-sm{padding:6px 11px;font-size:.74rem}
+.btn-sm{padding:5px 10px;font-size:.72rem}
 select{padding:8px 12px;border:1px solid var(--strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:.82rem}
-.msg{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
-.msg-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
-.msg-subject{font-weight:650;font-size:.95rem}
-.msg-meta{font-size:.72rem;color:var(--faint);font-family:'JetBrains Mono',ui-monospace,monospace;margin-bottom:10px}
-.msg-body{font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.66rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted)}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.62rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted);flex:none;text-transform:uppercase;letter-spacing:.05em}
 .badge.open{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--soft)}
 .badge.resolved{color:var(--ok);border-color:rgba(127,176,105,.4)}
 .badge.archived{color:var(--faint)}
@@ -36,26 +25,34 @@ select{padding:8px 12px;border:1px solid var(--strong);border-radius:9px;backgro
 .note-box.info{display:block;background:var(--soft);border:1px solid rgba(224,168,60,.4);color:var(--accent)}
 .note-box.alert{display:block;background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.4);color:var(--danger)}
 .loading{padding:60px;text-align:center;color:var(--muted)}
+.msg-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.msg-line{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;min-width:0}
+.msg-line:hover{background:var(--surface-2)}
+.msg-email{flex:none;font-size:.76rem;color:var(--muted);font-family:ui-monospace,monospace;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-subject{flex:1;min-width:0;font-size:.85rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-caret{flex:none;color:var(--faint);font-size:.66rem;transition:transform .15s ease}
+.msg-row.expanded .msg-caret{transform:rotate(90deg)}
+.msg-detail{border-top:1px solid var(--border);padding:12px 14px;background:var(--surface-2)}
+.msg-date{font-size:.7rem;color:var(--faint);font-family:ui-monospace,monospace;margin-bottom:8px}
+.msg-body{font-size:.85rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:12px}
+.msg-actions{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
 <div id="app"><div class="loading">Loading…</div></div>
 <script>
 /* =========================================================
-Weaver Admin — Messages (V3.7c)
-No separate sign-in: reuses the admin console session. If no
-valid admin token is present, it returns you to index.html.
+Weaver Admin — Messages (V3.7d)
+Compact one-line inbox: status · email · subject. Click a row
+to expand the body and actions. Reuses the admin session.
 ========================================================= */
 const API='https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
 const app=document.getElementById('app');
 let filter='open';
 let messages=[];
+let expandedId=null;
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-/* Find the admin token: try the known key first, then scan for a
-   JWT (raw, or inside a Supabase-style JSON session) so this page
-   works no matter how the console stored it. */
 function extractJwt(v){
   if(!v||typeof v!=='string')return null;
   if(v.startsWith('eyJ')&&v.split('.').length===3)return v;
@@ -106,8 +103,8 @@ function renderShell(){
     +'<select id="filter"><option value="open">Open</option><option value="resolved">Resolved</option><option value="archived">Archived</option><option value="all">All messages</option></select>'
     +'<button id="refresh" class="btn btn-sm">Refresh</button>'
     +'</div>'
-    +'<div class="sub">Weaver Admin · messages from your writers</div>'
-    +'<div class="toolbar-note">Reply from your own email client using the sender\'s address below — your address is never shown to users. Mark a thread Resolved once you\'ve replied.</div>'
+    +'<div class="sub">Weaver Admin · messages from your writers · click a row to read it</div>'
+    +'<div class="toolbar-note">Reply from your own email client using the sender\'s address — your address is never shown to users.</div>'
     +'<div id="note" class="note-box"></div>'
     +'<div id="list"><div class="loading">Loading messages…</div></div>';
   document.getElementById('filter').value=filter;
@@ -127,22 +124,40 @@ function renderList(){
   const rows=filter==='all'?messages:messages.filter(m=>m.status===filter);
   if(!rows.length){host.innerHTML='<div class="loading">No '+esc(filter)+' messages.</div>';return;}
   host.innerHTML=rows.map(m=>{
+    const isOpen=String(m.id)===expandedId;
     let date='—';try{date=new Date(m.created_at).toLocaleString();}catch(e){}
-    return '<div class="msg">'
-      +'<div class="msg-head"><span class="msg-subject">'+esc(m.subject)+'</span><span class="badge '+esc(m.status)+'">'+esc(m.status)+'</span></div>'
-      +'<div class="msg-meta">'+esc(m.email)+' · '+date+'</div>'
-      +'<div class="msg-body">'+esc(m.body)+'</div>'
-      +'<div class="msg-actions">'
-      +'<button class="btn btn-sm" data-copy="'+esc(m.email)+'">Copy email</button>'
-      +(m.status==='resolved'
-        ?'<button class="btn btn-sm" data-status="open" data-id="'+m.id+'">Reopen</button>'
-        :'<button class="btn btn-sm" data-status="resolved" data-id="'+m.id+'">Mark resolved</button>')
-      +'<button class="btn btn-sm" data-status="archived" data-id="'+m.id+'">Archive</button>'
-      +'</div></div>';
+    let html='<div class="msg-row'+(isOpen?' expanded':'')+'">'
+      +'<div class="msg-line" data-toggle="'+m.id+'">'
+      +'<span class="badge '+esc(m.status)+'">'+esc(m.status)+'</span>'
+      +'<span class="msg-email">'+esc(m.email)+'</span>'
+      +'<span class="msg-subject">'+esc(m.subject)+'</span>'
+      +'<span class="msg-caret">▶</span>'
+      +'</div>';
+    if(isOpen){
+      html+='<div class="msg-detail">'
+        +'<div class="msg-date">'+date+'</div>'
+        +'<div class="msg-body">'+esc(m.body)+'</div>'
+        +'<div class="msg-actions">'
+        +'<button class="btn btn-sm" data-copy="'+esc(m.email)+'">Copy email</button>'
+        +(m.status==='resolved'
+          ?'<button class="btn btn-sm" data-status="open" data-id="'+m.id+'">Reopen</button>'
+          :'<button class="btn btn-sm" data-status="resolved" data-id="'+m.id+'">Mark resolved</button>')
+        +'<button class="btn btn-sm" data-status="archived" data-id="'+m.id+'">Archive</button>'
+        +'</div></div>';
+    }
+    html+='</div>';
+    return html;
   }).join('');
 }
 
 app.addEventListener('click',async e=>{
+  const toggle=e.target.closest('[data-toggle]');
+  if(toggle){
+    const id=String(toggle.dataset.toggle);
+    expandedId=(expandedId===id)?null:id;
+    renderList();
+    return;
+  }
   const copy=e.target.closest('[data-copy]');
   if(copy){
     try{await navigator.clipboard.writeText(copy.dataset.copy);note('Email copied to clipboard.');}
