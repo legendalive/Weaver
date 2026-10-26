@@ -1,49 +1,59 @@
 /* =========================================================
 Weaver — js/features/support.js
-V3.7a: user → owner support form.
-Injects a small "Support" button into the workspace topbar.
-The form sends through the support Edge Function; the sender's
-email comes from their verified session, not from the form.
-The owner's personal email is never shown in the app.
+V3.7b: user → owner support form.
+Slots a "Support" button into the workspace topbar, right after
+the Settings button (clones Settings' classes so it matches the
+other toolbar buttons). Falls back to the topbar if Settings
+can't be found.
 ========================================================= */
 import { el, toast, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
 import { getSupabaseClient } from '../core/supabase.js';
 
 const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
 const BTN_ID = 'weaver-support-btn';
-const STYLE_ID = 'weaver-support-style';
-
-function ensureStyle() {
-  if (document.getElementById(STYLE_ID)) return;
-  const s = document.createElement('style');
-  s.id = STYLE_ID;
-  s.textContent = `
-    #${BTN_ID}{
-      flex:none; white-space:nowrap;
-      font-size:.76rem; padding:6px 11px; border-radius:999px;
-      border:1px solid var(--border-strong); background:transparent;
-      color:var(--muted); cursor:pointer;
-    }
-    #${BTN_ID}:hover{ color:var(--accent); border-color:rgba(224,168,60,.5); }
-    @media (max-width:860px){ #${BTN_ID}{ display:none; } }
-  `;
-  document.head.appendChild(s);
-}
 
 function injectButton() {
-  ensureStyle();
   if (getState().view !== 'workspace') return;
   if (document.getElementById(BTN_ID)) return;
-  const bar = document.querySelector('.topbar');
-  if (!bar) return;
-  const btn = el('button', {
-    id: BTN_ID,
-    type: 'button',
-    title: 'Contact Weaver support',
-    onclick: openSupport,
-  }, ['Support']);
-  bar.appendChild(btn);
+
+  /* Find the Settings button so Support can slot in right after it. */
+  const topbarBtns = Array.from(document.querySelectorAll('.topbar button, .topbar a'));
+  const settingsBtn = topbarBtns.find((b) => {
+    const label = (
+      (b.textContent || '') + ' ' +
+      (b.title || '') + ' ' +
+      (b.getAttribute('aria-label') || '')
+    ).toLowerCase();
+    return label.includes('settings');
+  });
+
+  let mailIcon = null;
+  try { mailIcon = icon('mail', 'icon-sm'); } catch (e) { mailIcon = null; }
+  const content = mailIcon
+    ? [mailIcon, el('span', { text: 'Support' })]
+    : [el('span', { text: 'Support' })];
+
+  if (settingsBtn) {
+    const btn = el('button', {
+      id: BTN_ID, type: 'button',
+      class: settingsBtn.className,
+      title: 'Contact Weaver support',
+      onclick: openSupport,
+    }, content);
+    settingsBtn.insertAdjacentElement('afterend', btn);
+  } else {
+    const bar = document.querySelector('.topbar');
+    if (!bar) return;
+    const btn = el('button', {
+      id: BTN_ID, type: 'button',
+      class: 'btn btn-ghost btn-sm',
+      title: 'Contact Weaver support',
+      onclick: openSupport,
+    }, content);
+    bar.appendChild(btn);
+  }
 }
 
 async function sessionToken() {
