@@ -44,16 +44,40 @@ function saveAndFlash(mutator) {
 
 /* ---------- Account ---------- */
 function accountSection() {
+ import { isPro, onEntitlementChange } from '../core/entitlements.js';
+
+function accountSection() {
   const emailBadge = el('span', { class: 'badge', text: 'checking…' });
   getCloudUserEmail().then((email) => {
     emailBadge.textContent = email || 'signed in';
     emailBadge.className = 'badge badge-success';
   });
+  
+  const proBadge = el('span', { 
+    class: 'badge ' + (isPro() ? 'badge-accent' : ''), 
+    text: isPro() ? 'Pro' : 'Free' 
+  });
+  
+  const upgradeBtn = el('a', {
+    class: 'btn btn-sm btn-primary',
+    href: 'https://mbenson62.gumroad.com/l/cqxxpt', // TODO: Paste your Gumroad URL
+    target: '_blank',
+    hidden: isPro()
+  }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]);
+
+  onEntitlementChange(() => {
+    proBadge.className = 'badge ' + (isPro() ? 'badge-accent' : '');
+    proBadge.textContent = isPro() ? 'Pro' : 'Free';
+    upgradeBtn.hidden = isPro();
+  });
+
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Account' }),
     el('div', { class: 'set-card' }, [
       el('div', { class: 'set-row' }, [
         emailBadge,
+        proBadge,
+        upgradeBtn,
         el('button', {
           class: 'btn btn-sm btn-danger',
           onclick: async () => {
