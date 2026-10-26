@@ -159,14 +159,6 @@ body{
 }
 .stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
 .stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  /* ---------- per-project admin (V3.1i) ---------- */
-.proj-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-strong)}
-.proj-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:.8rem}
-.proj-name{font-weight:650;color:var(--text);flex:1;min-width:120px;overflow-wrap:anywhere}
-.proj-meta{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;white-space:nowrap}
-.proj-warn{margin-top:8px;padding:12px;border:1px solid rgba(212,96,79,.5);background:rgba(212,96,79,.08);border-radius:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;line-height:1.5;color:var(--text)}
-.proj-warn b{color:var(--danger)}
-.proj-note{color:var(--faint);font-size:.72rem;padding:8px 2px 0;line-height:1.5}
 .audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
 .audit-row{
   display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
@@ -176,83 +168,6 @@ body{
 .audit-time{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);flex:none}
 .audit-target{color:var(--text);font-weight:600;overflow-wrap:anywhere}
 .audit-detail{color:var(--muted);flex:1;min-width:120px;overflow-wrap:anywhere}
-  /* ---------- Per-project admin (V3.1i) ---------- */
-function projectRowHTML(p) {
-  return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
-    '<span class="proj-name">' + esc(p.name) + '</span>' +
-    '<span class="proj-meta">' + esc(fmtBytes(p.bytes)) + ' · ' + (p.updatedAt ? fmtDate(p.updatedAt) : '—') + (p.missing ? ' · blob missing' : '') + '</span>' +
-    '<button class="btn btn-sm btn-danger" data-action="proj-delete" data-id="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Delete</button>' +
-  '</div>';
-}
-async function toggleUserProjects(userId, email, btn) {
-  const card = btn ? btn.closest('[data-storage-card]') : null;
-  if (!card) return;
-  const slot = card.querySelector('.proj-slot');
-  if (!slot) return;
-  if (slot.querySelector('.proj-list, .proj-note')) { slot.innerHTML = ''; return; }
-  document.querySelectorAll('.proj-slot').forEach(s => { s.innerHTML = ''; });
-  slot.innerHTML = '<div class="loading" style="padding:14px">Reading vault index…</div>';
-  try {
-    const d = await api('/api/users/' + userId + '/projects');
-    if (d.neverSynced) {
-      slot.innerHTML = '<div class="proj-note">This user has never synced a vault — nothing to manage.</div>';
-      return;
-    }
-    if (!d.projects || !d.projects.length) {
-      slot.innerHTML = '<div class="proj-note">Vault index found, but it lists no projects.</div>';
-      return;
-    }
-    slot.innerHTML = '<div class="proj-list">' + d.projects.map(projectRowHTML).join('') + '</div>' +
-      '<div class="proj-note">Titles, sizes and dates only — manuscript content is never opened or downloaded. Deleting removes the project from the vault and its index entry. The user\'s own browser copy can re-upload on their next sync; for takedowns, suspend the account first.</div>';
-  } catch (e) {
-    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
-  }
-}
-function handleProjectDelete(projectId, projectName, btn) {
-  const row = btn ? btn.closest('[data-proj-row]') : null;
-  if (!row) return;
-  const card = btn.closest('[data-storage-card]');
-  const userId = card ? card.getAttribute('data-storage-card') : '';
-  const emailEl = card ? card.querySelector('.user-email') : null;
-  const email = emailEl ? emailEl.textContent : '';
-  const existing = row.querySelector('.proj-warn');
-  if (existing) { existing.remove(); return; }
-  document.querySelectorAll('.proj-warn').forEach(w => w.remove());
-  const warn = document.createElement('div');
-  warn.className = 'proj-warn';
-  warn.innerHTML =
-    '<div><b>Permanently delete "' + esc(projectName) + '"?</b><br>' +
-    'This removes the project from Weaver\'s servers and from the user\'s vault index. It cannot be undone from here. ' +
-    'If this is a legal or takedown case, suspend the account as well — otherwise the user\'s browser may re-upload the project on their next sync.</div>' +
-    '<div>Type the project name exactly to unlock the final delete:</div>' +
-    '<input class="input" data-proj-confirm placeholder="' + esc(projectName) + '" autocomplete="off">' +
-    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-      '<button class="btn btn-sm" data-proj-cancel>Cancel</button>' +
-      '<button class="btn btn-sm btn-danger" data-proj-go disabled>Permanently delete project</button>' +
-    '</div>';
-  row.appendChild(warn);
-  const input = warn.querySelector('[data-proj-confirm]');
-  const go = warn.querySelector('[data-proj-go]');
-  input.addEventListener('input', () => {
-    go.disabled = input.value.trim() !== projectName.trim();
-  });
-  warn.querySelector('[data-proj-cancel]').addEventListener('click', () => warn.remove());
-  go.addEventListener('click', async () => {
-    go.disabled = true;
-    go.textContent = 'Deleting…';
-    try {
-      await api('/api/users/' + userId + '/projects/' + projectId, { method: 'DELETE' });
-      showNote('Project <b>' + esc(projectName) + '</b> deleted from <b>' + esc(email || 'user') + '</b>\'s vault. Recorded in Audit.', false);
-      if (card) { const slot = card.querySelector('.proj-slot'); if (slot) slot.innerHTML = ''; }
-      loadStorage();
-    } catch (e) {
-      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-      go.disabled = false;
-      go.textContent = 'Permanently delete project';
-    }
-  });
-  input.focus();
-}
 /* ---------- Banner tab ---------- */
 .banner-wrap{padding:16px;display:flex;flex-direction:column;gap:14px}
 .banner-card{
@@ -271,6 +186,14 @@ function handleProjectDelete(projectId, projectName, btn) {
 .banner-preview.is-empty{color:var(--faint);font-style:italic;background:transparent;border-style:dashed}
 .banner-counter{font-size:.7rem;color:var(--faint);font-family:var(--font-mono);text-align:right}
 .banner-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+/* ---------- Per-project admin (V3.1i) ---------- */
+.proj-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-strong)}
+.proj-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:.8rem}
+.proj-name{font-weight:650;color:var(--text);flex:1;min-width:120px;overflow-wrap:anywhere}
+.proj-meta{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;white-space:nowrap}
+.proj-warn{margin-top:8px;padding:12px;border:1px solid rgba(212,96,79,.5);background:rgba(212,96,79,.08);border-radius:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;line-height:1.5;color:var(--text)}
+.proj-warn b{color:var(--danger)}
+.proj-note{color:var(--faint);font-size:.72rem;padding:8px 2px 0;line-height:1.5}
 @media (max-width:520px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .top-title{font-size:.9rem}
@@ -282,13 +205,6 @@ function handleProjectDelete(projectId, projectName, btn) {
 <div id="app"><div class="loading">Loading…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =========================================================
-Weaver Admin — V3.1h dashboard shell.
-Six tabs: Overview · Users · Credits · Storage · Audit · Banner.
-Includes: banner Dismiss in the preview card, gold audit
-badges for credits/banner/backup actions, and "Email backup
-now" on the Audit tab (manual ledger backup to your inbox).
-========================================================= */
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
 const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
@@ -468,9 +384,9 @@ async function loadOverviewInto(content) {
         card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
         card(num(d.objects), 'Vault objects', 'compressed blobs') +
         card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1h', health === 'online' ? 'ok' : 'bad') +
+        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1i', health === 'online' ? 'ok' : 'bad') +
       '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1h</div>';
+      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1i</div>';
   } catch (e) {
     if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
   }
@@ -898,7 +814,6 @@ function renderStorage(s, m) {
   const content = document.getElementById('admin-content');
   const neverSynced = Math.max(0, (m.usersTotal || 0) - (s.perUser || []).length);
   const rows = (s.perUser || []).map(r =>
-      const rows = (s.perUser || []).map(r =>
     '<div class="user-card" data-storage-card="' + esc(r.user_id) + '">' +
       '<div class="user-card-head">' +
         '<span class="user-email">' + esc(r.email) + '</span>' +
@@ -1108,6 +1023,84 @@ async function clearBanner() {
   }
 }
 
+/* ---------- Per-project admin (V3.1i) ---------- */
+function projectRowHTML(p) {
+  return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
+    '<span class="proj-name">' + esc(p.name) + '</span>' +
+    '<span class="proj-meta">' + esc(fmtBytes(p.bytes)) + ' · ' + (p.updatedAt ? fmtDate(p.updatedAt) : '—') + (p.missing ? ' · blob missing' : '') + '</span>' +
+    '<button class="btn btn-sm btn-danger" data-action="proj-delete" data-id="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Delete</button>' +
+  '</div>';
+}
+async function toggleUserProjects(userId, email, btn) {
+  const card = btn ? btn.closest('[data-storage-card]') : null;
+  if (!card) return;
+  const slot = card.querySelector('.proj-slot');
+  if (!slot) return;
+  if (slot.querySelector('.proj-list, .proj-note')) { slot.innerHTML = ''; return; }
+  document.querySelectorAll('.proj-slot').forEach(s => { s.innerHTML = ''; });
+  slot.innerHTML = '<div class="loading" style="padding:14px">Reading vault index…</div>';
+  try {
+    const d = await api('/api/users/' + userId + '/projects');
+    if (d.neverSynced) {
+      slot.innerHTML = '<div class="proj-note">This user has never synced a vault — nothing to manage.</div>';
+      return;
+    }
+    if (!d.projects || !d.projects.length) {
+      slot.innerHTML = '<div class="proj-note">Vault index found, but it lists no projects.</div>';
+      return;
+    }
+    slot.innerHTML = '<div class="proj-list">' + d.projects.map(projectRowHTML).join('') + '</div>' +
+      '<div class="proj-note">Titles, sizes and dates only — manuscript content is never opened or downloaded. Deleting removes the project from the vault and its index entry. The user\'s own browser copy can re-upload on their next sync; for takedowns, suspend the account first.</div>';
+  } catch (e) {
+    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+  }
+}
+function handleProjectDelete(projectId, projectName, btn) {
+  const row = btn ? btn.closest('[data-proj-row]') : null;
+  if (!row) return;
+  const card = btn.closest('[data-storage-card]');
+  const userId = card ? card.getAttribute('data-storage-card') : '';
+  const emailEl = card ? card.querySelector('.user-email') : null;
+  const email = emailEl ? emailEl.textContent : '';
+  const existing = row.querySelector('.proj-warn');
+  if (existing) { existing.remove(); return; }
+  document.querySelectorAll('.proj-warn').forEach(w => w.remove());
+  const warn = document.createElement('div');
+  warn.className = 'proj-warn';
+  warn.innerHTML =
+    '<div><b>Permanently delete "' + esc(projectName) + '"?</b><br>' +
+    'This removes the project from Weaver\'s servers and from the user\'s vault index. It cannot be undone from here. ' +
+    'If this is a legal or takedown case, suspend the account as well — otherwise the user\'s browser may re-upload the project on their next sync.</div>' +
+    '<div>Type the project name exactly to unlock the final delete:</div>' +
+    '<input class="input" data-proj-confirm placeholder="' + esc(projectName) + '" autocomplete="off">' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+      '<button class="btn btn-sm" data-proj-cancel>Cancel</button>' +
+      '<button class="btn btn-sm btn-danger" data-proj-go disabled>Permanently delete project</button>' +
+    '</div>';
+  row.appendChild(warn);
+  const input = warn.querySelector('[data-proj-confirm]');
+  const go = warn.querySelector('[data-proj-go]');
+  input.addEventListener('input', () => {
+    go.disabled = input.value.trim() !== projectName.trim();
+  });
+  warn.querySelector('[data-proj-cancel]').addEventListener('click', () => warn.remove());
+  go.addEventListener('click', async () => {
+    go.disabled = true;
+    go.textContent = 'Deleting…';
+    try {
+      await api('/api/users/' + userId + '/projects/' + projectId, { method: 'DELETE' });
+      showNote('Project <b>' + esc(projectName) + '</b> deleted from <b>' + esc(email || 'user') + '</b>\'s vault. Recorded in Audit.', false);
+      if (card) { const slot = card.querySelector('.proj-slot'); if (slot) slot.innerHTML = ''; }
+      loadStorage();
+    } catch (e) {
+      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+      go.disabled = false;
+      go.textContent = 'Permanently delete project';
+    }
+  });
+  input.focus();
+}
+
 app.addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (btn) {
@@ -1115,7 +1108,7 @@ app.addEventListener('click', e => {
     if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email, btn); return; }
     if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
     if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
-        if (a === 'history') { toggleHistory(btn.dataset.id); return; }
+    if (a === 'history') { toggleHistory(btn.dataset.id); return; }
     if (a === 'projects') { toggleUserProjects(btn.dataset.id, btn.dataset.email, btn); return; }
     if (a === 'proj-delete') { handleProjectDelete(btn.dataset.id, btn.dataset.name, btn); return; }
     handleUserAction(a, btn.dataset.id, btn.dataset.email);
