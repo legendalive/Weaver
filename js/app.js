@@ -25,6 +25,7 @@ import { initSearch } from './features/search.js';
 import { initCapture } from './features/capture.js';
 import { loadBanner } from './features/banner.js';
 import { renderManuscript } from './panels/manuscript.js';
+import { loadEntitlement } from './core/entitlements.js';
 import { renderMainNovel } from './panels/main-novel.js';
 import { loadEntitlement } from './core/entitlements.js';
 
