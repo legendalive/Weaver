@@ -24,6 +24,7 @@ import { initAiOutput } from './panels/ai-output.js';
 import { initSearch } from './features/search.js';
 import { initCapture } from './features/capture.js';
 import { loadBanner } from './features/banner.js';
+import { initSupport } from './features/support.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { loadEntitlement } from './core/entitlements.js';
 import { renderMainNovel } from './panels/main-novel.js';
@@ -154,6 +155,7 @@ async function enterApp() {
   initAiOutput();
   initSearch();
   initCapture();
+  initSupport();
   applyFontScale();
 
   const activeId = getActiveProject();
