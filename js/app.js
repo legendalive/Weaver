@@ -26,6 +26,7 @@ import { initCapture } from './features/capture.js';
 import { loadBanner } from './features/banner.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { renderMainNovel } from './panels/main-novel.js';
+import { loadEntitlement } from './core/entitlements.js';
 
 const APP_VERSION = '2.0.0';
 const VIEWS = ['auth', 'launch', 'workspace'];
@@ -121,8 +122,9 @@ async function enterApp() {
   inApp = true;
 
   /* All storage reads/writes from here on are user-scoped. */
-  setUserNamespace(userId);
+    setUserNamespace(userId);
   reloadSettings();
+  loadEntitlement(userId);
 
   /* Silent one-time adoption of pre-account (v1) data on this device. */
   if (namespaceIsEmpty() && hasLegacyData()) {
