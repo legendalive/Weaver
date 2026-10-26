@@ -193,3 +193,29 @@ permanently (client hard-delete + ledger-driven vault removal).
 - **The admin console's project delete stays a HARD delete.** Takedown/legal
   removal must be immediate and must not leave a restorable copy. State this
   difference in the admin note text.
+  ## Parked — In-app Help Assistant (AI answers how-to questions)
+
+Requested by owner; deferred to a later phase. Depends on V3.4 (central AI
+proxy) so users can ask questions without providing their own API key.
+
+**Concept**
+- A Markdown knowledge base (`docs/HELP.md`) documents how Weaver works
+  (config bible setup, cloud sync, series, Scribe, etc.).
+- Users ask questions in-app via a Help panel.
+- The app sends the question + help doc to the AI.
+- If it's a how-to question → the AI answers instantly.
+- If it can't answer, or the question needs an admin action (credits, billing,
+  suspension, account changes) → reply "Thanks for reaching out — we'll get
+  back to you shortly" AND file the request into the admin Messages inbox.
+
+**Recommended implementation (refined)**
+1. **Skip search/retrieval for now.** The help doc is small, so send the WHOLE
+   doc as context instead of building keyword/vector matching. Simpler and more
+   reliable. Add retrieval only if the doc grows very large.
+2. **One AI call does two jobs:** classify intent (answerable how-to vs
+   needs-human) and, when answerable, produce the answer. Single round-trip.
+3. **Auto-escalate to the inbox:** when a human is needed, create a
+   `support_messages` row pre-filled with the question, so it lands in the
+   existing Messages tab — then show the friendly fallback. Nothing gets lost.
+4. **Guardrails:** read-only (never changes data), rate-limited, always offers
+   the human fallback. Uses the owner's key via the V3.4 proxy, not the user's.
