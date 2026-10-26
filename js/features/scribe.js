@@ -311,7 +311,13 @@ function streamInto(block) {
 }
 
 /* ---------- Send: consume the bundle ---------- */
+import { isKnownFree } from '../core/entitlements.js';
+
 export function runScribePrompt(prompt) {
+  if (isKnownFree()) {
+    toast('Scribe (AI) is a Pro feature. Upgrade in Settings to unlock.', 'info');
+    return;
+  }
   const p = (prompt || '').trim();
   if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
   if (!getState().project) return;
