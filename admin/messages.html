@@ -5,108 +5,120 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weaver Admin — Messages</title>
 <style>
-:root{--bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;--border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;--muted:#94918a;--faint:#6b6862;--accent:#e0a83c;--soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069}
+:root{
+  --bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;
+  --border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;
+  --muted:#94918a;--faint:#6b6862;--accent:#e0a83c;
+  --soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px}
-a{color:var(--accent)}
-h1{font-size:1.3rem;margin-bottom:4px}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px}
+a{color:var(--accent);text-decoration:none}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:1.35rem}
 .sub{color:var(--faint);font-size:.78rem;margin-bottom:20px}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:9px;border:1px solid var(--strong);background:var(--surface-2);color:var(--text);font-size:.8rem;cursor:pointer;text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:9px;border:1px solid var(--strong);background:var(--surface-2);color:var(--text);font-size:.8rem;cursor:pointer;font-weight:600}
 .btn:hover{background:#232327}
-.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a;font-weight:600}
-.btn-sm{padding:6px 10px;font-size:.74rem}
-.input,select{width:100%;padding:9px 12px;border:1px solid var(--strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:.88rem}
-.card{max-width:420px;margin:40px auto;background:var(--surface);border:1px solid var(--strong);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:14px}
+.btn-sm{padding:6px 11px;font-size:.74rem}
+select{padding:8px 12px;border:1px solid var(--strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:.82rem}
 .msg{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
 .msg-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
 .msg-subject{font-weight:650;font-size:.95rem}
-.msg-meta{font-size:.72rem;color:var(--faint);font-family:ui-monospace,monospace;margin-bottom:10px}
-.msg-body{font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.msg-meta{font-size:.72rem;color:var(--faint);font-family:'JetBrains Mono',ui-monospace,monospace;margin-bottom:10px}
+.msg-body{font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .msg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.66rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted)}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.66rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted)}
 .badge.open{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--soft)}
 .badge.resolved{color:var(--ok);border-color:rgba(127,176,105,.4)}
 .badge.archived{color:var(--faint)}
-.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-.toolbar select{width:160px}
-.note{color:var(--faint);font-size:.76rem;line-height:1.6;margin:14px 0 22px}
-.err{padding:10px 12px;border:1px solid rgba(212,96,79,.4);background:rgba(212,96,79,.1);color:var(--danger);border-radius:9px;font-size:.82rem;margin-bottom:12px}
-.loading{padding:40px;text-align:center;color:var(--muted)}
+.toolbar-note{color:var(--faint);font-size:.76rem;line-height:1.6;margin:0 0 22px}
+.note-box{padding:10px 12px;border-radius:9px;font-size:.82rem;margin-bottom:14px;display:none}
+.note-box.info{display:block;background:var(--soft);border:1px solid rgba(224,168,60,.4);color:var(--accent)}
+.note-box.alert{display:block;background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.4);color:var(--danger)}
+.loading{padding:60px;text-align:center;color:var(--muted)}
 </style>
 </head>
 <body>
 <div id="app"><div class="loading">Loading…</div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
-const app = document.getElementById('app');
-let filter = 'open';
-let messages = [];
-
-const sb = window.supabase.createClient(SB_URL, SB_ANON, {
-  auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
-});
+/* =========================================================
+Weaver Admin — Messages (V3.7c)
+No separate sign-in: reuses the admin console session. If no
+valid admin token is present, it returns you to index.html.
+========================================================= */
+const API='https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
+const app=document.getElementById('app');
+let filter='open';
+let messages=[];
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function token(){try{return sessionStorage.getItem('weaver_admin_token')||'';}catch(e){return '';}}
-function clearToken(){try{sessionStorage.removeItem('weaver_admin_token');}catch(e){}}
 
-async function api(path, opts){
-  const res = await fetch(API + path, {
-    method: (opts && opts.method) || 'GET',
-    headers: {'Authorization':'Bearer '+token(),'Content-Type':'application/json'},
-    body: opts && opts.body ? JSON.stringify(opts.body) : undefined
+/* Find the admin token: try the known key first, then scan for a
+   JWT (raw, or inside a Supabase-style JSON session) so this page
+   works no matter how the console stored it. */
+function extractJwt(v){
+  if(!v||typeof v!=='string')return null;
+  if(v.startsWith('eyJ')&&v.split('.').length===3)return v;
+  if(v.trim().startsWith('{')){try{const o=JSON.parse(v);if(o&&o.access_token)return o.access_token;}catch(e){}}
+  return null;
+}
+function findToken(){
+  try{
+    const direct=sessionStorage.getItem('weaver_admin_token')||localStorage.getItem('weaver_admin_token');
+    if(direct)return direct;
+    for(const store of[sessionStorage,localStorage]){
+      for(let i=0;i<store.length;i++){
+        const jwt=extractJwt(store.getItem(store.key(i)));
+        if(jwt)return jwt;
+      }
+    }
+  }catch(e){}
+  return '';
+}
+function toConsole(){window.location.href='index.html';}
+
+async function api(path,opts){
+  const res=await fetch(API+path,{
+    method:(opts&&opts.method)||'GET',
+    headers:{'Authorization':'Bearer '+findToken(),'Content-Type':'application/json'},
+    body:opts&&opts.body?JSON.stringify(opts.body):undefined
   });
-  const data = await res.json().catch(()=>({}));
-  if(res.status===401){clearToken();renderLogin('Session expired — sign in again.');throw new Error('unauthorized');}
-  if(!res.ok) throw new Error(data.error || ('HTTP '+res.status));
+  const data=await res.json().catch(()=>({}));
+  if(res.status===401){toConsole();throw new Error('unauthorized');}
+  if(!res.ok)throw new Error(data.error||('HTTP '+res.status));
   return data;
 }
 
-function renderLogin(msg){
-  app.innerHTML = '<div class="card"><h1>Weaver Messages</h1>'
-    +'<div class="sub">Owner console · support inbox</div>'
-    +(msg?'<div class="err">'+esc(msg)+'</div>':'')
-    +'<input id="em" class="input" type="email" placeholder="Your Weaver email">'
-    +'<input id="pw" class="input" type="password" placeholder="Your Weaver password">'
-    +'<button id="go" class="btn btn-gold">Sign in</button>'
-    +'<a href="index.html">← Back to the console</a></div>';
-  document.getElementById('go').onclick = async ()=>{
-    try{
-      const r = await sb.auth.signInWithPassword({email:document.getElementById('em').value.trim(),password:document.getElementById('pw').value});
-      if(r.error){renderLogin(r.error.message);return;}
-      sessionStorage.setItem('weaver_admin_token', r.data.session.access_token);
-      renderShell();
-    }catch(e){renderLogin(e.message);}
-  };
+function note(text,isErr){
+  const n=document.getElementById('note');
+  if(!n)return;
+  n.className='note-box '+(isErr?'alert':'info');
+  n.textContent=text;
+  clearTimeout(n._t);
+  n._t=setTimeout(()=>{n.className='note-box';n.textContent='';},4000);
 }
 
 function renderShell(){
-  app.innerHTML = '<h1>Support inbox</h1><div class="sub">Weaver Admin · messages from your writers</div>'
-    +'<div class="toolbar">'
+  app.innerHTML='<div class="topbar">'
     +'<a href="index.html" class="btn btn-sm">← Console</a>'
+    +'<h1>Support inbox</h1>'
+    +'<span style="flex:1"></span>'
     +'<select id="filter"><option value="open">Open</option><option value="resolved">Resolved</option><option value="archived">Archived</option><option value="all">All messages</option></select>'
     +'<button id="refresh" class="btn btn-sm">Refresh</button>'
-    +'<button id="out" class="btn btn-sm">Sign out</button></div>'
-    +'<div class="note">Reply from your own email client using the sender\'s address below — your address is never shown to users. Mark a thread Resolved when you have replied.</div>'
-    +'<div id="note"></div><div id="list"><div class="loading">Loading messages…</div></div>';
-  document.getElementById('filter').value = filter;
-  document.getElementById('filter').onchange = e=>{filter=e.target.value;renderList();};
-  document.getElementById('refresh').onclick = load;
-  document.getElementById('out').onclick = ()=>{clearToken();renderLogin('');};
+    +'</div>'
+    +'<div class="sub">Weaver Admin · messages from your writers</div>'
+    +'<div class="toolbar-note">Reply from your own email client using the sender\'s address below — your address is never shown to users. Mark a thread Resolved once you\'ve replied.</div>'
+    +'<div id="note" class="note-box"></div>'
+    +'<div id="list"><div class="loading">Loading messages…</div></div>';
+  document.getElementById('filter').value=filter;
+  document.getElementById('filter').onchange=e=>{filter=e.target.value;renderList();};
+  document.getElementById('refresh').onclick=load;
   load();
-}
-
-function note(text){
-  const n=document.getElementById('note');
-  if(n){n.className='err';n.textContent=text;}
 }
 
 async function load(){
   try{const d=await api('/api/inbox');messages=d.messages||[];renderList();}
-  catch(e){if(e.message!=='unauthorized')note(e.message);}
+  catch(e){if(e.message!=='unauthorized')note(e.message,true);}
 }
 
 function renderList(){
@@ -130,23 +142,21 @@ function renderList(){
   }).join('');
 }
 
-app.addEventListener('click', async e=>{
+app.addEventListener('click',async e=>{
   const copy=e.target.closest('[data-copy]');
   if(copy){
     try{await navigator.clipboard.writeText(copy.dataset.copy);note('Email copied to clipboard.');}
-    catch(err){note('Copy failed — select the address manually.');}
+    catch(err){note('Copy failed — select the address manually.',true);}
     return;
   }
   const b=e.target.closest('[data-status]');
   if(b){
-    try{
-      await api('/api/'+b.dataset.id+'/status',{method:'POST',body:{status:b.dataset.status}});
-      load();
-    }catch(err){if(err.message!=='unauthorized')note(err.message);}
+    try{await api('/api/'+b.dataset.id+'/status',{method:'POST',body:{status:b.dataset.status}});load();}
+    catch(err){if(err.message!=='unauthorized')note(err.message,true);}
   }
 });
 
-if(token())renderShell();else renderLogin('');
+if(findToken())renderShell();else toConsole();
 </script>
 </body>
 </html>
