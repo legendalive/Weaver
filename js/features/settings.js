@@ -1,9 +1,7 @@
 /* =========================================================
    Weaver — js/features/settings.js
    v2 Stage 6.1-final: Settings Modal — 3 tabs.
-   AI Providers · Data & Storage · General.
-   Data & Storage = account + Backup/Export/Restore +
-   OPTIONAL Puter overflow (clearly marked optional).
+   V3.2b: Added Pro/Free badge and Upgrade button.
    ========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -18,6 +16,7 @@ import groq from '../ai/providers/groq.js';
 import openrouter from '../ai/providers/openrouter.js';
 import gemini from '../ai/providers/gemini.js';
 import mistral from '../ai/providers/mistral.js';
+import { isPro, onEntitlementChange } from '../core/entitlements.js';
 
 const PROVIDERS = [groq, openrouter, gemini, mistral];
 
@@ -44,9 +43,6 @@ function saveAndFlash(mutator) {
 
 /* ---------- Account ---------- */
 function accountSection() {
-import { isPro, onEntitlementChange } from '../core/entitlements.js';
-
-function accountSection() {
   const emailBadge = el('span', { class: 'badge', text: 'checking…' });
   getCloudUserEmail().then((email) => {
     emailBadge.textContent = email || 'signed in';
@@ -60,7 +56,7 @@ function accountSection() {
   
   const upgradeBtn = el('a', {
     class: 'btn btn-sm btn-primary',
-    href: 'https://yourname.gumroad.com/l/weaver-pro', // TODO: Paste your Gumroad URL
+    href: 'https://mbenson62.gumroad.com/l/cqxxpt',
     target: '_blank',
     hidden: isPro()
   }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]);
