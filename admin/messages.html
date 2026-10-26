@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver Admin — Messages</title>
+<style>
+:root{--bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;--border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;--muted:#94918a;--faint:#6b6862;--accent:#e0a83c;--soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px}
+a{color:var(--accent)}
+h1{font-size:1.3rem;margin-bottom:4px}
+.sub{color:var(--faint);font-size:.78rem;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:9px;border:1px solid var(--strong);background:var(--surface-2);color:var(--text);font-size:.8rem;cursor:pointer;text-decoration:none}
+.btn:hover{background:#232327}
+.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a;font-weight:600}
+.btn-sm{padding:6px 10px;font-size:.74rem}
+.input,select{width:100%;padding:9px 12px;border:1px solid var(--strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:.88rem}
+.card{max-width:420px;margin:40px auto;background:var(--surface);border:1px solid var(--strong);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:14px}
+.msg{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.msg-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.msg-subject{font-weight:650;font-size:.95rem}
+.msg-meta{font-size:.72rem;color:var(--faint);font-family:ui-monospace,monospace;margin-bottom:10px}
+.msg-body{font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.msg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.66rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted)}
+.badge.open{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--soft)}
+.badge.resolved{color:var(--ok);border-color:rgba(127,176,105,.4)}
+.badge.archived{color:var(--faint)}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.toolbar select{width:160px}
+.note{color:var(--faint);font-size:.76rem;line-height:1.6;margin:14px 0 22px}
+.err{padding:10px 12px;border:1px solid rgba(212,96,79,.4);background:rgba(212,96,79,.1);color:var(--danger);border-radius:9px;font-size:.82rem;margin-bottom:12px}
+.loading{padding:40px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
+const app = document.getElementById('app');
+let filter = 'open';
+let messages = [];
+
+const sb = window.supabase.createClient(SB_URL, SB_ANON, {
+  auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
+});
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function token(){try{return sessionStorage.getItem('weaver_admin_token')||'';}catch(e){return '';}}
+function clearToken(){try{sessionStorage.removeItem('weaver_admin_token');}catch(e){}}
+
+async function api(path, opts){
+  const res = await fetch(API + path, {
+    method: (opts && opts.method) || 'GET',
+    headers: {'Authorization':'Bearer '+token(),'Content-Type':'application/json'},
+    body: opts && opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  const data = await res.json().catch(()=>({}));
+  if(res.status===401){clearToken();renderLogin('Session expired — sign in again.');throw new Error('unauthorized');}
+  if(!res.ok) throw new Error(data.error || ('HTTP '+res.status));
+  return data;
+}
+
+function renderLogin(msg){
+  app.innerHTML = '<div class="card"><h1>Weaver Messages</h1>'
+    +'<div class="sub">Owner console · support inbox</div>'
+    +(msg?'<div class="err">'+esc(msg)+'</div>':'')
+    +'<input id="em" class="input" type="email" placeholder="Your Weaver email">'
+    +'<input id="pw" class="input" type="password" placeholder="Your Weaver password">'
+    +'<button id="go" class="btn btn-gold">Sign in</button>'
+    +'<a href="index.html">← Back to the console</a></div>';
+  document.getElementById('go').onclick = async ()=>{
+    try{
+      const r = await sb.auth.signInWithPassword({email:document.getElementById('em').value.trim(),password:document.getElementById('pw').value});
+      if(r.error){renderLogin(r.error.message);return;}
+      sessionStorage.setItem('weaver_admin_token', r.data.session.access_token);
+      renderShell();
+    }catch(e){renderLogin(e.message);}
+  };
+}
+
+function renderShell(){
+  app.innerHTML = '<h1>Support inbox</h1><div class="sub">Weaver Admin · messages from your writers</div>'
+    +'<div class="toolbar">'
+    +'<a href="index.html" class="btn btn-sm">← Console</a>'
+    +'<select id="filter"><option value="open">Open</option><option value="resolved">Resolved</option><option value="archived">Archived</option><option value="all">All messages</option></select>'
+    +'<button id="refresh" class="btn btn-sm">Refresh</button>'
+    +'<button id="out" class="btn btn-sm">Sign out</button></div>'
+    +'<div class="note">Reply from your own email client using the sender\'s address below — your address is never shown to users. Mark a thread Resolved when you have replied.</div>'
+    +'<div id="note"></div><div id="list"><div class="loading">Loading messages…</div></div>';
+  document.getElementById('filter').value = filter;
+  document.getElementById('filter').onchange = e=>{filter=e.target.value;renderList();};
+  document.getElementById('refresh').onclick = load;
+  document.getElementById('out').onclick = ()=>{clearToken();renderLogin('');};
+  load();
+}
+
+function note(text){
+  const n=document.getElementById('note');
+  if(n){n.className='err';n.textContent=text;}
+}
+
+async function load(){
+  try{const d=await api('/api/inbox');messages=d.messages||[];renderList();}
+  catch(e){if(e.message!=='unauthorized')note(e.message);}
+}
+
+function renderList(){
+  const host=document.getElementById('list');
+  if(!host)return;
+  const rows=filter==='all'?messages:messages.filter(m=>m.status===filter);
+  if(!rows.length){host.innerHTML='<div class="loading">No '+esc(filter)+' messages.</div>';return;}
+  host.innerHTML=rows.map(m=>{
+    let date='—';try{date=new Date(m.created_at).toLocaleString();}catch(e){}
+    return '<div class="msg">'
+      +'<div class="msg-head"><span class="msg-subject">'+esc(m.subject)+'</span><span class="badge '+esc(m.status)+'">'+esc(m.status)+'</span></div>'
+      +'<div class="msg-meta">'+esc(m.email)+' · '+date+'</div>'
+      +'<div class="msg-body">'+esc(m.body)+'</div>'
+      +'<div class="msg-actions">'
+      +'<button class="btn btn-sm" data-copy="'+esc(m.email)+'">Copy email</button>'
+      +(m.status==='resolved'
+        ?'<button class="btn btn-sm" data-status="open" data-id="'+m.id+'">Reopen</button>'
+        :'<button class="btn btn-sm" data-status="resolved" data-id="'+m.id+'">Mark resolved</button>')
+      +'<button class="btn btn-sm" data-status="archived" data-id="'+m.id+'">Archive</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+app.addEventListener('click', async e=>{
+  const copy=e.target.closest('[data-copy]');
+  if(copy){
+    try{await navigator.clipboard.writeText(copy.dataset.copy);note('Email copied to clipboard.');}
+    catch(err){note('Copy failed — select the address manually.');}
+    return;
+  }
+  const b=e.target.closest('[data-status]');
+  if(b){
+    try{
+      await api('/api/'+b.dataset.id+'/status',{method:'POST',body:{status:b.dataset.status}});
+      load();
+    }catch(err){if(err.message!=='unauthorized')note(err.message);}
+  }
+});
+
+if(token())renderShell();else renderLogin('');
+</script>
+</body>
+</html>
