@@ -1,17 +1,7 @@
 /* =========================================================
    Weaver — js/features/cloud.js
    v2 Stage 6.1-final: compressed, failover-aware cloud sync.
-   - ENVELOPE v2: blobs gzipped via native CompressionStream
-     (~70-80% smaller); reads sniff gzip magic bytes so old
-     raw-JSON blobs keep working forever. No migration needed.
-   - FAILOVER: Supabase is always first. On quota-exceeded or
-     unreachable, writes/reads fall back to the user's own
-     Puter space (optional, per-user, zero cost to owner).
-     When Supabase is healthy again, primary writes quietly
-     retire stale Puter copies (single source of truth).
-   - Continuous autosync (~3s debounce, active project only).
-   - Badge: "saved to cloud · HH:MM" / "saved via Puter · HH:MM"
-     / "cloud save failed".
+   V3.2b: Added isKnownFree gate to scheduleCloudSave.
    ========================================================= */
 import { el, clear, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -25,6 +15,7 @@ import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
 import {
   puterSignedIn, connectPuter, puterPut, puterGet, puterDel, puterList,
 } from './puter-mirror.js';
+import { isKnownFree } from '../core/entitlements.js';
 
 const BUCKET = 'weaver-vault';
 const LEDGER_KEY = 'weaver_sync_ledger';
@@ -261,8 +252,6 @@ function failBadge() {
 /* =========================================================
    CONTINUOUS AUTOSYNC
    ========================================================= */
-import { isKnownFree } from '../core/entitlements.js';
-
 export function scheduleCloudSave() {
   if (!configured() && !puterSignedIn()) return;
   if (isKnownFree()) return; // V3.2b: Free users are local-only
