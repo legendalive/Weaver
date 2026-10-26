@@ -321,6 +321,7 @@ const TABS = [
   { id: 'storage', label: 'Storage', ready: true },
   { id: 'audit', label: 'Audit', ready: true },
   { id: 'banner', label: 'Banner', ready: true },
+  { id: 'messages', label: 'Messages', ready: true },
 ];
 function renderShell(tab) {
   activeTab = tab;
@@ -332,7 +333,6 @@ function renderShell(tab) {
       '<div class="top-right">' +
         '<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
                 '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
-        '<a href="messages.html" class="btn btn-sm">Messages</a>' +
       '</div>' +
     '</div>' +
     '<div class="tabs" id="admin-tabs"></div>' +
@@ -359,6 +359,7 @@ function loadTab(tab) {
   if (tab === 'storage') return loadStorage();
   if (tab === 'audit') return loadAudit();
   if (tab === 'banner') return loadBanner();
+  if (tab === 'messages') { window.location.href = 'messages.html'; return; }
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
 }
 
