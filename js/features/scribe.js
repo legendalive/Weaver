@@ -1,12 +1,7 @@
 /* =========================================================
 Weaver — js/features/scribe.js
 Step 21 + patches (v9) + V3.1a UX Pivot + pill polish:
-Scribe command deck lives INSIDE the AI Output panel.
-POLISH: quick prompts are ONE row of transparent pills.
-No background fill anywhere; the deck is transparent so it
-matches the AI panel exactly. Long prompts truncate with an
-ellipsis; the full text remains in the hover/tap title.
-Mobile retains the FAB since panels stack vertically.
+V3.2b: Added isKnownFree gate to runScribePrompt.
 ========================================================= */
 import { el, clear, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -17,6 +12,7 @@ import {
   clearManuscriptSelection,
 } from '../panels/manuscript.js';
 import { streamChatWithFallback } from '../ai/manager.js';
+import { isKnownFree } from '../core/entitlements.js';
 
 const STYLE_ID = 'scribe-style';
 const CSS = `
@@ -311,8 +307,6 @@ function streamInto(block) {
 }
 
 /* ---------- Send: consume the bundle ---------- */
-import { isKnownFree } from '../core/entitlements.js';
-
 export function runScribePrompt(prompt) {
   if (isKnownFree()) {
     toast('Scribe (AI) is a Pro feature. Upgrade in Settings to unlock.', 'info');
