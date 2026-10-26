@@ -149,10 +149,47 @@ options are free subdomains (eu.org, is-a.dev, js.org) or a cheap .eu/.de
 (~€5/yr). Pair with GDPR-friendly hosting. Replaces legendalive.github.io as
 the canonical URL (update Supabase redirect URLs when it happens).
 
-### V3.6 Payments: Stripe and/or PayPal
-Stripe recommended as primary (developer experience, webhooks, EU VAT
-handling via Stripe Tax); PayPal optional for reach. Flow: checkout →
-webhook → Supabase entitlements row → app unlocks features.
+#### V3.6 Payments: Gumroad (Merchant of Record)
+Launch on Gumroad to avoid EU VAT compliance burden (Gumroad acts as
+merchant of record, handling tax collection, invoicing, and payouts).
+Fulfillment is manual: sale lands in Gumroad dashboard → owner clicks
+**Grant** in the Weaver admin Credits tab. Zero new payment code needed;
+the existing admin console IS the fulfillment tool.
+
+### V4.0 Payments: Direct Processor (Stripe / Alternatives)
+Add automatic fulfillment via webhooks (checkout → webhook → Supabase
+entitlements row → app unlocks features).
+**CRITICAL RESEARCH:** Verify if Stripe is available and fully usable for
+a creator based in Kenya. If Stripe is blocked or has severe payout
+restrictions in Kenya, research and select the best alternative
+(e.g., PayPal, Paddle, Flutterwave, or local Kenyan gateways). Do not
+write webhook code until the processor is confirmed.
 
 ### V3 dependency order (suggested)
 V3.1 → V3.6 → V3.2 → V3.4 → V3.3 → V3.5 (domain last, once stable). 
+## V4 (post-V3) — Trash & 30-day recovery for user-deleted projects
+
+Requested 2026-10-26. Today a user-deleted project is gone immediately and
+permanently (client hard-delete + ledger-driven vault removal).
+
+**Desired behaviour**
+- Deleting a project in the app removes it from the Library view only.
+- The blob stays in the vault, marked deleted, for 30 days.
+- Library gains a collapsed "Recently deleted" area listing soft-deleted
+  projects with days remaining and a Restore button.
+- After 30 days the project is purged permanently (blob + index entry).
+- Keep a "Delete forever" escape hatch for GDPR right-to-erasure requests.
+
+**Implementation notes**
+- `storage.js`: `deleteProject(id)` gains a soft mode — write `deletedAt` into
+  the project meta and the vault `index.json` entry instead of removing.
+  Preserve the existing hard-delete path for the purge.
+- Purge: a pass on boot/sync hard-deletes anything with `deletedAt` older than
+  30 days. A server-side scheduled purge is more reliable (catches users who
+  never return) — the weekly backup cron in weaver-server is the natural host.
+  Decide at build time.
+- Series bibles: a soft-deleted last book must NOT remove the series registry
+  until the purge actually runs.
+- **The admin console's project delete stays a HARD delete.** Takedown/legal
+  removal must be immediate and must not leave a restorable copy. State this
+  difference in the admin note text.
