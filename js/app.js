@@ -27,7 +27,6 @@ import { loadBanner } from './features/banner.js';
 import { renderManuscript } from './panels/manuscript.js';
 import { loadEntitlement } from './core/entitlements.js';
 import { renderMainNovel } from './panels/main-novel.js';
-import { loadEntitlement } from './core/entitlements.js';
 
 const APP_VERSION = '2.0.0';
 const VIEWS = ['auth', 'launch', 'workspace'];
@@ -131,6 +130,7 @@ async function enterApp() {
   if (namespaceIsEmpty() && hasLegacyData()) {
     migrateLegacyData();
     reloadSettings();
+    loadEntitlement(userId);
   }
 
   subscribe((state, change) => {
