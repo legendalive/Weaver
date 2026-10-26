@@ -261,8 +261,11 @@ function failBadge() {
 /* =========================================================
    CONTINUOUS AUTOSYNC
    ========================================================= */
+import { isKnownFree } from '../core/entitlements.js';
+
 export function scheduleCloudSave() {
   if (!configured() && !puterSignedIn()) return;
+  if (isKnownFree()) return; // V3.2b: Free users are local-only
   clearTimeout(autoTimer);
   autoTimer = setTimeout(() => pushActiveProject({ quiet: true }), AUTOSYNC_DELAY);
 }
