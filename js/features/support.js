@@ -30,7 +30,7 @@ function injectButton() {
   });
 
   let mailIcon = null;
-  try { mailIcon = icon('mail', 'icon-sm'); } catch (e) { mailIcon = null; }
+  mailIcon = icon('send', 'icon-sm');
   const content = mailIcon
     ? [mailIcon, el('span', { text: 'Support' })]
     : [el('span', { text: 'Support' })];
