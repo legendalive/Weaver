@@ -130,7 +130,7 @@ export function renderWorkspace() {
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-topBtn('plot', 'map', 'Plot', () => openPlotBuilder()),
+topBtn('plot', 'file-text', 'Plot', () => openPlotBuilder()),
       topBtn('hierarchy', 'tree', 'Hierarchy', () => {
         if (toggleHier) toggleHier();
       }),
