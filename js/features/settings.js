@@ -1,8 +1,10 @@
 /* =========================================================
-   Weaver — js/features/settings.js
-   v2 Stage 6.1-final: Settings Modal — 3 tabs.
-   V3.2b: Added Pro/Free badge and Upgrade button.
-   ========================================================= */
+Weaver — js/features/settings.js
+v2 Stage 6.1-final: Settings Modal.
+V3.2b: Added Pro/Free badge and Upgrade button.
+V3.4b: AI Providers tab removed — AI is served centrally by the
+Weaver proxy for Pro users; no user-managed API keys anymore.
+========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState, updateSettings } from '../core/state.js';
@@ -12,13 +14,7 @@ import {
 } from './cloud.js';
 import { puterSignedIn, connectPuter, disconnectPuter } from './puter-mirror.js';
 import { exportProject } from './export.js';
-import groq from '../ai/providers/groq.js';
-import openrouter from '../ai/providers/openrouter.js';
-import gemini from '../ai/providers/gemini.js';
-import mistral from '../ai/providers/mistral.js';
 import { isPro, onEntitlementChange } from '../core/entitlements.js';
-
-const PROVIDERS = [groq, openrouter, gemini, mistral];
 
 const STYLE_ID = 'settings-style';
 const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:190px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
@@ -48,25 +44,21 @@ function accountSection() {
     emailBadge.textContent = email || 'signed in';
     emailBadge.className = 'badge badge-success';
   });
-  
-  const proBadge = el('span', { 
-    class: 'badge ' + (isPro() ? 'badge-accent' : ''), 
-    text: isPro() ? 'Pro' : 'Free' 
+  const proBadge = el('span', {
+    class: 'badge ' + (isPro() ? 'badge-accent' : ''),
+    text: isPro() ? 'Pro' : 'Free'
   });
-  
   const upgradeBtn = el('a', {
     class: 'btn btn-sm btn-primary',
     href: 'https://mbenson62.gumroad.com/l/cqxxpt',
     target: '_blank',
     hidden: isPro()
   }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]);
-
   onEntitlementChange(() => {
     proBadge.className = 'badge ' + (isPro() ? 'badge-accent' : '');
     proBadge.textContent = isPro() ? 'Pro' : 'Free';
     upgradeBtn.hidden = isPro();
   });
-
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Account' }),
     el('div', { class: 'set-card' }, [
@@ -92,7 +84,7 @@ function accountSection() {
   ]);
 }
 
-/* ---------- Backup & Restore (3 actions) ---------- */
+/* ---------- Backup & Restore ---------- */
 function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Backup & Restore' }),
@@ -172,75 +164,6 @@ function overflowSection(rerender) {
   ]);
 }
 
-/* ---------- AI tab ---------- */
-function renderAiTab(contentEl, settings) {
-  clear(contentEl);
-  contentEl.appendChild(el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Fallback Order' }),
-    el('p', { class: 'set-hint', text: 'If a provider fails or rate-limits, the app silently tries the next one in this list.' }),
-    el('div', { class: 'set-order' }, settings.ai.fallbackOrder.map(id => {
-      const p = PROVIDERS.find(x => x.id === id);
-      return el('span', { class: 'badge badge-accent', text: p.label });
-    }))
-  ]));
-
-  const tempVal = el('span', { class: 'badge', text: String(settings.ai.temperature ?? 0.85) });
-  contentEl.appendChild(el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Generation' }),
-    el('div', { class: 'set-field' }, [
-      el('label', { text: 'Temperature (0 = precise, 1 = inventive)' }),
-      el('div', { class: 'set-range-row' }, [
-        el('input', {
-          type: 'range', min: '0', max: '1', step: '0.05',
-          value: String(settings.ai.temperature ?? 0.85),
-          oninput: (e) => { tempVal.textContent = e.target.value; saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); }); },
-        }),
-        tempVal,
-      ]),
-    ]),
-    el('div', { class: 'set-field' }, [
-      el('label', { text: 'Max tokens per generation' }),
-      el('input', {
-        type: 'number', class: 'input', min: '256', max: '8192', step: '256',
-        value: String(settings.ai.maxTokens ?? 2048),
-        oninput: (e) => saveAndFlash(s => { s.ai.maxTokens = Math.max(256, Math.min(8192, parseInt(e.target.value) || 2048)); }),
-      }),
-    ]),
-  ]));
-
-  for (const p of PROVIDERS) {
-    const pCfg = settings.ai.providers[p.id];
-    const input = el('input', {
-      class: 'input', type: 'password', placeholder: 'Paste API key…',
-      value: pCfg.key || '',
-      oninput: (e) => { saveAndFlash(s => { s.ai.providers[p.id].key = e.target.value; }); statusBadge.textContent = 'untested'; statusBadge.className = 'badge'; },
-    });
-    const statusBadge = el('span', { class: 'badge', text: pCfg.key ? 'saved' : 'untested' });
-    const testBtn = el('button', {
-      class: 'btn btn-sm', text: 'Test Connection',
-      onclick: async () => {
-        testBtn.disabled = true; testBtn.textContent = 'Testing…';
-        const res = await p.testKey(input.value);
-        testBtn.disabled = false; testBtn.textContent = 'Test Connection';
-        if (res.ok) { statusBadge.textContent = 'connected'; statusBadge.className = 'badge badge-success'; toast(`${p.label} connected.`, 'success'); }
-        else { statusBadge.textContent = 'failed'; statusBadge.className = 'badge badge-danger'; toast(`${p.label} failed: ${res.message}`, 'danger'); }
-      },
-    });
-    const toggleLabel = el('label', { class: 'set-toggle' }, [
-      el('input', { type: 'checkbox', checked: pCfg.enabled, onchange: (e) => saveAndFlash(s => { s.ai.providers[p.id].enabled = e.target.checked; }) }),
-      el('span', { text: 'Enable for fallback chain' }),
-    ]);
-    contentEl.appendChild(el('div', { class: 'set-card' }, [
-      el('div', { class: 'set-card-head' }, [
-        el('h4', { text: p.label }),
-        el('a', { href: p.keyUrl, target: '_blank', class: 'btn btn-ghost btn-sm', title: 'Get API Key' }, [icon('key', 'icon-sm'), 'Get Key']),
-      ]),
-      el('div', { class: 'set-row' }, [input, testBtn]),
-      el('div', { class: 'set-row' }, [statusBadge, toggleLabel]),
-    ]));
-  }
-}
-
 /* ---------- Data & Storage tab ---------- */
 function renderDataTab(contentEl, rerender) {
   clear(contentEl);
@@ -303,11 +226,11 @@ function renderGeneralTab(contentEl, settings) {
   );
 }
 
-/* ---------- Entry Point (3 tabs) ---------- */
+/* ---------- Entry Point (2 tabs) ---------- */
 export function openSettings() {
   ensureStyle();
   const state = getState();
-  let activeTab = 'ai';
+  let activeTab = 'data';
   const railEl = el('div', { class: 'set-rail' });
   const contentEl = el('div', { class: 'set-content' });
   savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
@@ -315,7 +238,6 @@ export function openSettings() {
   function renderRail() {
     clear(railEl);
     const tabs = [
-      { id: 'ai', label: 'AI Providers', icon: 'sparkles' },
       { id: 'data', label: 'Data & Storage', icon: 'folder' },
       { id: 'general', label: 'General', icon: 'gear' },
     ];
@@ -327,11 +249,9 @@ export function openSettings() {
     }
   }
   function renderContent() {
-    if (activeTab === 'ai') renderAiTab(contentEl, state.settings);
-    else if (activeTab === 'data') renderDataTab(contentEl, renderContent);
+    if (activeTab === 'data') renderDataTab(contentEl, renderContent);
     else renderGeneralTab(contentEl, state.settings);
   }
-
   const m = modal({
     title: 'Settings',
     size: 'lg',
