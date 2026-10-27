@@ -1,38 +1,20 @@
 /* =========================================================
-   Weaver — js/features/search.js
-   Step 27.5 + final polish: phrase search across Manuscript
-   and Main Novel.
-   - Expand-on-focus pill: 150px at rest, 280px in use; height
-     matched to the topbar buttons; placeholder "Search".
-   - Project title truncates with ellipsis (never squeezed).
-   - Next/Prev jump the virtual window + paint a temp <mark>.
-   ========================================================= */
-
+Weaver — js/features/search.js
+V3.3a: collapsing search. At rest = a single magnifying-glass
+icon button; on click it expands to overlay the topbar; when
+emptied (clear / Escape / blur-with-no-text) it collapses back
+to the icon. Search logic (match, ‹ › nav, mark, jump) is
+unchanged. Magnifier is inline SVG so it never depends on the
+icon set.
+========================================================= */
 import { el, clear } from '../utils/dom.js';
-import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
 import { buildBlockIndex, blockAtOffset } from '../utils/text.js';
 import { jumpManuscriptToBlock } from '../panels/manuscript.js';
 import { jumpNovelToBlock } from '../panels/main-novel.js';
 
 const STYLE_ID = 'search-style';
-const CSS = `
-.ws-bar{display:flex;align-items:center;gap:4px;width:150px;height:36px;box-sizing:border-box;
-  background:var(--surface-2);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:0 8px;transition:width .18s ease;flex:none;}
-.ws-bar.is-open{width:280px;}
-.ws-bar .input{border:none;background:transparent;box-shadow:none;
-  padding:0 4px;height:100%;min-height:0;flex:1;min-width:0;font-size:.8rem;}
-.ws-bar .input:focus{outline:none;}
-.ws-badge{font-family:var(--font-mono);font-size:.66rem;color:var(--faint);flex:none;}
-.ws-badge.is-novel{color:var(--accent);}
-.ws-bar .btn{padding:2px 5px;font-size:.8rem;line-height:1;height:26px;flex:none;}
-.topbar-center{min-width:0;}
-.topbar-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.topbar-sub{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-mark.ws-hit{background:rgba(224,168,60,.35);color:inherit;border-radius:2px;}
-@media (max-width:860px){ .ws-bar{display:none;} }
-`;
+const CSS = `.topbar{position:relative;} .ws-bar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;box-sizing:border-box;background:transparent;border:1px solid transparent;border-radius:var(--radius-md);cursor:pointer;flex:none;color:var(--muted);} .ws-bar:hover{color:var(--text);background:var(--surface-2);} .ws-bar .input,.ws-bar .ws-badge,.ws-bar .btn{display:none;} .ws-bar .icon{flex:none;} .ws-bar.is-open{position:absolute;left:6px;right:6px;top:50%;transform:translateY(-50%);z-index:60;width:auto;height:40px;display:flex;align-items:center;justify-content:flex-start;gap:4px;padding:0 8px;cursor:default;background:var(--surface-2);border:1px solid var(--border);color:var(--text);} .ws-bar.is-open .input{display:block;flex:1;min-width:0;border:none;background:transparent;box-shadow:none;padding:0 6px;height:100%;font-size:.85rem;color:var(--text);} .ws-bar.is-open .input:focus{outline:none;} .ws-bar.is-open .ws-badge{display:inline;} .ws-bar.is-open .btn{display:inline-flex;} .ws-badge{font-family:var(--font-mono);font-size:.66rem;color:var(--faint);flex:none;} .ws-badge.is-novel{color:var(--accent);} .ws-bar .btn{padding:2px 6px;font-size:.8rem;line-height:1;height:28px;flex:none;} .topbar-center{min-width:0;} .topbar-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .topbar-sub{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} mark.ws-hit{background:rgba(224,168,60,.35);color:inherit;border-radius:2px;} @media (max-width:860px){ .ws-bar{display:none;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -55,6 +37,25 @@ let pos = -1;
 let debounce = null;
 
 function total() { return msHits.length + nvHits.length; }
+
+/* Magnifying glass as inline SVG (independent of the icon set). */
+function magnifier(cls) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  if (cls) svg.setAttribute('class', cls);
+  const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  c.setAttribute('cx', '11'); c.setAttribute('cy', '11'); c.setAttribute('r', '8');
+  const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  l.setAttribute('x1', '21'); l.setAttribute('y1', '21');
+  l.setAttribute('x2', '16.65'); l.setAttribute('y2', '16.65');
+  svg.appendChild(c); svg.appendChild(l);
+  return svg;
+}
 
 /* ---------- Match computation ---------- */
 function findHits(text, q) {
@@ -124,16 +125,13 @@ function goto(k) {
   pos = ((k % t) + t) % t;
   const inNovel = pos >= msHits.length;
   const off = inNovel ? nvHits[pos - msHits.length] : msHits[pos];
-
   const project = getState().project;
   const text = inNovel ? (project.mainNovel.text || '') : (project.manuscript.text || '');
   const blocks = buildBlockIndex(text);
   const bi = blockAtOffset(blocks, off);
-
   clearMarks();
   if (inNovel) jumpNovelToBlock(bi);
   else jumpManuscriptToBlock(bi);
-
   const mark = markFirstIn(
     inNovel ? '.panel[data-panel="novel"]' : '.panel[data-panel="manuscript"]',
     query
@@ -142,24 +140,25 @@ function goto(k) {
   updateBadge();
 }
 
-/* ---------- UI ---------- */
+/* ---------- Open / collapse ---------- */
 function setOpen(open) {
   if (bar) bar.classList.toggle('is-open', open);
 }
+function openSearch() {
+  setOpen(true);
+  setTimeout(() => { if (input) input.focus(); }, 30);
+}
 
+/* ---------- UI ---------- */
 function buildBar() {
-  input = el('input', {
-    class: 'input', type: 'text',
-    placeholder: 'Search',
-  });
+  input = el('input', { class: 'input', type: 'text', placeholder: 'Search…' });
   badge = el('span', { class: 'ws-badge' });
-
-  const prev = el('button', { class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '‹', onclick: () => goto(pos - 1) });
-  const next = el('button', { class: 'btn btn-ghost', title: 'Next match (Enter)', text: '›', onclick: () => goto(pos + 1) });
+  const prev = el('button', { class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '\u2039', onclick: () => goto(pos - 1) });
+  const next = el('button', { class: 'btn btn-ghost', title: 'Next match (Enter)', text: '\u203A', onclick: () => goto(pos + 1) });
   const clr = el('button', {
-    class: 'btn btn-ghost btn-icon', title: 'Clear search',
+    class: 'btn btn-ghost', title: 'Clear search', text: '\u00D7',
     onclick: () => { input.value = ''; onInput(); },
-  }, [icon('x', 'icon-sm')]);
+  });
 
   input.addEventListener('input', onInput);
   input.addEventListener('focus', () => setOpen(true));
@@ -169,9 +168,12 @@ function buildBar() {
     if (e.key === 'Escape') { input.value = ''; onInput(); input.blur(); setOpen(false); }
   });
 
-    bar = el('div', { class: 'ws-bar', dataset: { wsBound: '1' } }, [
-    icon('file-text', 'icon-sm'), input, badge, prev, next, clr,
+  bar = el('div', { class: 'ws-bar', dataset: { wsBound: '1' }, title: 'Search' }, [
+    magnifier('icon'), input, badge, prev, next, clr,
   ]);
+  bar.addEventListener('click', () => {
+    if (!bar.classList.contains('is-open')) openSearch();
+  });
   return bar;
 }
 
@@ -193,14 +195,8 @@ function bind() {
   if (!host) return;
   const old = host.querySelector('.ws-bar');
   if (old && old.dataset.wsBound) return;
-    if (old) old.remove();
+  if (old) old.remove();
   host.appendChild(buildBar());
-  matchButtonHeight();
-}
-
-function matchButtonHeight() {
-  const btn = document.querySelector('.topbar-left .btn');
-  if (bar && btn && btn.offsetHeight) bar.style.height = btn.offsetHeight + 'px';
 }
 
 export function initSearch() {
