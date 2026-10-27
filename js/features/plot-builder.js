@@ -91,10 +91,11 @@ function saveNow() {
   projectRef.plot = plot;
   try { saveProject(projectRef); } catch (e) { console.warn('[Plot] local save failed:', e); }
   scheduleCloudSave();
-  if (savedBadge) {
+    if (savedBadge) {
     savedBadge.hidden = false;
     setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
   }
+  document.dispatchEvent(new CustomEvent('plot-updated'));
 }
 
 /* ---------- Render ---------- */
