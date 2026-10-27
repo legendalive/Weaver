@@ -22,7 +22,7 @@ import { openSettings } from '../features/settings.js';
 import { openGuide } from '../features/guide.js';
 import { exportProject } from '../features/export.js';
 import { openConfigBible } from '../features/config-bible.js';
-import { openPlotBuilder } from '../features/plot-builder.js';
+import { togglePlotReference } from '../features/plot-reference.js';
 import { autoSync } from '../features/cloud.js';
 
 /* ---------- defensive resolution ---------- */
@@ -130,7 +130,7 @@ export function renderWorkspace() {
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-topBtn('plot', 'file-text', 'Plot', () => openPlotBuilder()),
+topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
       topBtn('hierarchy', 'tree', 'Hierarchy', () => {
         if (toggleHier) toggleHier();
       }),
