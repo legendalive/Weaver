@@ -1,18 +1,19 @@
 /* =========================================================
 Weaver — js/features/plot-builder.js
-V3.3a: Plot Builder — manual story scaffolding.
-Premise → Acts → Beats, stored on project.plot and synced with
-the project. Modeled on config-bible.js (modal + debounced
-autosave). AI assistance arrives in V3.3b.
+V3.3b: Plot Builder + AI Assistance (Pro gated).
+Manual scaffolding + AI actions (Draft Outline, Expand Beat,
+Suggest Twist) routed through the Weaver proxy.
 ========================================================= */
-import { el, clear, modal, confirmDialog } from '../utils/dom.js';
+import { el, clear, modal, confirmDialog, toast } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import { getState } from '../core/state.js';
 import { saveProject } from '../core/storage.js';
 import { scheduleCloudSave } from './cloud.js';
+import { isPro } from '../core/entitlements.js';
+import { streamChatWithFallback } from '../ai/manager.js';
 
 const STYLE_ID = 'plot-builder-style';
-const CSS = `.pb-content{display:flex;flex-direction:column;gap:14px;} .pb-section{display:flex;flex-direction:column;gap:8px;} .pb-h{font-size:.8rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);} .pb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;} .pb-head .pb-h{margin:0;} .pb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);cursor:pointer;} .pb-row:hover{border-color:var(--border-strong);} .pb-row-name{font-weight:600;font-size:.86rem;white-space:nowrap;flex:none;max-width:50%;overflow:hidden;text-overflow:ellipsis;} .pb-row-meta{flex:1;min-width:0;color:var(--faint);font-size:.76rem;font-family:var(--font-mono);} .pb-row-actions{display:flex;gap:4px;flex:none;} .pb-card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);} .pb-card-head{display:flex;gap:8px;align-items:center;} .pb-card-head .input{flex:1;} .pb-beats{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px dashed var(--border);border-radius:var(--radius-md);} .pb-beats-head{display:flex;align-items:center;justify-content:space-between;gap:8px;} .pb-beats-label{font-size:.74rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);} .pb-beat{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);} .pb-beat-head{display:flex;gap:6px;align-items:center;} .pb-beat-title{flex:1;} .pb-done{align-self:flex-end;} .pb-hint{font-size:.74rem;color:var(--faint);} .pb-scope-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}`;
+const CSS = `.pb-content{display:flex;flex-direction:column;gap:14px;} .pb-section{display:flex;flex-direction:column;gap:8px;} .pb-h{font-size:.8rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);} .pb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;} .pb-head .pb-h{margin:0;} .pb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);cursor:pointer;} .pb-row:hover{border-color:var(--border-strong);} .pb-row-name{font-weight:600;font-size:.86rem;white-space:nowrap;flex:none;max-width:50%;overflow:hidden;text-overflow:ellipsis;} .pb-row-meta{flex:1;min-width:0;color:var(--faint);font-size:.76rem;font-family:var(--font-mono);} .pb-row-actions{display:flex;gap:4px;flex:none;} .pb-card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);} .pb-card-head{display:flex;gap:8px;align-items:center;} .pb-card-head .input{flex:1;} .pb-beats{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px dashed var(--border);border-radius:var(--radius-md);} .pb-beats-head{display:flex;align-items:center;justify-content:space-between;gap:8px;} .pb-beats-label{font-size:.74rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);} .pb-beat{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);} .pb-beat-head{display:flex;gap:6px;align-items:center;} .pb-beat-title{flex:1;} .pb-done{align-self:flex-end;} .pb-hint{font-size:.74rem;color:var(--faint);} .pb-scope-row{display:flex;align-items:center;justify-content:space-between;gap:8px;} .pb-ai-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;} .pb-ai-row .btn{font-size:.74rem;padding:4px 10px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -53,6 +54,31 @@ function normalizePlot(p) {
   return p;
 }
 
+/* ---------- AI Helpers ---------- */
+async function runAI(messages) {
+  let full = '';
+  await streamChatWithFallback({
+    messages,
+    onToken: (delta, current) => { full = current; }
+  });
+  return full;
+}
+
+function extractJSON(text) {
+  // Try markdown block first
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (match) return match[1].trim();
+  // Fallback: find first { and last }
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start !== -1 && end !== -1) return text.slice(start, end + 1);
+  // Fallback: array
+  const startArr = text.indexOf('[');
+  const endArr = text.lastIndexOf(']');
+  if (startArr !== -1 && endArr !== -1) return text.slice(startArr, endArr + 1);
+  return text;
+}
+
 /* ---------- Saving ---------- */
 function scheduleSave() {
   clearTimeout(saveTimer);
@@ -90,7 +116,7 @@ function render() {
 }
 
 function premiseSection() {
-  return el('div', { class: 'pb-section' }, [
+  const section = el('div', { class: 'pb-section' }, [
     el('h3', { class: 'pb-h', text: 'Premise' }),
     el('textarea', {
       class: 'textarea', rows: '3',
@@ -99,6 +125,42 @@ function premiseSection() {
       oninput: (e) => { plot.premise = e.target.value; scheduleSave(); },
     }),
   ]);
+
+  if (isPro()) {
+    const draftBtn = el('button', {
+      class: 'btn btn-sm',
+      onclick: async () => {
+        if (!plot.premise.trim()) { toast('Write a premise first.', 'info'); return; }
+        draftBtn.disabled = true; draftBtn.textContent = 'Drafting outline…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are an expert story architect. Output ONLY valid JSON, no conversational filler.' },
+            { role: 'user', content: `Premise: ${plot.premise}\n\nGenerate a 3-act structure. JSON format: {"acts": [{"title": "...", "summary": "...", "beats": [{"title": "...", "text": "..."}]}]}` }
+          ];
+          const raw = await runAI(msgs);
+          const parsed = JSON.parse(extractJSON(raw));
+          if (parsed.acts && Array.isArray(parsed.acts)) {
+            plot.acts = parsed.acts.map(a => ({
+              id: entryId(),
+              title: a.title || 'Untitled Act',
+              summary: a.summary || '',
+              beats: (a.beats || []).map(b => ({ id: entryId(), title: b.title || '', text: b.text || '' }))
+            }));
+            scheduleSave();
+            render();
+            toast('Outline drafted.', 'success');
+          } else { throw new Error('Invalid structure'); }
+        } catch (e) {
+          toast('AI could not draft an outline. Try again.', 'danger');
+        } finally {
+          draftBtn.disabled = false; draftBtn.textContent = 'Draft outline from premise';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Draft outline from premise']);
+    
+    section.appendChild(el('div', { class: 'pb-ai-row' }, [draftBtn]));
+  }
+  return section;
 }
 
 function actsHeader() {
@@ -135,7 +197,7 @@ function actRow(act, idx) {
 }
 
 function actCard(act, idx) {
-  return el('div', { class: 'pb-card' }, [
+  const card = el('div', { class: 'pb-card' }, [
     el('div', { class: 'pb-card-head' }, [
       el('input', {
         class: 'input', placeholder: 'Act title\u2026',
@@ -156,6 +218,36 @@ function actCard(act, idx) {
       onclick: () => { expandedActs.delete(act.id); render(); },
     }),
   ]);
+
+  if (isPro()) {
+    const twistBtn = el('button', {
+      class: 'btn btn-sm',
+      onclick: async () => {
+        twistBtn.disabled = true; twistBtn.textContent = 'Suggesting…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are a creative writing coach. Output ONLY valid JSON.' },
+            { role: 'user', content: `Act: ${act.title} - ${act.summary}\n\nSuggest a plot twist or complication. JSON: {"title": "...", "text": "..."}` }
+          ];
+          const raw = await runAI(msgs);
+          const parsed = JSON.parse(extractJSON(raw));
+          if (parsed.title && parsed.text) {
+            act.beats.push({ id: entryId(), title: parsed.title, text: parsed.text });
+            scheduleSave();
+            render();
+            toast('Twist added.', 'success');
+          } else { throw new Error('Invalid beat'); }
+        } catch (e) {
+          toast('AI could not suggest a twist.', 'danger');
+        } finally {
+          twistBtn.disabled = false; twistBtn.textContent = 'Suggest twist';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Suggest twist']);
+    card.insertBefore(el('div', { class: 'pb-ai-row' }, [twistBtn]), card.querySelector('.pb-done'));
+  }
+
+  return card;
 }
 
 function beatsBlock(act) {
@@ -177,7 +269,7 @@ function beatsBlock(act) {
 }
 
 function beatCard(act, beat, bidx) {
-  return el('div', { class: 'pb-beat' }, [
+  const card = el('div', { class: 'pb-beat' }, [
     el('div', { class: 'pb-beat-head' }, [
       el('input', {
         class: 'input pb-beat-title', placeholder: 'Beat title\u2026',
@@ -206,6 +298,32 @@ function beatCard(act, beat, bidx) {
       oninput: (e) => { beat.text = e.target.value; scheduleSave(); },
     }),
   ]);
+
+  if (isPro() && beat.text.trim()) {
+    const expandBtn = el('button', {
+      class: 'btn btn-sm', style: { alignSelf: 'flex-end' },
+      onclick: async () => {
+        expandBtn.disabled = true; expandBtn.textContent = 'Expanding…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are a novelist. Expand this beat into a 2-3 paragraph scene summary. Output plain text only.' },
+            { role: 'user', content: `Beat: ${beat.title}\nCurrent text: ${beat.text}` }
+          ];
+          const expanded = await runAI(msgs);
+          beat.text = expanded.trim();
+          scheduleSave();
+          render();
+        } catch (e) {
+          toast('AI could not expand the beat.', 'danger');
+        } finally {
+          expandBtn.disabled = false; expandBtn.textContent = 'Expand beat';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Expand beat']);
+    card.appendChild(expandBtn);
+  }
+
+  return card;
 }
 
 function deleteActBtn(act, idx) {
