@@ -68,7 +68,7 @@ function renderList() {
   const notes = notesOf(getState().project);
   if (countEl) countEl.textContent = notes.length ? String(notes.length) : '';
   if (!notes.length) {
-    listEl.appendChild(el('p', { class: 'notes-empty', text: 'No notes yet — jot the first thought above.' }));
+    listEl.appendChild(el('p', { class: 'notes-empty', text: 'Jot down fresh ideas as they pop in.' }));
     return;
   }
   notes.slice().reverse().forEach((n) => {
@@ -159,7 +159,6 @@ function ensureUi() {
     ]),
     el('div', { class: 'notes-input-row' }, [inputEl, saveBtn]),
     listEl,
-    el('p', { class: 'notes-hint', text: 'Saved with this project · syncs to your vault · Ctrl/Cmd+Alt+N toggles' }),
   ]);
   document.body.appendChild(fab);
   document.body.appendChild(sheet);
