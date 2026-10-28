@@ -68,7 +68,7 @@ function renderList() {
   const notes = notesOf(getState().project);
   if (countEl) countEl.textContent = notes.length ? String(notes.length) : '';
   if (!notes.length) {
-    listEl.appendChild(el('p', { class: 'notes-empty', text: 'Jot down fresh ideas as they pop in.' }));
+    listEl.appendChild(el('p', { class: 'notes-empty', text: 'Your quick scratchpad for sudden ideas.' }));
     return;
   }
   notes.slice().reverse().forEach((n) => {
