@@ -278,8 +278,9 @@ function downloadCsv(filename, header, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function api(path, opts = {}) {
+async function aiApi(path, opts = {}) {
   const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+  if (opts.signal) init.signal = opts.signal;
   if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
   let res;
   try { res = await fetch(API_BASE + path, init); }
@@ -1101,6 +1102,7 @@ function renderAiKeys() {
         '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
         '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
       '</div>' +
+      '<div class="user-meta" data-ai-result style="margin-top:6px">Not tested yet.</div>' +
       '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
     '</div>';
   }).join('');
@@ -1112,25 +1114,48 @@ function renderAiKeys() {
     '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>';
 }
   async function testAiKey(providerId) {
-  const card = document.querySelector('[data-ai-provider="' + esc(providerId) + '"]');
+  const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
   if (!card) return;
   const testBtn = card.querySelector('[data-ai-action="test"]');
+  const resultEl = card.querySelector('[data-ai-result]');
+  const setMsg = (text, color) => { if (resultEl) { resultEl.textContent = text; resultEl.style.color = color || 'var(--faint)'; } };
   if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
+  setMsg('Testing connection…', 'var(--muted)');
   const key = (card.querySelector('[data-ai-f="key"]').value || '').trim();
   if (!key) {
+    setMsg('⚠ Enter an API key first.', 'var(--danger)');
     showNote('⚠ Enter an API key first.', true);
     if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
     return;
   }
+  const LABELS = {
+    ok: ['Connected', 'var(--success)'],
+    invalid_key: ['Invalid/revoked key', 'var(--danger)'],
+    billing: ['Quota/billing depleted', 'var(--danger)'],
+    rate_limit: ['Rate limit / quota window', 'var(--accent)'],
+    model_retired: ['Model retired / no access', 'var(--danger)'],
+    no_models: ['No usable models left', 'var(--danger)'],
+    provider_down: ['Provider outage', 'var(--accent)'],
+    network: ['Network unreachable', 'var(--danger)'],
+    timeout: ['Timed out', 'var(--accent)'],
+  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 30000);
   try {
-    const result = await aiApi('/api/test', { method: 'POST', body: { provider: providerId, api_key: key } });
-    if (result.ok) {
-      showNote('<b>' + esc(providerId) + '</b> connected: ' + esc(result.message), false);
-    } else {
-      showNote('⚠ <b>' + esc(providerId) + '</b> failed: ' + esc(result.message), true);
-    }
+    const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: key } });
+    clearTimeout(timer);
+    const info = LABELS[result.code] || ['Response: ' + (result.code || 'unknown'), 'var(--muted)'];
+    setMsg((result.ok ? '✓ ' : '✗ ') + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
+    showNote((result.ok ? '<b>' + esc(providerId) + '</b> ✓ ' : '⚠ <b>' + esc(providerId) + '</b> ✗ ') + esc(result.message || info[0]), !result.ok);
+    console.log('[AI test]', providerId, result);
   } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ Test failed: ' + esc(e.message), true);
+    clearTimeout(timer);
+    const msg = (e && e.name === 'AbortError')
+      ? 'Timed out after 30s — ai-admin did not respond (check weaver-server deploy or network).'
+      : (e.message || 'Unknown error');
+    setMsg('✗ ' + msg, 'var(--danger)');
+    if (e.message !== 'unauthorized') showNote('⚠ Test failed: ' + esc(msg), true);
+    console.error('[AI test] error', providerId, e);
   }
   if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
 }
