@@ -1103,16 +1103,37 @@ function renderAiKeys() {
         '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
         '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
       '</div>' +
-      '<div class="user-meta" data-ai-result style="margin-top:6px">Not tested yet.</div>' +
-      '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+            '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+      '<div class="user-meta" data-ai-result style="margin-top:8px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">Not tested yet.</div>' +
     '</div>';
   }).join('');
+  const AI_TEST_GUIDE = [
+    { code: 'ok', cls: 'active', meaning: 'Connected — key valid and a 1-token test generation succeeded.' },
+    { code: 'invalid_key', cls: 'banned', meaning: '401/403 — key wrong, revoked, or belongs to a different account/org. Re-copy it from the provider dashboard.' },
+    { code: 'billing', cls: 'banned', meaning: '402 — credits or quota depleted; the provider requires payment. Top up or switch key.' },
+    { code: 'rate_limit', cls: 'owner', meaning: '429 — too many requests in the current window (free-tier traffic). Wait ~60s; the proxy fails over automatically meanwhile.' },
+    { code: 'model_retired', cls: 'banned', meaning: '404 — that model ID no longer exists or your key lacks access. Clear the model override or pick a current model.' },
+    { code: 'no_models', cls: 'banned', meaning: 'Key accepted but the provider returned zero usable chat models (mass retirement). Check the provider status page.' },
+    { code: 'provider_down', cls: 'owner', meaning: '5xx — provider outage or overload on their side. Retry later; the proxy fails over automatically.' },
+    { code: 'network', cls: 'banned', meaning: 'Could not reach the provider at all — DNS/firewall/connectivity problem.' },
+    { code: 'timeout', cls: 'owner', meaning: 'Provider took longer than 15s to answer (heavy traffic). Retry in a moment.' },
+    { code: 'client', cls: 'banned', meaning: 'The admin page itself could not complete the request (30s cutoff or session problem).' },
+    { code: 'http_###', cls: '', meaning: 'Anything else — the raw provider message follows the code in the result line.' },
+  ];
   content.innerHTML =
     '<div class="users-toolbar">' +
       '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">3 providers · changes take effect immediately, no redeploy needed</span>' +
     '</div>' +
     '<div id="ai-keys-list">' + cards + '</div>' +
-    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>';
+    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>' +
+    '<details class="user-card" style="cursor:pointer;margin-top:4px">' +
+      '<summary class="user-email" style="cursor:pointer">▸ Error code guide — what each test result means</summary>' +
+      '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">' +
+        AI_TEST_GUIDE.map(g =>
+          '<div class="ud-line" style="align-items:flex-start"><span class="status-badge ' + g.cls + '" style="flex:none">' + esc(g.code) + '</span><span style="flex:1;min-width:0;color:var(--muted)">' + esc(g.meaning) + '</span></div>'
+        ).join('') +
+      '</div>' +
+    '</details>';
 }
 async function testAiKey(providerId) {
   const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
@@ -1145,17 +1166,15 @@ async function testAiKey(providerId) {
   try {
     const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: key } });
     clearTimeout(timer);
-    const info = LABELS[result.code] || ['Response: ' + (result.code || 'unknown'), 'var(--muted)'];
-    setMsg((result.ok ? '✓ ' : '✗ ') + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
-    showNote((result.ok ? '<b>' + esc(providerId) + '</b> ✓ ' : '⚠ <b>' + esc(providerId) + '</b> ✗ ') + esc(result.message || info[0]), !result.ok);
+        const info = LABELS[result.code] || ['See the error guide below', 'var(--muted)'];
+    setMsg((result.ok ? '✓ ' : '✗ ') + '[' + esc(result.code || '?') + '] ' + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
     console.log('[AI test]', providerId, result);
   } catch (e) {
     clearTimeout(timer);
     const msg = (e && e.name === 'AbortError')
       ? 'Timed out after 30s — ai-admin did not respond (check weaver-server deploy or network).'
       : (e.message || 'Unknown error');
-    setMsg('✗ ' + msg, 'var(--danger)');
-    if (e.message !== 'unauthorized') showNote('⚠ Test failed: ' + esc(msg), true);
+    setMsg('✗ [client] ' + msg, 'var(--danger)');
     console.error('[AI test] error', providerId, e);
   }
   if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
