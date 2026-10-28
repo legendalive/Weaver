@@ -278,7 +278,7 @@ function downloadCsv(filename, header, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function aiApi(path, opts = {}) {
+async function api(path, opts = {}) {
   const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
   if (opts.signal) init.signal = opts.signal;
   if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
@@ -294,6 +294,7 @@ async function aiApi(path, opts = {}) {
 
 async function aiApi(path, opts = {}) {
   const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+  if (opts.signal) init.signal = opts.signal;
   if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
   let res;
   try { res = await fetch(AI_API_BASE + path, init); }
@@ -363,7 +364,7 @@ function renderShell(tab) {
       '<span class="top-email">' + esc(getEmail()) + '</span>' +
       '<div class="top-right">' +
         '<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
-                '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
+        '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
       '</div>' +
     '</div>' +
     '<div class="tabs" id="admin-tabs"></div>' +
@@ -1098,7 +1099,7 @@ function renderAiKeys() {
           '<input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '">' +
         '</div>' +
       '</div>' +
-            '<div class="user-actions" style="margin-top:10px">' +
+      '<div class="user-actions" style="margin-top:10px">' +
         '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
         '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
       '</div>' +
@@ -1113,7 +1114,7 @@ function renderAiKeys() {
     '<div id="ai-keys-list">' + cards + '</div>' +
     '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>';
 }
-  async function testAiKey(providerId) {
+async function testAiKey(providerId) {
   const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
   if (!card) return;
   const testBtn = card.querySelector('[data-ai-action="test"]');
