@@ -1236,6 +1236,8 @@ function handleProjectDelete(projectId, projectName, btn) {
 
 app.addEventListener('click', e => {
   /* AI Keys save buttons first (separate attribute so they don't collide with user actions) */
+  const aiTest = e.target.closest('[data-ai-action="test"]');
+  if (aiTest) { testAiKey(aiTest.dataset.provider); return; }
   const aiSave = e.target.closest('[data-ai-action="save"]');
   if (aiSave) { saveAiKey(aiSave.dataset.provider); return; }
 
