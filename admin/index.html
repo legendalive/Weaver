@@ -625,7 +625,7 @@ function detailHTML(ent, st, log, audits) {
       '</div>' +
       '<div class="ud-box"><div class="ud-label">Vault</div>' +
         (neverSynced
-          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>' +
+          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
           : '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
       '</div>' +
     '</div>' +
