@@ -1097,7 +1097,8 @@ function renderAiKeys() {
           '<input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '">' +
         '</div>' +
       '</div>' +
-      '<div class="user-actions" style="margin-top:10px">' +
+            '<div class="user-actions" style="margin-top:10px">' +
+        '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
         '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
       '</div>' +
       '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
@@ -1109,6 +1110,29 @@ function renderAiKeys() {
     '</div>' +
     '<div id="ai-keys-list">' + cards + '</div>' +
     '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>';
+}
+  async function testAiKey(providerId) {
+  const card = document.querySelector('[data-ai-provider="' + esc(providerId) + '"]');
+  if (!card) return;
+  const testBtn = card.querySelector('[data-ai-action="test"]');
+  if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
+  const key = (card.querySelector('[data-ai-f="key"]').value || '').trim();
+  if (!key) {
+    showNote('⚠ Enter an API key first.', true);
+    if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
+    return;
+  }
+  try {
+    const result = await aiApi('/api/test', { method: 'POST', body: { provider: providerId, api_key: key } });
+    if (result.ok) {
+      showNote('<b>' + esc(providerId) + '</b> connected: ' + esc(result.message), false);
+    } else {
+      showNote('⚠ <b>' + esc(providerId) + '</b> failed: ' + esc(result.message), true);
+    }
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ Test failed: ' + esc(e.message), true);
+  }
+  if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
 }
 async function saveAiKey(providerId) {
   const card = document.querySelector('[data-ai-provider="' + esc(providerId) + '"]');
