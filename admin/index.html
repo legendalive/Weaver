@@ -208,6 +208,7 @@ body{
 const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
 const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
+const AI_API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-admin';
 
 const TOKEN_KEY = 'weaver_admin_token';
 const EMAIL_KEY = 'weaver_admin_email';
@@ -224,6 +225,19 @@ let activeTab = 'overview';
 let allUsers = [];
 let allCredits = [];
 let bannerState = { text: '', level: 'info', show_until: null, updated_at: null };
+let aiProviders = {};
+
+const PROVIDER_DEFS = [
+  { id: 'openrouter', label: 'OpenRouter',
+    hint: 'openrouter.ai — one key, many models. Default model: openrouter/auto',
+    modelPh: 'openrouter/auto' },
+  { id: 'groq', label: 'Groq',
+    hint: 'console.groq.com — fast, generous free tier. Model auto-discovered live; override only if you pin a specific one.',
+    modelPh: '(auto-discovered)' },
+  { id: 'mistral', label: 'Mistral',
+    hint: 'console.mistral.ai — strong fallback. Default: mistral-large-latest',
+    modelPh: 'mistral-large-latest' },
+];
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -277,6 +291,21 @@ async function api(path, opts = {}) {
   return data;
 }
 
+async function aiApi(path, opts = {}) {
+  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+  let res;
+  try { res = await fetch(AI_API_BASE + path, init); }
+  catch (e) { throw new Error('Could not reach the AI admin API. Is the ai-admin function deployed?'); }
+  if (res.status === 401 || res.status === 403) {
+    setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized');
+  }
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  return data;
+}
+
 function showNote(html, sticky) {
   const note = document.getElementById('admin-note');
   if (!note) return;
@@ -321,6 +350,7 @@ const TABS = [
   { id: 'storage', label: 'Storage', ready: true },
   { id: 'audit', label: 'Audit', ready: true },
   { id: 'banner', label: 'Banner', ready: true },
+  { id: 'ai-keys', label: 'AI Keys', ready: true },
   { id: 'messages', label: 'Messages', ready: true },
 ];
 function renderShell(tab) {
@@ -359,6 +389,7 @@ function loadTab(tab) {
   if (tab === 'storage') return loadStorage();
   if (tab === 'audit') return loadAudit();
   if (tab === 'banner') return loadBanner();
+  if (tab === 'ai-keys') return loadAiKeys();
   if (tab === 'messages') { window.location.href = 'messages.html'; return; }
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
 }
@@ -1025,6 +1056,82 @@ async function clearBanner() {
   }
 }
 
+/* ---------- AI Keys tab ---------- */
+async function loadAiKeys() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="loading">Loading AI providers…</div>';
+  try {
+    const d = await aiApi('/api/providers');
+    aiProviders = {};
+    (d.providers || []).forEach(p => { aiProviders[p.provider] = p; });
+    renderAiKeys();
+  } catch (e) {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  }
+}
+function renderAiKeys() {
+  const content = document.getElementById('admin-content');
+  const cards = PROVIDER_DEFS.map(p => {
+    const c = aiProviders[p.id] || {};
+    const on = c.enabled !== false && !!c.api_key;
+    const updated = c.updated_at ? 'Last saved ' + fmtDateTime(c.updated_at) : 'Never saved.';
+    return '<div class="user-card" data-ai-provider="' + esc(p.id) + '">' +
+      '<div class="user-card-head">' +
+        '<span class="user-email">' + esc(p.label) + '</span>' +
+        '<span class="cred-badges">' +
+          '<span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span>' +
+        '</span>' +
+      '</div>' +
+      '<div class="user-meta">' + esc(p.hint) + '</div>' +
+      '<div class="field" style="margin-top:6px"><span>API key</span>' +
+        '<input data-ai-f="key" class="input" type="password" placeholder="Paste ' + esc(p.label) + ' API key…" value="' + esc(c.api_key || '') + '" autocomplete="off">' +
+      '</div>' +
+      '<div class="ud-grid" style="margin-top:8px">' +
+        '<div class="field"><span>Enabled</span>' +
+          '<label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label>' +
+        '</div>' +
+        '<div class="field"><span>Priority (lower = tried first)</span>' +
+          '<input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '">' +
+        '</div>' +
+        '<div class="field"><span>Model override (optional)</span>' +
+          '<input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '">' +
+        '</div>' +
+      '</div>' +
+      '<div class="user-actions" style="margin-top:10px">' +
+        '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
+      '</div>' +
+      '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+    '</div>';
+  }).join('');
+  content.innerHTML =
+    '<div class="users-toolbar">' +
+      '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">3 providers · changes take effect immediately, no redeploy needed</span>' +
+    '</div>' +
+    '<div id="ai-keys-list">' + cards + '</div>' +
+    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>';
+}
+async function saveAiKey(providerId) {
+  const card = document.querySelector('[data-ai-provider="' + esc(providerId) + '"]');
+  if (!card) return;
+  const saveBtn = card.querySelector('[data-ai-action="save"]');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+  const key = (card.querySelector('[data-ai-f="key"]').value || '').trim();
+  const enabled = card.querySelector('[data-ai-f="enabled"]').checked;
+  const priority = parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0;
+  const model = (card.querySelector('[data-ai-f="model"]').value || '').trim() || null;
+  try {
+    await aiApi('/api/providers', {
+      method: 'POST',
+      body: { provider: providerId, api_key: key, enabled, priority, model_override: model },
+    });
+    showNote('<b>' + esc(providerId) + '</b> saved. The AI proxy will use it on the next Scribe request.', false);
+    loadAiKeys();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save ' + providerId; }
+  }
+}
+
 /* ---------- Per-project admin (V3.1i) ---------- */
 function projectRowHTML(p) {
   return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
@@ -1104,6 +1211,10 @@ function handleProjectDelete(projectId, projectName, btn) {
 }
 
 app.addEventListener('click', e => {
+  /* AI Keys save buttons first (separate attribute so they don't collide with user actions) */
+  const aiSave = e.target.closest('[data-ai-action="save"]');
+  if (aiSave) { saveAiKey(aiSave.dataset.provider); return; }
+
   const btn = e.target.closest('[data-action]');
   if (btn) {
     const a = btn.dataset.action;
