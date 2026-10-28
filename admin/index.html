@@ -280,7 +280,6 @@ function downloadCsv(filename, header, rows) {
 
 async function api(path, opts = {}) {
   const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
-  if (opts.signal) init.signal = opts.signal;
   if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
   let res;
   try { res = await fetch(API_BASE + path, init); }
@@ -626,7 +625,7 @@ function detailHTML(ent, st, log, audits) {
       '</div>' +
       '<div class="ud-box"><div class="ud-label">Vault</div>' +
         (neverSynced
-          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
+          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>' +
           : '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
       '</div>' +
     '</div>' +
@@ -1073,40 +1072,52 @@ async function loadAiKeys() {
 }
 function renderAiKeys() {
   const content = document.getElementById('admin-content');
-  const cards = PROVIDER_DEFS.map(p => {
-    const c = aiProviders[p.id] || {};
+  const BUILTINS = ['openrouter', 'groq', 'mistral'];
+  const cardHTML = (p, c, isCustom) => {
     const on = c.enabled !== false && !!c.api_key;
     const updated = c.updated_at ? 'Last saved ' + fmtDateTime(c.updated_at) : 'Never saved.';
     return '<div class="user-card" data-ai-provider="' + esc(p.id) + '">' +
       '<div class="user-card-head">' +
-        '<span class="user-email">' + esc(p.label) + '</span>' +
-        '<span class="cred-badges">' +
-          '<span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span>' +
-        '</span>' +
+        '<span class="user-email">' + esc(p.label) + (isCustom ? ' <span class="status-badge owner">custom</span>' : '') + '</span>' +
+        '<span class="cred-badges"><span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span></span>' +
       '</div>' +
       '<div class="user-meta">' + esc(p.hint) + '</div>' +
+      (isCustom
+        ? '<div class="field" style="margin-top:6px"><span>Base URL</span><input data-ai-f="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1" value="' + esc(c.base_url || '') + '"></div>' +
+          '<div class="field" style="margin-top:6px"><span>Model name (required)</span><input data-ai-f="model" class="input" type="text" placeholder="llama3.1-8b" value="' + esc(c.model_override || '') + '"></div>'
+        : '<div class="field" style="margin-top:6px"><span>Model override (optional)</span><input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '"></div>') +
       '<div class="field" style="margin-top:6px"><span>API key</span>' +
         '<input data-ai-f="key" class="input" type="password" placeholder="Paste ' + esc(p.label) + ' API key…" value="' + esc(c.api_key || '') + '" autocomplete="off">' +
       '</div>' +
       '<div class="ud-grid" style="margin-top:8px">' +
-        '<div class="field"><span>Enabled</span>' +
-          '<label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label>' +
-        '</div>' +
-        '<div class="field"><span>Priority (lower = tried first)</span>' +
-          '<input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '">' +
-        '</div>' +
-        '<div class="field"><span>Model override (optional)</span>' +
-          '<input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '">' +
-        '</div>' +
+        '<div class="field"><span>Enabled</span><label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label></div>' +
+        '<div class="field"><span>Priority (lower = tried first)</span><input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '"></div>' +
       '</div>' +
       '<div class="user-actions" style="margin-top:10px">' +
         '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
-        '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save ' + esc(p.label) + '</button>' +
+        '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save</button>' +
+        (isCustom ? '<button class="btn btn-sm btn-danger" data-ai-action="delete-custom" data-provider="' + esc(p.id) + '">Remove</button>' : '') +
       '</div>' +
-            '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+      '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
       '<div class="user-meta" data-ai-result style="margin-top:8px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">Not tested yet.</div>' +
     '</div>';
-  }).join('');
+  };
+  const cards = PROVIDER_DEFS.map(p => cardHTML(p, aiProviders[p.id] || {}, false)).join('');
+  const customCards = Object.keys(aiProviders).filter(k => !BUILTINS.includes(k))
+    .map(k => cardHTML({ id: k, label: k, hint: 'Custom OpenAI-compatible endpoint (base URL + model required).', modelPh: '' }, aiProviders[k], true)).join('');
+  const addForm =
+    '<div class="user-card" style="border-style:dashed">' +
+      '<div class="user-card-head"><span class="user-email">Add any OpenAI-compatible provider</span></div>' +
+      '<div class="user-meta">Cerebras, SambaNova, Cloudflare Workers AI, Requesty, Together, Fireworks, or a self-hosted vLLM/Ollama OpenAI shim — anything that speaks /chat/completions.</div>' +
+      '<div class="ud-grid" style="margin-top:8px">' +
+        '<div class="field"><span>Name (id)</span><input data-ai-add="name" class="input" type="text" placeholder="cerebras"></div>' +
+        '<div class="field"><span>Base URL</span><input data-ai-add="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1"></div>' +
+        '<div class="field"><span>Model</span><input data-ai-add="model" class="input" type="text" placeholder="llama3.1-8b"></div>' +
+        '<div class="field"><span>API key</span><input data-ai-add="key" class="input" type="password" placeholder="key"></div>' +
+        '<div class="field"><span>Priority</span><input data-ai-add="priority" class="input" type="number" value="10"></div>' +
+      '</div>' +
+      '<div class="user-actions" style="margin-top:10px"><button class="btn btn-sm btn-primary" data-ai-action="add-custom">Add provider</button></div>' +
+    '</div>';
   const AI_TEST_GUIDE = [
     { code: 'ok', cls: 'active', meaning: 'Connected — key valid and a 1-token test generation succeeded.' },
     { code: 'invalid_key', cls: 'banned', meaning: '401/403 — key wrong, revoked, or belongs to a different account/org. Re-copy it from the provider dashboard.' },
@@ -1122,10 +1133,10 @@ function renderAiKeys() {
   ];
   content.innerHTML =
     '<div class="users-toolbar">' +
-      '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">3 providers · changes take effect immediately, no redeploy needed</span>' +
+      '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">providers · changes take effect immediately, no redeploy needed</span>' +
     '</div>' +
-    '<div id="ai-keys-list">' + cards + '</div>' +
-    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Lower priority numbers are tried first.</div>' +
+    '<div id="ai-keys-list">' + cards + customCards + addForm + '</div>' +
+    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Custom rows need a Base URL and a Model name; the proxy appends /chat/completions if the URL lacks it.</div>' +
     '<details class="user-card" style="cursor:pointer;margin-top:4px">' +
       '<summary class="user-email" style="cursor:pointer">▸ Error code guide — what each test result means</summary>' +
       '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">' +
@@ -1135,6 +1146,14 @@ function renderAiKeys() {
       '</div>' +
     '</details>';
 }
+function aiCardFields(card) {
+  const g = (f) => { const n = card.querySelector('[data-ai-f="' + f + '"]'); return n ? n.value.trim() : ''; };
+  return {
+    key: g('key'), base: g('base'), model: g('model'),
+    enabled: card.querySelector('[data-ai-f="enabled"]').checked,
+    priority: parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0,
+  };
+}
 async function testAiKey(providerId) {
   const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
   if (!card) return;
@@ -1143,10 +1162,9 @@ async function testAiKey(providerId) {
   const setMsg = (text, color) => { if (resultEl) { resultEl.textContent = text; resultEl.style.color = color || 'var(--faint)'; } };
   if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
   setMsg('Testing connection…', 'var(--muted)');
-  const key = (card.querySelector('[data-ai-f="key"]').value || '').trim();
-  if (!key) {
+  const f = aiCardFields(card);
+  if (!f.key) {
     setMsg('⚠ Enter an API key first.', 'var(--danger)');
-    showNote('⚠ Enter an API key first.', true);
     if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
     return;
   }
@@ -1160,13 +1178,14 @@ async function testAiKey(providerId) {
     provider_down: ['Provider outage', 'var(--accent)'],
     network: ['Network unreachable', 'var(--danger)'],
     timeout: ['Timed out', 'var(--accent)'],
+    missing: ['Model name required', 'var(--danger)'],
   };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 30000);
   try {
-    const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: key } });
+    const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: f.key, base_url: f.base || '', model: f.model || '' } });
     clearTimeout(timer);
-        const info = LABELS[result.code] || ['See the error guide below', 'var(--muted)'];
+    const info = LABELS[result.code] || ['See the error guide below', 'var(--muted)'];
     setMsg((result.ok ? '✓ ' : '✗ ') + '[' + esc(result.code || '?') + '] ' + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
     console.log('[AI test]', providerId, result);
   } catch (e) {
@@ -1180,24 +1199,49 @@ async function testAiKey(providerId) {
   if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
 }
 async function saveAiKey(providerId) {
-  const card = document.querySelector('[data-ai-provider="' + esc(providerId) + '"]');
+  const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
   if (!card) return;
   const saveBtn = card.querySelector('[data-ai-action="save"]');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
-  const key = (card.querySelector('[data-ai-f="key"]').value || '').trim();
-  const enabled = card.querySelector('[data-ai-f="enabled"]').checked;
-  const priority = parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0;
-  const model = (card.querySelector('[data-ai-f="model"]').value || '').trim() || null;
+  const f = aiCardFields(card);
   try {
     await aiApi('/api/providers', {
       method: 'POST',
-      body: { provider: providerId, api_key: key, enabled, priority, model_override: model },
+      body: { provider: providerId, api_key: f.key, enabled: f.enabled, priority: f.priority, model_override: f.model || null, base_url: f.base || null },
     });
     showNote('<b>' + esc(providerId) + '</b> saved. The AI proxy will use it on the next Scribe request.', false);
     loadAiKeys();
   } catch (e) {
     if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save ' + providerId; }
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+  }
+}
+async function addCustomProvider() {
+  const get = (f) => { const n = document.querySelector('[data-ai-add="' + f + '"]'); return n ? n.value.trim() : ''; };
+  const name = get('name').toLowerCase();
+  const base = get('base');
+  const model = get('model');
+  const key = get('key');
+  const priority = parseInt(get('priority'), 10) || 10;
+  if (!/^[a-z0-9_-]{2,24}$/.test(name)) { showNote('⚠ Name must be 2–24 chars: letters, numbers, dash, underscore.', true); return; }
+  if (['openrouter', 'groq', 'mistral'].includes(name)) { showNote('⚠ That name is reserved for a built-in provider.', true); return; }
+  if (!base || !model || !key) { showNote('⚠ Custom providers need Base URL, Model and API key.', true); return; }
+  try {
+    await aiApi('/api/providers', { method: 'POST', body: { provider: name, api_key: key, enabled: true, priority, model_override: model, base_url: base } });
+    showNote('<b>' + esc(name) + '</b> added to the fallback chain.', false);
+    loadAiKeys();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+  }
+}
+async function deleteCustomProvider(providerId) {
+  if (!confirm('Remove provider "' + providerId + '" from the fallback chain?')) return;
+  try {
+    await aiApi('/api/providers/' + encodeURIComponent(providerId), { method: 'DELETE' });
+    showNote('<b>' + esc(providerId) + '</b> removed.', false);
+    loadAiKeys();
+  } catch (e) {
+    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
   }
 }
 
@@ -1280,7 +1324,10 @@ function handleProjectDelete(projectId, projectName, btn) {
 }
 
 app.addEventListener('click', e => {
-  /* AI Keys save buttons first (separate attribute so they don't collide with user actions) */
+  const aiAdd = e.target.closest('[data-ai-action="add-custom"]');
+  if (aiAdd) { addCustomProvider(); return; }
+  const aiDel = e.target.closest('[data-ai-action="delete-custom"]');
+  if (aiDel) { deleteCustomProvider(aiDel.dataset.provider); return; }
   const aiTest = e.target.closest('[data-ai-action="test"]');
   if (aiTest) { testAiKey(aiTest.dataset.provider); return; }
   const aiSave = e.target.closest('[data-ai-action="save"]');
