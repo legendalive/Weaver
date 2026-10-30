@@ -52,8 +52,10 @@ function injectButton() {
       title: 'Contact Weaver support',
       onclick: openSupport,
     }, content);
-    bar.appendChild(btn);
+        bar.appendChild(btn);
   }
+  const injected = document.getElementById(BTN_ID);
+  if (injected) injected.classList.add('tb-support');
 }
 
 async function sessionToken() {
