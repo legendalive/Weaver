@@ -1,13 +1,10 @@
 /* =========================================================
-   Weaver — js/views/workspace.js
-   v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
-   - Panels/hierarchy/resizers imported as NAMESPACES; a renamed
-     or missing export can never break the module graph again.
-   - Mobile: panel borders transparent (invisible), stacked
-     panels are a flex column, and the gaps between them are
-     16px touch-drag resizers (pointer events, touch-action none).
-   - Small script W brand mark pinned to topbar-left.
-   ========================================================= */
+Weaver — js/views/workspace.js
+v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
+V3.3a: Plot button (topbar-left). V3.3c: Plot button opens the
+Plot Reference panel. V3.8: mobile "More" sheet — Guide + Export
+fold into ⋯ on ≤480px; topbar buttons can no longer squeeze.
+========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
@@ -43,7 +40,6 @@ const discardAi = pick(aiApi, ['discardAiBlock']);
 const toggleHier = pick(hrApi, ['toggleHierarchyDrawer', 'toggleHierarchy', 'toggle']);
 const bindRz = pick(rzApi, ['bindResizers', 'initResizers']);
 const refreshRz = pick(rzApi, ['refreshLayout', 'refresh']);
-
 const MISSING = [];
 if (!mountManuscript) MISSING.push('manuscript mount (mountManuscript/initManuscript)');
 if (!renderManuscript) MISSING.push('manuscript render (renderManuscript)');
@@ -58,24 +54,7 @@ function safe(label, fn, ...args) {
 }
 
 const STYLE_ID = 'workspace-style';
-const CSS = `
-.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);}
-@media (max-width:860px){
-  .workspace-panels{display:flex !important;flex-direction:column !important;}
-  .panel{border-color:transparent !important;}
-  .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;}
-  .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;}
-  .topbar .btn-label{display:none;}
-  .topbar .btn{padding:8px;width:34px;height:34px;}
-  .topbar .scribe-bar{display:none;}
-  .topbar-title{font-size:.95rem;}
-  .panel-footer{justify-content:flex-end;}
-  .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;}
-  .panel-footer .btn-label{display:none;}
-  .panel-footer .btn-icon{display:inline-flex;}
-  .panel-actions .btn-icon{display:none;}
-}
-`;
+const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-footer{justify-content:flex-end;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -97,6 +76,30 @@ function topBtn(key, iconName, label, onclick) {
     title: label,
     onclick,
   }, [icon(iconName), el('span', { class: 'btn-label', text: label })]);
+}
+
+/* ---------- mobile "More" sheet (folds Guide + Export on phones) ---------- */
+let moreSheet = null;
+let moreBtnRef = null;
+function ensureMoreSheet() {
+  if (moreSheet) return moreSheet;
+  moreSheet = el('div', { class: 'tb-more-sheet' }, [
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); exportProject(); } }, [icon('download', 'icon-sm'), el('span', { text: 'Export' })]),
+  ]);
+  document.body.appendChild(moreSheet);
+  document.addEventListener('click', (e) => {
+    if (!moreSheet.classList.contains('is-open')) return;
+    if (moreSheet.contains(e.target) || (moreBtnRef && moreBtnRef.contains(e.target))) return;
+    closeMoreSheet();
+  });
+  return moreSheet;
+}
+function toggleMoreSheet() {
+  ensureMoreSheet().classList.toggle('is-open');
+}
+function closeMoreSheet() {
+  if (moreSheet) moreSheet.classList.remove('is-open');
 }
 
 function buildPanel(key, iconName, title, actions = []) {
@@ -125,12 +128,11 @@ export function renderWorkspace() {
   const state = getState();
   const project = state.project;
   if (!project) return;
-
   const topbar = el('header', { class: 'topbar' }, [
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
+      topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
       topBtn('hierarchy', 'tree', 'Hierarchy', () => {
         if (toggleHier) toggleHier();
       }),
@@ -142,25 +144,35 @@ topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
         text: project.seriesName ? `${project.seriesName} · ${project.bookTitle || ''}` : 'standalone',
       }),
     ]),
-    el('div', { class: 'topbar-right' }, [
-      topBtn('library', 'library', 'Library', () => { flushSave(); autoSync(); closeProject(); }),
-      topBtn('guide', 'book', 'Guide', () => openGuide()),
-      topBtn('export', 'download', 'Export', () => exportProject()),
-      topBtn('settings', 'gear', 'Settings', () => openSettings()),
-    ]),
+    (() => {
+      const guideBtn = topBtn('guide', 'book', 'Guide', () => openGuide());
+      const exportBtn = topBtn('export', 'download', 'Export', () => exportProject());
+      guideBtn.classList.add('tb-fold');
+      exportBtn.classList.add('tb-fold');
+      moreBtnRef = el('button', {
+        class: 'btn btn-ghost tb-more',
+        title: 'More',
+        'aria-label': 'More actions',
+        onclick: () => toggleMoreSheet(),
+      }, [el('span', { class: 'tb-more-glyph', text: '⋯' })]);
+      return el('div', { class: 'topbar-right' }, [
+        topBtn('library', 'library', 'Library', () => { flushSave(); autoSync(); closeProject(); }),
+        guideBtn,
+        exportBtn,
+        topBtn('settings', 'gear', 'Settings', () => openSettings()),
+        moreBtnRef,
+      ]);
+    })(),
   ]);
-
   const expandBtn = (target) => el('button', {
     class: 'btn btn-ghost btn-icon btn-sm',
     title: 'Expand panel',
     'aria-label': 'Expand panel',
     onclick: () => setUI({ expandedPanel: state.ui.expandedPanel === target ? null : target }),
   }, [icon('expand', 'icon-sm')]);
-
   const manuscript = buildPanel('manuscript', 'pen', 'Manuscript', [expandBtn('manuscript')]);
   const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
   const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
-
   if (recheckFn) {
     novel.footer.appendChild(el('button', {
       class: 'btn btn-sm',
@@ -168,28 +180,23 @@ topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
       onclick: () => recheckFn(),
     }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
   }
-
   if (acceptAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAi() }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]));
   if (rewriteAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAi() }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]));
   if (discardAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAi() }, [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]));
-
   ai.body.appendChild(el('div', { class: 'empty-state' }, [
     icon('sparkles', 'icon-lg'),
     el('p', { text: 'AI generations will appear here.' }),
   ]));
-
   const r1 = resizer('manuscript');
   const r2 = resizer('novel');
   panelsEl = el('div', {
     class: 'workspace-panels',
     dataset: { active: 'manuscript' },
   }, [manuscript.panel, r1, novel.panel, r2, ai.panel]);
-
   panelRefs = {
     panels: [manuscript.panel, novel.panel, ai.panel],
     resizers: [r1, r2],
   };
-
   const kids = [];
   if (MISSING.length) {
     kids.push(el('div', {
@@ -205,10 +212,8 @@ topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
   }
   kids.push(topbar, panelsEl);
   root.append(...kids);
-
   if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
   applyExpanded();
-
   if (!safe('mountManuscript(panel)', mountManuscript, manuscript.panel)) {
     safe('mountManuscript(body)', mountManuscript, manuscript.body);
   }
@@ -217,7 +222,6 @@ topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
   }
   safe('renderManuscript', renderManuscript);
   safe('renderMainNovel', renderNovel);
-
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
