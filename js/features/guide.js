@@ -1,14 +1,17 @@
 /* =========================================================
-   Weaver — js/features/guide.js
-   v2 Stage 7: onboarding guide modal, refreshed for the
-   Supabase era. GitHub-sync content removed; account,
-   continuous autosync, badge states, optional Puter overflow
-   and the both-files export guarantee are documented.
-   ========================================================= */
-import { el, modal } from '../utils/dom.js';
+Weaver — js/features/guide.js
+V3.9: In-app Guide powered by docs/HELP.md (single source of
+truth). Fetches once per session, parses headings into a topic
+rail + content pane, instant client-side search, support
+escape hatch, offline fallback stub. Desktop + mobile.
+========================================================= */
+import { el, clear, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { openSupport } from './support.js';
 
 const STYLE_ID = 'guide-style';
-const CSS = `.guide-body{display:flex;flex-direction:column;gap:18px;max-height:70vh;overflow-y:auto;padding-right:6px;} .guide-body h2{font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 2px;} .guide-body h3{font-size:.92rem;font-weight:650;color:var(--accent);margin:4px 0 4px;} .guide-body p, .guide-body li{font-size:.85rem;line-height:1.6;color:var(--muted);} .guide-body ul{padding-left:20px;margin:4px 0;} .guide-body li{margin-bottom:4px;} .guide-body .guide-optional{font-size:.72rem;color:var(--faint);font-style:italic;margin-top:-4px;} .guide-body code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:.78rem;} .guide-body .guide-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:6px;} .guide-body .guide-table td{border-bottom:1px solid var(--border);padding:5px 6px;vertical-align:top;} .guide-body .guide-table td:first-child{color:var(--text);font-weight:600;white-space:nowrap;} .guide-body .guide-welcome{padding:14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:var(--radius-sm);}`;
+const DOC_V = '2026-11-01a'; /* bump when HELP.md changes */
+const CSS = `.gd-wrap{display:flex;gap:16px;min-height:420px;} .gd-rail{flex:none;width:200px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:10px;overflow-y:auto;} .gd-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .gd-rail-btn:hover{background:var(--surface-2);color:var(--text);} .gd-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .gd-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;} .gd-searchrow{display:flex;gap:8px;align-items:center;} .gd-searchrow .input{flex:1;} .gd-content{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px;} .gd-h3{font-size:.9rem;font-weight:650;color:var(--accent);margin-top:6px;} .gd-p{font-size:.85rem;line-height:1.65;color:var(--text);} .gd-li{font-size:.85rem;line-height:1.6;padding-left:14px;position:relative;} .gd-li:before{content:'•';position:absolute;left:2px;color:var(--accent);} .gd-quote{font-size:.82rem;line-height:1.6;color:var(--muted);border-left:3px solid var(--accent);padding:6px 10px;background:var(--surface-2);border-radius:0 8px 8px 0;} .gd-table{width:100%;border-collapse:collapse;font-size:.8rem;} .gd-table td,.gd-table th{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top;} .gd-table th{background:var(--surface-2);color:var(--muted);font-weight:650;} .gd-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .gd-topic-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:8px;} @media (max-width:640px){ .gd-wrap{flex-direction:column;min-height:0;} .gd-rail{width:100%;flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;max-height:110px;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -19,121 +22,212 @@ function ensureStyle() {
   }
 }
 
-function section(title, children) {
-  return el('div', { class: 'guide-section' }, [
-    el('h2', { text: title }),
-    ...children,
-  ]);
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function p(text) { return el('p', { text }); }
-function h3(text) { return el('h3', { text }); }
-function ul(items) {
-  return el('ul', {}, items.map((t) => el('li', { text: t })));
+function inline(s) {
+  let out = esc(s);
+  out = out.replace(/`([^`]+)`/g, '<span class="gd-code">$1</span>');
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  out = out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--accent)">$1</a>');
+  return out;
 }
-function optional(text) { return el('p', { class: 'guide-optional', text }); }
-function row(cells) { return el('tr', {}, cells.map((t) => el('td', { text: t }))); }
+function rich(cls, htmlStr) {
+  const d = document.createElement('div');
+  d.className = cls;
+  d.innerHTML = htmlStr;
+  return d;
+}
 
-function buildBody() {
-  return el('div', { class: 'guide-body' }, [
-    el('div', { class: 'guide-welcome' }, [
-      el('h2', { text: 'Welcome to Weaver' }),
-      p('Weaver is a private novel-writing studio that lives in your browser. Everything is saved locally as you write and — once you are signed in — quietly saved to your own private cloud vault as well. Your stories are yours: each vault folder is locked to its account on the server, so no one else can read it.'),
-    ]),
+/* ---------- markdown-lite renderer ---------- */
+function renderLines(lines, host) {
+  let listBuf = [];
+  let tableBuf = [];
+  const flushList = () => {
+    for (const t of listBuf) host.appendChild(rich('gd-li', inline(t)));
+    listBuf = [];
+  };
+  const flushTable = () => {
+    const rows = tableBuf.filter((r) => !/^\|?[\s:|-]+\|?$/.test(r));
+    tableBuf = [];
+    if (!rows.length) return;
+    const table = document.createElement('table');
+    table.className = 'gd-table';
+    rows.forEach((r, idx) => {
+      const cells = r.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+      const tr = document.createElement('tr');
+      for (const c of cells) {
+        const cell = document.createElement(idx === 0 ? 'th' : 'td');
+        cell.innerHTML = inline(c);
+        tr.appendChild(cell);
+      }
+      table.appendChild(tr);
+    });
+    host.appendChild(table);
+  };
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) { flushList(); flushTable(); continue; }
+    if (t.startsWith('|')) { flushList(); tableBuf.push(t); continue; }
+    if (tableBuf.length) flushTable();
+    if (t === '---') { flushList(); continue; }
+    if (t.startsWith('- ') || t.startsWith('* ')) { listBuf.push(t.slice(2)); continue; }
+    if (/^\d+\.\s/.test(t)) { listBuf.push(t.replace(/^\d+\.\s/, '')); continue; }
+    flushList();
+    if (t.startsWith('> ')) { host.appendChild(rich('gd-quote', inline(t.slice(2)))); continue; }
+    host.appendChild(rich('gd-p', inline(t)));
+  }
+  flushList();
+  flushTable();
+}
 
-    section('1. Your Account', [
-      p('Weaver uses a simple email + password account so your library can follow you between devices.'),
-      ul([
-        'Create account — from the sign-in screen. If asked, confirm via the email, then sign in.',
-        'Sign in — email + password on any device; your library is waiting.',
-        'Forgot password? — sends a reset link; click it and set a new password.',
-        'Sign out — Settings ▸ Data & Storage ▸ Account.',
-      ]),
-      p('Every account has its own vault.'),
-    ]),
+/* ---------- parser ---------- */
+function parseDoc(text) {
+  const topics = [];
+  let cur = null;
+  let sub = null;
+  for (const raw of String(text).replace(/\r\n?/g, '\n').split('\n')) {
+    const line = raw.trimEnd();
+    if (line.startsWith('## ')) {
+      cur = { title: line.slice(3).trim(), intro: [], subs: [] };
+      topics.push(cur); sub = null; continue;
+    }
+    if (line.startsWith('### ')) {
+      if (!cur) { cur = { title: 'General', intro: [], subs: [] }; topics.push(cur); }
+      sub = { title: line.slice(4).trim(), lines: [] };
+      cur.subs.push(sub); continue;
+    }
+    if (line.startsWith('# ') || !cur) continue;
+    if (sub) sub.lines.push(line); else cur.intro.push(line);
+  }
+  return topics;
+}
 
-    section('2. Your First Project', [
-      p('From the Library, press the big New Project button.'),
-      h3('Scope'),
-      ul([
-        'Standalone — a single novel. Give it a name.',
-        'Series installment — one book of a series. Name the series (or pick an existing one) and the book title. Every book in a series shares one Config Bible, so characters and world rules stay consistent across installments.',
-      ]),
-      h3('Source'),
-      ul([
-        'Start from scratch — blank Manuscript, ready to write.',
-        'Upload manuscript — drop a .txt, .md, or .docx file. Word headings become H1/H2/H3 automatically. Only the plain text is stored; the original file is not kept.',
-      ]),
-      h3('Config Bible'),
-      p('Where you keep characters, settings, plot arcs, world rules, items, prose style, and standing AI instructions. Tick "Open the Config Bible right after creating this project" to start there — or leave it unticked and come back any time via the Config button in the top bar. It is always optional.'),
-    ]),
+/* ---------- fetch (once per session) ---------- */
+let DOC = null;
+let DOC_LOADING = false;
+let waiters = [];
+function loadDoc() {
+  if (DOC) return Promise.resolve(DOC);
+  if (DOC_LOADING) return new Promise((r) => waiters.push(r));
+  DOC_LOADING = true;
+  const url = new URL('docs/HELP.md', document.baseURI).href + '?v=' + DOC_V;
+  return fetch(url, { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then((text) => {
+      DOC = parseDoc(text);
+      DOC_LOADING = false;
+      waiters.splice(0).forEach((f) => f(DOC));
+      return DOC;
+    })
+    .catch(() => {
+      DOC_LOADING = false;
+      waiters.splice(0).forEach((f) => f(null));
+      return null;
+    });
+}
 
-    section('3. The Workspace', [
-      p('Three panels separated by draggable borders (double-click a border to reset the split). On phones they stack; tap the name-pills on the right to switch.'),
-      ul([
-        'Manuscript — your raw drafts. Type directly, paste, or use H1/H2/H3/¶ to mark headings. Highlight text and Scribe will rewrite, describe, or continue it.',
-        'Main Novel — the finalized canon. Send selected text here with Accept as is (or Accept on an AI block). Recheck cuts selected novel text back into the Manuscript for revision.',
-        'AI Output — streams from Scribe appear here. Accept pushes to Main Novel, Rewrite tries again, Discard removes the block.',
-      ]),
-      p('The Hierarchy drawer (top bar) shows a table of contents for both documents — click any heading to jump.'),
-    ]),
+/* ---------- UI ---------- */
+let m = null;
+let railEl = null;
+let contentEl = null;
+let searchEl = null;
+let topics = [];
+let active = 0;
 
-    section('4. Scribe (AI)', [
-      optional('Optional — Weaver works beautifully with zero AI.'),
-      p('If you want an AI writing partner:'),
-      ul([
-        'Open Settings ▸ AI Providers.',
-        'Enable one or more providers (Groq, OpenRouter, Gemini, Mistral) — paste an API key, click Test Connection, tick Enable.',
-        'The Fallback Order at the top shows the chain Weaver tries if one provider fails or rate-limits.',
-      ]),
-      p('Back in the workspace:'),
-      ul([
-        'Highlight a sentence in Manuscript — a chip appears showing the bundled character count.',
-        'Type a prompt in the Scribe input (or tap a quick-prompt pill) and press Enter.',
-        'Scribe streams a response using your highlight, your Config Bible (only the relevant entries, token-efficient), and your standing AI instructions.',
-        'Accept what you like into Main Novel; rewrite what is not right.',
-      ]),
-      p('Quick prompts — the three pill-buttons under the Scribe input. Edit them in Settings ▸ General to match your workflow (e.g. Improve prose, Continue scene, Rewrite in past tense).'),
-    ]),
+function renderRail() {
+  clear(railEl);
+  topics.forEach((t, i) => {
+    railEl.appendChild(el('button', {
+      class: 'gd-rail-btn' + (i === active ? ' is-selected' : ''),
+      onclick: () => { active = i; if (searchEl) searchEl.value = ''; renderRail(); renderMain(); },
+    }, [el('span', { text: t.title })]));
+  });
+}
 
-    section('5. Cloud Save, Sync & Safety', [
-      optional('Automatic once signed in — there is nothing to configure.'),
-      ul([
-        'Continuous autosave — a few seconds after you stop typing, the open project (Manuscript, Main Novel and Config Bible together) is compressed and pushed to your vault.',
-        'The badge — in the Main Novel header: "saved to cloud · HH:MM" means your latest words are safe; "saved via Puter · HH:MM" means the optional overflow caught them; "cloud save failed" means retry soon — your work is still safe in this browser either way.',
-        'Manual doors — Settings ▸ Data & Storage: Backup to cloud (push everything now), Restore (pull everything from your vault), Export.',
-        'Overflow storage (Puter) — optional and off by default. If the primary vault is ever full or unreachable, Weaver silently spills into your own free Puter account. Connect or copy manually from Settings ▸ Data & Storage if you want the extra safety net.',
-      ]),
-      h3('Another computer?'),
-      p('Sign in and press Restore — your whole library arrives. API keys are deliberately never synced, so re-paste them in Settings ▸ AI Providers on the new machine.'),
-      p('Closing the tab or going offline is always safe: local storage keeps everything, and the next sync reconciles.'),
-    ]),
+function renderSearch(q) {
+  let shown = 0;
+  for (const t of topics) {
+    const introHit = t.intro.some((l) => l.toLowerCase().includes(q));
+    const subs = t.subs.filter((s) =>
+      s.title.toLowerCase().includes(q) || s.lines.some((l) => l.toLowerCase().includes(q)));
+    if (!introHit && !subs.length) continue;
+    contentEl.appendChild(rich('gd-topic-label', esc(t.title)));
+    if (introHit) renderLines(t.intro, contentEl);
+    for (const s of subs) {
+      contentEl.appendChild(rich('gd-h3', esc(s.title)));
+      renderLines(s.lines, contentEl);
+      shown++;
+      if (shown > 30) return;
+    }
+  }
+  if (!shown) {
+    contentEl.appendChild(rich('gd-p', 'No matches in the guide. Try another phrase, or contact support below.'));
+  }
+}
 
-    section('6. Export & Your Files', [
-      ul([
-        'Export (top bar, or Settings ▸ Data & Storage) always downloads BOTH files: the Main Novel as a real .docx with navigable chapter headings, and the Config Bible as .txt — even if the novel is still empty.',
-        'Keep those files anywhere you like; they are plain, open formats any word processor can read.',
-      ]),
-    ]),
+function renderMain() {
+  if (!contentEl) return;
+  clear(contentEl);
+  if (!topics.length) { renderError(); return; }
+  const q = (searchEl && searchEl.value || '').trim().toLowerCase();
+  if (q) { renderSearch(q); return; }
+  const t = topics[active] || topics[0];
+  if (t.intro.length) renderLines(t.intro, contentEl);
+  for (const s of t.subs) {
+    contentEl.appendChild(rich('gd-h3', esc(s.title)));
+    renderLines(s.lines, contentEl);
+  }
+}
 
-    section('7. Quick Reference', [
-      el('table', { class: 'guide-table' }, [
-        row(['Find a word/phrase', 'Search field in the top bar. › next, ‹ prev, Esc clears.']),
-        row(['Add selection to Config', 'Click the ＋ Config pill that floats above any selection.']),
-        row(['Move instead of copy on Accept', 'Settings ▸ General → enable "Accept-as-is MOVES text".']),
-        row(['Leave a project', 'Library button (top-right); anything unsaved syncs within seconds anyway.']),
-        row(['Reset a forgotten password', 'Sign-in screen → "Forgot password?" → click the emailed link.']),
-        row(['Sign out', 'Settings ▸ Data & Storage ▸ Account ▸ Sign out.']),
-      ]),
-    ]),
-  ]);
+function renderError() {
+  clear(contentEl);
+  contentEl.appendChild(rich('gd-p', 'The help document could not be loaded (offline, or docs/HELP.md is missing from the site).'));
+  const retry = el('button', { class: 'btn btn-sm', text: 'Retry' });
+  retry.onclick = () => {
+    DOC = null;
+    clear(contentEl);
+    contentEl.appendChild(rich('gd-p', 'Loading help…'));
+    loadDoc().then((doc) => {
+      if (doc) { topics = doc; renderRail(); renderMain(); } else renderError();
+    });
+  };
+  contentEl.appendChild(retry);
 }
 
 export function openGuide() {
   ensureStyle();
-  const m = modal({
-    title: 'Weaver — Quick Start',
+  topics = [];
+  active = 0;
+  m = modal({
+    title: 'Weaver Guide',
     size: 'lg',
-    body: buildBody(),
-    footer: [el('button', { class: 'btn btn-primary', text: 'Close', onclick: () => m.close() })],
+    body: [],
+    footer: [
+      el('button', { class: 'btn', onclick: () => { m.close(); openSupport(); } }, [icon('send', 'icon-sm'), 'Contact support']),
+      el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() }),
+    ],
+  });
+  searchEl = el('input', { class: 'input', type: 'search', placeholder: 'Search the guide…' });
+  searchEl.addEventListener('input', () => renderMain());
+  railEl = el('div', { class: 'gd-rail' });
+  contentEl = el('div', { class: 'gd-content' });
+  m.body.append(
+    el('div', { class: 'gd-wrap' }, [
+      railEl,
+      el('div', { class: 'gd-main' }, [
+        el('div', { class: 'gd-searchrow' }, [icon('book', 'icon-sm'), searchEl]),
+        contentEl,
+      ]),
+    ])
+  );
+  contentEl.appendChild(rich('gd-p', 'Loading help…'));
+  loadDoc().then((doc) => {
+    if (!contentEl) return;
+    if (!doc) { renderError(); return; }
+    topics = doc;
+    renderRail();
+    renderMain();
   });
 }
