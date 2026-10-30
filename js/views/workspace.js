@@ -3,7 +3,12 @@ Weaver — js/views/workspace.js
 v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
 V3.3a: Plot button (topbar-left). V3.3c: Plot button opens the
 Plot Reference panel. V3.8: mobile "More" sheet — Guide + Export
-fold into ⋯ on ≤480px; topbar buttons can no longer squeeze.
+(+ Support) fold into ⋯ on ≤480px; topbar buttons can't squeeze.
+V3.8b: mobile panel pills — on phones one panel fills the screen
+at a time, switched via a segmented pill bar under the topbar.
+Remembers the last panel per session; a gold dot appears on the
+AI pill when a generation lands while you're elsewhere.
+Desktop is completely unchanged.
 ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -55,7 +60,7 @@ function safe(label, fn, ...args) {
 }
 
 const STYLE_ID = 'workspace-style';
-const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-footer{justify-content:flex-end;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
+const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;} .workspace-panels .panel{flex:1 1 auto;min-height:0;} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer{justify-content:flex-end;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -69,6 +74,26 @@ function ensureStyle() {
 let root = null;
 let panelsEl = null;
 let panelRefs = null;
+let pillRefs = null;
+let mobilePanel = 'manuscript';
+let aiDot = false;
+let aiObserver = null;
+
+function isMobileLayout() {
+  return window.matchMedia('(max-width:860px)').matches;
+}
+function setMobilePanel(key) {
+  mobilePanel = key;
+  if (key === 'ai') aiDot = false;
+  applyExpanded();
+}
+function updatePills() {
+  if (!pillRefs) return;
+  for (const key of ['manuscript', 'novel', 'ai']) {
+    if (pillRefs[key]) pillRefs[key].classList.toggle('is-active', key === mobilePanel);
+  }
+  if (pillRefs.aiDot) pillRefs.aiDot.hidden = !aiDot;
+}
 
 function topBtn(key, iconName, label, onclick) {
   return el('button', {
@@ -79,12 +104,12 @@ function topBtn(key, iconName, label, onclick) {
   }, [icon(iconName), el('span', { class: 'btn-label', text: label })]);
 }
 
-/* ---------- mobile "More" sheet (folds Guide + Export on phones) ---------- */
+/* ---------- mobile "More" sheet (folds Guide + Export + Support on phones) ---------- */
 let moreSheet = null;
 let moreBtnRef = null;
 function ensureMoreSheet() {
   if (moreSheet) return moreSheet;
-    moreSheet = el('div', { class: 'tb-more-sheet' }, [
+  moreSheet = el('div', { class: 'tb-more-sheet' }, [
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); exportProject(); } }, [icon('download', 'icon-sm'), el('span', { text: 'Export' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSupport(); } }, [icon('send', 'icon-sm'), el('span', { text: 'Support' })]),
@@ -199,6 +224,26 @@ export function renderWorkspace() {
     panels: [manuscript.panel, novel.panel, ai.panel],
     resizers: [r1, r2],
   };
+
+  /* Mobile pill bar (hidden on desktop via CSS) */
+  const pillsBar = el('div', { class: 'panel-pills' });
+  pillRefs = {};
+  const pillDefs = [
+    ['manuscript', 'pen', 'Manuscript'],
+    ['novel', 'book-open', 'Main Novel'],
+    ['ai', 'sparkles', 'AI Output'],
+  ];
+  for (const [key, iconName, label] of pillDefs) {
+    const children = [icon(iconName, 'icon-sm'), el('span', { text: label })];
+    if (key === 'ai') {
+      pillRefs.aiDot = el('span', { class: 'pill-dot', hidden: true });
+      children.push(pillRefs.aiDot);
+    }
+    const btn = el('button', { class: 'pill', onclick: () => setMobilePanel(key) }, children);
+    pillRefs[key] = btn;
+    pillsBar.appendChild(btn);
+  }
+
   const kids = [];
   if (MISSING.length) {
     kids.push(el('div', {
@@ -212,10 +257,20 @@ export function renderWorkspace() {
       text: `Workspace degraded — unresolved: ${MISSING.join('; ')}. Screenshot this for support.`,
     }));
   }
-  kids.push(topbar, panelsEl);
+  kids.push(topbar, pillsBar, panelsEl);
   root.append(...kids);
   if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
   applyExpanded();
+
+  /* Gold dot when a generation lands while you're on another panel (mobile) */
+  if (aiObserver) aiObserver.disconnect();
+  if (typeof MutationObserver !== 'undefined') {
+    aiObserver = new MutationObserver(() => {
+      if (isMobileLayout() && mobilePanel !== 'ai') { aiDot = true; updatePills(); }
+    });
+    aiObserver.observe(ai.body, { childList: true });
+  }
+
   if (!safe('mountManuscript(panel)', mountManuscript, manuscript.panel)) {
     safe('mountManuscript(body)', mountManuscript, manuscript.body);
   }
@@ -235,8 +290,17 @@ export function renderWorkspace() {
 
 function applyExpanded() {
   if (!panelRefs) return;
-  const expanded = getState().ui.expandedPanel;
   const keys = ['manuscript', 'novel', 'ai'];
+  if (isMobileLayout()) {
+    keys.forEach((key, i) => {
+      panelRefs.panels[i].style.display = (key === mobilePanel) ? '' : 'none';
+    });
+    panelRefs.resizers.forEach((r) => { r.style.display = 'none'; });
+    updatePills();
+    if (refreshRz) safe('refreshLayout', refreshRz);
+    return;
+  }
+  const expanded = getState().ui.expandedPanel;
   keys.forEach((key, i) => {
     panelRefs.panels[i].style.display = (!expanded || expanded === key) ? '' : 'none';
   });
@@ -247,6 +311,10 @@ function applyExpanded() {
 export function initWorkspace() {
   root = document.getElementById('view-workspace');
   safe('initAiOutput', initAi);
+  const mq = window.matchMedia('(max-width:860px)');
+  const onMq = () => applyExpanded();
+  if (mq.addEventListener) mq.addEventListener('change', onMq);
+  else if (mq.addListener) mq.addListener(onMq);
   subscribeWorkspace();
 }
 
