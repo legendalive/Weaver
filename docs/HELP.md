@@ -82,9 +82,12 @@ panels and a topbar with tools.
 - **AI Output (Scribe):** Where AI-generated text appears when you use
   Scribe. You can accept, rewrite, or discard each AI block.
 
-You can **resize** the panels by dragging the dividers between them.
-You can **expand** any single panel to fill the workspace using the expand
-icon (⤢) in a panel's header. Click it again to return to the split view.
+### On phones
+The workspace shows **one panel at a time**, switched with the pill bar under
+the topbar (Manuscript · Main Novel · AI Output). A gold dot on the AI pill
+means a generation finished while you were elsewhere. Guide, Export and
+Support fold into the **⋯ menu** on small screens; your writing panel always
+fills the screen with its action buttons docked at the bottom.
 
 ### The topbar tools
 - **Config:** Opens the Project Bible (see Config Bible section).
@@ -311,6 +314,26 @@ with editors, or moving to another tool.
 
 ---
 
+## Notes
+
+### What is Notes?
+Notes is a quick scratchpad for the ideas, lines, and "what if" thoughts that
+strike you mid-scene. Instead of breaking your writing flow, you jot the idea
+into Notes and keep going.
+
+### How do I open Notes?
+Tap the round **pen button at the bottom-left** of the workspace, or press
+**Ctrl+Alt+N** (Windows/Linux) / **Cmd+Alt+N** (Mac). A small sheet slides up:
+type your thought and press **Enter** to save it (Shift+Enter for a new line).
+The button politely fades while you type and returns when you pause.
+
+### How do I review or delete notes?
+Open the Notes sheet again to see your full list, newest first, with the date
+each note was captured. Use the trash icon to delete a note you no longer need.
+Notes are saved with the project and sync to your vault.
+
+----
+
 ## Cloud Sync & Backup
 
 ### How does cloud sync work?
@@ -357,11 +380,12 @@ upgrade or sign out.
 Manage cloud backups, exports, restores, and Puter overflow storage.
 
 ### General
-- **Editor Behavior:** Sentences per page, autosave delay, MOVES acceptance
-  mode.
-- **Quick Prompts:** Set up to three one-tap Scribe shortcuts.
+- **Editor Behavior:** Sentences per page and autosave delay. "Accept as is"
+  always MOVES text (cuts it from the Manuscript into the Main Novel).
+- **Quick Prompts:** Set up to three one-tap Scribe shortcuts. Pro users also
+  get a **Temperature** slider here: 0 = precise and faithful, 1 = bolder and
+  more inventive.
 - **Aesthetics:** Font scale for the editor.
-
 ---
 
 ## Pro vs Free
