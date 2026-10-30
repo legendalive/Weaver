@@ -16,7 +16,7 @@ to your private cloud vault only when you want.
 
 **Free tier:** Write locally in your browser. All core editing tools.
 **Pro tier:** Cloud sync across devices, AI writing (Scribe), and AI-assisted
-plot building. Upgrade via the button in Settings or the link on the Library.
+plot building. Upgrade via the button in Settings.
 
 ---
 
