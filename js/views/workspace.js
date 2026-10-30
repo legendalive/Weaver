@@ -1,14 +1,13 @@
 /* =========================================================
 Weaver — js/views/workspace.js
 v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
-V3.3a: Plot button (topbar-left). V3.3c: Plot button opens the
-Plot Reference panel. V3.8: mobile "More" sheet — Guide + Export
-(+ Support) fold into ⋯ on ≤480px; topbar buttons can't squeeze.
-V3.8b: mobile panel pills — on phones one panel fills the screen
-at a time, switched via a segmented pill bar under the topbar.
-Remembers the last panel per session; a gold dot appears on the
-AI pill when a generation lands while you're elsewhere.
-Desktop is completely unchanged.
+V3.3a: Plot button. V3.3c: Plot opens Plot Reference.
+V3.8: mobile "More" sheet (Guide+Export+Support fold into ⋯
+on ≤480px). V3.8b: mobile panel pills (one full-height panel
+at a time, remember-last, AI attention dot). V3.8c: mobile
+panel stack is pinned to the viewport via CSS (position:fixed)
+so the footer ALWAYS docks at the screen bottom; JS refines
+the top edge to sit flush under the pill bar.
 ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -60,7 +59,7 @@ function safe(label, fn, ...args) {
 }
 
 const STYLE_ID = 'workspace-style';
-const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ #view-workspace{display:flex;flex-direction:column;height:100%;} .workspace-panels{display:flex !important;flex-direction:column !important;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer{justify-content:flex-end;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
+const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;position:fixed;left:0;right:0;bottom:0;top:104px;min-height:0;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -104,7 +103,7 @@ function topBtn(key, iconName, label, onclick) {
   }, [icon(iconName), el('span', { class: 'btn-label', text: label })]);
 }
 
-/* ---------- mobile "More" sheet (folds Guide + Export + Support on phones) ---------- */
+/* ---------- mobile "More" sheet ---------- */
 let moreSheet = null;
 let moreBtnRef = null;
 function ensureMoreSheet() {
@@ -296,12 +295,10 @@ function applyExpanded() {
       panelRefs.panels[i].style.display = (key === mobilePanel) ? '' : 'none';
     });
     panelRefs.resizers.forEach((r) => { r.style.display = 'none'; });
-    /* Pin the panel stack to the viewport so the footer always docks
-       at the screen bottom, no matter what the parent layout chain or
-       a banner above the topbar is doing. Top edge measured live from
-       the pill bar. */
+    /* Refine the CSS-pinned top edge to sit flush under the pill bar
+       (handles wrapped titles, banners, rotation). */
     const anchor = (root && (root.querySelector('.panel-pills') || root.querySelector('.topbar'))) || null;
-    const topPx = anchor ? anchor.getBoundingClientRect().bottom : 0;
+    const topPx = anchor ? Math.round(anchor.getBoundingClientRect().bottom) : 104;
     const s = panelsEl.style;
     s.position = 'fixed';
     s.left = '0';
@@ -328,7 +325,7 @@ function applyExpanded() {
 export function initWorkspace() {
   root = document.getElementById('view-workspace');
   safe('initAiOutput', initAi);
-    const mq = window.matchMedia('(max-width:860px)');
+  const mq = window.matchMedia('(max-width:860px)');
   const onMq = () => applyExpanded();
   if (mq.addEventListener) mq.addEventListener('change', onMq);
   else if (mq.addListener) mq.addListener(onMq);
