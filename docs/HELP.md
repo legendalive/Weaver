@@ -467,6 +467,8 @@ to contact us.
 Click the **Support** button in the Workspace topbar. This opens a contact
 form. Describe your issue and send it — it goes directly to the Weaver team.
 We typically reply within one business day.
+The **Guide** also includes a **Support lookup** bar: describe your issue and
+common questions are resolved as instantly. Complex queries and requests may take longer. We do our best to respond within 24 hours.
 
 Your message is sent from your signed-in Weaver account, so we can see which
 account you're writing from. You don't need to include your email in the
