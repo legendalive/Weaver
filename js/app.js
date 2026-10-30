@@ -24,6 +24,7 @@ import { initAiOutput } from './panels/ai-output.js';
 import { initSearch } from './features/search.js';
 import { initCapture } from './features/capture.js';
 import { initNotes } from './features/notes.js';
+import { initMobileDock } from './features/mobile-dock.js';
 import { loadBanner } from './features/banner.js';
 import { initSupport } from './features/support.js';
 import { renderManuscript } from './panels/manuscript.js';
@@ -157,6 +158,7 @@ async function enterApp() {
   initSearch();
   initCapture();
   initNotes();
+  initMobileDock();
   initSupport();
   applyFontScale();
 
