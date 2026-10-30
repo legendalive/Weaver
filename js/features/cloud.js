@@ -226,7 +226,7 @@ function renderBadgeInto(host) {
   } else {
     b.classList.add('is-ok');
     b.classList.remove('is-error', 'is-overflow');
-    b.append(icon('check', 'icon-sm'), el('span', { text: `saved to cloud · ${lastStamp}` }));
+    b.append(icon('check', 'icon-sm'), el('span', { text: `saved  · ${lastStamp}` }));
   }
 }
 
