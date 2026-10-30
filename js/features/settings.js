@@ -1,9 +1,11 @@
 /* =========================================================
 Weaver — js/features/settings.js
-v2 Stage 6.1-final: Settings Modal.
-V3.2b: Added Pro/Free badge and Upgrade button.
-V3.4b: AI Providers tab removed — AI is served centrally by the
-Weaver proxy for Pro users; no user-managed API keys anymore.
+v2 Stage 6.1-final: Settings Modal — 2 tabs.
+V3.2b: Pro/Free badge + Upgrade button.
+V3.4b: AI Providers tab removed (keys live in the admin console).
+V3.8: Pro temperature slider restored beside Quick Prompts;
+accept-as-is toggle removed (behavior freeze lands separately);
+settings tremble fixed (saved-badge row keeps its height).
 ========================================================= */
 import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -17,7 +19,7 @@ import { exportProject } from './export.js';
 import { isPro, onEntitlementChange } from '../core/entitlements.js';
 
 const STYLE_ID = 'settings-style';
-const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:190px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
+const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:190px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;min-height:22px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -170,10 +172,45 @@ function renderDataTab(contentEl, rerender) {
   contentEl.append(accountSection(), backupRestoreSection(), overflowSection(rerender));
 }
 
+/* ---------- Pro temperature slider ---------- */
+function temperatureField(settings) {
+  const tempVal = el('span', { class: 'badge', text: String(settings.ai.temperature ?? 0.85) });
+  return el('div', { class: 'set-field' }, [
+    el('label', { text: 'Temperature (Pro) — 0 precise · 1 inventive' }),
+    el('div', { class: 'set-range-row' }, [
+      el('input', {
+        type: 'range', min: '0', max: '1', step: '0.05',
+        value: String(settings.ai.temperature ?? 0.85),
+        oninput: (e) => {
+          tempVal.textContent = e.target.value;
+          saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); });
+        },
+      }),
+      tempVal,
+    ]),
+    el('p', { class: 'set-hint', text: 'Lower = faithful and exact. Higher = bolder and more inventive. Applies to Scribe and Plot AI.' }),
+  ]);
+}
+
 /* ---------- General tab ---------- */
 function renderGeneralTab(contentEl, settings) {
   clear(contentEl);
   const g = settings.general;
+
+  const quickChildren = [
+    el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
+    el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
+    ...[0, 1, 2].map((i) => el('input', {
+      class: 'input', placeholder: `Quick prompt ${i + 1}…`,
+      value: (g.quickPrompts && g.quickPrompts[i]) || '',
+      oninput: (e) => saveAndFlash((s) => {
+        if (!Array.isArray(s.general.quickPrompts)) s.general.quickPrompts = ['', '', ''];
+        s.general.quickPrompts[i] = e.target.value;
+      }),
+    })),
+  ];
+  if (isPro()) quickChildren.push(temperatureField(settings));
+
   contentEl.append(
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Editor Behavior' }),
@@ -191,23 +228,8 @@ function renderGeneralTab(contentEl, settings) {
           oninput: (e) => saveAndFlash(s => { s.general.autosaveInterval = Math.max(500, parseInt(e.target.value) || 3000); }),
         }),
       ]),
-      el('label', { class: 'set-toggle' }, [
-        el('input', { type: 'checkbox', checked: Boolean(g.acceptMovesText), onchange: (e) => saveAndFlash(s => { s.general.acceptMovesText = e.target.checked; }) }),
-        el('span', { text: 'Accept-as-is MOVES text (cuts it from Manuscript) instead of copying' }),
-      ]),
     ]),
-    el('div', { class: 'set-section' }, [
-      el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
-      el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
-      ...[0, 1, 2].map((i) => el('input', {
-        class: 'input', placeholder: `Quick prompt ${i + 1}…`,
-        value: (g.quickPrompts && g.quickPrompts[i]) || '',
-        oninput: (e) => saveAndFlash((s) => {
-          if (!Array.isArray(s.general.quickPrompts)) s.general.quickPrompts = ['', '', ''];
-          s.general.quickPrompts[i] = e.target.value;
-        }),
-      })),
-    ]),
+    el('div', { class: 'set-section' }, quickChildren),
     el('div', { class: 'set-section' }, [
       el('h4', { text: 'Aesthetics' }),
       el('div', { class: 'set-field' }, [
