@@ -15,7 +15,7 @@ const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
 const BTN_ID = 'weaver-support-btn';
 const STYLE_ID = 'support-style';
 
-const CSS = `.sup-section{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;padding-bottom:0;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .sup-hint{font-size:.72rem;color:var(--faint);line-height:1.5;} .sup-reply{margin-top:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;} .sup-reply-head{font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px;}`;
+const CSS = `.sup-section{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;padding-bottom:0;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .sup-hint{font-size:.72rem;color:var(--faint);line-height:1.5;} .sup-reply{margin-top:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;} .sup-reply-head{font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px;} .sup-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);cursor:pointer;flex-wrap:nowrap;} .sup-row:hover{border-color:var(--border-strong);} .sup-row-badge{flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#17130a;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);} .sup-row-spacer{flex:none;width:18px;} .sup-row-subj{flex:none;max-width:42%;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row.is-unread .sup-row-subj{font-weight:700;} .sup-row-prev{flex:1;min-width:0;font-size:.76rem;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row-time{flex:none;font-size:.66rem;color:var(--faint);font-family:var(--font-mono);} .sup-thread{margin-top:6px;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);} .sup-msg{padding:7px 9px;border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .sup-msg.team{background:var(--accent-soft);border:1px solid rgba(224,168,60,.35);} .sup-msg.me{background:var(--surface-2);border:1px solid var(--border);} .sup-msg-head{font-size:.64rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:3px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -180,6 +180,29 @@ async function runLookup(lookupInput, lookupBtn, replyHost, resetFn) {
 }
 
 /* ---------- Your requests (in-app reply leg) ---------- */
+/* ---------- unread tracking (per browser, chat-app style) ---------- */
+const READ_KEY = 'weaver_support_read';
+function readMap() {
+  try { return JSON.parse(localStorage.getItem(READ_KEY) || '{}') || {}; } catch (e) { return {}; }
+}
+function markRead(id) {
+  const map = readMap();
+  map[id] = new Date().toISOString();
+  try { localStorage.setItem(READ_KEY, JSON.stringify(map)); } catch (e) { /* private mode */ }
+}
+function unreadCount(t, map) {
+  const since = map[t.id] || '';
+  return (t.replies || []).filter((r) => r.author === 'team' && (!since || r.created_at > since)).length;
+}
+function shortTime(iso) {
+  try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch (e) { return ''; }
+}
+function msgBlock(who, text, cls, iso) {
+  const b = el('div', { class: 'sup-msg ' + cls });
+  b.appendChild(el('div', { class: 'sup-msg-head', text: who + ' · ' + new Date(iso).toLocaleString() }));
+  b.appendChild(document.createTextNode(text));
+  return b;
+}
 async function loadMyTickets(host) {
   host.innerHTML = '';
   try {
@@ -193,29 +216,40 @@ async function loadMyTickets(host) {
       host.appendChild(el('p', { class: 'sup-p', text: 'No requests yet. Your support requests and our replies will appear here.' }));
       return;
     }
+    const map = readMap();
     for (const t of tickets) {
-      const card = el('div', { class: 'sup-card' });
-      card.appendChild(el('div', {
-        class: 'sup-card-head',
-        text: (t.subject || '(no subject)') + ' · ' + (t.status === 'closed' ? 'closed' : 'open'),
-      }));
-      card.appendChild(el('p', { class: 'sup-p', text: t.body || '' }));
-      for (const r of (t.replies || [])) {
-        const rw = el('div', { class: 'sup-reply' });
-        rw.appendChild(el('div', {
-          class: 'sup-reply-head',
-          text: (r.author === 'team' ? 'Weaver team' : 'You') + ' · ' + new Date(r.created_at).toLocaleString(),
-        }));
-        rw.appendChild(el('p', { class: 'sup-p', text: r.body || '' }));
-        card.appendChild(rw);
-      }
-      host.appendChild(card);
+      const unread = unreadCount(t, map);
+      const last = (t.replies && t.replies.length) ? t.replies[t.replies.length - 1] : null;
+      const preview = last ? (last.author === 'team' ? 'Weaver: ' : 'You: ') + (last.body || '') : (t.body || '');
+      const wrap = el('div', {});
+      const row = el('div', { class: 'sup-row' + (unread ? ' is-unread' : '') });
+      row.appendChild(unread
+        ? el('span', { class: 'sup-row-badge', text: String(unread) })
+        : el('span', { class: 'sup-row-spacer' }));
+      row.appendChild(el('span', { class: 'sup-row-subj', text: t.subject || '(no subject)' }));
+      row.appendChild(el('span', { class: 'sup-row-prev', text: String(preview).replace(/\s+/g, ' ') }));
+      row.appendChild(el('span', { class: 'sup-row-time', text: shortTime(last ? last.created_at : t.created_at) }));
+      row.addEventListener('click', () => {
+        const existing = wrap.querySelector('.sup-thread');
+        if (existing) { existing.remove(); return; }
+        const thread = el('div', { class: 'sup-thread' });
+        thread.appendChild(msgBlock('You', t.body || '', 'me', t.created_at));
+        for (const r of (t.replies || [])) {
+          thread.appendChild(msgBlock(r.author === 'team' ? 'Weaver team' : 'You', r.body || '', r.author === 'team' ? 'team' : 'me', r.created_at));
+        }
+        wrap.appendChild(thread);
+        markRead(t.id);
+        row.classList.remove('is-unread');
+        const badge = row.querySelector('.sup-row-badge');
+        if (badge) badge.replaceWith(el('span', { class: 'sup-row-spacer' }));
+      });
+      wrap.appendChild(row);
+      host.appendChild(wrap);
     }
   } catch (e) {
     host.appendChild(el('p', { class: 'sup-p', text: 'Could not load your requests right now.' }));
   }
 }
-
 /* ---------- Support Center modal ---------- */
 export function openSupport() {
   ensureStyle();
