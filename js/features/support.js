@@ -6,7 +6,7 @@ human contact form below that. Backend handles quota, escalation,
 and the strict support voice (never mentions docs/guide).
 ========================================================= */
 import { el, toast, modal } from '../utils/dom.js';
-import { icon } from '../utils/icons';
+import { icon } from '../utils/icons.js';
 import { getState, subscribe } from '../core/state.js';
 import { getSupabaseClient } from '../core/supabase.js';
 
