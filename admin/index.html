@@ -226,6 +226,135 @@ let allUsers = [];
 let allCredits = [];
 let bannerState = { text: '', level: 'info', show_until: null, updated_at: null };
 let aiProviders = {};
+let activeMsgView = 'tickets';
+const SUPPORT_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support-admin';
+async function saApi(path, opts = {}) {
+  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+  let res;
+  try { res = await fetch(SUPPORT_ADMIN_BASE + path, init); }
+  catch (e) { throw new Error('Could not reach the support-admin API. Is it deployed?'); }
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
+  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  return data;
+}
+async function loadMessagesTab(content) {
+  content.innerHTML = '<div class="loading">Loading support dashboard…</div>';
+  try {
+    const [msgs, logs] = await Promise.all([saApi('/api/support'), saApi('/api/help-log')]);
+    const messages = msgs.messages || [];
+    const aiLogs = logs.rows || [];
+    const openTickets = messages.filter(m => m.status !== 'closed');
+    const resolved = aiLogs.filter(l => l.resolved === true).length;
+    const escalated = aiLogs.filter(l => l.resolved === false).length;
+    const rate = aiLogs.length ? Math.round((resolved / aiLogs.length) * 100) : 0;
+    let html = '<div class="tabs" style="padding:12px 16px 4px">' +
+      '<span class="tab' + (activeMsgView === 'tickets' ? ' on' : '') + '" data-msg-view="tickets">Tickets (' + openTickets.length + ' open)</span>' +
+      '<span class="tab' + (activeMsgView === 'ai' ? ' on' : '') + '" data-msg-view="ai">AI Monitor</span>' +
+      '</div>';
+    if (activeMsgView === 'tickets') {
+      html += '<div class="grid">' +
+        card(openTickets.length, 'Open tickets', 'awaiting you') +
+        card(messages.length - openTickets.length, 'Closed', 'resolved') +
+        card(messages.filter(m => m.source === 'ai').length, 'AI-forwarded', 'lookup escalated', 'gold') +
+        card(messages.filter(m => m.source !== 'ai').length, 'Direct contact', 'user wrote in') +
+        '</div>';
+      if (!messages.length) html += '<div class="empty">No tickets yet. User messages and AI escalations land here.</div>';
+      for (const m of messages) {
+        const closed = m.status === 'closed';
+        const srcBadge = m.source === 'ai'
+          ? '<span class="status-badge" style="color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)">AI-forwarded</span>'
+          : '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.4);background:rgba(126,184,218,.08)">Direct</span>';
+        const stBadge = closed ? '<span class="status-badge">Closed</span>' : '<span class="status-badge active">Open</span>';
+        let bodyHtml = '';
+        const raw = m.body || '';
+        if (m.source === 'ai' && raw.indexOf('Attempted answer:') >= 0) {
+          const q = raw.split('Attempted answer:')[0].replace('Question:', '').replace('(Forwarded automatically by Support lookup.)', '').trim();
+          const a = raw.split('Attempted answer:')[1].replace('(Forwarded automatically by Support lookup.)', '').trim();
+          bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap">' + esc(q) + '</div>' +
+            '<div style="margin-top:8px;padding:8px 10px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:8px;font-size:.76rem;color:var(--faint);font-family:var(--font-mono);line-height:1.5"><b>AI attempted:</b> ' + esc(a) + '</div>';
+        } else {
+          bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(raw) + '</div>';
+        }
+        html += '<div class="user-card"' + (closed ? ' style="opacity:.6"' : '') + '>' +
+          '<div class="user-card-head"><span class="user-email">' + esc(m.subject || '(no subject)') + '</span>' +
+          '<span class="cred-badges">' + srcBadge + stBadge + '</span></div>' +
+          '<div class="user-meta">' + esc(m.email || '') + ' · ' + fmtDateTime(m.created_at) + '</div>' +
+          bodyHtml +
+          '<div id="thread-' + esc(m.id) + '" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>' +
+          '<div style="margin-top:10px"><textarea class="textarea" style="min-height:60px" placeholder="Reply to ' + esc(m.email || 'user') + '…" data-reply-text="' + esc(m.id) + '"></textarea></div>' +
+          '<div class="user-actions" style="margin-top:8px">' +
+          '<button class="btn btn-sm btn-primary" data-msg-action="reply" data-id="' + esc(m.id) + '">Send reply</button>' +
+          '<button class="btn btn-sm" data-msg-action="load-thread" data-id="' + esc(m.id) + '">Load thread</button>' +
+          (closed ? '<button class="btn btn-sm" data-msg-action="reopen" data-id="' + esc(m.id) + '">Reopen</button>'
+                  : '<button class="btn btn-sm btn-danger" data-msg-action="close" data-id="' + esc(m.id) + '">Close ticket</button>') +
+          '</div></div>';
+      }
+    } else {
+      html += '<div class="grid">' +
+        card(aiLogs.length, 'Lookups', 'questions asked') +
+        card(resolved, 'Resolved by AI', rate + '% success', 'ok') +
+        card(escalated, 'Escalated', 'came to you', 'bad') +
+        card(rate + '%', 'AI success rate', 'higher is better', 'gold') +
+        '</div>';
+      html += '<div class="stor-users-title">Recent AI activity · newest first</div>';
+      if (!aiLogs.length) html += '<div class="empty">No AI lookups recorded yet.</div>';
+      for (const l of aiLogs.slice(0, 50)) {
+        const badge = l.resolved === true ? '<span class="status-badge active">Resolved</span>'
+          : (l.resolved === false ? '<span class="status-badge banned">Escalated</span>' : '<span class="status-badge">Pending</span>');
+        html += '<div class="user-card"><div class="user-card-head"><span class="user-email">' + esc(l.question) + '</span>' + badge + '</div>' +
+          '<div class="user-meta">' + fmtDateTime(l.created_at) + '</div>' +
+          (l.answer ? '<div style="font-size:.82rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(l.answer) + '</div>' : '') +
+          '</div>';
+      }
+    }
+    content.innerHTML = html + '<div class="admin-note">"AI-forwarded" tickets include the answer the AI attempted before escalating. The AI Monitor tab tracks lookup volume, resolutions and escalations so you can judge the support AI over time.</div>';
+  } catch (e) {
+    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+  }
+}
+async function handleMsgAction(btn) {
+  const id = btn.dataset.id;
+  const act = btn.dataset.msgAction;
+  if (act === 'close' || act === 'reopen') {
+    btn.disabled = true;
+    try {
+      await saApi('/api/support/' + id + '/' + act, { method: 'POST' });
+      showNote('Ticket ' + (act === 'close' ? 'closed' : 'reopened') + '.', false);
+      loadTab('messages');
+    } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; }
+    return;
+  }
+  if (act === 'reply') {
+    const ta = document.querySelector('[data-reply-text="' + id + '"]');
+    const text = ta ? ta.value.trim() : '';
+    if (!text) { showNote('⚠ Write a reply first.', false); return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
+      showNote('Reply saved to the thread. (Email delivery arrives with the reply-leg step.)', false);
+      loadTab('messages');
+    } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; btn.textContent = 'Send reply'; }
+    return;
+  }
+  if (act === 'load-thread') {
+    const host = document.getElementById('thread-' + id);
+    if (!host) return;
+    host.innerHTML = '<div style="color:var(--faint);font-size:.78rem">Loading…</div>';
+    try {
+      const d = await saApi('/api/support/' + id + '/replies');
+      const replies = d.replies || [];
+      host.innerHTML = replies.length ? replies.map(r =>
+        '<div style="padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap">' +
+        '<div style="font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px">' + (r.author === 'team' ? 'You' : 'User') + ' · ' + fmtDateTime(r.created_at) + '</div>' +
+        esc(r.body) + '</div>').join('')
+        : '<div style="color:var(--faint);font-size:.78rem">No replies yet.</div>';
+    } catch (e) { host.innerHTML = '<div style="color:var(--danger);font-size:.78rem">' + esc(e.message) + '</div>'; }
+    return;
+  }
+}
 
 const PROVIDER_DEFS = [
   { id: 'openrouter', label: 'OpenRouter',
@@ -391,7 +520,7 @@ function loadTab(tab) {
   if (tab === 'audit') return loadAudit();
   if (tab === 'banner') return loadBanner();
   if (tab === 'ai-keys') return loadAiKeys();
-  if (tab === 'messages') { window.location.href = 'messages.html'; return; }
+  if (tab === 'messages') return loadMessagesTab(content);
   content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
 }
 
@@ -1324,6 +1453,10 @@ function handleProjectDelete(projectId, projectName, btn) {
 }
 
 app.addEventListener('click', e => {
+  const msgView = e.target.closest('[data-msg-view]');
+  if (msgView) { activeMsgView = msgView.dataset.msgView; loadTab('messages'); return; }
+  const msgAction = e.target.closest('[data-msg-action]');
+  if (msgAction) { handleMsgAction(msgAction); return; }
   const aiAdd = e.target.closest('[data-ai-action="add-custom"]');
   if (aiAdd) { addCustomProvider(); return; }
   const aiDel = e.target.closest('[data-ai-action="delete-custom"]');
