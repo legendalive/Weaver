@@ -15,7 +15,7 @@ const SUPPORT_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support'
 const BTN_ID = 'weaver-support-btn';
 const STYLE_ID = 'support-style';
 
-const CSS = `.sup-section{display:flex;flex-direction:column;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);}`;
+const CSS = `.sup-section{display:flex;flex-direction:column;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -88,6 +88,16 @@ async function helpApi(path, body) {
   return d;
 }
 
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function inline(s) {
+  let out = esc(s);
+  out = out.replace(/`([^`]+)`/g, '<span class="sup-code">$1</span>');
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  return out;
+}
 function cardShell(headText) {
   const card = el('div', { class: 'sup-card' });
   card.appendChild(el('div', { class: 'sup-card-head', text: headText }));
@@ -105,8 +115,13 @@ function showInfoCard(host, headText, bodyText, onBack) {
 function showReplyCard(host, answer, logId, question, onBack) {
   host.innerHTML = '';
   const card = cardShell('Support answer');
-  for (const para of String(answer).split(/\n\n+/)) {
-    if (para.trim()) card.appendChild(el('p', { class: 'gd-p', innerHTML: para.trim() }));
+    for (const para of String(answer).split(/\n\n+/)) {
+    if (!para.trim()) continue;
+    const p = document.createElement('p');
+    p.className = 'sup-p';
+    p.innerHTML = inline(para.trim());
+    card.appendChild(p);
+  }
   }
   const fb = el('div', { class: 'sup-feedback' }, [el('span', { text: 'Did this solve your issue?' })]);
   const yes = el('button', { class: 'btn btn-sm', text: 'Yes — solved' });
