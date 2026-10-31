@@ -115,13 +115,12 @@ function showInfoCard(host, headText, bodyText, onBack) {
 function showReplyCard(host, answer, logId, question, onBack) {
   host.innerHTML = '';
   const card = cardShell('Support answer');
-    for (const para of String(answer).split(/\n\n+/)) {
+  for (const para of String(answer).split(/\n\n+/)) {
     if (!para.trim()) continue;
     const p = document.createElement('p');
     p.className = 'sup-p';
     p.innerHTML = inline(para.trim());
     card.appendChild(p);
-  }
   }
   const fb = el('div', { class: 'sup-feedback' }, [el('span', { text: 'Did this solve your issue?' })]);
   const yes = el('button', { class: 'btn btn-sm', text: 'Yes — solved' });
