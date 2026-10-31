@@ -112,7 +112,7 @@ function loadDoc() {
     .catch(() => { DOC_LOADING = false; waiters.splice(0).forEach((f) => f(null)); return null; });
 }
 
-/* ---------- app session token (storage scan, same trick as admin) ---------- */
+/* ---------- app session token ---------- */
 function appToken() {
   try {
     for (const store of [sessionStorage, localStorage]) {
@@ -150,7 +150,7 @@ let lookupInput = null;
 let lookupBtn = null;
 let topics = [];
 let active = 0;
-let lastLookup = null; /* { logId, question, answer } */
+let lastLookup = null;
 
 function renderRail() {
   clear(railEl);
