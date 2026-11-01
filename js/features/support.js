@@ -1,9 +1,9 @@
 /* =========================================================
 Weaver — js/features/support.js
 V3.9: Support Center — instant lookup (answer directly below
-the question), human contact form, and "Your requests" so
-users see team replies in-app. Backend handles quota,
-escalation, and the strict support voice.
+the question), compact human contact form, and "Your requests"
+as a stacked chat list (newest first, unread badges, tap to
+expand). Backend handles quota, escalation, support voice.
 ========================================================= */
 import { el, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -15,7 +15,7 @@ const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
 const BTN_ID = 'weaver-support-btn';
 const STYLE_ID = 'support-style';
 
-const CSS = `.sup-section{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;padding-bottom:0;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .sup-hint{font-size:.72rem;color:var(--faint);line-height:1.5;} .sup-reply{margin-top:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;} .sup-reply-head{font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px;} .sup-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);cursor:pointer;flex-wrap:nowrap;} .sup-row:hover{border-color:var(--border-strong);} .sup-row-badge{flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#17130a;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);} .sup-row-spacer{flex:none;width:18px;} .sup-row-subj{flex:none;max-width:42%;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row.is-unread .sup-row-subj{font-weight:700;} .sup-row-prev{flex:1;min-width:0;font-size:.76rem;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row-time{flex:none;font-size:.66rem;color:var(--faint);font-family:var(--font-mono);} .sup-thread{margin-top:6px;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);} .sup-msg{padding:7px 9px;border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .sup-msg.team{background:var(--accent-soft);border:1px solid rgba(224,168,60,.35);} .sup-msg.me{background:var(--surface-2);border:1px solid var(--border);} .sup-msg-head{font-size:.64rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:3px;}`;
+const CSS = `.sup-section{display:flex;flex-direction:column;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;padding-bottom:0;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .sup-hint{font-size:.72rem;color:var(--faint);line-height:1.5;} .sup-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);cursor:pointer;flex-wrap:nowrap;width:100%;} .sup-row:hover{border-color:var(--border-strong);} .sup-row-badge{flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#17130a;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);} .sup-row-spacer{flex:none;width:18px;} .sup-row-subj{flex:none;max-width:42%;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row.is-unread .sup-row-subj{font-weight:700;} .sup-row-prev{flex:1;min-width:0;font-size:.76rem;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row-time{flex:none;font-size:.66rem;color:var(--faint);font-family:var(--font-mono);} .sup-thread{margin-top:6px;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);} .sup-msg{padding:7px 9px;border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .sup-msg.team{background:var(--accent-soft);border:1px solid rgba(224,168,60,.35);} .sup-msg.me{background:var(--surface-2);border:1px solid var(--border);} .sup-msg-head{font-size:.64rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:3px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -179,8 +179,7 @@ async function runLookup(lookupInput, lookupBtn, replyHost, resetFn) {
   }
 }
 
-/* ---------- Your requests (in-app reply leg) ---------- */
-/* ---------- unread tracking (per browser, chat-app style) ---------- */
+/* ---------- Your requests: stacked chat list, newest first ---------- */
 const READ_KEY = 'weaver_support_read';
 function readMap() {
   try { return JSON.parse(localStorage.getItem(READ_KEY) || '{}') || {}; } catch (e) { return {}; }
@@ -205,6 +204,14 @@ function msgBlock(who, text, cls, iso) {
 }
 async function loadMyTickets(host) {
   host.innerHTML = '';
+  /* Imperative layout: guarantees a vertical stack no matter what
+     the modal or section CSS does. */
+  host.style.display = 'flex';
+  host.style.flexDirection = 'column';
+  host.style.gap = '8px';
+  host.style.width = '100%';
+  host.style.maxHeight = '240px';
+  host.style.overflowY = 'auto';
   try {
     const token = await sessionToken();
     if (!token) { host.appendChild(el('p', { class: 'sup-p', text: 'Sign in to see your requests.' })); return; }
@@ -222,6 +229,8 @@ async function loadMyTickets(host) {
       const last = (t.replies && t.replies.length) ? t.replies[t.replies.length - 1] : null;
       const preview = last ? (last.author === 'team' ? 'Weaver: ' : 'You: ') + (last.body || '') : (t.body || '');
       const wrap = el('div', {});
+      wrap.style.width = '100%';
+      wrap.style.flex = 'none';
       const row = el('div', { class: 'sup-row' + (unread ? ' is-unread' : '') });
       row.appendChild(unread
         ? el('span', { class: 'sup-row-badge', text: String(unread) })
@@ -250,6 +259,7 @@ async function loadMyTickets(host) {
     host.appendChild(el('p', { class: 'sup-p', text: 'Could not load your requests right now.' }));
   }
 }
+
 /* ---------- Support Center modal ---------- */
 export function openSupport() {
   ensureStyle();
@@ -259,7 +269,7 @@ export function openSupport() {
   });
   const lookupBtn = el('button', { class: 'btn btn-sm btn-primary', text: 'Find my answer' });
   const replyHost = el('div', {});
-  const ticketsHost = el('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } });
+  const ticketsHost = el('div', {});
   function resetLookup() {
     lookupInput.value = '';
     replyHost.innerHTML = '';
@@ -275,7 +285,7 @@ export function openSupport() {
     placeholder: 'e.g. Cloud sync question',
   });
   const body = el('textarea', {
-    class: 'textarea', rows: '5', maxlength: '4000',
+    class: 'textarea', rows: '3', maxlength: '4000',
     placeholder: 'Tell me what happened. Please do not include passwords or API keys.',
   });
   const hint = el('p', {
@@ -319,19 +329,23 @@ export function openSupport() {
         replyHost,
       ]),
       el('div', { class: 'sup-section' }, [
+        el('div', { class: 'sup-label', text: 'Your requests' }),
+        ticketsHost,
+      ]),
+      el('div', { class: 'sup-section' }, [
         el('div', { class: 'sup-label', text: 'Write to the team' }),
         hint,
         subject,
         body,
         send,
       ]),
-      el('div', { class: 'sup-section' }, [
-        el('div', { class: 'sup-label', text: 'Your requests' }),
-        ticketsHost,
-      ]),
     ],
     footer: [el('button', { class: 'btn', text: 'Close', onclick: () => m.close() })],
   });
+  if (m && m.body && m.body.style) {
+    m.body.style.maxHeight = '75vh';
+    m.body.style.overflowY = 'auto';
+  }
   loadMyTickets(ticketsHost);
   lookupInput.focus();
 }
