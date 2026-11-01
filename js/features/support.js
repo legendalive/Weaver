@@ -310,13 +310,27 @@ export function openSupport() {
       if (!res.ok) throw new Error(data.error || 'Could not send. Please try again.');
       subject.value = '';
       body.value = '';
+      writeBody.style.display = 'none';
+      writeToggle.textContent = '+ Write to the team';
       toast('Message sent. Thank you — I usually reply within one business day.', 'success');
       loadMyTickets(ticketsHost);
     } catch (e) {
       toast(e.message || 'Could not send.', 'danger');
-      send.disabled = false;
+            send.disabled = false;
       send.textContent = 'Send message';
     }
+  });
+
+  const writeBody = el('div', {});
+  writeBody.style.display = 'none';
+  writeBody.style.flexDirection = 'column';
+  writeBody.style.gap = '8px';
+  writeBody.append(hint, subject, body, send);
+  const writeToggle = el('button', { class: 'btn btn-sm', text: '+ Write to the team' });
+  writeToggle.addEventListener('click', () => {
+    const open = writeBody.style.display !== 'none';
+    writeBody.style.display = open ? 'none' : 'flex';
+    writeToggle.textContent = open ? '+ Write to the team' : '\u2212 Write to the team';
   });
 
   const m = modal({
@@ -328,16 +342,13 @@ export function openSupport() {
         el('div', { class: 'sup-lookup-row' }, [lookupInput, lookupBtn]),
         replyHost,
       ]),
+            el('div', { class: 'sup-section' }, [
+        writeToggle,
+        writeBody,
+      ]),
       el('div', { class: 'sup-section' }, [
         el('div', { class: 'sup-label', text: 'Your requests' }),
         ticketsHost,
-      ]),
-      el('div', { class: 'sup-section' }, [
-        el('div', { class: 'sup-label', text: 'Write to the team' }),
-        hint,
-        subject,
-        body,
-        send,
       ]),
     ],
     footer: [el('button', { class: 'btn', text: 'Close', onclick: () => m.close() })],
