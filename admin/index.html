@@ -333,8 +333,8 @@ async function handleMsgAction(btn) {
     if (!text) { showNote('⚠ Write a reply first.', false); return; }
     btn.disabled = true; btn.textContent = 'Sending…';
     try {
-      await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
-      showNote('Reply saved to the thread. (Email delivery arrives with the reply-leg step.)', false);
+            const d = await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
+      showNote(d.emailed ? 'Reply saved and emailed to the user.' : 'Reply saved, but the notification email failed: ' + (d.emailError || 'unknown'), !d.emailed);
       loadTab('messages');
     } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; btn.textContent = 'Send reply'; }
     return;
