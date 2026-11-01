@@ -55,8 +55,14 @@ function projectCard(p) {
     class: 'project-card' + (active ? ' is-active' : ''),
     onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
   }, [
-    el('div', { class: 'project-card-head' }, [
+        el('div', { class: 'project-card-head' }, [
       el('h3', { class: 'project-card-title', text: p.name }),
+      ...(p.seriesId ? [el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        title: `Add another book to "${p.seriesName}"`,
+        'aria-label': `Add another book to ${p.seriesName}`,
+        onclick: (e) => { e.stopPropagation(); if (openWizardFn) openWizardFn({ seriesId: p.seriesId, seriesName: p.seriesName }); },
+      }, [icon('plus', 'icon-sm')])] : []),
       el('button', {
         class: 'btn btn-ghost btn-icon btn-sm',
         title: 'Delete project',
