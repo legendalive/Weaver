@@ -60,7 +60,7 @@ const DEFAULT_CONFIG_HINT =
   'Optional — characters, places, plot arcs, world rules, prose style, and AI instructions. Add them any time from the Config button.';
 
 /* ---------- Wizard ---------- */
-export function openProjectWizard() {
+export function openProjectWizard(prefill) {
   ensureStyle();
   let uploadedText = null;
   let uploadedName = null;
@@ -298,7 +298,19 @@ export function openProjectWizard() {
     if (wantsConfigNow) openConfigBible();
   }
 
-  setTimeout(() => nameInput.focus(), 50);
+    /* V3.9: "Add book" prefill — open scoped to an existing series. */
+  if (prefill && prefill.seriesId) {
+    const seriesBtn = scopeSeg.node.querySelector('[data-value="series"]');
+    if (seriesBtn) seriesBtn.click();
+    const opt = Array.from(seriesSelect.options).find((o) => o.value === prefill.seriesId);
+    if (opt) {
+      seriesSelect.value = prefill.seriesId;
+      refreshSeriesUI();
+    }
+    setTimeout(() => bookInput.focus(), 60);
+  } else {
+    setTimeout(() => nameInput.focus(), 50);
+  }
 }
 
 export function initWizard() {
