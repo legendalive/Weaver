@@ -123,9 +123,9 @@ export function openProjectWizard(prefill) {
 
   /* ----- upload zone (txt / md / docx) ----- */
   const uploadLabel = el('span', {
-    class: 'wizard-upload-hint',
-    text: 'Drop a .txt / .md / .docx file here, or click to choose one.',
-  });
+class: 'wizard-upload-hint',
+text: 'Drop a .txt, .md or .docx file here, or click to choose one. (PDF keeps its own layout, so it can\u2019t be imported — export to .txt or .docx first.)',
+});
   const fileInput = el('input', {
     type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
     onchange: (e) => { const f = e.target.files?.[0]; if (f) readFile(f); },
@@ -148,15 +148,39 @@ export function openProjectWizard(prefill) {
   ]);
   sourceSeg.onChange((v) => { uploadRow.hidden = v !== 'upload'; });
 
-  async function readFile(file) {
-    try {
-      if (/.docx$/i.test(file.name)) {
+  const SUPPORTED_RE = /\.(txt|md|markdown|docx)$/i;
+function looksBinary(s) {
+  let bad = 0;
+  const n = Math.min(s.length, 4000);
+  for (let i = 0; i < n; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 0 || c === 0xfffd) bad++;
+  }
+  return n > 0 && bad / n > 0.02;
+}
+async function readFile(file) {
+try {
+if (!SUPPORTED_RE.test(file.name)) {
+  toast(
+    /\.pdf$/i.test(file.name)
+      ? 'PDFs keep their own layout, so Weaver can\u2019t import them cleanly. Export the PDF to .txt or .docx first, then upload that.'
+      : `"${file.name}" isn\u2019t a supported format. Weaver imports .txt, .md and .docx only.`,
+    'info'
+  );
+  return;
+}
+if (/.docx$/i.test(file.name)) {
         const buf = await file.arrayBuffer();
         const { text } = await readDocx(buf);
         uploadedText = normalizeNewlines(text);
       } else {
-        uploadedText = normalizeNewlines(await file.text());
-      }
+const raw = await file.text();
+if (looksBinary(raw)) {
+  toast('That file doesn\u2019t look like plain text — it may be a PDF or another binary format with a renamed extension. Export it to .txt or .docx first.', 'info');
+  return;
+}
+uploadedText = normalizeNewlines(raw);
+}
       uploadedName = file.name;
       const words = uploadedText.trim() ? uploadedText.trim().split(/\s+/).length : 0;
       uploadLabel.textContent = `${file.name} — ${words.toLocaleString()} words loaded`;
