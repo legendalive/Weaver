@@ -15,7 +15,7 @@ import {
   copyAllToPuter, restoreFromPuter,
 } from './cloud.js';
 import { puterSignedIn, connectPuter, disconnectPuter } from './puter-mirror.js';
-import { exportProject } from './export.js';
+import { exportProject, exportEpub } from './export.js';
 import { isPro, onEntitlementChange } from '../core/entitlements.js';
 
 const STYLE_ID = 'settings-style';
@@ -91,9 +91,15 @@ function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
     el('h4', { text: 'Backup & Restore' }),
     el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write (compressed, ~3–5× more room). Use these to back up, export, or restore manually.' }),
-    el('div', { class: 'set-row' }, [
+        el('div', { class: 'set-row' }, [
       el('button', { class: 'btn btn-sm', text: 'Backup to cloud', onclick: () => syncNow() }),
       el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Pro — market-ready EPUB of your Main Novel',
+        text: 'Export EPUB',
+        onclick: () => exportEpub(),
+      }),
       el('button', { class: 'btn btn-sm', text: 'Restore', onclick: () => syncNow() }),
     ]),
   ]);
