@@ -14,7 +14,7 @@ import { saveProject } from '../core/storage.js';
 import { scheduleCloudSave } from './cloud.js';
 
 const STYLE_ID = 'notes-style';
-const CSS = `.notes-fab{position:fixed;left:16px;bottom:16px;z-index:80;width:52px;height:52px;border-radius:50%;background:var(--surface-2);color:var(--accent);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:opacity .25s ease,transform .25s ease;} .notes-fab:hover{border-color:rgba(224,168,60,.55);} .notes-fab.is-idle{opacity:0;pointer-events:none;transform:translateY(8px);} .notes-fab[hidden]{display:none;} .notes-sheet{position:fixed;left:16px;bottom:80px;z-index:81;width:min(360px,calc(100vw - 32px));max-height:min(480px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);transform:translateY(12px);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease;} .notes-sheet.is-open{transform:translateY(0);opacity:1;pointer-events:auto;} .notes-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);flex:none;} .notes-title{font-size:.85rem;font-weight:650;flex:1;} .notes-count{font-family:var(--font-mono);font-size:.68rem;color:var(--faint);} .notes-input-row{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);flex:none;align-items:flex-end;} .notes-input-row .textarea{flex:1;min-height:38px;max-height:120px;resize:none;} .notes-list{overflow-y:auto;padding:8px 12px 6px;display:flex;flex-direction:column;gap:8px;} .notes-empty{color:var(--faint);font-size:.78rem;padding:2px 0 6px;} .notes-item{display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);} .notes-item-text{flex:1;min-width:0;font-size:.8rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .notes-item-date{display:block;color:var(--faint);font-size:.66rem;font-family:var(--font-mono);margin-top:4px;} .notes-hint{padding:2px 12px 10px;color:var(--faint);font-size:.68rem;font-family:var(--font-mono);}`;
+const CSS = `.notes-fab{position:fixed;left:16px;bottom:16px;z-index:80;width:52px;height:52px;border-radius:50%;background:var(--surface-2);color:var(--accent);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:opacity .25s ease,transform .25s ease;} .notes-fab:hover{border-color:rgba(224,168,60,.55);} .notes-fab.is-idle{opacity:0;pointer-events:none;transform:translateY(8px);} .notes-fab[hidden]{display:none;} .notes-sheet{position:fixed;left:16px;bottom:80px;z-index:81;width:min(360px,calc(100vw - 32px));max-height:min(480px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);transform:translateY(12px);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease;} .notes-sheet.is-open{transform:translateY(0);opacity:1;pointer-events:auto;} .notes-close{position:absolute;top:6px;right:6px;opacity:.5;} .notes-close:hover{opacity:1;} .notes-input-row{display:flex;gap:8px;padding:12px 12px 6px;flex:none;align-items:flex-end;} .notes-input-row .textarea{flex:1;min-height:44px;max-height:120px;resize:none;background:transparent;border:none;box-shadow:none;font-size:.85rem;} .notes-input-row .textarea:focus{outline:none;} .notes-list{overflow-y:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:0;} .notes-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--border);} .notes-item-text{flex:1;min-width:0;font-size:.8rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .notes-item-date{display:block;color:var(--faint);font-size:.66rem;font-family:var(--font-mono);margin-top:4px;}`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -65,12 +65,8 @@ function sheetOpen() { return sheet && sheet.classList.contains('is-open'); }
 function renderList() {
   if (!listEl) return;
   clear(listEl);
-  const notes = notesOf(getState().project);
-  if (countEl) countEl.textContent = notes.length ? String(notes.length) : '';
-  if (!notes.length) {
-    listEl.appendChild(el('p', { class: 'notes-empty', text: 'Your quick scratchpad for sudden ideas.' }));
-    return;
-  }
+    const notes = notesOf(getState().project);
+  if (!notes.length) return;
   notes.slice().reverse().forEach((n) => {
     let date = '';
     try { date = new Date(n.createdAt).toLocaleString(); } catch (e) { date = ''; }
@@ -128,10 +124,10 @@ function ensureUi() {
     'aria-label': 'Open notes',
     onclick: () => toggleSheet(),
   }, [icon('pen', 'icon-lg')]);
-  inputEl = el('textarea', {
+    inputEl = el('textarea', {
     class: 'textarea',
     rows: '2',
-    placeholder: 'Jot a thought… Enter saves · Shift+Enter new line',
+    placeholder: 'Your quick scratchpad for sudden ideas.',
   });
   inputEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -145,18 +141,14 @@ function ensureUi() {
     title: 'Save note',
     onclick: () => { if (addNote(inputEl.value)) inputEl.value = ''; inputEl.focus(); },
   }, [icon('plus', 'icon-sm')]);
-  countEl = el('span', { class: 'notes-count' });
   listEl = el('div', { class: 'notes-list' });
   sheet = el('div', { class: 'notes-sheet' }, [
-    el('div', { class: 'notes-head' }, [
-      el('span', { class: 'notes-title', text: 'Notes' }),
-      countEl,
-      el('button', {
-        class: 'btn btn-ghost btn-icon btn-sm',
-        title: 'Close notes',
-        onclick: () => closeSheet(),
-      }, [icon('x', 'icon-sm')]),
-    ]),
+    el('button', {
+      class: 'btn btn-ghost btn-icon btn-sm notes-close',
+      title: 'Close notes',
+      'aria-label': 'Close notes',
+      onclick: () => closeSheet(),
+    }, [icon('x', 'icon-sm')]),
     el('div', { class: 'notes-input-row' }, [inputEl, saveBtn]),
     listEl,
   ]);
