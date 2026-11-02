@@ -7,12 +7,12 @@ Neither file is ever silently omitted.
 V3.9: EPUB export (Pro) — market-ready .epub built entirely
 client-side: title page, chapters, nav + NCX table of
 contents, book CSS. Free accounts get a Pro notice instead.
-V3.9b: smart export picker — from Settings with no project
-open, lists every project (series books individually);
-one project auto-exports; an open project exports directly.
+V3.9c: the EPUB list shows library summaries but loads the
+FULL project blob via getProject() on tap; EPUB reads the
+Main Novel layer only — never the Manuscript draft.
 ========================================================= */
 import { getState } from '../core/state.js';
-import { getEffectiveConfig, listProjects } from '../core/storage.js';
+import { getEffectiveConfig, listProjects, getProject } from '../core/storage.js';
 import { buildBlockIndex, headingPrefix } from '../utils/text.js';
 import { buildDocx } from '../utils/docx.js';
 import { buildZip } from '../utils/zip.js';
@@ -89,7 +89,7 @@ export function exportProject(projectOverride) {
 }
 
 /* =========================================================
-EPUB (Pro)
+EPUB (Pro) — Main Novel layer only
 ========================================================= */
 function escXml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
@@ -147,7 +147,7 @@ export function exportEpub(projectOverride) {
   }
   const blocks = novelBlocks(project);
   if (!blocks.some((b) => (b.text || '').trim())) {
-    toast('Main Novel is empty — write or finalize chapters before exporting EPUB.', 'info');
+    toast('Main Novel is empty for this book — finalize your chapters into the Main Novel before exporting EPUB.', 'info');
     return;
   }
   let saved = '';
@@ -218,12 +218,9 @@ export function exportEpub(projectOverride) {
 }
 
 /* =========================================================
-Smart picker — Settings with no project open
-========================================================= */
-/* =========================================================
-EPUB export list — Settings. Always shows every project,
-no matter where Settings was opened from. One book at a
-time; series books listed individually.
+EPUB export list — Settings. Shows library summaries; loads
+the full book on tap. One book at a time; series books
+listed individually.
 ========================================================= */
 export function openEpubExportList() {
   const projects = listProjects() || [];
@@ -237,7 +234,12 @@ export function openEpubExportList() {
     const label = p.seriesName ? `${p.seriesName} · ${p.name}` : (p.name || 'Untitled');
     const btn = el('button', {
       class: 'btn',
-      onclick: () => { if (m) m.close(); exportEpub(p); },
+      onclick: () => {
+        if (m) m.close();
+        const full = getProject(p.id);
+        if (!full) { toast('Could not load that book\u2019s data from this browser.', 'danger'); return; }
+        exportEpub(full);
+      },
     }, [el('span', { text: `${label} — ${(p.wordCount || 0).toLocaleString()} words` })]);
     btn.style.justifyContent = 'flex-start';
     btn.style.textAlign = 'left';
@@ -248,7 +250,7 @@ export function openEpubExportList() {
   m = modal({
     title: 'Export EPUB — choose a book',
     body: [
-      el('p', { class: 'set-hint', text: 'One book at a time. Series books are listed individually.' }),
+      el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel. Series books are listed individually.' }),
       list,
     ],
     footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
