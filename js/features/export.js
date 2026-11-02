@@ -150,12 +150,7 @@ export function exportEpub(projectOverride) {
     toast('Main Novel is empty for this book — finalize your chapters into the Main Novel before exporting EPUB.', 'info');
     return;
   }
-  let saved = '';
-  try { saved = localStorage.getItem('weaver_epub_author') || ''; } catch (e) { /* private mode */ }
-  const answer = prompt('Author name for the title page:', saved);
-  if (answer === null) return;
-  const author = answer.trim() || 'Anonymous';
-  try { localStorage.setItem('weaver_epub_author', author); } catch (e) { /* private mode */ }
+  const author = 'Anonymous';
 
   const bookTitle = project.bookTitle || project.name || 'Untitled';
   const series = project.seriesName || '';
