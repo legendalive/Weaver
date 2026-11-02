@@ -7,13 +7,16 @@ Neither file is ever silently omitted.
 V3.9: EPUB export (Pro) — market-ready .epub built entirely
 client-side: title page, chapters, nav + NCX table of
 contents, book CSS. Free accounts get a Pro notice instead.
+V3.9b: smart export picker — from Settings with no project
+open, lists every project (series books individually);
+one project auto-exports; an open project exports directly.
 ========================================================= */
 import { getState } from '../core/state.js';
-import { getEffectiveConfig } from '../core/storage.js';
+import { getEffectiveConfig, listProjects } from '../core/storage.js';
 import { buildBlockIndex, headingPrefix } from '../utils/text.js';
 import { buildDocx } from '../utils/docx.js';
 import { buildZip } from '../utils/zip.js';
-import { toast } from '../utils/dom.js';
+import { el, toast, modal } from '../utils/dom.js';
 import { isPro } from '../core/entitlements.js';
 
 function downloadFile(filename, content) {
@@ -35,15 +38,15 @@ function triggerDownload(filename, blob) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function exportProject() {
-  const project = getState().project;
+export function exportProject(projectOverride) {
+  const project = projectOverride || getState().project;
   if (!project) {
     toast('No active project to export.', 'danger');
     return;
   }
   const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
   /* ----- Main Novel as DOCX (always built) ----- */
-  const novelText = project.mainNovel.text || '';
+  const novelText = (project.mainNovel && project.mainNovel.text) || '';
   const idx = buildBlockIndex(novelText);
   const blocks = idx.map((b) => {
     const raw = novelText.slice(b.s, b.e).replace(/\n$/, '');
@@ -92,8 +95,7 @@ function escXml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function novelBlocks() {
-  const project = getState().project;
+function novelBlocks(project) {
   const novelText = (project && project.mainNovel && project.mainNovel.text) || '';
   const idx = buildBlockIndex(novelText);
   return idx.map((b) => {
@@ -136,14 +138,14 @@ function chaptersFrom(blocks, fallbackTitle) {
 const XHTML_HEAD = (title) =>
   `<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">\n<head><title>${escXml(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>\n<body>\n`;
 
-export function exportEpub() {
-  const project = getState().project;
+export function exportEpub(projectOverride) {
+  const project = projectOverride || getState().project;
   if (!project) { toast('No active project to export.', 'danger'); return; }
   if (!isPro()) {
     toast('EPUB export is a Pro feature. Upgrade from Settings → Account, or use Export for .docx + .txt.', 'info');
     return;
   }
-  const blocks = novelBlocks();
+  const blocks = novelBlocks(project);
   if (!blocks.some((b) => (b.text || '').trim())) {
     toast('Main Novel is empty — write or finalize chapters before exporting EPUB.', 'info');
     return;
@@ -213,4 +215,41 @@ export function exportEpub() {
   const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
   downloadBlob(`${safeName}.epub`, zip, 'application/epub+zip');
   toast(`EPUB exported: ${chapters.length} chapter${chapters.length === 1 ? '' : 's'}.`, 'success');
+}
+
+/* =========================================================
+Smart picker — Settings with no project open
+========================================================= */
+export function openExportPicker(kind) {
+  const run = (p) => (kind === 'epub' ? exportEpub(p) : exportProject(p));
+  const active = getState().project;
+  if (active) { run(active); return; }
+  const projects = listProjects() || [];
+  if (!projects.length) { toast('No projects to export yet.', 'info'); return; }
+  if (projects.length === 1) { run(projects[0]); return; }
+  const list = el('div', {});
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  list.style.gap = '8px';
+  let m = null;
+  for (const p of projects) {
+    const label = p.seriesName ? `${p.seriesName} · ${p.name}` : (p.name || 'Untitled');
+    const btn = el('button', {
+      class: 'btn',
+      onclick: () => { if (m) m.close(); run(p); },
+    }, [el('span', { text: `${label} — ${(p.wordCount || 0).toLocaleString()} words` })]);
+    btn.style.justifyContent = 'flex-start';
+    btn.style.textAlign = 'left';
+    btn.style.whiteSpace = 'normal';
+    btn.style.width = '100%';
+    list.appendChild(btn);
+  }
+  m = modal({
+    title: kind === 'epub' ? 'Export EPUB — choose a book' : 'Export — choose a project',
+    body: [
+      el('p', { class: 'set-hint', text: 'Each book exports as its own file. Series books are listed individually.' }),
+      list,
+    ],
+    footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
+  });
 }
