@@ -220,13 +220,14 @@ export function exportEpub(projectOverride) {
 /* =========================================================
 Smart picker — Settings with no project open
 ========================================================= */
-export function openExportPicker(kind) {
-  const run = (p) => (kind === 'epub' ? exportEpub(p) : exportProject(p));
-  const active = getState().project;
-  if (active) { run(active); return; }
+/* =========================================================
+EPUB export list — Settings. Always shows every project,
+no matter where Settings was opened from. One book at a
+time; series books listed individually.
+========================================================= */
+export function openEpubExportList() {
   const projects = listProjects() || [];
   if (!projects.length) { toast('No projects to export yet.', 'info'); return; }
-  if (projects.length === 1) { run(projects[0]); return; }
   const list = el('div', {});
   list.style.display = 'flex';
   list.style.flexDirection = 'column';
@@ -236,7 +237,7 @@ export function openExportPicker(kind) {
     const label = p.seriesName ? `${p.seriesName} · ${p.name}` : (p.name || 'Untitled');
     const btn = el('button', {
       class: 'btn',
-      onclick: () => { if (m) m.close(); run(p); },
+      onclick: () => { if (m) m.close(); exportEpub(p); },
     }, [el('span', { text: `${label} — ${(p.wordCount || 0).toLocaleString()} words` })]);
     btn.style.justifyContent = 'flex-start';
     btn.style.textAlign = 'left';
@@ -245,9 +246,9 @@ export function openExportPicker(kind) {
     list.appendChild(btn);
   }
   m = modal({
-    title: kind === 'epub' ? 'Export EPUB — choose a book' : 'Export — choose a project',
+    title: 'Export EPUB — choose a book',
     body: [
-      el('p', { class: 'set-hint', text: 'Each book exports as its own file. Series books are listed individually.' }),
+      el('p', { class: 'set-hint', text: 'One book at a time. Series books are listed individually.' }),
       list,
     ],
     footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
