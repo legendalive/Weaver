@@ -106,6 +106,16 @@ const CSS = `
 
 /* Hide the command deck on mobile (FAB takes over) */
 @media (max-width:860px){ .scribe-zone{display:none;} }
+/* ---------- Pro upgrade notice ---------- */
+.upgrade-notice{
+display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+padding:22px 18px;border:1px solid rgba(224,168,60,.5);
+background:var(--accent-soft);border-radius:var(--radius-md);
+}
+.upgrade-notice h4{font-size:.95rem;font-weight:650;color:var(--accent);margin:0;}
+.upgrade-notice p{font-size:.8rem;color:var(--muted);line-height:1.55;margin:0;max-width:340px;}
+.upgrade-hint{font-size:.7rem !important;color:var(--faint) !important;}
+`;
 `;
 
 function ensureStyle() {
@@ -235,8 +245,10 @@ function renderQuickRow() {
 function createBlock(prompt, context) {
   const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
   if (!body) return null;
-  const empty = body.querySelector('.empty-state');
+    const empty = body.querySelector('.empty-state');
   if (empty) empty.remove();
+  const notice = body.querySelector('.upgrade-notice');
+  if (notice) notice.remove();
   const badge = el('span', { class: 'badge badge-accent', text: 'connecting…' });
   const stopBtn = el('button', {
     class: 'btn btn-ghost btn-icon btn-sm', title: 'Stop generation',
@@ -306,10 +318,30 @@ function streamInto(block) {
   });
 }
 
+/* ---------- Pro upgrade notice (free users) ---------- */
+const UPGRADE_URL = 'https://mbenson62.gumroad.com/l/cqxxpt';
+function showUpgradeNotice() {
+  const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
+  if (!body || body.querySelector('.upgrade-notice')) return;
+  const empty = body.querySelector('.empty-state');
+  if (empty) empty.remove();
+  const card = el('div', { class: 'upgrade-notice' }, [
+    icon('sparkles', 'icon-lg'),
+    el('h4', { text: 'Scribe is a Pro feature' }),
+    el('p', { text: 'Your free desk includes the manuscript, bible, plot tools and exports. Pro adds canon-aware AI drafting, the cloud vault, and market-ready EPUB export.' }),
+    el('a', {
+      class: 'btn btn-primary',
+      href: UPGRADE_URL, target: '_blank', rel: 'noopener',
+    }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]),
+    el('p', { class: 'upgrade-hint', text: 'Already upgraded? Your plan refreshes on next reload or sign-in.' }),
+  ]);
+  body.prepend(card);
+}
 /* ---------- Send: consume the bundle ---------- */
 export function runScribePrompt(prompt) {
   if (isKnownFree()) {
-    toast('Scribe (AI) is a Pro feature. Upgrade in Settings to unlock.', 'info');
+    showUpgradeNotice();
+    toast('Scribe (AI) is a Pro feature — upgrade options are in the AI Output panel.', 'info');
     return;
   }
   const p = (prompt || '').trim();
