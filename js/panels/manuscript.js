@@ -32,15 +32,19 @@ const MS_STYLE_ID = 'manuscript-continuity-style';
 const MS_CSS = `
 .ms-scroll{display:block;}
 .ms-block{
-margin:0 0 .85em;padding:0;border:none;background:transparent;
-box-shadow:none;border-radius:0;outline:none;min-height:1em;
+const MS_CSS = `
+.ms-scroll{display:block !important;gap:0 !important;}
+.ms-block{
+margin:0 0 .85em !important;padding:0 !important;border:none !important;
+background:transparent !important;box-shadow:none !important;
+border-radius:0 !important;outline:none !important;min-height:1em;
 }
-.ms-block:focus{outline:none;background:transparent;box-shadow:none;}
-.ms-block.is-bundled{background:rgba(224,168,60,.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
-.ms-h1{margin:1.4em 0 .6em;}
-.ms-h2{margin:1.2em 0 .5em;}
-.ms-h3{margin:1em 0 .4em;}
-.ms-spacer{pointer-events:none;}
+.ms-block:focus{outline:none !important;background:transparent !important;box-shadow:none !important;}
+.ms-block.is-bundled{background:rgba(224,168,60,.12) !important;box-shadow:inset 3px 0 0 var(--accent) !important;border-radius:4px !important;}
+.ms-h1{margin:1.4em 0 .6em !important;}
+.ms-h2{margin:1.2em 0 .5em !important;}
+.ms-h3{margin:1em 0 .4em !important;}
+.ms-spacer{pointer-events:none !important;}
 /* Silence every per-block "type here" placeholder on empty blocks */
 .ms-block:empty::before,.ms-block:empty::after{content:none !important;}
 /* One hint, only while the whole manuscript is empty */
