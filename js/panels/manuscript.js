@@ -514,21 +514,21 @@ function updateRunwaySoon() {
   }, 150);
 }
 
-/* ---------- Accept as Is (selection-based + duplicate guard) ---------- */
+/* ---------- Accept as Is (selection-based + duplicate guard) ----------
+V3.9 D1 freeze: accepting ALWAYS cuts the accepted text out of
+the Manuscript. The old acceptMovesText toggle is gone; there
+is no copy-mode anymore. */
 export async function acceptAsIs() {
   flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
-
   const sel = selectionInfo;
   const textToPush = sel && sel.text ? sel.text.trim() : '';
   if (!textToPush) {
     toast('Select the text you want to accept first.', 'info');
     return;
   }
-
   const currentNovel = project.mainNovel.text || '';
-
   if (currentNovel.includes(textToPush)) {
     const ok = await confirmDialog({
       title: 'Duplicate text detected',
@@ -538,21 +538,21 @@ export async function acceptAsIs() {
     });
     if (!ok) return;
   }
-
-  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + textToPush : textToPush;
-
-  if (getState().settings.general.acceptMovesText) {
-    const idx = project.manuscript.text.indexOf(textToPush);
-    if (idx >= 0) {
-      const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + textToPush.length))
-        .replace(/\n{3,}/g, '\n\n').trim();
-      project.manuscript.text = cut;
-      clearManuscriptSelection();
-      renderManuscript();
-    } else {
-      toast('Selection no longer matches manuscript text — accepted as copy.', 'info');
-    }
+  project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
+  /* D1 freeze: always cut the accepted text out of the Manuscript. */
+  const idx = project.manuscript.text.indexOf(textToPush);
+  if (idx >= 0) {
+    const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + textToPush.length))
+      .replace(/\n{3,}/g, '\n').trim();
+    project.manuscript.text = cut;
+    clearManuscriptSelection();
+    renderManuscript();
+  } else {
+    toast('Selection no longer matches manuscript text — accepted as copy.', 'info');
   }
+  touchProject({ novel: true });
+  toast('Accepted to Main Novel (cut from Manuscript).', 'success');
+}
 
   touchProject({ novel: true });
   toast('Accepted to Main Novel.', 'success');
