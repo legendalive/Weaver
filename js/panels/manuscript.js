@@ -30,9 +30,6 @@ const CE_MODE = (() => {
 /* ---------- V3.9 continuity + single empty-document hint ---------- */
 const MS_STYLE_ID = 'manuscript-continuity-style';
 const MS_CSS = `
-.ms-scroll{display:block;}
-.ms-block{
-const MS_CSS = `
 .ms-scroll{display:block !important;gap:0 !important;}
 .ms-block{
 margin:0 0 .85em !important;padding:0 !important;border:none !important;
