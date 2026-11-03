@@ -116,7 +116,6 @@ background:var(--accent-soft);border-radius:var(--radius-md);
 .upgrade-notice p{font-size:.8rem;color:var(--muted);line-height:1.55;margin:0;max-width:340px;}
 .upgrade-hint{font-size:.7rem !important;color:var(--faint) !important;}
 `;
-`;
 
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
@@ -181,45 +180,10 @@ export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
       else if (name) roster.push(`${SECTION_TAGS[key]}:${name}`);
     }
     for (const e of matched) {
-      push(`[${SECTION_TAGS[key]}] ${e.name}: ${cap(flat(e.body), 250)}`);
-    }
-  }
-  if (roster.length) push(cap('[ROSTER] ' + roster.join(', '), Math.max(0, budget - used)));
-  return out.join('\n');
-}
-
-/* ---------- Simplified, robust prompt ---------- */
-function buildMessages(compiled, context, prompt) {
-  let system =
-    'You are Scribe, a professional ghostwriter for a novel.\n' +
-    'RULES:\n' +
-    '1. Do exactly what the TASK INSTRUCTION asks, nothing more.\n' +
-    '2. If SOURCE TEXT is provided, rewrite/transform ONLY that text.\n' +
-    '3. If no SOURCE TEXT is provided, write NEW content per the instruction; use the PROJECT BIBLE only for names/facts/style consistency — never quote or retell it.\n' +
-    '4. If the instruction needs source text but none is provided, ask ONE short clarifying question.\n' +
-    '5. Start your answer directly with prose. Never open with a greeting, interjection, sound effect, or standalone exclamation (e.g. "Ah!", "Hwæt!", "Yes!").\n' +
-    '6. Output only the prose (or the one clarifying question). No preamble, no explanations.';
-  if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
+      push(`[${SECTION_TAGS[key]}]${e.name}: ${cap(flat(e.body), 250)}`); } } if (roster.length) push(cap('[ROSTER] ' + roster.join(', '), Math.max(0, budget - used))); return out.join('\n'); }  /* ---------- Simplified, robust prompt ---------- */ function buildMessages(compiled, context, prompt) { let system = 'You are Scribe, a professional ghostwriter for a novel.\n' + 'RULES:\n' + '1. Do exactly what the TASK INSTRUCTION asks, nothing more.\n' + '2. If SOURCE TEXT is provided, rewrite/transform ONLY that text.\n' + '3. If no SOURCE TEXT is provided, write NEW content per the instruction; use the PROJECT BIBLE only for names/facts/style consistency — never quote or retell it.\n' + '4. If the instruction needs source text but none is provided, ask ONE short clarifying question.\n' + '5. Start your answer directly with prose. Never open with a greeting, interjection, sound effect, or standalone exclamation (e.g. "Ah!", "Hwæt!", "Yes!").\n' + '6. Output only the prose (or the one clarifying question). No preamble, no explanations.'; if (compiled) system += `\n\nPROJECT BIBLE (compact reference):\n${compiled}`;
   const parts = [`TASK INSTRUCTION:\n${prompt}`];
   if (context) {
-    parts.push(`SOURCE TEXT (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
-    parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above.');
-  } else {
-    parts.push('No SOURCE TEXT is provided with this request.');
-  }
-  return [
-    { role: 'system', content: system },
-    { role: 'user', content: parts.join('\n\n') },
-  ];
-}
-
-/* ---------- Context chip ---------- */
-function updateChip() {
-  if (!chip) return;
-  const sel = getManuscriptSelection();
-  const t = sel ? sel.text : '';
-  chip.hidden = !t;
-  if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
+    parts.push(`SOURCE TEXT (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`); parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above.'); } else { parts.push('No SOURCE TEXT is provided with this request.'); } return [ { role: 'system', content: system }, { role: 'user', content: parts.join('\n\n') }, ]; }  /* ---------- Context chip ---------- */ function updateChip() { if (!chip) return; const sel = getManuscriptSelection(); const t = sel ? sel.text : ''; chip.hidden = !t; if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
 }
 
 /* ---------- FAB visibility (inline, cascade-proof) ---------- */
@@ -273,7 +237,7 @@ function streamInto(block) {
   const project = getState().project;
   if (!project) return;
   const cfg = getEffectiveConfig(project);
-  const compiled = compileBible(cfg, `${block.context} ${block.prompt}`);
+  const compiled = compileBible(cfg, `${block.context}${block.prompt}`);
   const messages = buildMessages(compiled, block.context, block.prompt);
   block.controller = new AbortController();
   block.done = false;
@@ -288,7 +252,7 @@ function streamInto(block) {
     signal: block.controller.signal,
     onProviderSwitch: (info) => {
       block.provider = info;
-      block.badge.textContent = `${info.providerLabel} · ${info.model}`;
+      block.badge.textContent = `${info.providerLabel} ·${info.model}`;
     },
     onToken: (delta, full) => {
       block.full = full;
@@ -308,118 +272,7 @@ function streamInto(block) {
     block.el.classList.remove('is-streaming');
     block.stopBtn.hidden = true;
     if (err.name === 'AbortError') {
-      block.badge.textContent = (block.provider ? `${block.provider.providerLabel} ·` : '') + 'stopped';
-    } else {
-      block.el.classList.add('is-error');
-      block.badge.textContent = 'error';
-      block.textEl.textContent = '⚠ ' + err.message;
-      toast('Scribe generation failed: ' + err.message, 'danger');
-    }
-  });
-}
-
-/* ---------- Pro upgrade notice (free users) ---------- */
-const UPGRADE_URL = 'https://mbenson62.gumroad.com/l/cqxxpt';
-function showUpgradeNotice() {
-  const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
-  if (!body || body.querySelector('.upgrade-notice')) return;
-  const empty = body.querySelector('.empty-state');
-  if (empty) empty.remove();
-  const card = el('div', { class: 'upgrade-notice' }, [
-    icon('sparkles', 'icon-lg'),
-    el('h4', { text: 'Scribe is a Pro feature' }),
-    el('p', { text: 'Your free desk includes the manuscript, bible, plot tools and exports. Pro adds canon-aware AI drafting, the cloud vault, and market-ready EPUB export.' }),
-    el('a', {
-      class: 'btn btn-primary',
-      href: UPGRADE_URL, target: '_blank', rel: 'noopener',
-    }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]),
-    el('p', { class: 'upgrade-hint', text: 'Already upgraded? Your plan refreshes on next reload or sign-in.' }),
-  ]);
-  body.prepend(card);
-}
-/* ---------- Send: consume the bundle ---------- */
-export function runScribePrompt(prompt) {
-  if (isKnownFree()) {
-    showUpgradeNotice();
-    toast('Scribe (AI) is a Pro feature — upgrade options are in the AI Output panel.', 'info');
-    return;
-  }
-  const p = (prompt || '').trim();
-  if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
-  if (!getState().project) return;
-  const sel = getManuscriptSelection();
-  const context = sel ? sel.text : '';
-  const block = createBlock(p, context);
-  if (!block) return;
-  clearManuscriptSelection();
-  updateChip();
-  streamInto(block);
-}
-
-export function rerunBlock(block) { streamInto(block); }
-
-/* ---------- Build the Command Deck ---------- */
-function buildBar() {
-  chipText = el('span', { text: '' });
-  chip = el('button', {
-    class: 'scribe-chip', hidden: true,
-    title: 'Highlighted text bundled with your next prompt — click to clear',
-    onclick: () => { clearManuscriptSelection(); updateChip(); },
-  }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
-
-  const input = el('input', {
-    class: 'scribe-input', type: 'text',
-    placeholder: 'Instruct Scribe (e.g., rewrite, continue, describe)…',
-  });
-  const send = el('button', {
-    class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
-  }, [icon('send')]);
-
-  const row = el('div', { class: 'scribe-row' }, [chip, input, send]);
-
-  qpRowEl = el('div', { class: 'scribe-qp-row' });
-  renderQuickRow();
-
-  const zone = el('div', { class: 'scribe-zone', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
-
-  const fire = () => { runScribePrompt(input.value); input.value = ''; };
-  send.addEventListener('click', fire);
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
-
-  updateChip();
-  return zone;
-}
-
-/* ---------- Inject into AI Panel ---------- */
-function bindPanel() {
-  const aiPanel = document.querySelector('.panel[data-panel="ai"]');
-  if (!aiPanel) return;
-
-  let zone = aiPanel.querySelector('.scribe-zone');
-  if (!zone) {
-    zone = buildBar();
-    const header = aiPanel.querySelector('.panel-header');
-    if (header && header.nextSibling) {
-      aiPanel.insertBefore(zone, header.nextSibling);
-    } else {
-      aiPanel.appendChild(zone);
-    }
-  } else if (!zone.dataset.scribeBound) {
-    const newZone = buildBar();
-    zone.replaceWith(newZone);
-  }
-}
-
-function openPromptSheet() {
-  const selAtOpen = getManuscriptSelection();
-  const ta = el('textarea', {
-    class: 'textarea', rows: '4',
-    placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…',
-  });
-  const hint = el('p', {
-    class: 'scribe-sheet-hint',
-    text: selAtOpen
-      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
+      block.badge.textContent = (block.provider ? `${block.provider.providerLabel} ·` : '') + 'stopped'; } else { block.el.classList.add('is-error'); block.badge.textContent = 'error'; block.textEl.textContent = '⚠ ' + err.message; toast('Scribe generation failed: ' + err.message, 'danger'); } }); }  /* ---------- Pro upgrade notice (free users) ---------- */ const UPGRADE_URL = 'https://mbenson62.gumroad.com/l/cqxxpt'; function showUpgradeNotice() { const body = document.querySelector('.panel[data-panel="ai"] .panel-body'); if (!body \vert{}\vert{} body.querySelector('.upgrade-notice')) return; const empty = body.querySelector('.empty-state'); if (empty) empty.remove(); const card = el('div', { class: 'upgrade-notice' }, [ icon('sparkles', 'icon-lg'), el('h4', { text: 'Scribe is a Pro feature' }), el('p', { text: 'Your free desk includes the manuscript, bible, plot tools and exports. Pro adds canon-aware AI drafting, the cloud vault, and market-ready EPUB export.' }), el('a', { class: 'btn btn-primary', href: UPGRADE_URL, target: '_blank', rel: 'noopener', }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]), el('p', { class: 'upgrade-hint', text: 'Already upgraded? Your plan refreshes on next reload or sign-in.' }), ]); body.prepend(card); } /* ---------- Send: consume the bundle ---------- */ export function runScribePrompt(prompt) { if (isKnownFree()) { showUpgradeNotice(); toast('Scribe (AI) is a Pro feature — upgrade options are in the AI Output panel.', 'info'); return; } const p = (prompt \vert{}\vert{} '').trim(); if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; } if (!getState().project) return; const sel = getManuscriptSelection(); const context = sel ? sel.text : ''; const block = createBlock(p, context); if (!block) return; clearManuscriptSelection(); updateChip(); streamInto(block); }  export function rerunBlock(block) { streamInto(block); }  /* ---------- Build the Command Deck ---------- */ function buildBar() { chipText = el('span', { text: '' }); chip = el('button', { class: 'scribe-chip', hidden: true, title: 'Highlighted text bundled with your next prompt — click to clear', onclick: () => { clearManuscriptSelection(); updateChip(); }, }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);  const input = el('input', { class: 'scribe-input', type: 'text', placeholder: 'Instruct Scribe (e.g., rewrite, continue, describe)…', }); const send = el('button', { class: 'btn btn-ghost btn-icon', title: 'Send to Scribe', }, [icon('send')]);  const row = el('div', { class: 'scribe-row' }, [chip, input, send]);  qpRowEl = el('div', { class: 'scribe-qp-row' }); renderQuickRow();  const zone = el('div', { class: 'scribe-zone', dataset: { scribeBound: '1' } }, [row, qpRowEl]);  const fire = () => { runScribePrompt(input.value); input.value = ''; }; send.addEventListener('click', fire); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });  updateChip(); return zone; }  /* ---------- Inject into AI Panel ---------- */ function bindPanel() { const aiPanel = document.querySelector('.panel[data-panel="ai"]'); if (!aiPanel) return;  let zone = aiPanel.querySelector('.scribe-zone'); if (!zone) { zone = buildBar(); const header = aiPanel.querySelector('.panel-header'); if (header && header.nextSibling) { aiPanel.insertBefore(zone, header.nextSibling); } else { aiPanel.appendChild(zone); } } else if (!zone.dataset.scribeBound) { const newZone = buildBar(); zone.replaceWith(newZone); } }  function openPromptSheet() { const selAtOpen = getManuscriptSelection(); const ta = el('textarea', { class: 'textarea', rows: '4', placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…', }); const hint = el('p', { class: 'scribe-sheet-hint', text: selAtOpen ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
       : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
   });
   const clearBtn = el('button', {
