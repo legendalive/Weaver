@@ -554,10 +554,6 @@ export async function acceptAsIs() {
   toast('Accepted to Main Novel (cut from Manuscript).', 'success');
 }
 
-  touchProject({ novel: true });
-  toast('Accepted to Main Novel.', 'success');
-}
-
 /* ---------- Bundle lifecycle ---------- */
 export function consumeManuscriptSelection() {
   selectionInfo = null;
