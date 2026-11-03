@@ -1,13 +1,17 @@
 /* =========================================================
-   Weaver — js/panels/manuscript.js
-   CONSOLIDATED FINAL (Steps 11-27): editor + paging engine.
-   - Sticky-bottom scroll, hardened: sync pin after appends,
-     sticky-aware prune, rAF confirm, debounced runway recompute.
-   - One-page bottom runway; resume via viewStart.
-   - Sticky bundle (sel.toString capture); selection-based
-     Accept-as-is with duplicate guard + move mode.
-   ========================================================= */
-
+Weaver — js/panels/manuscript.js
+CONSOLIDATED FINAL (Steps 11-27): editor + paging engine.
+- Sticky-bottom scroll, hardened: sync pin after appends,
+  sticky-aware prune, rAF confirm, debounced runway recompute.
+- One-page bottom runway; resume via viewStart.
+- Sticky bundle (sel.toString capture); selection-based
+  Accept-as-is with duplicate guard.
+V3.9: D1 freeze — Accept-as-is ALWAYS cuts the accepted text
+out of the Manuscript (no copy mode, no toggle).
+V3.9: continuity — blocks render as one flowing page; the
+faded hint appears ONCE, only while the whole manuscript is
+empty: "Type here or upload a manuscript".
+========================================================= */
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
 import {
@@ -17,16 +21,13 @@ import {
 const SYNC_DELAY = 800;
 const MAX_MOUNTED = 300;
 const SCROLL_THRESHOLD = 300;
-
 const CE_MODE = (() => {
   const d = document.createElement('div');
   d.setAttribute('contenteditable', 'plaintext-only');
   return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
 })();
 
-/* ---------- V3.9 continuity: the page reads as one flowing document ----------
-The block engine stays (paging, sync, bundling) but every block is
-rendered as a seamless paragraph: no boxes, no gaps, no focus frames. */
+/* ---------- V3.9 continuity + single empty-document hint ---------- */
 const MS_STYLE_ID = 'manuscript-continuity-style';
 const MS_CSS = `
 .ms-scroll{display:block;}
@@ -40,6 +41,15 @@ box-shadow:none;border-radius:0;outline:none;min-height:1em;
 .ms-h2{margin:1.2em 0 .5em;}
 .ms-h3{margin:1em 0 .4em;}
 .ms-spacer{pointer-events:none;}
+/* Silence every per-block "type here" placeholder on empty blocks */
+.ms-block:empty::before,.ms-block:empty::after{content:none !important;}
+/* One hint, only while the whole manuscript is empty */
+.ms-empty-hint{
+position:absolute;left:0;right:0;top:10px;padding:0 2px;
+color:var(--faint);font-style:italic;font-size:.9rem;
+pointer-events:none;user-select:none;
+}
+.ms-empty-hint[hidden]{display:none;}
 `;
 function ensureManuscriptStyle() {
   if (!document.getElementById(MS_STYLE_ID)) {
@@ -49,6 +59,12 @@ function ensureManuscriptStyle() {
     document.head.appendChild(s);
   }
 }
+let emptyHint = null;
+function refreshEmptyHint() {
+  if (!emptyHint || !blocksWrap) return;
+  emptyHint.hidden = getBlockNodes().some((n) => bodyString(n).trim());
+}
+
 let panelEl = null;
 let bodyEl = null;
 let blocksWrap = null;
@@ -62,7 +78,6 @@ let docBound = false;
 let selTick = false;
 let isStickyBottom = true;
 let runwayTimer = null;
-
 let topSpacer = null;
 let bottomSpacer = null;
 
@@ -70,17 +85,18 @@ export function getManuscriptSelection() { return selectionInfo; }
 
 /* ---------- Mount ---------- */
 export function mountManuscript(panel) {
-ensureManuscriptStyle();
-panelEl = panel;
+  ensureManuscriptStyle();
+  panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
   clear(bodyEl);
   blocksWrap = el('div', { class: 'ms-scroll' });
   bodyEl.appendChild(blocksWrap);
-
+  bodyEl.style.position = 'relative';
+  emptyHint = el('div', { class: 'ms-empty-hint', text: 'Type here or upload a manuscript' });
+  bodyEl.appendChild(emptyHint);
   topSpacer = el('div', { class: 'ms-spacer' });
   bottomSpacer = el('div', { class: 'ms-spacer' });
   blocksWrap.append(topSpacer, bottomSpacer);
-
   const actions = panel.querySelector('.panel-actions');
   const expandBtn = actions.querySelector('button');
   const tb = el('div', { class: 'ms-toolbar' });
@@ -97,7 +113,6 @@ panelEl = panel;
     tb.appendChild(b);
   }
   actions.insertBefore(tb, expandBtn);
-
   blocksWrap.addEventListener('input', () => {
     selectionInfo = null;
     clearBundledBlocks();
@@ -106,7 +121,6 @@ panelEl = panel;
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
   bodyEl.addEventListener('scroll', onScroll);
-
   if (!docBound) {
     docBound = true;
     document.addEventListener('selectionchange', () => {
@@ -121,7 +135,6 @@ panelEl = panel;
       if (document.visibilityState === 'hidden') persist();
     });
   }
-
   renderManuscript();
 }
 
@@ -132,15 +145,12 @@ export function renderManuscript(startBlock = null) {
   syncTimer = null;
   selectionInfo = null;
   clearBundledBlocks();
-
   clearBlocksOnly();
   topSpacer.style.height = '0px';
   bottomSpacer.style.height = '0px';
-
   const project = getState().project;
   if (!project) return;
   syncProjectId = project.id;
-
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
@@ -148,6 +158,7 @@ export function renderManuscript(startBlock = null) {
   const start = Math.max(0, Math.min(resume, index.length - 1));
   const { end } = windowBounds(index, start, maxSent);
   mountRange(start, Math.max(end, start + 1), text);
+  refreshEmptyHint();
   updateRunway();
   bodyEl.scrollTop = 0;
 }
@@ -195,7 +206,6 @@ function setBody(node, str) {
     if (line) node.appendChild(document.createTextNode(line));
   });
 }
-
 function bodyString(node) {
   let out = '';
   const walk = (n) => {
@@ -208,16 +218,13 @@ function bodyString(node) {
   walk(node);
   return out;
 }
-
 function nodeToString(node) {
   const lv = Number(node.dataset.level || 0);
   return (lv ? headingPrefix(lv) : '') + bodyString(node);
 }
-
 function getBlockNodes() {
   return Array.from(blocksWrap.children).filter((n) => n !== topSpacer && n !== bottomSpacer);
 }
-
 function blockOf(node) {
   if (!node) return null;
   const elem = node.nodeType === 3 ? node.parentElement : node;
@@ -232,7 +239,6 @@ function lenOf(c) {
   for (const g of c.childNodes) s += lenOf(g);
   return s;
 }
-
 function textOffsetIn(node, anchorNode, anchorOffset) {
   if (anchorNode === node) {
     let acc = 0;
@@ -257,7 +263,6 @@ function textOffsetIn(node, anchorNode, anchorOffset) {
   const r = walk(node);
   return r == null ? 0 : r;
 }
-
 function placeCaretAtOffset(node, off) {
   node.focus();
   let acc = 0;
@@ -303,7 +308,6 @@ function onKeydown(e) {
     }
   }
 }
-
 function splitBlock(node) {
   const sel = document.getSelection();
   const off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
@@ -315,7 +319,6 @@ function splitBlock(node) {
   placeCaretAtOffset(nn, 0);
   scheduleSync();
 }
-
 function mergeInto(prev, node) {
   const prevBody = bodyString(prev);
   const caret = prevBody.length;
@@ -324,7 +327,6 @@ function mergeInto(prev, node) {
   placeCaretAtOffset(prev, caret);
   scheduleSync();
 }
-
 function onPaste(e) {
   e.preventDefault();
   const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -332,7 +334,6 @@ function onPaste(e) {
   const sel = document.getSelection();
   const node = blockOf(sel ? sel.anchorNode : null);
   if (!node) return;
-
   let off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
   let body = bodyString(node);
   if (sel && !sel.isCollapsed) {
@@ -344,11 +345,9 @@ function onPaste(e) {
       off = a;
     }
   }
-
   const before = body.slice(0, off);
   const after = body.slice(off);
   const lines = text.replace(/\r\n?/g, '\n').split('\n');
-
   if (lines.length === 1) {
     setBody(node, before + lines[0] + after);
     placeCaretAtOffset(node, (before + lines[0]).length);
@@ -381,7 +380,6 @@ function applyHeading(level) {
   refreshToolbar(node);
   scheduleSync();
 }
-
 function refreshToolbar(activeNode) {
   const lv = activeNode ? Number(activeNode.dataset.level || 0) : -1;
   for (const [level, btn] of Object.entries(toolbarBtns)) {
@@ -393,21 +391,16 @@ function refreshToolbar(activeNode) {
 function clearBundledBlocks() {
   document.querySelectorAll('.ms-block.is-bundled').forEach((n) => n.classList.remove('is-bundled'));
 }
-
 function onSelectionChange() {
   if (!blocksWrap) return;
   const sel = document.getSelection();
   const project = getState().project;
   if (!sel || !project) return;
-
   const a = blockOf(sel.anchorNode);
   const focusBlock = blockOf(sel.focusNode);
   const inManuscript = a && focusBlock && blocksWrap.contains(a) && blocksWrap.contains(focusBlock);
-
   if (a && blocksWrap.contains(a)) refreshToolbar(a);
-
   if (sel.isCollapsed || !inManuscript) return;
-
   clearBundledBlocks();
   const nodes = getBlockNodes();
   for (const node of nodes) {
@@ -415,18 +408,17 @@ function onSelectionChange() {
       node.classList.add('is-bundled');
     }
   }
-
   const text = sel.toString();
   selectionInfo = text ? { text } : null;
 }
 
 /* ---------- Sync ---------- */
 function scheduleSync() {
+  refreshEmptyHint();
   clearTimeout(syncTimer);
   const delay = getState().settings.general.autosaveInterval ?? SYNC_DELAY;
   syncTimer = setTimeout(flushManuscriptSync, delay);
 }
-
 export function flushManuscriptSync() {
   clearTimeout(syncTimer);
   syncTimer = null;
@@ -434,13 +426,11 @@ export function flushManuscriptSync() {
   if (!project || !blocksWrap || project.id !== syncProjectId) return;
   const nodes = getBlockNodes();
   if (!nodes.length) return;
-
   const strings = nodes.map(nodeToString);
   const oldText = project.manuscript.text || '';
   project.manuscript.viewStart = mounted.from;
   const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, index.length), strings);
   if (newText === oldText) return;
-
   project.manuscript.text = newText;
   index = buildBlockIndex(newText);
   mounted.to = mounted.from + nodes.length;
@@ -451,12 +441,9 @@ export function flushManuscriptSync() {
 function onScroll() {
   if (!bodyEl || !index.length) return;
   const { scrollTop, scrollHeight, clientHeight } = bodyEl;
-
   isStickyBottom = (scrollTop + clientHeight >= scrollHeight - 30);
-
   const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
   const nearTop = scrollTop <= SCROLL_THRESHOLD;
-
   if (nearBottom && mounted.to < index.length) {
     const maxSent = getState().settings.general.sentencesPerPage ?? 15;
     const { end } = windowBounds(index, mounted.to, maxSent);
@@ -466,7 +453,6 @@ function onScroll() {
       if (isStickyBottom) bodyEl.scrollTop = bodyEl.scrollHeight; // sync pin: no flicker frame
     }
   }
-
   if (nearTop && mounted.from > 0) {
     const maxSent = getState().settings.general.sentencesPerPage ?? 15;
     let start = mounted.from;
@@ -480,12 +466,10 @@ function onScroll() {
       pruneBottom();
     }
   }
-
   if (isStickyBottom) {
     requestAnimationFrame(() => { bodyEl.scrollTop = bodyEl.scrollHeight; });
   }
 }
-
 function appendBlocks(from, to) {
   const text = getState().project.manuscript.text || '';
   const frag = document.createDocumentFragment();
@@ -493,7 +477,6 @@ function appendBlocks(from, to) {
   bottomSpacer.before(frag);
   mounted.to = to;
 }
-
 function prependBlocks(from, to) {
   const text = getState().project.manuscript.text || '';
   const oldHeight = bodyEl.scrollHeight;
@@ -504,7 +487,6 @@ function prependBlocks(from, to) {
   bodyEl.scrollTop = oldTop + (bodyEl.scrollHeight - oldHeight);
   mounted.from = from;
 }
-
 function pruneTop() {
   const nodes = getBlockNodes();
   if (nodes.length <= MAX_MOUNTED) return;
@@ -516,7 +498,6 @@ function pruneTop() {
   if (!isStickyBottom) bodyEl.scrollTop = oldTop; // sticky pin owns the position instead
   mounted.from += removeCount;
 }
-
 function pruneBottom() {
   const nodes = getBlockNodes();
   if (nodes.length <= MAX_MOUNTED) return;
@@ -531,7 +512,6 @@ function pruneBottom() {
 function updateRunway() {
   if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
 }
-
 function updateRunwaySoon() {
   clearTimeout(runwayTimer);
   runwayTimer = setTimeout(() => {
@@ -584,7 +564,6 @@ export async function acceptAsIs() {
 export function consumeManuscriptSelection() {
   selectionInfo = null;
 }
-
 export function clearManuscriptSelection() {
   selectionInfo = null;
   clearBundledBlocks();
