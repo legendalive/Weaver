@@ -281,7 +281,7 @@ export function renderWorkspace() {
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
-      title: 'Accept the current manuscript text into Main Novel as-is',
+      title: 'Accept the selected text into Main Novel and cut it from the Manuscript',
       onclick: () => acceptAsIs(),
     }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept as is' })]));
   }
