@@ -24,6 +24,31 @@ const CE_MODE = (() => {
   return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
 })();
 
+/* ---------- V3.9 continuity: the page reads as one flowing document ----------
+The block engine stays (paging, sync, bundling) but every block is
+rendered as a seamless paragraph: no boxes, no gaps, no focus frames. */
+const MS_STYLE_ID = 'manuscript-continuity-style';
+const MS_CSS = `
+.ms-scroll{display:block;}
+.ms-block{
+margin:0 0 .85em;padding:0;border:none;background:transparent;
+box-shadow:none;border-radius:0;outline:none;min-height:1em;
+}
+.ms-block:focus{outline:none;background:transparent;box-shadow:none;}
+.ms-block.is-bundled{background:rgba(224,168,60,.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;}
+.ms-h1{margin:1.4em 0 .6em;}
+.ms-h2{margin:1.2em 0 .5em;}
+.ms-h3{margin:1em 0 .4em;}
+.ms-spacer{pointer-events:none;}
+`;
+function ensureManuscriptStyle() {
+  if (!document.getElementById(MS_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = MS_STYLE_ID;
+    s.textContent = MS_CSS;
+    document.head.appendChild(s);
+  }
+}
 let panelEl = null;
 let bodyEl = null;
 let blocksWrap = null;
@@ -45,7 +70,8 @@ export function getManuscriptSelection() { return selectionInfo; }
 
 /* ---------- Mount ---------- */
 export function mountManuscript(panel) {
-  panelEl = panel;
+ensureManuscriptStyle();
+panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
   clear(bodyEl);
   blocksWrap = el('div', { class: 'ms-scroll' });
