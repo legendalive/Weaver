@@ -1,16 +1,13 @@
 /* =========================================================
 Weaver — js/panels/manuscript.js
-CONSOLIDATED FINAL (Steps 11-27): editor + paging engine.
+CONSOLIDATED FINAL: editor + paging engine.
+- Single continuous document-style editing & selection.
 - Sticky-bottom scroll, hardened: sync pin after appends,
   sticky-aware prune, rAF confirm, debounced runway recompute.
 - One-page bottom runway; resume via viewStart.
-- Sticky bundle (sel.toString capture); selection-based
-  Accept-as-is with duplicate guard.
-V3.9: D1 freeze — Accept-as-is ALWAYS cuts the accepted text
-out of the Manuscript (no copy mode, no toggle).
-V3.9: continuity — blocks render as one flowing page; the
-faded hint appears ONCE, only while the whole manuscript is
-empty: "Type here or upload a manuscript".
+- Selection-based Accept-as-is with duplicate guard.
+- D1 freeze: Accept-as-is ALWAYS cuts accepted text out of Manuscript.
+- Faded continuity hint appears ONCE while whole manuscript is empty.
 ========================================================= */
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
@@ -27,31 +24,59 @@ const CE_MODE = (() => {
   return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
 })();
 
-/* ---------- V3.9 continuity + single empty-document hint ---------- */
+/* ---------- Continuity + Empty Hint Style ---------- */
 const MS_STYLE_ID = 'manuscript-continuity-style';
 const MS_CSS = `
-.ms-scroll{display:block !important;gap:0 !important;}
-.ms-block{
-margin:0 0 .85em !important;padding:0 !important;border:none !important;
-background:transparent !important;box-shadow:none !important;
-border-radius:0 !important;outline:none !important;min-height:1em;
+.ms-scroll {
+  display: block !important;
+  gap: 0 !important;
+  outline: none !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
-.ms-block:focus{outline:none !important;background:transparent !important;box-shadow:none !important;}
-.ms-block.is-bundled{background:rgba(224,168,60,.12) !important;box-shadow:inset 3px 0 0 var(--accent) !important;border-radius:4px !important;}
-.ms-h1{margin:1.4em 0 .6em !important;}
-.ms-h2{margin:1.2em 0 .5em !important;}
-.ms-h3{margin:1em 0 .4em !important;}
-.ms-spacer{pointer-events:none !important;}
-/* Silence every per-block "type here" placeholder on empty blocks */
-.ms-block:empty::before,.ms-block:empty::after{content:none !important;}
-/* One hint, only while the whole manuscript is empty */
-.ms-empty-hint{
-position:absolute;left:0;right:0;top:10px;padding:0 2px;
-color:var(--faint);font-style:italic;font-size:.9rem;
-pointer-events:none;user-select:none;
+.ms-block {
+  margin: 0 0 .85em !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  min-height: 1.2em;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
-.ms-empty-hint[hidden]{display:none;}
+.ms-block:focus {
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.ms-h1 { margin: 1.4em 0 .6em !important; font-size: 1.6em; font-weight: bold; }
+.ms-h2 { margin: 1.2em 0 .5em !important; font-size: 1.3em; font-weight: bold; }
+.ms-h3 { margin: 1em 0 .4em !important; font-size: 1.1em; font-weight: bold; }
+.ms-spacer {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+/* Silence every per-block placeholder on empty blocks */
+.ms-block:empty::before, .ms-block:empty::after { content: none !important; }
+/* Single empty document hint */
+.ms-empty-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  padding: 0 2px;
+  color: var(--faint);
+  font-style: italic;
+  font-size: .9rem;
+  pointer-events: none;
+  user-select: none;
+}
+.ms-empty-hint[hidden] { display: none; }
 `;
+
 function ensureManuscriptStyle() {
   if (!document.getElementById(MS_STYLE_ID)) {
     const s = document.createElement('style');
@@ -60,10 +85,12 @@ function ensureManuscriptStyle() {
     document.head.appendChild(s);
   }
 }
+
 let emptyHint = null;
 function refreshEmptyHint() {
   if (!emptyHint || !blocksWrap) return;
-  emptyHint.hidden = getBlockNodes().some((n) => bodyString(n).trim());
+  const nodes = getBlockNodes();
+  emptyHint.hidden = nodes.some((n) => bodyString(n).trim().length > 0);
 }
 
 let panelEl = null;
@@ -90,14 +117,22 @@ export function mountManuscript(panel) {
   panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
   clear(bodyEl);
-  blocksWrap = el('div', { class: 'ms-scroll' });
+
+  blocksWrap = el('div', {
+    class: 'ms-scroll',
+    contenteditable: CE_MODE,
+    spellcheck: 'true',
+  });
   bodyEl.appendChild(blocksWrap);
   bodyEl.style.position = 'relative';
+
   emptyHint = el('div', { class: 'ms-empty-hint', text: 'Type here or upload a manuscript' });
   bodyEl.appendChild(emptyHint);
-  topSpacer = el('div', { class: 'ms-spacer' });
-  bottomSpacer = el('div', { class: 'ms-spacer' });
+
+  topSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
+  bottomSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
   blocksWrap.append(topSpacer, bottomSpacer);
+
   const actions = panel.querySelector('.panel-actions');
   const expandBtn = actions.querySelector('button');
   const tb = el('div', { class: 'ms-toolbar' });
@@ -114,6 +149,7 @@ export function mountManuscript(panel) {
     tb.appendChild(b);
   }
   actions.insertBefore(tb, expandBtn);
+
   blocksWrap.addEventListener('input', () => {
     selectionInfo = null;
     clearBundledBlocks();
@@ -122,6 +158,7 @@ export function mountManuscript(panel) {
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
   bodyEl.addEventListener('scroll', onScroll);
+
   if (!docBound) {
     docBound = true;
     document.addEventListener('selectionchange', () => {
@@ -154,6 +191,15 @@ export function renderManuscript(startBlock = null) {
   syncProjectId = project.id;
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
+
+  if (!index.length) {
+    mountRange(0, 0, text);
+    refreshEmptyHint();
+    updateRunway();
+    bodyEl.scrollTop = 0;
+    return;
+  }
+
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
   const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
   const start = Math.max(0, Math.min(resume, index.length - 1));
@@ -179,18 +225,32 @@ function clearBlocksOnly() {
 function mountRange(from, to, text) {
   mounted = { from, to };
   const frag = document.createDocumentFragment();
-  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  if (to <= from || !index.length) {
+    frag.appendChild(blockNode(null, ''));
+  } else {
+    for (let i = from; i < to; i++) {
+      if (index[i]) frag.appendChild(blockNode(index[i], text));
+    }
+  }
   clearBlocksOnly();
   topSpacer.after(frag);
 }
 
 function blockNode(block, text) {
+  if (!block) {
+    const node = el('div', {
+      class: 'ms-block',
+      dataset: { level: '0' },
+      spellcheck: 'true',
+    });
+    setBody(node, '');
+    return node;
+  }
   const raw = text.slice(block.s, block.e).replace(/\n$/, '');
   const level = block.level;
   const bodyText = level ? raw.slice(headingPrefix(level).length) : raw;
   const node = el('div', {
     class: 'ms-block' + (level ? ` ms-h${level}` : ''),
-    contenteditable: CE_MODE,
     dataset: { level: String(level) },
     spellcheck: 'true',
   });
@@ -207,7 +267,9 @@ function setBody(node, str) {
     if (line) node.appendChild(document.createTextNode(line));
   });
 }
+
 function bodyString(node) {
+  if (!node) return '';
   let out = '';
   const walk = (n) => {
     for (const c of n.childNodes) {
@@ -217,17 +279,26 @@ function bodyString(node) {
     }
   };
   walk(node);
+  if (out === '\n' && node.childNodes.length === 1 && node.firstChild.nodeName === 'BR') {
+    return '';
+  }
   return out;
 }
+
 function nodeToString(node) {
-  const lv = Number(node.dataset.level || 0);
+  if (node.nodeType === 3) return node.data;
+  const lv = Number(node.dataset ? (node.dataset.level || 0) : 0);
   return (lv ? headingPrefix(lv) : '') + bodyString(node);
 }
+
 function getBlockNodes() {
+  if (!blocksWrap) return [];
   return Array.from(blocksWrap.children).filter((n) => n !== topSpacer && n !== bottomSpacer);
 }
+
 function blockOf(node) {
   if (!node) return null;
+  if (node === blocksWrap) return null;
   const elem = node.nodeType === 3 ? node.parentElement : node;
   return elem ? elem.closest('.ms-block') : null;
 }
@@ -240,6 +311,7 @@ function lenOf(c) {
   for (const g of c.childNodes) s += lenOf(g);
   return s;
 }
+
 function textOffsetIn(node, anchorNode, anchorOffset) {
   if (anchorNode === node) {
     let acc = 0;
@@ -264,6 +336,7 @@ function textOffsetIn(node, anchorNode, anchorOffset) {
   const r = walk(node);
   return r == null ? 0 : r;
 }
+
 function placeCaretAtOffset(node, off) {
   node.focus();
   let acc = 0;
@@ -285,41 +358,62 @@ function placeCaretAtOffset(node, off) {
   walk(node);
   if (!target) { target = node; targetOff = node.childNodes.length; }
   const range = document.createRange();
-  range.setStart(target, targetOff);
-  range.collapse(true);
-  const sel = document.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
+  try {
+    range.setStart(target, targetOff);
+    range.collapse(true);
+    const sel = document.getSelection();
+    if (sel) {
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  } catch (_) {}
 }
 
 /* ---------- Editing operations ---------- */
 function onKeydown(e) {
-  const node = e.target.closest('.ms-block');
+  const sel = document.getSelection();
+  const node = blockOf(sel ? sel.anchorNode : null) || e.target.closest('.ms-block');
   if (!node) return;
+
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     splitBlock(node);
   } else if (e.key === 'Backspace') {
-    const sel = document.getSelection();
     if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === 0) {
-      const prev = node.previousElementSibling;
-      if (!prev || prev === topSpacer) { e.preventDefault(); return; }
+      let prev = node.previousElementSibling;
+      while (prev && prev === topSpacer) prev = prev.previousElementSibling;
+      if (!prev || !prev.classList.contains('ms-block')) { e.preventDefault(); return; }
       e.preventDefault();
       mergeInto(prev, node);
     }
+  } else if (e.key === 'Delete') {
+    if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === bodyString(node).length) {
+      let next = node.nextElementSibling;
+      while (next && next === bottomSpacer) next = next.nextElementSibling;
+      if (next && next.classList.contains('ms-block')) {
+        e.preventDefault();
+        mergeInto(node, next);
+      }
+    }
   }
 }
+
 function splitBlock(node) {
   const sel = document.getSelection();
-  const off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
-  const full = bodyString(node);
-  setBody(node, full.slice(0, off));
-  const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+  if (sel && !sel.isCollapsed) {
+    try { sel.deleteFromDocument(); } catch (_) {}
+  }
+  const activeNode = blockOf(sel ? sel.anchorNode : null) || node;
+  const off = sel ? textOffsetIn(activeNode, sel.anchorNode, sel.anchorOffset) : 0;
+  const full = bodyString(activeNode);
+  setBody(activeNode, full.slice(0, off));
+  const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
   setBody(nn, full.slice(off));
-  node.after(nn);
+  activeNode.after(nn);
   placeCaretAtOffset(nn, 0);
   scheduleSync();
 }
+
 function mergeInto(prev, node) {
   const prevBody = bodyString(prev);
   const caret = prevBody.length;
@@ -328,27 +422,23 @@ function mergeInto(prev, node) {
   placeCaretAtOffset(prev, caret);
   scheduleSync();
 }
+
 function onPaste(e) {
   e.preventDefault();
   const text = (e.clipboardData || window.clipboardData).getData('text/plain');
   if (!text) return;
   const sel = document.getSelection();
+  if (sel && !sel.isCollapsed) {
+    try { sel.deleteFromDocument(); } catch (_) {}
+  }
   const node = blockOf(sel ? sel.anchorNode : null);
   if (!node) return;
   let off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
   let body = bodyString(node);
-  if (sel && !sel.isCollapsed) {
-    const endNode = blockOf(sel.focusNode);
-    if (endNode === node) {
-      const endOff = textOffsetIn(node, sel.focusNode, sel.focusOffset);
-      const [a, b] = off <= endOff ? [off, endOff] : [endOff, off];
-      body = body.slice(0, a) + body.slice(b);
-      off = a;
-    }
-  }
   const before = body.slice(0, off);
   const after = body.slice(off);
   const lines = text.replace(/\r\n?/g, '\n').split('\n');
+
   if (lines.length === 1) {
     setBody(node, before + lines[0] + after);
     placeCaretAtOffset(node, (before + lines[0]).length);
@@ -356,13 +446,13 @@ function onPaste(e) {
     setBody(node, before + lines[0]);
     let cursor = node;
     for (let i = 1; i < lines.length - 1; i++) {
-      const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+      const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
       setBody(nn, lines[i]);
       cursor.after(nn);
       cursor = nn;
     }
     const lastBody = lines[lines.length - 1] + after;
-    const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+    const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
     setBody(nn, lastBody);
     cursor.after(nn);
     placeCaretAtOffset(nn, lines[lines.length - 1].length);
@@ -381,6 +471,7 @@ function applyHeading(level) {
   refreshToolbar(node);
   scheduleSync();
 }
+
 function refreshToolbar(activeNode) {
   const lv = activeNode ? Number(activeNode.dataset.level || 0) : -1;
   for (const [level, btn] of Object.entries(toolbarBtns)) {
@@ -388,26 +479,23 @@ function refreshToolbar(activeNode) {
   }
 }
 
-/* ---------- Selection capture + persistent visual tracking ---------- */
+/* ---------- Selection capture ---------- */
 function clearBundledBlocks() {
   document.querySelectorAll('.ms-block.is-bundled').forEach((n) => n.classList.remove('is-bundled'));
 }
+
 function onSelectionChange() {
   if (!blocksWrap) return;
   const sel = document.getSelection();
   const project = getState().project;
   if (!sel || !project) return;
-  const a = blockOf(sel.anchorNode);
-  const focusBlock = blockOf(sel.focusNode);
-  const inManuscript = a && focusBlock && blocksWrap.contains(a) && blocksWrap.contains(focusBlock);
-  if (a && blocksWrap.contains(a)) refreshToolbar(a);
-  if (sel.isCollapsed || !inManuscript) return;
-  clearBundledBlocks();
-  const nodes = getBlockNodes();
-  for (const node of nodes) {
-    if (sel.containsNode(node, true) || node.contains(sel.anchorNode) || node.contains(sel.focusNode)) {
-      node.classList.add('is-bundled');
-    }
+  const inManuscript = blocksWrap.contains(sel.anchorNode) && blocksWrap.contains(sel.focusNode);
+  const activeBlock = blockOf(sel.anchorNode);
+  if (activeBlock && blocksWrap.contains(activeBlock)) refreshToolbar(activeBlock);
+
+  if (sel.isCollapsed || !inManuscript) {
+    if (!inManuscript) selectionInfo = null;
+    return;
   }
   const text = sel.toString();
   selectionInfo = text ? { text } : null;
@@ -420,17 +508,22 @@ function scheduleSync() {
   const delay = getState().settings.general.autosaveInterval ?? SYNC_DELAY;
   syncTimer = setTimeout(flushManuscriptSync, delay);
 }
+
 export function flushManuscriptSync() {
   clearTimeout(syncTimer);
   syncTimer = null;
   const project = getState().project;
   if (!project || !blocksWrap || project.id !== syncProjectId) return;
-  const nodes = getBlockNodes();
-  if (!nodes.length) return;
+  let nodes = getBlockNodes();
+  if (!nodes.length) {
+    const emptyBlock = el('div', { class: 'ms-block', dataset: { level: '0' } });
+    topSpacer.after(emptyBlock);
+    nodes = [emptyBlock];
+  }
   const strings = nodes.map(nodeToString);
   const oldText = project.manuscript.text || '';
   project.manuscript.viewStart = mounted.from;
-  const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, index.length), strings);
+  const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, Math.max(mounted.from + 1, index.length)), strings);
   if (newText === oldText) return;
   project.manuscript.text = newText;
   index = buildBlockIndex(newText);
@@ -451,7 +544,7 @@ function onScroll() {
     if (end > mounted.to) {
       appendBlocks(mounted.to, end);
       pruneTop();
-      if (isStickyBottom) bodyEl.scrollTop = bodyEl.scrollHeight; // sync pin: no flicker frame
+      if (isStickyBottom) bodyEl.scrollTop = bodyEl.scrollHeight;
     }
   }
   if (nearTop && mounted.from > 0) {
@@ -471,23 +564,30 @@ function onScroll() {
     requestAnimationFrame(() => { bodyEl.scrollTop = bodyEl.scrollHeight; });
   }
 }
+
 function appendBlocks(from, to) {
   const text = getState().project.manuscript.text || '';
   const frag = document.createDocumentFragment();
-  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  for (let i = from; i < to; i++) {
+    if (index[i]) frag.appendChild(blockNode(index[i], text));
+  }
   bottomSpacer.before(frag);
   mounted.to = to;
 }
+
 function prependBlocks(from, to) {
   const text = getState().project.manuscript.text || '';
   const oldHeight = bodyEl.scrollHeight;
   const oldTop = bodyEl.scrollTop;
   const frag = document.createDocumentFragment();
-  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  for (let i = from; i < to; i++) {
+    if (index[i]) frag.appendChild(blockNode(index[i], text));
+  }
   topSpacer.after(frag);
   bodyEl.scrollTop = oldTop + (bodyEl.scrollHeight - oldHeight);
   mounted.from = from;
 }
+
 function pruneTop() {
   const nodes = getBlockNodes();
   if (nodes.length <= MAX_MOUNTED) return;
@@ -496,9 +596,10 @@ function pruneTop() {
   const oldTop = bodyEl.scrollTop;
   for (let i = 0; i < removeCount; i++) nodes[i].remove();
   topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
-  if (!isStickyBottom) bodyEl.scrollTop = oldTop; // sticky pin owns the position instead
+  if (!isStickyBottom) bodyEl.scrollTop = oldTop;
   mounted.from += removeCount;
 }
+
 function pruneBottom() {
   const nodes = getBlockNodes();
   if (nodes.length <= MAX_MOUNTED) return;
@@ -513,6 +614,7 @@ function pruneBottom() {
 function updateRunway() {
   if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
 }
+
 function updateRunwaySoon() {
   clearTimeout(runwayTimer);
   runwayTimer = setTimeout(() => {
@@ -521,16 +623,13 @@ function updateRunwaySoon() {
   }, 150);
 }
 
-/* ---------- Accept as Is (selection-based + duplicate guard) ----------
-V3.9 D1 freeze: accepting ALWAYS cuts the accepted text out of
-the Manuscript. The old acceptMovesText toggle is gone; there
-is no copy-mode anymore. */
+/* ---------- Accept as Is (selection-based + duplicate guard) ---------- */
 export async function acceptAsIs() {
   flushManuscriptSync();
   const project = getState().project;
   if (!project) return;
   const sel = selectionInfo;
-  const textToPush = sel && sel.text ? sel.text.trim() : '';
+  let textToPush = sel && sel.text ? sel.text.trim() : '';
   if (!textToPush) {
     toast('Select the text you want to accept first.', 'info');
     return;
@@ -546,11 +645,24 @@ export async function acceptAsIs() {
     if (!ok) return;
   }
   project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
+
   /* D1 freeze: always cut the accepted text out of the Manuscript. */
-  const idx = project.manuscript.text.indexOf(textToPush);
+  let idx = project.manuscript.text.indexOf(textToPush);
+  let matchedLength = textToPush.length;
+
+  if (idx < 0) {
+    const normPush = textToPush.replace(/\r\n/g, '\n');
+    const escaped = normPush.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\n+/g, '\\s*\\n+\\s*');
+    const m = new RegExp(escaped).exec(project.manuscript.text);
+    if (m) {
+      idx = m.index;
+      matchedLength = m[0].length;
+    }
+  }
+
   if (idx >= 0) {
-    const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + textToPush.length))
-      .replace(/\n{3,}/g, '\n').trim();
+    const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + matchedLength))
+      .replace(/\n{3,}/g, '\n\n').trim();
     project.manuscript.text = cut;
     clearManuscriptSelection();
     renderManuscript();
@@ -565,6 +677,7 @@ export async function acceptAsIs() {
 export function consumeManuscriptSelection() {
   selectionInfo = null;
 }
+
 export function clearManuscriptSelection() {
   selectionInfo = null;
   clearBundledBlocks();
