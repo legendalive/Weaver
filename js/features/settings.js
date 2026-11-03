@@ -89,18 +89,28 @@ function accountSection() {
 /* ---------- Backup & Restore ---------- */
 function backupRestoreSection() {
   return el('div', { class: 'set-section' }, [
-    el('h4', { text: 'Backup & Restore' }),
-    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write (compressed, ~3–5× more room). Use these to back up, export, or restore manually.' }),
-        el('div', { class: 'set-row' }, [
-      el('button', { class: 'btn btn-sm', text: 'Backup to cloud', onclick: () => syncNow() }),
-            el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
+        el('h4', { text: 'Cloud Sync & Export' }),
+    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write (compressed, ~3–5× more room). Upload pushes this browser\u2019s copy now; Download pulls the vault copy here. Both run the same safe two-way sync — nothing is erased.' }),
+    el('div', { class: 'set-row' }, [
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Sync now — pushes this browser\u2019s changes to your vault (and fetches anything newer)',
+        text: 'Upload to cloud',
+        onclick: () => syncNow(),
+      }),
+      el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
       el('button', {
         class: 'btn btn-sm',
         title: 'Pro — market-ready EPUB of your Main Novel',
         text: 'Export EPUB',
         onclick: () => openEpubExportList(),
       }),
-      el('button', { class: 'btn btn-sm', text: 'Restore', onclick: () => syncNow() }),
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Sync now — pulls the vault copy into this browser (and uploads anything newer)',
+        text: 'Download from cloud',
+        onclick: () => syncNow(),
+      }),
     ]),
   ]);
 }
