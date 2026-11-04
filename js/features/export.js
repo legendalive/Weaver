@@ -245,7 +245,7 @@ export function openEpubExportList() {
   m = modal({
     title: 'Export EPUB — choose a book',
     body: [
-      el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel. Series books are listed individually.' }),
+          el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel — EPUB never reads the Manuscript draft. Use "Accept highlighted" or "Accept whole" to move text into the Main Novel first. Series books are listed individually.' }),
       list,
     ],
     footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
