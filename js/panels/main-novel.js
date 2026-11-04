@@ -1,108 +1,112 @@
 /* =========================================================
-   Weaver — js/panels/main-novel.js
-   Step 13 + Step 14: Main Novel panel.
-   - Read-only AND virtualized (same spacer technique as the
-     Manuscript) so massive canon text stays instant.
-   - Live word count badge in the header.
-   - Recheck: cut selected text back into the Manuscript.
-   - jumpNovelToBlock for Hierarchy navigation.
-   ========================================================= */
-
-import { el, clear, toast } from '../utils/dom.js';
+Weaver — js/panels/main-novel.js
+Step 13 + Step 14: Main Novel panel.
+Read-only AND virtualized (same spacer technique as the
+Manuscript) so massive canon text stays instant.
+Live word count badge in the header.
+Recheck: cut selected text back into the Manuscript.
+jumpNovelToBlock for Hierarchy navigation.
+V4: Recheck now captures a return "seam" (project.recheckSlot)
+so an Accept can slot the rewrite back where it came from.
+Listens for 'weaver-novel-jump' to scroll to a landing spot.
+========================================================= */
+import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { getState, touchProject, subscribe } from '../core/state.js';
 import {
-  wordCount, buildBlockIndex, windowBounds, headingPrefix,
+  wordCount, buildBlockIndex, windowBounds, headingPrefix, blockAtOffset,
 } from '../utils/text.js';
 import { renderManuscript, flushManuscriptSync } from './manuscript.js';
 
 const MAX_MOUNTED = 300;
 const SCROLL_THRESHOLD = 300;
-
+const SEAM_CTX = 120;
 let panelEl = null;
 let bodyEl = null;
 let wrapEl = null;
 let wordCountEl = null;
 let novelBound = false;
-
 let nIndex = [];
 let nMounted = { from: 0, to: 0 };
 let lastNovelText = null;
 let lastNovelProjectId = null;
 let topSpacer = null;
 let bottomSpacer = null;
+let pendingJumpOffset = null;
+
+/* A slot-return can ask the panel to reveal the landing spot. */
+if (typeof document !== 'undefined') {
+  document.addEventListener('weaver-novel-jump', (e) => {
+    pendingJumpOffset = (e && e.detail && typeof e.detail.offset === 'number')
+      ? e.detail.offset
+      : null;
+  });
+}
 
 export function mountMainNovel(panel) {
   panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
   clear(bodyEl);
-
   wrapEl = el('div', { class: 'mn-scroll' });
   topSpacer = el('div', { class: 'ms-spacer' });
   bottomSpacer = el('div', { class: 'ms-spacer' });
   wrapEl.append(topSpacer, bottomSpacer);
   bodyEl.appendChild(wrapEl);
-
   const header = panel.querySelector('.panel-header');
   const actions = panel.querySelector('.panel-actions');
   wordCountEl = el('span', { class: 'badge badge-accent mn-word-count', style: { whiteSpace: 'nowrap', flex: 'none' }, text: '0 words' });
   header.insertBefore(wordCountEl, actions);
-
   bodyEl.addEventListener('scroll', onScroll);
-
   if (!novelBound) {
     novelBound = true;
     subscribe((state, change) => {
       if (change.novel && state.view === 'workspace') renderMainNovel();
     });
   }
-
   renderMainNovel();
 }
 
 /* ---------- Render (windowed, read-only) ---------- */
 export function renderMainNovel(startBlock = null) {
   if (!wrapEl) return;
-
   const prevText = lastNovelText;
   const prevScroll = bodyEl.scrollTop;
   const prevFrom = nMounted.from;
-
   clearNodes();
   topSpacer.style.height = '0px';
   bottomSpacer.style.height = '0px';
-
   const project = getState().project;
   if (!project) { lastNovelText = null; lastNovelProjectId = null; return; }
-
   // A different project means a fresh document: forget prior state.
   if (project.id !== lastNovelProjectId) {
     lastNovelProjectId = project.id;
     lastNovelText = null;
   }
-
   const text = project.mainNovel.text || '';
   if (wordCountEl) wordCountEl.textContent = `${wordCount(text).toLocaleString()} words`;
-
   nIndex = buildBlockIndex(text);
   if (!text.trim()) {
     topSpacer.after(el('div', { class: 'empty-state' }, [
       el('p', { text: 'Your finalized manuscript will appear here.' }),
       el('p', {
         class: 'launch-empty-hint',
-        text: 'Use "Accept as is" in the Manuscript panel to push text here.',
+        text: 'Use "Accept highlighted" or "Accept whole" in the Manuscript panel to push text here.',
       }),
     ]));
     nMounted = { from: 0, to: 0 };
     lastNovelText = text;
+    pendingJumpOffset = null;
     bodyEl.scrollTop = 0;
     return;
   }
-
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
   let start;
   let scrollMode;
-
-  if (startBlock != null) {
+  if (pendingJumpOffset != null) {
+    // A slot-return just landed: reveal the insertion point.
+    start = Math.max(0, Math.min(blockAtOffset(nIndex, pendingJumpOffset), nIndex.length - 1));
+    scrollMode = 'top';
+    pendingJumpOffset = null;
+  } else if (startBlock != null) {
     // Explicit jump (Hierarchy): go there, from the top of the window.
     start = Math.max(0, Math.min(startBlock, nIndex.length - 1));
     scrollMode = 'top';
@@ -123,14 +127,12 @@ export function renderMainNovel(startBlock = null) {
     start = Math.min(prevFrom, nIndex.length - 1);
     scrollMode = 'preserve';
   }
-
   const { end } = windowBounds(nIndex, start, maxSent);
   const to = Math.max(end, start + 1);
   const { frag } = buildFragment(start, to, text);
   bottomSpacer.before(frag);
   nMounted = { from: start, to };
   lastNovelText = text;
-
   if (scrollMode === 'bottom') bodyEl.scrollTop = bodyEl.scrollHeight;
   else if (scrollMode === 'preserve') bodyEl.scrollTop = Math.min(prevScroll, bodyEl.scrollHeight);
   else bodyEl.scrollTop = 0;
@@ -151,20 +153,18 @@ function getNodes() {
 }
 
 /* Groups mounted blocks into paragraph/heading nodes. Each node
-   records how many blocks it consumed (dataset.bcount) so pruning
-   keeps the block-window math exact. */
+records how many blocks it consumed (dataset.bcount) so pruning
+keeps the block-window math exact. */
 function buildFragment(from, to, text) {
   const frag = document.createDocumentFragment();
   const nodes = [];
   let para = null;
   let paraCount = 0;
-
   const flush = () => {
     if (para) { para.dataset.bcount = String(paraCount); nodes.push(para); }
     para = null;
     paraCount = 0;
   };
-
   for (let i = from; i < to; i++) {
     const b = nIndex[i];
     const raw = text.slice(b.s, b.e).replace(/\n$/, '');
@@ -201,7 +201,6 @@ function onScroll() {
   const { scrollTop, scrollHeight, clientHeight } = bodyEl;
   const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
   const nearTop = scrollTop <= SCROLL_THRESHOLD;
-
   if (nearBottom && nMounted.to < nIndex.length) {
     const maxSent = getState().settings.general.sentencesPerPage ?? 15;
     const { end } = windowBounds(nIndex, nMounted.to, maxSent);
@@ -213,7 +212,6 @@ function onScroll() {
       pruneTop();
     }
   }
-
   if (nearTop && nMounted.from > 0) {
     const maxSent = getState().settings.general.sentencesPerPage ?? 15;
     let start = nMounted.from;
@@ -266,39 +264,49 @@ function pruneBottom() {
   nMounted.to -= blocksRemoved;
 }
 
-/* ---------- Recheck ---------- */
-export function recheck() {
+/* ---------- Recheck ----------
+Cuts the selected Main Novel text back into the Manuscript and
+remembers WHERE it came from (project.recheckSlot) so the next
+"Accept highlighted" can offer to return it to this exact spot. */
+export async function recheck() {
   flushManuscriptSync();
-
   const sel = window.getSelection();
   if (!sel || sel.isCollapsed) {
     toast('Select some text in the Main Novel to recheck.', 'info');
     return;
   }
-
   const selectedText = sel.toString();
   if (!selectedText.trim()) return;
-
   const project = getState().project;
   if (!project) return;
-
   const novelText = project.mainNovel.text || '';
   const idx = novelText.indexOf(selectedText);
   if (idx === -1) {
     toast('Could not find selected text.', 'danger');
     return;
   }
-
+  /* Only one pending return address at a time. */
+  if (project.recheckSlot) {
+    const ok = await confirmDialog({
+      title: 'Replace pending return slot?',
+      message: 'A previous Recheck is still waiting to be accepted back. Rechecking now replaces its return address — that earlier text will stay where it is. Continue?',
+      confirmLabel: 'Replace',
+      danger: false,
+    });
+    if (!ok) return;
+  }
+  /* Capture the seam BEFORE cutting so we can find it again later. */
+  const before = novelText.slice(Math.max(0, idx - SEAM_CTX), idx);
+  const after = novelText.slice(idx + selectedText.length, idx + selectedText.length + SEAM_CTX);
+  const snippet = selectedText.trim().replace(/\s+/g, ' ').slice(0, 60);
   let newNovel = novelText.slice(0, idx) + novelText.slice(idx + selectedText.length);
   newNovel = newNovel.replace(/\n{3,}/g, '\n\n').trim();
   project.mainNovel.text = newNovel;
-
+  project.recheckSlot = { before, after, snippet, takenAt: Date.now() };
   const msText = project.manuscript.text || '';
   project.manuscript.text = msText ? msText + '\n\n' + selectedText : selectedText;
-
   touchProject({ novel: true });
-  toast('Moved to Manuscript for revision.', 'success');
-
+  toast('Moved to Manuscript — it will return to its place when you accept.', 'success');
   renderMainNovel();
   renderManuscript();
   sel.removeAllRanges();
