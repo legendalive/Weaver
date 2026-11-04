@@ -236,6 +236,7 @@ export function openProjectWizard(prefill) {
     nameField.hidden = isSeries;
     seriesField.hidden = !isSeries;
     bookField.hidden = !isSeries;
+    bookNumberField.hidden = !isSeries;
     if (isSeries) refreshSeriesOptions();
     else validate();
   });
