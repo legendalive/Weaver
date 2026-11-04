@@ -220,7 +220,15 @@ try {
       `%cWeaver v${APP_VERSION}%c auth gate online`,
       'color:#e0a83c;font-weight:bold', 'color:inherit'
     );
-  } catch (e) {
+
+  /* V4: Focus mode keyboard shortcut */
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      import('./features/focus-mode.js').then((m) => m.toggleFocusMode());
+    }
+  });
+} catch (e) {
     console.error('[Boot] failed:', e);
     disarmWatchdog();
     bootFailed(e && e.message ? e.message : String(e));
