@@ -1,13 +1,13 @@
 /* =========================================================
-   Weaver — js/views/wizard.js
-   v2 Stage 6.6: New Project wizard.
-   Name, scope (series name + book title + add-to-existing),
-   source (scratch/upload incl. silent .docx conversion).
-   Config bible: single "open Config Bible after creating"
-   checkbox + optional hint line. The old "Skip for later"
-   card is gone, and "now" actually opens the bible (the old
-   control set a flag nothing consumed).
-   ========================================================= */
+Weaver — js/views/wizard.js
+v2 Stage 6.6 + V4: New Project wizard.
+Name, scope (series name + book title + add-to-existing),
+source (scratch/upload incl. silent .docx conversion).
+V4: optional Book-number tag (Book 1, 2, 3…) stored on the
+project + meta so the Library can show it.
+Config bible: single "open Config Bible after creating"
+checkbox + optional hint line.
+========================================================= */
 import { el, clear, toast, modal } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
 import {
@@ -23,8 +23,7 @@ import { normalizeNewlines } from '../utils/text.js';
 
 /* ---------- self-styled module (checkbox row) ---------- */
 const STYLE_ID = 'wizard-style';
-const CSS = `.wizard-toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;user-select:none;color:var(--text);} .wizard-toggle input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;}`;
-
+const CSS = `.wizard-toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;user-select:none;color:var(--text);} .wizard-toggle input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;} .wizard-num{max-width:120px;}`;
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
@@ -90,11 +89,22 @@ export function openProjectWizard(prefill) {
 
   const bookInput = el('input', {
     class: 'input', type: 'text', maxlength: '80',
-    placeholder: 'e.g. Book One: Ashfall',
+    placeholder: 'e.g. Ashfall',
   });
   const bookField = el('div', { class: 'field', hidden: true }, [
     el('span', { class: 'field-label', text: 'Book title' }),
     bookInput,
+  ]);
+
+  /* V4: optional book-number tag */
+  const bookNumberInput = el('input', {
+    class: 'input wizard-num', type: 'number', min: '1', step: '1',
+    placeholder: 'e.g. 2',
+  });
+  const bookNumberField = el('div', { class: 'field' }, [
+    el('span', { class: 'field-label', text: 'Book number (optional)' }),
+    bookNumberInput,
+    el('span', { class: 'field-hint', text: 'Shown as a tag in your Library. Leave blank if it isn\u2019t part of a numbered series.' }),
   ]);
 
   /* ----- scope ----- */
@@ -123,9 +133,9 @@ export function openProjectWizard(prefill) {
 
   /* ----- upload zone (txt / md / docx) ----- */
   const uploadLabel = el('span', {
-class: 'wizard-upload-hint',
-text: 'Drop a .txt, .md or .docx file here, or click to choose one. (PDF keeps its own layout, so it can\u2019t be imported — export to .txt or .docx first.)',
-});
+    class: 'wizard-upload-hint',
+    text: 'Drop a .txt, .md or .docx file here, or click to choose one. (PDF keeps its own layout, so it can\u2019t be imported — export to .txt or .docx first.)',
+  });
   const fileInput = el('input', {
     type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
     onchange: (e) => { const f = e.target.files?.[0]; if (f) readFile(f); },
@@ -149,38 +159,38 @@ text: 'Drop a .txt, .md or .docx file here, or click to choose one. (PDF keeps i
   sourceSeg.onChange((v) => { uploadRow.hidden = v !== 'upload'; });
 
   const SUPPORTED_RE = /\.(txt|md|markdown|docx)$/i;
-function looksBinary(s) {
-  let bad = 0;
-  const n = Math.min(s.length, 4000);
-  for (let i = 0; i < n; i++) {
-    const c = s.charCodeAt(i);
-    if (c === 0 || c === 0xfffd) bad++;
+  function looksBinary(s) {
+    let bad = 0;
+    const n = Math.min(s.length, 4000);
+    for (let i = 0; i < n; i++) {
+      const c = s.charCodeAt(i);
+      if (c === 0 || c === 0xfffd) bad++;
+    }
+    return n > 0 && bad / n > 0.02;
   }
-  return n > 0 && bad / n > 0.02;
-}
-async function readFile(file) {
-try {
-if (!SUPPORTED_RE.test(file.name)) {
-  toast(
-    /\.pdf$/i.test(file.name)
-      ? 'PDFs keep their own layout, so Weaver can\u2019t import them cleanly. Export the PDF to .txt or .docx first, then upload that.'
-      : `"${file.name}" isn\u2019t a supported format. Weaver imports .txt, .md and .docx only.`,
-    'info'
-  );
-  return;
-}
-if (/.docx$/i.test(file.name)) {
+  async function readFile(file) {
+    try {
+      if (!SUPPORTED_RE.test(file.name)) {
+        toast(
+          /\.pdf$/i.test(file.name)
+            ? 'PDFs keep their own layout, so Weaver can\u2019t import them cleanly. Export the PDF to .txt or .docx first, then upload that.'
+            : `"${file.name}" isn\u2019t a supported format. Weaver imports .txt, .md and .docx only.`,
+          'info'
+        );
+        return;
+      }
+      if (/\.docx$/i.test(file.name)) {
         const buf = await file.arrayBuffer();
         const { text } = await readDocx(buf);
         uploadedText = normalizeNewlines(text);
       } else {
-const raw = await file.text();
-if (looksBinary(raw)) {
-  toast('That file doesn\u2019t look like plain text — it may be a PDF or another binary format with a renamed extension. Export it to .txt or .docx first.', 'info');
-  return;
-}
-uploadedText = normalizeNewlines(raw);
-}
+        const raw = await file.text();
+        if (looksBinary(raw)) {
+          toast('That file doesn\u2019t look like plain text — it may be a PDF or another binary format with a renamed extension. Export it to .txt or .docx first.', 'info');
+          return;
+        }
+        uploadedText = normalizeNewlines(raw);
+      }
       uploadedName = file.name;
       const words = uploadedText.trim() ? uploadedText.trim().split(/\s+/).length : 0;
       uploadLabel.textContent = `${file.name} — ${words.toLocaleString()} words loaded`;
@@ -203,7 +213,6 @@ uploadedText = normalizeNewlines(raw);
     seriesSelect.value = series.length ? series[0].id : '__new';
     refreshSeriesUI();
   }
-
   function refreshSeriesUI() {
     const isNew = seriesSelect.value === '__new';
     seriesNameInput.hidden = !isNew;
@@ -261,6 +270,7 @@ uploadedText = normalizeNewlines(raw);
       nameField,
       seriesField,
       bookField,
+      bookNumberField,
       el('div', { class: 'field' }, [
         el('span', { class: 'field-label', text: 'Source' }),
         sourceSeg.node,
@@ -295,21 +305,20 @@ uploadedText = normalizeNewlines(raw);
       toast('Choose a manuscript file first, or switch to "Start from scratch".', 'danger');
       return;
     }
-
+    const bookNumber = parseInt(bookNumberInput.value, 10);
     const inherited = seriesId && configHasContent(getSeriesConfig(seriesId));
     const wantsConfigNow = configCheck.checked && !inherited;
-
     const project = createProject({ name: displayName, scope, source: sourceSeg.get() });
     project.seriesId = seriesId;
     project.seriesName = seriesName;
     project.bookTitle = scope === 'series' ? displayName : null;
+    project.bookNumber = Number.isFinite(bookNumber) && bookNumber > 0 ? bookNumber : null;
     if (uploadedText) project.manuscript.text = uploadedText;
     project.uploadedFileName = uploadedName || null;
     project.configInitialized = Boolean(inherited) || wantsConfigNow;
     if (seriesId) addBookToSeries(seriesId, project.id);
     saveProject(project);
     m.close();
-
     if (!openProject(project.id)) {
       toast('Project created but could not open.', 'danger');
       return;
@@ -318,11 +327,10 @@ uploadedText = normalizeNewlines(raw);
       seriesName ? `"${displayName}" added to series "${seriesName}".` : `Project "${displayName}" created.`,
       'success'
     );
-    /* The control now does what it says: straight into the bible. */
     if (wantsConfigNow) openConfigBible();
   }
 
-    /* V3.9: "Add book" prefill — open scoped to an existing series. */
+  /* V3.9: "Add book" prefill — open scoped to an existing series. */
   if (prefill && prefill.seriesId) {
     const seriesBtn = scopeSeg.node.querySelector('[data-value="series"]');
     if (seriesBtn) seriesBtn.click();
