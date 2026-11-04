@@ -283,6 +283,7 @@ async function pushActiveProject({ quiet = true } = {}) {
       source: project.source,
       seriesId: project.seriesId || null,
       seriesName: project.seriesName || null,
+      bookNumber: project.bookNumber || null,
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       wordCount: (project.mainNovel?.text || '').trim().split(/\s+/).filter(Boolean).length,
