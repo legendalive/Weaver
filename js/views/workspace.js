@@ -8,6 +8,8 @@ at a time, remember-last, AI attention dot). V3.8c: mobile
 panel stack is pinned to the viewport via CSS (position:fixed)
 so the footer ALWAYS docks at the screen bottom; JS refines
 the top edge to sit flush under the pill bar.
+V4 Phase 2: Manuscript footer renders "Accept highlighted"
+(former "Accept as is") + "Accept whole".
 ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -35,6 +37,7 @@ function pick(api, names) {
 const mountManuscript = pick(msApi, ['mountManuscript', 'initManuscript', 'mount', 'setup', 'init']);
 const renderManuscript = pick(msApi, ['renderManuscript', 'render']);
 const acceptAsIs = pick(msApi, ['acceptAsIs', 'accept', 'acceptBlock', 'acceptManuscript', 'acceptSelection']);
+const acceptWhole = pick(msApi, ['acceptWhole']);
 const mountNovel = pick(nvApi, ['mountMainNovel', 'initMainNovel', 'mount', 'init']);
 const renderNovel = pick(nvApi, ['renderMainNovel', 'render']);
 const recheckFn = pick(nvApi, ['recheck']);
@@ -45,6 +48,7 @@ const discardAi = pick(aiApi, ['discardAiBlock']);
 const toggleHier = pick(hrApi, ['toggleHierarchyDrawer', 'toggleHierarchy', 'toggle']);
 const bindRz = pick(rzApi, ['bindResizers', 'initResizers']);
 const refreshRz = pick(rzApi, ['refreshLayout', 'refresh']);
+
 const MISSING = [];
 if (!mountManuscript) MISSING.push('manuscript mount (mountManuscript/initManuscript)');
 if (!renderManuscript) MISSING.push('manuscript render (renderManuscript)');
@@ -60,7 +64,6 @@ function safe(label, fn, ...args) {
 
 const STYLE_ID = 'workspace-style';
 const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;position:fixed;left:0;right:0;bottom:0;top:104px;min-height:0;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
-
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
@@ -81,11 +84,13 @@ let aiObserver = null;
 function isMobileLayout() {
   return window.matchMedia('(max-width:860px)').matches;
 }
+
 function setMobilePanel(key) {
   mobilePanel = key;
   if (key === 'ai') aiDot = false;
   applyExpanded();
 }
+
 function updatePills() {
   if (!pillRefs) return;
   for (const key of ['manuscript', 'novel', 'ai']) {
@@ -154,6 +159,7 @@ export function renderWorkspace() {
   const state = getState();
   const project = state.project;
   if (!project) return;
+
   const topbar = el('header', { class: 'topbar' }, [
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
@@ -190,15 +196,18 @@ export function renderWorkspace() {
       ]);
     })(),
   ]);
+
   const expandBtn = (target) => el('button', {
     class: 'btn btn-ghost btn-icon btn-sm',
     title: 'Expand panel',
     'aria-label': 'Expand panel',
     onclick: () => setUI({ expandedPanel: state.ui.expandedPanel === target ? null : target }),
   }, [icon('expand', 'icon-sm')]);
+
   const manuscript = buildPanel('manuscript', 'pen', 'Manuscript', [expandBtn('manuscript')]);
   const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
   const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
+
   if (recheckFn) {
     novel.footer.appendChild(el('button', {
       class: 'btn btn-sm',
@@ -206,19 +215,23 @@ export function renderWorkspace() {
       onclick: () => recheckFn(),
     }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
   }
+
   if (acceptAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAi() }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]));
   if (rewriteAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAi() }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]));
   if (discardAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAi() }, [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]));
+
   ai.body.appendChild(el('div', { class: 'empty-state' }, [
     icon('sparkles', 'icon-lg'),
     el('p', { text: 'AI generations will appear here.' }),
   ]));
+
   const r1 = resizer('manuscript');
   const r2 = resizer('novel');
   panelsEl = el('div', {
     class: 'workspace-panels',
     dataset: { active: 'manuscript' },
   }, [manuscript.panel, r1, novel.panel, r2, ai.panel]);
+
   panelRefs = {
     panels: [manuscript.panel, novel.panel, ai.panel],
     resizers: [r1, r2],
@@ -258,6 +271,7 @@ export function renderWorkspace() {
   }
   kids.push(topbar, pillsBar, panelsEl);
   root.append(...kids);
+
   if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
   applyExpanded();
 
@@ -278,12 +292,21 @@ export function renderWorkspace() {
   }
   safe('renderManuscript', renderManuscript);
   safe('renderMainNovel', renderNovel);
+
+  /* V4 Phase 2: Accept split — two explicit buttons. */
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
-      title: 'Accept the selected text into Main Novel and cut it from the Manuscript',
+      title: 'Accept the highlighted text into Main Novel and cut it from the Manuscript',
       onclick: () => acceptAsIs(),
-    }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept as is' })]));
+    }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept highlighted' })]));
+    if (acceptWhole) {
+      manuscript.footer.appendChild(el('button', {
+        class: 'btn btn-sm',
+        title: 'Accept the entire Manuscript into Main Novel and clear the Manuscript',
+        onclick: () => acceptWhole(),
+      }, [icon('book-open', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept whole' })]));
+    }
   }
 }
 
@@ -296,7 +319,7 @@ function applyExpanded() {
     });
     panelRefs.resizers.forEach((r) => { r.style.display = 'none'; });
     /* Refine the CSS-pinned top edge to sit flush under the pill bar
-       (handles wrapped titles, banners, rotation). */
+    (handles wrapped titles, banners, rotation). */
     const anchor = (root && (root.querySelector('.panel-pills') || root.querySelector('.topbar'))) || null;
     const topPx = anchor ? Math.round(anchor.getBoundingClientRect().bottom) : 104;
     const s = panelsEl.style;
