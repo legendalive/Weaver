@@ -158,7 +158,7 @@ function seriesRow(group) {
 }
 
 function bookNumberBadge(p) {
-  return p.bookNumber
+    return p.seriesId && p.bookNumber
     ? el('span', { class: 'launch-booknum', text: `Book ${p.bookNumber}` })
     : null;
 }
