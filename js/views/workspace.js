@@ -211,7 +211,7 @@ export function renderWorkspace() {
   if (recheckFn) {
     novel.footer.appendChild(el('button', {
       class: 'btn btn-sm',
-      title: 'Cut selected Main Novel text back into the Manuscript',
+      title: 'Cut selected text to the Manuscript for revision — it returns to this spot when you accept',
       onclick: () => recheckFn(),
     }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
   }
@@ -297,7 +297,7 @@ export function renderWorkspace() {
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
-      title: 'Accept the highlighted text into Main Novel and cut it from the Manuscript',
+      title: 'Accept highlighted text into the Main Novel — returns to its rechecked spot if one is pending',
       onclick: () => acceptAsIs(),
     }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept highlighted' })]));
     if (acceptWhole) {
