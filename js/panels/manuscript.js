@@ -1,13 +1,15 @@
 /* =========================================================
 Weaver — js/panels/manuscript.js
 CONSOLIDATED FINAL: editor + paging engine.
-- Single continuous document-style editing & selection.
-- Sticky-bottom scroll, hardened: sync pin after appends,
-  sticky-aware prune, rAF confirm, debounced runway recompute.
-- One-page bottom runway; resume via viewStart.
-- Selection-based Accept-as-is with duplicate guard.
-- D1 freeze: Accept-as-is ALWAYS cuts accepted text out of Manuscript.
-- Faded continuity hint appears ONCE while whole manuscript is empty.
+Single continuous document-style editing & selection.
+Sticky-bottom scroll, hardened: sync pin after appends,
+sticky-aware prune, rAF confirm, debounced runway recompute.
+One-page bottom runway; resume via viewStart.
+Selection-based Accept-as-is with duplicate guard.
+D1 freeze: Accept-as-is ALWAYS cuts accepted text out of Manuscript.
+Faded continuity hint appears ONCE while whole manuscript is empty.
+V4 Phase 2: Accept split — adds acceptWhole() ("Accept whole").
+acceptAsIs() remains the highlighted-selection path.
 ========================================================= */
 import { el, clear, toast, confirmDialog } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
@@ -18,6 +20,7 @@ import {
 const SYNC_DELAY = 800;
 const MAX_MOUNTED = 300;
 const SCROLL_THRESHOLD = 300;
+
 const CE_MODE = (() => {
   const d = document.createElement('div');
   d.setAttribute('contenteditable', 'plaintext-only');
@@ -26,57 +29,7 @@ const CE_MODE = (() => {
 
 /* ---------- Continuity + Empty Hint Style ---------- */
 const MS_STYLE_ID = 'manuscript-continuity-style';
-const MS_CSS = `
-.ms-scroll {
-  display: block !important;
-  gap: 0 !important;
-  outline: none !important;
-  user-select: text !important;
-  -webkit-user-select: text !important;
-}
-.ms-block {
-  margin: 0 0 .85em !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  outline: none !important;
-  min-height: 1.2em;
-  user-select: text !important;
-  -webkit-user-select: text !important;
-}
-.ms-block:focus {
-  outline: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.ms-h1 { margin: 1.4em 0 .6em !important; font-size: 1.6em; font-weight: bold; }
-.ms-h2 { margin: 1.2em 0 .5em !important; font-size: 1.3em; font-weight: bold; }
-.ms-h3 { margin: 1em 0 .4em !important; font-size: 1.1em; font-weight: bold; }
-.ms-spacer {
-  pointer-events: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-}
-/* Silence every per-block placeholder on empty blocks */
-.ms-block:empty::before, .ms-block:empty::after { content: none !important; }
-/* Single empty document hint */
-.ms-empty-hint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 10px;
-  padding: 0 2px;
-  color: var(--faint);
-  font-style: italic;
-  font-size: .9rem;
-  pointer-events: none;
-  user-select: none;
-}
-.ms-empty-hint[hidden] { display: none; }
-`;
-
+const MS_CSS = `.ms-scroll { display: block !important; gap: 0 !important; outline: none !important; user-select: text !important; -webkit-user-select: text !important; } .ms-block { margin: 0 0 .85em !important; padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; outline: none !important; min-height: 1.2em; user-select: text !important; -webkit-user-select: text !important; } .ms-block:focus { outline: none !important; background: transparent !important; box-shadow: none !important; } .ms-h1 { margin: 1.4em 0 .6em !important; font-size: 1.6em; font-weight: bold; } .ms-h2 { margin: 1.2em 0 .5em !important; font-size: 1.3em; font-weight: bold; } .ms-h3 { margin: 1em 0 .4em !important; font-size: 1.1em; font-weight: bold; } .ms-spacer { pointer-events: none !important; user-select: none !important; -webkit-user-select: none !important; } /* Silence every per-block placeholder on empty blocks */ .ms-block:empty::before, .ms-block:empty::after { content: none !important; } /* Single empty document hint */ .ms-empty-hint { position: absolute; left: 0; right: 0; top: 10px; padding: 0 2px; color: var(--faint); font-style: italic; font-size: .9rem; pointer-events: none; user-select: none; } .ms-empty-hint[hidden] { display: none; }`;
 function ensureManuscriptStyle() {
   if (!document.getElementById(MS_STYLE_ID)) {
     const s = document.createElement('style');
@@ -117,7 +70,6 @@ export function mountManuscript(panel) {
   panelEl = panel;
   bodyEl = panel.querySelector('.panel-body');
   clear(bodyEl);
-
   blocksWrap = el('div', {
     class: 'ms-scroll',
     contenteditable: CE_MODE,
@@ -125,14 +77,11 @@ export function mountManuscript(panel) {
   });
   bodyEl.appendChild(blocksWrap);
   bodyEl.style.position = 'relative';
-
   emptyHint = el('div', { class: 'ms-empty-hint', text: 'Type here or upload a manuscript' });
   bodyEl.appendChild(emptyHint);
-
   topSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
   bottomSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
   blocksWrap.append(topSpacer, bottomSpacer);
-
   const actions = panel.querySelector('.panel-actions');
   const expandBtn = actions.querySelector('button');
   const tb = el('div', { class: 'ms-toolbar' });
@@ -149,7 +98,6 @@ export function mountManuscript(panel) {
     tb.appendChild(b);
   }
   actions.insertBefore(tb, expandBtn);
-
   blocksWrap.addEventListener('input', () => {
     selectionInfo = null;
     clearBundledBlocks();
@@ -158,7 +106,6 @@ export function mountManuscript(panel) {
   blocksWrap.addEventListener('keydown', onKeydown);
   blocksWrap.addEventListener('paste', onPaste);
   bodyEl.addEventListener('scroll', onScroll);
-
   if (!docBound) {
     docBound = true;
     document.addEventListener('selectionchange', () => {
@@ -191,7 +138,6 @@ export function renderManuscript(startBlock = null) {
   syncProjectId = project.id;
   const text = project.manuscript.text || '';
   index = buildBlockIndex(text);
-
   if (!index.length) {
     mountRange(0, 0, text);
     refreshEmptyHint();
@@ -199,7 +145,6 @@ export function renderManuscript(startBlock = null) {
     bodyEl.scrollTop = 0;
     return;
   }
-
   const maxSent = getState().settings.general.sentencesPerPage ?? 15;
   const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
   const start = Math.max(0, Math.min(resume, index.length - 1));
@@ -374,7 +319,6 @@ function onKeydown(e) {
   const sel = document.getSelection();
   const node = blockOf(sel ? sel.anchorNode : null) || e.target.closest('.ms-block');
   if (!node) return;
-
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     splitBlock(node);
@@ -438,7 +382,6 @@ function onPaste(e) {
   const before = body.slice(0, off);
   const after = body.slice(off);
   const lines = text.replace(/\r\n?/g, '\n').split('\n');
-
   if (lines.length === 1) {
     setBody(node, before + lines[0] + after);
     placeCaretAtOffset(node, (before + lines[0]).length);
@@ -492,7 +435,6 @@ function onSelectionChange() {
   const inManuscript = blocksWrap.contains(sel.anchorNode) && blocksWrap.contains(sel.focusNode);
   const activeBlock = blockOf(sel.anchorNode);
   if (activeBlock && blocksWrap.contains(activeBlock)) refreshToolbar(activeBlock);
-
   if (sel.isCollapsed || !inManuscript) {
     if (!inManuscript) selectionInfo = null;
     return;
@@ -645,11 +587,9 @@ export async function acceptAsIs() {
     if (!ok) return;
   }
   project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
-
   /* D1 freeze: always cut the accepted text out of the Manuscript. */
   let idx = project.manuscript.text.indexOf(textToPush);
   let matchedLength = textToPush.length;
-
   if (idx < 0) {
     const normPush = textToPush.replace(/\r\n/g, '\n');
     const escaped = normPush.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\n+/g, '\\s*\\n+\\s*');
@@ -659,7 +599,6 @@ export async function acceptAsIs() {
       matchedLength = m[0].length;
     }
   }
-
   if (idx >= 0) {
     const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + matchedLength))
       .replace(/\n{3,}/g, '\n\n').trim();
@@ -671,6 +610,46 @@ export async function acceptAsIs() {
   }
   touchProject({ novel: true });
   toast('Accepted to Main Novel (cut from Manuscript).', 'success');
+}
+
+/* ---------- Accept Whole (V4 Phase 2) ----------
+Moves the ENTIRE Manuscript into the Main Novel and clears the
+Manuscript. Confirmation first — it is a bulk move. Same D1 rule:
+text is CUT, never copied. */
+export async function acceptWhole() {
+  flushManuscriptSync();
+  const project = getState().project;
+  if (!project) return;
+  const fullText = (project.manuscript.text || '').trim();
+  if (!fullText) {
+    toast('The Manuscript is empty — nothing to accept.', 'info');
+    return;
+  }
+  const words = fullText.split(/\s+/).filter(Boolean).length;
+  const ok = await confirmDialog({
+    title: 'Accept whole Manuscript',
+    message: `The entire Manuscript (${words.toLocaleString()} words) will be moved into the Main Novel, and the Manuscript will be cleared. Continue?`,
+    confirmLabel: 'Accept whole',
+    danger: false,
+  });
+  if (!ok) return;
+  const currentNovel = project.mainNovel.text || '';
+  if (currentNovel.includes(fullText)) {
+    const okDup = await confirmDialog({
+      title: 'Duplicate text detected',
+      message: 'This exact text is already in the Main Novel. Add it again anyway?',
+      confirmLabel: 'Add anyway',
+      danger: false,
+    });
+    if (!okDup) return;
+  }
+  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + fullText : fullText;
+  project.manuscript.text = '';
+  project.manuscript.viewStart = 0;
+  clearManuscriptSelection();
+  renderManuscript();
+  touchProject({ novel: true });
+  toast('Whole Manuscript accepted into Main Novel.', 'success');
 }
 
 /* ---------- Bundle lifecycle ---------- */
