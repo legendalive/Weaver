@@ -1,12 +1,12 @@
 /* =========================================================
 Weaver — js/views/launch.js
 Library dashboard.
-V4 Phase 1: series grouping. A series renders as ONE collapsed
-row (name + book count); tapping expands to show its books,
-each as a single neat line. "＋ Add book" lives on the series
-row. Standalone projects are single-line rows too. Hero-first
-layout with the freehand script W is unchanged.
-Self-styled: series/list styles are injected here (STYLE_ID
+V4 Phase 1 + book tag: series grouping (collapsed by default,
+single line per entry) + optional "Book N" tag on each book.
+Ordering is unchanged: latest-edited stays on top (series and
+standalone sorted by most recent activity; books inside a
+series arrive newest-first from listProjects()).
+Self-styled: series/list styles injected here (STYLE_ID
 'launch-series-style'), so css/views.css is NOT touched.
 ========================================================= */
 import { el, clear, toast, confirmDialog, weaverLogo } from '../utils/dom.js';
@@ -16,7 +16,7 @@ import { openProject, subscribe } from '../core/state.js';
 import { openGuide } from '../features/guide.js';
 import { openSettings } from '../features/settings.js';
 
-/* ---------- injected styles (series grouping) ---------- */
+/* ---------- injected styles (series grouping + book tag) ---------- */
 const STYLE_ID = 'launch-series-style';
 const CSS = `
 .launch-list{display:flex;flex-direction:column;gap:6px;width:min(960px,100%);}
@@ -41,6 +41,12 @@ const CSS = `
 .launch-book-name{
   flex:0 1 auto;min-width:0;font-size:.88rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.launch-booknum{
+  flex:none;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.04em;
+  color:var(--accent);border:1px solid rgba(224,168,60,.4);
+  background:rgba(224,168,60,.1);border-radius:999px;padding:2px 8px;
+  white-space:nowrap;
 }
 .launch-grow{flex:1 1 auto;min-width:0;}
 .launch-meta{
@@ -151,6 +157,12 @@ function seriesRow(group) {
   ]);
 }
 
+function bookNumberBadge(p) {
+  return p.bookNumber
+    ? el('span', { class: 'launch-booknum', text: `Book ${p.bookNumber}` })
+    : null;
+}
+
 function metaSpans(p) {
   return el('span', { class: 'launch-meta' }, [
     el('span', { class: 'words', text: `${(p.wordCount || 0).toLocaleString()} words` }),
@@ -169,30 +181,36 @@ function deleteBtn(p) {
 
 function bookRow(p) {
   const active = getActiveProject() === p.id;
-  return el('div', {
-    class: 'launch-row launch-book' + (active ? ' is-active' : ''),
-    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
-  }, [
-    icon('book', 'icon-sm launch-book-icon'),
+  const kids = [icon('book', 'icon-sm launch-book-icon')];
+  const tag = bookNumberBadge(p);
+  if (tag) kids.push(tag);
+  kids.push(
     el('span', { class: 'launch-book-name', text: p.name }),
     el('span', { class: 'launch-grow' }),
     metaSpans(p),
     deleteBtn(p),
-  ]);
+  );
+  return el('div', {
+    class: 'launch-row launch-book' + (active ? ' is-active' : ''),
+    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
+  }, kids);
 }
 
 function projectRow(p) {
   const active = getActiveProject() === p.id;
-  return el('div', {
-    class: 'launch-row launch-standalone' + (active ? ' is-active' : ''),
-    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
-  }, [
-    icon('book', 'icon-sm launch-book-icon'),
+  const kids = [icon('book', 'icon-sm launch-book-icon')];
+  const tag = bookNumberBadge(p);
+  if (tag) kids.push(tag);
+  kids.push(
     el('span', { class: 'launch-book-name', text: p.name }),
     el('span', { class: 'launch-grow' }),
     metaSpans(p),
     deleteBtn(p),
-  ]);
+  );
+  return el('div', {
+    class: 'launch-row launch-standalone' + (active ? ' is-active' : ''),
+    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
+  }, kids);
 }
 
 function renderLibraryItem(item) {
