@@ -101,7 +101,7 @@ export function openProjectWizard(prefill) {
     class: 'input wizard-num', type: 'number', min: '1', step: '1',
     placeholder: 'e.g. 2',
   });
-  const bookNumberField = el('div', { class: 'field' }, [
+    const bookNumberField = el('div', { class: 'field', hidden: true }, [
     el('span', { class: 'field-label', text: 'Book number (optional)' }),
     bookNumberInput,
     el('span', { class: 'field-hint', text: 'Shown as a tag in your Library. Leave blank if it isn\u2019t part of a numbered series.' }),
