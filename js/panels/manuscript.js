@@ -8,10 +8,13 @@ One-page bottom runway; resume via viewStart.
 Selection-based Accept-as-is with duplicate guard.
 D1 freeze: Accept-as-is ALWAYS cuts accepted text out of Manuscript.
 Faded continuity hint appears ONCE while whole manuscript is empty.
-V4 Phase 2: Accept split — adds acceptWhole() ("Accept whole").
-acceptAsIs() remains the highlighted-selection path.
+V4 Phase 2: Accept split — acceptWhole() ("Accept whole");
+acceptAsIs() is the highlighted-selection path.
+V4 Return slot: if a Recheck is pending, "Accept highlighted"
+offers to slot the rewrite back where it came from (seam match),
+or append to the bottom instead.
 ========================================================= */
-import { el, clear, toast, confirmDialog } from '../utils/dom.js';
+import { el, clear, toast, confirmDialog, modal } from '../utils/dom.js';
 import { getState, touchProject, flushSave } from '../core/state.js';
 import {
   buildBlockIndex, windowBounds, spliceBlocks, headingPrefix,
@@ -565,29 +568,95 @@ function updateRunwaySoon() {
   }, 150);
 }
 
-/* ---------- Accept as Is (selection-based + duplicate guard) ---------- */
-export async function acceptAsIs() {
-  flushManuscriptSync();
-  const project = getState().project;
-  if (!project) return;
-  const sel = selectionInfo;
-  let textToPush = sel && sel.text ? sel.text.trim() : '';
-  if (!textToPush) {
-    toast('Select the text you want to accept first.', 'info');
-    return;
+/* =========================================================
+   V4 RETURN-SLOT HELPERS (seam matching)
+   A Recheck stores ~120 chars of context on each side of the
+   cut (project.recheckSlot.before/after). To put text back we
+   find where those two contexts still sit in the Main Novel and
+   re-insert between them. Matching is whitespace-tolerant so the
+   \n{3,}→\n\n normalisation never breaks the lookup.
+   ========================================================= */
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+/* Escape specials; every whitespace run becomes \s+ so collapsed
+   or expanded spacing in the novel still matches the context. */
+function flexPattern(s) { return escRe(s).replace(/\s+/g, '\\s+'); }
+
+/* Returns { gapStart, gapEnd, sepBefore, sepAfter } or null.
+   gapStart/gapEnd bound the CURRENT whitespace between the two
+   contexts; sepBefore/sepAfter are the ORIGINAL separators that
+   surrounded the cut text, restored on insert. */
+function findSeam(text, before, after) {
+  const bRaw = before || '';
+  const aRaw = after || '';
+  const bCore = bRaw.replace(/\s+$/, '');
+  const aCore = aRaw.replace(/^\s+/, '');
+  const sepBefore = bRaw.slice(bCore.length);
+  const sepAfter = aRaw.slice(0, aRaw.length - aCore.length);
+  const hasB = bCore.length > 0;
+  const hasA = aCore.length > 0;
+  if (!hasB && !hasA) {
+    /* The whole novel was rechecked — the seam is the entire doc. */
+    return { gapStart: 0, gapEnd: text.length, sepBefore: '', sepAfter: '' };
   }
-  const currentNovel = project.mainNovel.text || '';
-  if (currentNovel.includes(textToPush)) {
-    const ok = await confirmDialog({
-      title: 'Duplicate text detected',
-      message: 'This exact text is already in the Main Novel. Add it again anyway?',
-      confirmLabel: 'Add anyway',
-      danger: false,
+  let pattern;
+  if (hasB && hasA) {
+    pattern = '(' + flexPattern(bCore) + ')(\\s*)(' + flexPattern(aCore) + ')';
+  } else if (hasB) {
+    pattern = '(' + flexPattern(bCore) + ')(\\s*)()';
+  } else {
+    pattern = '()(\\s*)(' + flexPattern(aCore) + ')';
+  }
+  let m;
+  try { m = new RegExp(pattern).exec(text); }
+  catch (e) { return null; }
+  if (!m) return null;
+  const gapStart = m.index + m[1].length;
+  const gapEnd = gapStart + m[2].length;
+  return { gapStart, gapEnd, sepBefore, sepAfter };
+}
+
+/* 3-way choice shown whenever a slot is pending. */
+function chooseSlotAction(slot) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = (v) => { settled = true; resolve(v); };
+    const snippet = slot.snippet ? `\u201C${slot.snippet}\u201D` : 'the passage you rechecked';
+    const m = modal({
+      title: 'Return this to its place?',
+      body: el('p', {
+        text: `A Recheck is pending (${snippet}). Put the highlighted text back where it came from in the Main Novel, or append it to the bottom instead?`,
+        style: { color: 'var(--muted)', 'font-size': '.88rem', 'line-height': '1.6' },
+      }),
+      footer: [
+        el('button', { class: 'btn', text: 'Cancel', onclick: () => { settle('cancel'); m.close(); } }),
+        el('button', { class: 'btn', text: 'Append to bottom', onclick: () => { settle('append'); m.close(); } }),
+        el('button', { class: 'btn btn-primary', text: 'Return to its place', onclick: () => { settle('return'); m.close(); } }),
+      ],
+      onClose: () => { if (!settled) resolve('cancel'); },
     });
-    if (!ok) return;
-  }
-  project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
-  /* D1 freeze: always cut the accepted text out of the Manuscript. */
+  });
+}
+
+/* Insert at the seam. Returns true on success, false if the seam
+   could not be found (caller falls back to append). */
+function returnToSlot(project, slot, textToPush) {
+  const novelText = project.mainNovel.text || '';
+  const seam = findSeam(novelText, slot.before, slot.after);
+  if (!seam) return false;
+  const newText = novelText.slice(0, seam.gapStart)
+    + seam.sepBefore + textToPush + seam.sepAfter
+    + novelText.slice(seam.gapEnd);
+  project.mainNovel.text = newText;
+  /* Ask the Main Novel panel to reveal the landing spot. */
+  const insertOffset = seam.gapStart + seam.sepBefore.length;
+  try {
+    document.dispatchEvent(new CustomEvent('weaver-novel-jump', { detail: { offset: insertOffset } }));
+  } catch (e) {}
+  return true;
+}
+
+/* D1 freeze: accepted text is always CUT out of the Manuscript. */
+function cutFromManuscript(project, textToPush) {
   let idx = project.manuscript.text.indexOf(textToPush);
   let matchedLength = textToPush.length;
   if (idx < 0) {
@@ -608,6 +677,55 @@ export async function acceptAsIs() {
   } else {
     toast('Selection no longer matches manuscript text — accepted as copy.', 'info');
   }
+}
+
+/* ---------- Accept highlighted (selection + duplicate guard + slot) ---------- */
+export async function acceptAsIs() {
+  flushManuscriptSync();
+  const project = getState().project;
+  if (!project) return;
+  const sel = selectionInfo;
+  let textToPush = sel && sel.text ? sel.text.trim() : '';
+  if (!textToPush) {
+    toast('Select the text you want to accept first.', 'info');
+    return;
+  }
+  const slot = project.recheckSlot;
+  if (slot) {
+    const choice = await chooseSlotAction(slot);
+    if (choice === 'cancel') return;
+    if (choice === 'return') {
+      if (returnToSlot(project, slot, textToPush)) {
+        cutFromManuscript(project, textToPush);
+        delete project.recheckSlot;
+        touchProject({ novel: true });
+        toast('Returned to its original place in the Main Novel.', 'success');
+        return;
+      }
+      /* Seam vanished — offer the honest fallback. */
+      const fb = await confirmDialog({
+        title: 'Original spot changed',
+        message: 'The place this text came from could not be found (the surrounding text may have changed). Append it to the bottom of the Main Novel instead?',
+        confirmLabel: 'Append to bottom',
+        danger: false,
+      });
+      if (!fb) return;
+    }
+    /* 'append' choice, or fallback confirmed — fall through. */
+  }
+  const currentNovel = project.mainNovel.text || '';
+  if (currentNovel.includes(textToPush)) {
+    const ok = await confirmDialog({
+      title: 'Duplicate text detected',
+      message: 'This exact text is already in the Main Novel. Add it again anyway?',
+      confirmLabel: 'Add anyway',
+      danger: false,
+    });
+    if (!ok) return;
+  }
+  project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
+  if (slot) delete project.recheckSlot;
+  cutFromManuscript(project, textToPush);
   touchProject({ novel: true });
   toast('Accepted to Main Novel (cut from Manuscript).', 'success');
 }
@@ -615,7 +733,7 @@ export async function acceptAsIs() {
 /* ---------- Accept Whole (V4 Phase 2) ----------
 Moves the ENTIRE Manuscript into the Main Novel and clears the
 Manuscript. Confirmation first — it is a bulk move. Same D1 rule:
-text is CUT, never copied. */
+text is CUT, never copied. Always appends; ignores any slot. */
 export async function acceptWhole() {
   flushManuscriptSync();
   const project = getState().project;
