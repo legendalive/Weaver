@@ -165,6 +165,7 @@ export function renderWorkspace() {
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
       topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
+      topBtn('cover', 'sparkles', 'Cover', () => import('../features/cover-gen.js').then((m) => m.openCoverGenerator())),
       topBtn('hierarchy', 'tree', 'Hierarchy', () => {
         if (toggleHier) toggleHier();
       }),
