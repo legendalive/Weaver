@@ -9,32 +9,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0b0c; --surface:#141416; --surface-2:#1c1c20;
-  --border:#2b2b30; --border-strong:#3a3a40;
-  --text:#e8e5dd; --muted:#94918a; --faint:#6b6862;
-  --accent:#e0a83c; --accent-soft:rgba(224,168,60,.14);
-  --danger:#d4604f; --success:#7fb069;
-  --font-ui:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
-  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+--bg:#0b0b0c; --surface:#141416; --surface-2:#1c1c20;
+--border:#2b2b30; --border-strong:#3a3a40;
+--text:#e8e5dd; --muted:#94918a; --faint:#6b6862;
+--accent:#e0a83c; --accent-soft:rgba(224,168,60,.14);
+--danger:#d4604f; --success:#7fb069;
+--font-ui:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:var(--font-ui);color:var(--text);
-  background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);
-  -webkit-font-smoothing:antialiased;
+font-family:var(--font-ui);color:var(--text);
+background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);
+-webkit-font-smoothing:antialiased;
 }
 .w{
-  font-family:'Great Vibes',Georgia,cursive;line-height:.85;user-select:none;
-  background:linear-gradient(160deg,#fff6da 0%,#f9d97e 40%,#eebc52 70%,#e0a83c 100%);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
+font-family:'Great Vibes',Georgia,cursive;line-height:.85;user-select:none;
+background:linear-gradient(160deg,#fff6da 0%,#f9d97e 40%,#eebc52 70%,#e0a83c 100%);
+-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
 }
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
-  background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
-  white-space:nowrap;
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
+background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
+white-space:nowrap;
 }
 .btn:hover{background:#232327}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -46,8 +46,8 @@ body{
 .btn-danger:hover{background:rgba(212,96,79,.12);border-color:var(--danger)}
 .btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
 .input,.textarea,.select{
-  width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
-  border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
+width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
+border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
 }
 .select{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat}
 .textarea{resize:vertical;min-height:90px;line-height:1.5;font-family:var(--font-mono)}
@@ -55,9 +55,9 @@ body{
 .input::placeholder,.textarea::placeholder{color:var(--faint)}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{
-  width:min(400px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
-  background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
-  box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
+width:min(400px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
+background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
+box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
 }
 .login-w{font-size:3.6rem}
 .login-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em}
@@ -65,31 +65,36 @@ body{
 .field{display:flex;flex-direction:column;gap:6px;text-align:left}
 .field span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .err{
-  padding:9px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;text-align:left;
-  background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
+padding:9px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;text-align:left;
+background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
 }
 .login-hint{font-size:.72rem;color:var(--faint)}
 .top{
-  position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
-  padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
+padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
 }
 .top-w{font-size:1.8rem}
 .top-title{font-weight:650;letter-spacing:.03em}
-.top-email{
-  font-size:.68rem;color:var(--faint);font-family:var(--font-mono);
-  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+.top-role{
+font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+padding:2px 8px;border-radius:999px;border:1px solid rgba(224,168,60,.5);
+background:var(--accent-soft);color:var(--accent);font-weight:700;font-family:var(--font-mono);
 }
-.top-right{margin-left:auto;display:flex;gap:8px}
+.top-email{
+font-size:.68rem;color:var(--faint);font-family:var(--font-mono);
+max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tabs{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto}
 .tab{
-  padding:7px 14px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;
-  background:var(--surface);color:var(--muted);font-size:.8rem;cursor:pointer;
+padding:7px 14px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;
+background:var(--surface);color:var(--muted);font-size:.8rem;cursor:pointer;
 }
 .tab.on{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);font-weight:600}
 .tab .soon{margin-left:6px;font-size:.6rem;font-family:var(--font-mono);color:var(--faint)}
 .admin-note-bar{
-  margin:10px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
-  border:1px solid rgba(224,168,60,.35);background:var(--accent-soft);color:var(--text);
+margin:10px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+border:1px solid rgba(224,168,60,.35);background:var(--accent-soft);color:var(--text);
 }
 .admin-note-bar a{color:var(--accent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
@@ -101,8 +106,8 @@ body{
 .card-label{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .card-sub{font-size:.72rem;color:var(--faint);overflow-wrap:anywhere}
 .notice{
-  margin:12px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
-  border:1px solid rgba(212,96,79,.35);background:rgba(212,96,79,.08);color:var(--danger);
+margin:12px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+border:1px solid rgba(212,96,79,.35);background:rgba(212,96,79,.08);color:var(--danger);
 }
 .meta{padding:4px 16px 26px;color:var(--faint);font-size:.72rem;font-family:var(--font-mono);line-height:1.7}
 .loading{padding:60px 24px;text-align:center;color:var(--muted)}
@@ -110,26 +115,31 @@ body{
 .users-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
 .users-toolbar .input{flex:1;min-width:170px}
 .create-form{
-  display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin-top:10px;
-  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin-top:10px;
+background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
 }
 .create-form .row{display:flex;gap:8px;flex-wrap:wrap}
 .create-form .input{flex:1;min-width:150px}
 .user-card{
-  display:flex;flex-direction:column;gap:8px;padding:14px 16px;margin:0 16px 10px;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+display:flex;flex-direction:column;gap:8px;padding:14px 16px;margin:0 16px 10px;
+background:var(--surface);border:1px solid var(--border);border-radius:12px;
 }
 .user-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .user-email{font-size:.92rem;font-weight:600;color:var(--text);overflow-wrap:anywhere}
 .user-meta{font-size:.74rem;color:var(--faint);font-family:var(--font-mono)}
 .user-actions{display:flex;gap:8px;flex-wrap:wrap}
 .status-badge{
-  display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
-  font-size:.66rem;font-family:var(--font-mono);border:1px solid var(--border);color:var(--muted);
+display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+font-size:.66rem;font-family:var(--font-mono);border:1px solid var(--border);color:var(--muted);
 }
 .status-badge.active{color:var(--success);border-color:rgba(127,176,105,.45);background:rgba(127,176,105,.1)}
 .status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
 .status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
+/* V4: W-tag badge — prominent gold pill on every ticket */
+.status-badge.wtag{
+color:#17130a;background:var(--accent);border-color:var(--accent);
+font-weight:700;letter-spacing:.06em;padding:3px 10px;
+}
 .admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
 .user-detail{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-strong)}
 .ud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
@@ -141,10 +151,10 @@ body{
 .user-detail .row .input{flex:1;min-width:140px}
 .cred-badges{display:flex;gap:6px;flex-wrap:wrap}
 .cred-history{
-  margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
+margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
 }
 .cred-log-row{
-  display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;
+display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;
 }
 .cred-log-row:last-child{border-bottom:none}
 .cred-log-amt{font-family:var(--font-mono);flex:none;width:56px;font-weight:700}
@@ -154,16 +164,16 @@ body{
 .cred-log-date{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;flex:none}
 .stor-chart-wrap{margin:4px 16px 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
 .stor-chart-title{
-  font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-  margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;
+font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;
 }
 .stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
 .stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
 .audit-row{
-  display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
-  padding:10px 12px;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;font-size:.8rem;
+display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+padding:10px 12px;background:var(--surface);border:1px solid var(--border);
+border-radius:10px;font-size:.8rem;
 }
 .audit-time{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);flex:none}
 .audit-target{color:var(--text);font-weight:600;overflow-wrap:anywhere}
@@ -171,14 +181,14 @@ body{
 /* ---------- Banner tab ---------- */
 .banner-wrap{padding:16px;display:flex;flex-direction:column;gap:14px}
 .banner-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:16px;display:flex;flex-direction:column;gap:12px;
+background:var(--surface);border:1px solid var(--border);border-radius:12px;
+padding:16px;display:flex;flex-direction:column;gap:12px;
 }
 .banner-card h3{font-size:.78rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .banner-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .banner-preview{
-  padding:12px 16px;border-radius:8px;font-size:.85rem;line-height:1.5;
-  border:1px solid var(--border);min-height:44px;
+padding:12px 16px;border-radius:8px;font-size:.85rem;line-height:1.5;
+border:1px solid var(--border);min-height:44px;
 }
 .banner-preview.is-info{background:var(--accent-soft);border-color:rgba(224,168,60,.4);color:var(--accent)}
 .banner-preview.is-warning{background:rgba(212,96,79,.12);border-color:rgba(212,96,79,.4);color:var(--danger)}
@@ -194,10 +204,20 @@ body{
 .proj-warn{margin-top:8px;padding:12px;border:1px solid rgba(212,96,79,.5);background:rgba(212,96,79,.08);border-radius:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;line-height:1.5;color:var(--text)}
 .proj-warn b{color:var(--danger)}
 .proj-note{color:var(--faint);font-size:.72rem;padding:8px 2px 0;line-height:1.5}
+/* ---------- V4: no-access screen ---------- */
+.noaccess-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.noaccess-card{
+width:min(460px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
+background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
+box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
+}
+.noaccess-w{font-size:3.6rem}
+.noaccess-title{font-size:1.2rem;font-weight:700;letter-spacing:.02em}
+.noaccess-msg{font-size:.88rem;color:var(--muted);line-height:1.6}
 @media (max-width:520px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .top-title{font-size:.9rem}
-  .top-email{display:none}
+.grid{grid-template-columns:repeat(2,1fr)}
+.top-title{font-size:.9rem}
+.top-email{display:none}
 }
 </style>
 </head>
@@ -209,1280 +229,1384 @@ const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
 const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
 const AI_API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-admin';
-
+const SUPPORT_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support-admin';
+const SUPERVISOR_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin';
 const TOKEN_KEY = 'weaver_admin_token';
 const EMAIL_KEY = 'weaver_admin_email';
 const app = document.getElementById('app');
-
 let sb = null;
 try {
-  sb = window.supabase.createClient(SB_URL, SB_ANON, {
-    auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
-  });
+sb = window.supabase.createClient(SB_URL, SB_ANON, {
+auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
+});
 } catch (e) { sb = null; }
-
 let activeTab = 'overview';
 let allUsers = [];
 let allCredits = [];
 let bannerState = { text: '', level: 'info', show_until: null, updated_at: null };
 let aiProviders = {};
 let activeMsgView = 'tickets';
-const SUPPORT_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support-admin';
-async function saApi(path, opts = {}) {
-  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
-  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
-  let res;
-  try { res = await fetch(SUPPORT_ADMIN_BASE + path, init); }
-  catch (e) { throw new Error('Could not reach the support-admin API. Is it deployed?'); }
-  let data = {};
-  try { data = await res.json(); } catch (e) {}
-  if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
-  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-  return data;
+/* ---------- V4: role state ---------- */
+let userRole = 'owner';   /* 'owner' | 'supervisor' | 'none' */
+async function supApi(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(SUPERVISOR_ADMIN_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the supervisor-admin API. Is it deployed?'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
 }
+async function saApi(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(SUPPORT_ADMIN_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the support-admin API. Is it deployed?'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
+/* ---------- V4: cached message data for CSV export ---------- */
+let cachedMessages = [];
+let cachedAiLogs = [];
 async function loadMessagesTab(content) {
-  content.innerHTML = '<div class="loading">Loading support dashboard…</div>';
-  try {
-    const [msgs, logs] = await Promise.all([saApi('/api/support'), saApi('/api/help-log')]);
-    const messages = msgs.messages || [];
-    const aiLogs = logs.rows || [];
-    const openTickets = messages.filter(m => m.status !== 'closed');
-    const resolved = aiLogs.filter(l => l.resolved === true).length;
-    const escalated = aiLogs.filter(l => l.resolved === false).length;
-    const rate = aiLogs.length ? Math.round((resolved / aiLogs.length) * 100) : 0;
-    let html = '<div class="tabs" style="padding:12px 16px 4px">' +
-      '<span class="tab' + (activeMsgView === 'tickets' ? ' on' : '') + '" data-msg-view="tickets">Tickets (' + openTickets.length + ' open)</span>' +
-      '<span class="tab' + (activeMsgView === 'ai' ? ' on' : '') + '" data-msg-view="ai">AI Monitor</span>' +
-      '</div>';
-    if (activeMsgView === 'tickets') {
-      html += '<div class="grid">' +
-        card(openTickets.length, 'Open tickets', 'awaiting you') +
-        card(messages.length - openTickets.length, 'Closed', 'resolved') +
-        card(messages.filter(m => m.source === 'ai').length, 'AI-forwarded', 'lookup escalated', 'gold') +
-        card(messages.filter(m => m.source !== 'ai').length, 'Direct contact', 'user wrote in') +
-        '</div>';
-      if (!messages.length) html += '<div class="empty">No tickets yet. User messages and AI escalations land here.</div>';
-      for (const m of messages) {
-        const closed = m.status === 'closed';
-        const srcBadge = m.source === 'ai'
-          ? '<span class="status-badge" style="color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)">AI-forwarded</span>'
-          : '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.4);background:rgba(126,184,218,.08)">Direct</span>';
-        const stBadge = closed ? '<span class="status-badge">Closed</span>' : '<span class="status-badge active">Open</span>';
-        let bodyHtml = '';
-        const raw = m.body || '';
-        if (m.source === 'ai' && raw.indexOf('Attempted answer:') >= 0) {
-          const q = raw.split('Attempted answer:')[0].replace('Question:', '').replace('(Forwarded automatically by Support lookup.)', '').trim();
-          const a = raw.split('Attempted answer:')[1].replace('(Forwarded automatically by Support lookup.)', '').trim();
-          bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap">' + esc(q) + '</div>' +
-            '<div style="margin-top:8px;padding:8px 10px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:8px;font-size:.76rem;color:var(--faint);font-family:var(--font-mono);line-height:1.5"><b>AI attempted:</b> ' + esc(a) + '</div>';
-        } else {
-          bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(raw) + '</div>';
-        }
-        html += '<div class="user-card"' + (closed ? ' style="opacity:.6"' : '') + '>' +
-          '<div class="user-card-head"><span class="user-email">' + esc(m.subject || '(no subject)') + '</span>' +
-          '<span class="cred-badges">' + srcBadge + stBadge + '</span></div>' +
-          '<div class="user-meta">' + esc(m.email || '') + ' · ' + fmtDateTime(m.created_at) + '</div>' +
-          bodyHtml +
-          '<div id="thread-' + esc(m.id) + '" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>' +
-          '<div style="margin-top:10px"><textarea class="textarea" style="min-height:60px" placeholder="Reply to ' + esc(m.email || 'user') + '…" data-reply-text="' + esc(m.id) + '"></textarea></div>' +
-          '<div class="user-actions" style="margin-top:8px">' +
-          '<button class="btn btn-sm btn-primary" data-msg-action="reply" data-id="' + esc(m.id) + '">Send reply</button>' +
-          '<button class="btn btn-sm" data-msg-action="load-thread" data-id="' + esc(m.id) + '">Load thread</button>' +
-          (closed ? '<button class="btn btn-sm" data-msg-action="reopen" data-id="' + esc(m.id) + '">Reopen</button>'
-                  : '<button class="btn btn-sm btn-danger" data-msg-action="close" data-id="' + esc(m.id) + '">Close ticket</button>') +
-          '</div></div>';
-      }
-    } else {
-      html += '<div class="grid">' +
-        card(aiLogs.length, 'Lookups', 'questions asked') +
-        card(resolved, 'Resolved by AI', rate + '% success', 'ok') +
-        card(escalated, 'Escalated', 'came to you', 'bad') +
-        card(rate + '%', 'AI success rate', 'higher is better', 'gold') +
-        '</div>';
-      html += '<div class="stor-users-title">Recent AI activity · newest first</div>';
-      if (!aiLogs.length) html += '<div class="empty">No AI lookups recorded yet.</div>';
-      for (const l of aiLogs.slice(0, 50)) {
-        const badge = l.resolved === true ? '<span class="status-badge active">Resolved</span>'
-          : (l.resolved === false ? '<span class="status-badge banned">Escalated</span>' : '<span class="status-badge">Pending</span>');
-        html += '<div class="user-card"><div class="user-card-head"><span class="user-email">' + esc(l.question) + '</span>' + badge + '</div>' +
-          '<div class="user-meta">' + fmtDateTime(l.created_at) + '</div>' +
-          (l.answer ? '<div style="font-size:.82rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(l.answer) + '</div>' : '') +
-          '</div>';
-      }
-    }
-    content.innerHTML = html + '<div class="admin-note">"AI-forwarded" tickets include the answer the AI attempted before escalating. The AI Monitor tab tracks lookup volume, resolutions and escalations so you can judge the support AI over time.</div>';
-  } catch (e) {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  }
+content.innerHTML = '<div class="loading">Loading support dashboard…</div>';
+try {
+const [msgs, logs] = await Promise.all([saApi('/api/support'), saApi('/api/help-log')]);
+const messages = msgs.messages || [];
+const aiLogs = logs.rows || [];
+cachedMessages = messages;
+cachedAiLogs = aiLogs;
+const openTickets = messages.filter(m => m.status !== 'closed');
+const resolved = aiLogs.filter(l => l.resolved === true).length;
+const escalated = aiLogs.filter(l => l.resolved === false).length;
+const rate = aiLogs.length ? Math.round((resolved / aiLogs.length) * 100) : 0;
+let html = '<div class="tabs" style="padding:12px 16px 4px">' +
+'<span class="tab' + (activeMsgView === 'tickets' ? ' on' : '') + '" data-msg-view="tickets">Tickets (' + openTickets.length + ' open)</span>' +
+'<span class="tab' + (activeMsgView === 'ai' ? ' on' : '') + '" data-msg-view="ai">AI Monitor</span>' +
+/* V4: Download CSV button, right-aligned */
+'<span style="margin-left:auto"><button id="btn-msg-csv" class="btn btn-sm" title="Download tickets + AI log as CSV">Download CSV</button></span>' +
+'</div>';
+if (activeMsgView === 'tickets') {
+html += '<div class="grid">' +
+card(openTickets.length, 'Open tickets', 'awaiting you') +
+card(messages.length - openTickets.length, 'Closed', 'resolved') +
+card(messages.filter(m => m.source === 'ai').length, 'AI-forwarded', 'lookup escalated', 'gold') +
+card(messages.filter(m => m.source !== 'ai').length, 'Direct contact', 'user wrote in') +
+'</div>';
+if (!messages.length) html += '<div class="empty">No tickets yet. User messages and AI escalations land here.</div>';
+for (const m of messages) {
+const closed = m.status === 'closed';
+/* V4: W-tag badge — prominent gold pill */
+const tagBadge = m.ticket_tag
+? '<span class="status-badge wtag">' + esc(m.ticket_tag) + '</span>'
+: '';
+const srcBadge = m.source === 'ai'
+? '<span class="status-badge" style="color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)">AI-forwarded</span>'
+: '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.4);background:rgba(126,184,218,.08)">Direct</span>';
+const stBadge = closed ? '<span class="status-badge">Closed</span>' : '<span class="status-badge active">Open</span>';
+let bodyHtml = '';
+const raw = m.body || '';
+if (m.source === 'ai' && raw.indexOf('Attempted answer:') >= 0) {
+const q = raw.split('Attempted answer:')[0].replace('Question:', '').replace('(Forwarded automatically by Support lookup.)', '').trim();
+const a = raw.split('Attempted answer:')[1].replace('(Forwarded automatically by Support lookup.)', '').trim();
+bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap">' + esc(q) + '</div>' +
+'<div style="margin-top:8px;padding:8px 10px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:8px;font-size:.76rem;color:var(--faint);font-family:var(--font-mono);line-height:1.5"><b>AI attempted:</b> ' + esc(a) + '</div>';
+} else {
+bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(raw) + '</div>';
+}
+html += '<div class="user-card"' + (closed ? ' style="opacity:.6"' : '') + '>' +
+'<div class="user-card-head"><span class="user-email">' + esc(m.subject || '(no subject)') + '</span>' +
+'<span class="cred-badges">' + tagBadge + srcBadge + stBadge + '</span></div>' +
+'<div class="user-meta">' + esc(m.email || '') + ' · ' + fmtDateTime(m.created_at) + '</div>' +
+bodyHtml +
+'<div id="thread-' + esc(m.id) + '" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>' +
+'<div style="margin-top:10px"><textarea class="textarea" style="min-height:60px" placeholder="Reply to ' + esc(m.email || 'user') + '…" data-reply-text="' + esc(m.id) + '"></textarea></div>' +
+'<div class="user-actions" style="margin-top:8px">' +
+'<button class="btn btn-sm btn-primary" data-msg-action="reply" data-id="' + esc(m.id) + '">Send reply</button>' +
+'<button class="btn btn-sm" data-msg-action="load-thread" data-id="' + esc(m.id) + '">Load thread</button>' +
+(closed ? '<button class="btn btn-sm" data-msg-action="reopen" data-id="' + esc(m.id) + '">Reopen</button>'
+: '<button class="btn btn-sm btn-danger" data-msg-action="close" data-id="' + esc(m.id) + '">Close ticket</button>') +
+'</div></div>';
+}
+} else {
+html += '<div class="grid">' +
+card(aiLogs.length, 'Lookups', 'questions asked') +
+card(resolved, 'Resolved by AI', rate + '% success', 'ok') +
+card(escalated, 'Escalated', 'came to you', 'bad') +
+card(rate + '%', 'AI success rate', 'higher is better', 'gold') +
+'</div>';
+html += '<div class="stor-users-title">Recent AI activity · newest first</div>';
+if (!aiLogs.length) html += '<div class="empty">No AI lookups recorded yet.</div>';
+for (const l of aiLogs.slice(0, 50)) {
+const badge = l.resolved === true ? '<span class="status-badge active">Resolved</span>'
+: (l.resolved === false ? '<span class="status-badge banned">Escalated</span>' : '<span class="status-badge">Pending</span>');
+html += '<div class="user-card"><div class="user-card-head"><span class="user-email">' + esc(l.question) + '</span>' + badge + '</div>' +
+'<div class="user-meta">' + fmtDateTime(l.created_at) + '</div>' +
+(l.answer ? '<div style="font-size:.82rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(l.answer) + '</div>' : '') +
+'</div>';
+}
+}
+content.innerHTML = html + '<div class="admin-note">"AI-forwarded" tickets include the answer the AI attempted before escalating. Each ticket carries its W-tag (W1, W2, …) for filing and cross-reference. The AI Monitor tab tracks lookup volume, resolutions and escalations so you can judge the support AI over time.</div>';
+/* Bind CSV button */
+const csvBtn = document.getElementById('btn-msg-csv');
+if (csvBtn) csvBtn.addEventListener('click', downloadSupportCsv);
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
+}
+/* ---------- V4: CSV export (tickets + AI log) ---------- */
+function downloadSupportCsv() {
+const rows = [];
+/* Header row 1: tickets */
+rows.push('--- TICKETS ---');
+rows.push('ticket_tag,created_at,email,subject,body,status,source');
+for (const m of cachedMessages) {
+rows.push([
+csvEscape(m.ticket_tag || ''),
+csvEscape(m.created_at || ''),
+csvEscape(m.email || ''),
+csvEscape(m.subject || ''),
+csvEscape(m.body || ''),
+csvEscape(m.status || ''),
+csvEscape(m.source || ''),
+].join(','));
+}
+rows.push('');
+rows.push('--- AI LOOKUPS ---');
+rows.push('created_at,user_id,question,answer,resolved');
+for (const l of cachedAiLogs) {
+rows.push([
+csvEscape(l.created_at || ''),
+csvEscape(l.user_id || ''),
+csvEscape(l.question || ''),
+csvEscape(l.answer || ''),
+csvEscape(l.resolved === true ? 'yes' : (l.resolved === false ? 'escalated' : 'pending')),
+].join(','));
+}
+downloadCsv('weaver-support-' + new Date().toISOString().slice(0, 10) + '.csv', '', rows);
+showNote('Downloaded ' + cachedMessages.length + ' tickets + ' + cachedAiLogs.length + ' AI lookups.', false);
 }
 async function handleMsgAction(btn) {
-  const id = btn.dataset.id;
-  const act = btn.dataset.msgAction;
-  if (act === 'close' || act === 'reopen') {
-    btn.disabled = true;
-    try {
-      await saApi('/api/support/' + id + '/' + act, { method: 'POST' });
-      showNote('Ticket ' + (act === 'close' ? 'closed' : 'reopened') + '.', false);
-      loadTab('messages');
-    } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; }
-    return;
-  }
-  if (act === 'reply') {
-    const ta = document.querySelector('[data-reply-text="' + id + '"]');
-    const text = ta ? ta.value.trim() : '';
-    if (!text) { showNote('⚠ Write a reply first.', false); return; }
-    btn.disabled = true; btn.textContent = 'Sending…';
-    try {
-                  const replyRes = await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
-      showNote(replyRes && replyRes.emailed ? 'Sent to customer\'s app + Email' : 'Sent to app. Email failed: ' + (replyRes && replyRes.emailError ? replyRes.emailError : 'check server logs'), !(replyRes && replyRes.emailed));
-      loadTab('messages');
-    } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; btn.textContent = 'Send reply'; }
-    return;
-  }
-  if (act === 'load-thread') {
-    const host = document.getElementById('thread-' + id);
-    if (!host) return;
-    host.innerHTML = '<div style="color:var(--faint);font-size:.78rem">Loading…</div>';
-    try {
-      const d = await saApi('/api/support/' + id + '/replies');
-      const replies = d.replies || [];
-      host.innerHTML = replies.length ? replies.map(r =>
-        '<div style="padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap">' +
-        '<div style="font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px">' + (r.author === 'team' ? 'You' : 'User') + ' · ' + fmtDateTime(r.created_at) + '</div>' +
-        esc(r.body) + '</div>').join('')
-        : '<div style="color:var(--faint);font-size:.78rem">No replies yet.</div>';
-    } catch (e) { host.innerHTML = '<div style="color:var(--danger);font-size:.78rem">' + esc(e.message) + '</div>'; }
-    return;
-  }
+const id = btn.dataset.id;
+const act = btn.dataset.msgAction;
+if (act === 'close' || act === 'reopen') {
+btn.disabled = true;
+try {
+await saApi('/api/support/' + id + '/' + act, { method: 'POST' });
+showNote('Ticket ' + (act === 'close' ? 'closed' : 'reopened') + '.', false);
+loadTab('messages');
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; }
+return;
 }
-
+if (act === 'reply') {
+const ta = document.querySelector('[data-reply-text="' + id + '"]');
+const text = ta ? ta.value.trim() : '';
+if (!text) { showNote('⚠ Write a reply first.', false); return; }
+btn.disabled = true; btn.textContent = 'Sending…';
+try {
+const replyRes = await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
+showNote(replyRes && replyRes.emailed ? 'Sent to customer\'s app + Email' : 'Sent to app. Email failed: ' + (replyRes && replyRes.emailError ? replyRes.emailError : 'check server logs'), !(replyRes && replyRes.emailed));
+loadTab('messages');
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; btn.textContent = 'Send reply'; }
+return;
+}
+if (act === 'load-thread') {
+const host = document.getElementById('thread-' + id);
+if (!host) return;
+host.innerHTML = '<div style="color:var(--faint);font-size:.78rem">Loading…</div>';
+try {
+const d = await saApi('/api/support/' + id + '/replies');
+const replies = d.replies || [];
+host.innerHTML = replies.length ? replies.map(r =>
+'<div style="padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap">' +
+'<div style="font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px">' + (r.author === 'team' ? 'You' : 'User') + ' · ' + fmtDateTime(r.created_at) + '</div>' +
+esc(r.body) + '</div>').join('')
+: '<div style="color:var(--faint);font-size:.78rem">No replies yet.</div>';
+} catch (e) { host.innerHTML = '<div style="color:var(--danger);font-size:.78rem">' + esc(e.message) + '</div>'; }
+return;
+}
+}
 const PROVIDER_DEFS = [
-  { id: 'openrouter', label: 'OpenRouter',
-    hint: 'openrouter.ai — one key, many models. Default model: openrouter/auto',
-    modelPh: 'openrouter/auto' },
-  { id: 'groq', label: 'Groq',
-    hint: 'console.groq.com — fast, generous free tier. Model auto-discovered live; override only if you pin a specific one.',
-    modelPh: '(auto-discovered)' },
-  { id: 'mistral', label: 'Mistral',
-    hint: 'console.mistral.ai — strong fallback. Default: mistral-large-latest',
-    modelPh: 'mistral-large-latest' },
+{ id: 'openrouter', label: 'OpenRouter',
+hint: 'openrouter.ai — one key, many models. Default model: openrouter/auto',
+modelPh: 'openrouter/auto' },
+{ id: 'groq', label: 'Groq',
+hint: 'console.groq.com — fast, generous free tier. Model auto-discovered live; override only if you pin a specific one.',
+modelPh: '(auto-discovered)' },
+{ id: 'mistral', label: 'Mistral',
+hint: 'console.mistral.ai — strong fallback. Default: mistral-large-latest',
+modelPh: 'mistral-large-latest' },
 ];
-
 function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function getToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
 function getEmail() { try { return sessionStorage.getItem(EMAIL_KEY) || ''; } catch (e) { return ''; } }
 function setSession(token, email) {
-  try {
-    if (token) { sessionStorage.setItem(TOKEN_KEY, token); sessionStorage.setItem(EMAIL_KEY, email || ''); }
-    else { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(EMAIL_KEY); }
-  } catch (e) {}
+try {
+if (token) { sessionStorage.setItem(TOKEN_KEY, token); sessionStorage.setItem(EMAIL_KEY, email || ''); }
+else { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(EMAIL_KEY); }
+} catch (e) {}
 }
 function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString(); } catch (e) { return iso; } }
 function fmtDateTime(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
 function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
 function creditEmailOf(uid) {
-  const r = allCredits.find(x => x.user_id === uid);
-  return r ? (r.email || '') : '';
+const r = allCredits.find(x => x.user_id === uid);
+return r ? (r.email || '') : '';
 }
 function fmtBytes(n) {
-  if (!Number.isFinite(n) || n <= 0) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let i = 0; let v = n;
-  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
-  return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
+if (!Number.isFinite(n) || n <= 0) return '0 B';
+const units = ['B', 'KB', 'MB', 'GB'];
+let i = 0; let v = n;
+while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
 }
 function csvEscape(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
 function downloadCsv(filename, header, rows) {
-  const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+a.remove();
+setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
 async function api(path, opts = {}) {
-  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
-  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
-  let res;
-  try { res = await fetch(API_BASE + path, init); }
-  catch (e) { throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?'); }
-  if (res.status === 401) { setSession(''); renderLogin('Session expired or wrong account — sign in again.'); throw new Error('unauthorized'); }
-  let data = {};
-  try { data = await res.json(); } catch (e) {}
-  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-  return data;
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(API_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?'); }
+if (res.status === 401) { setSession(''); renderLogin('Session expired or wrong account — sign in again.'); throw new Error('unauthorized'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
 }
-
 async function aiApi(path, opts = {}) {
-  const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
-  if (opts.signal) init.signal = opts.signal;
-  if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
-  let res;
-  try { res = await fetch(AI_API_BASE + path, init); }
-  catch (e) { throw new Error('Could not reach the AI admin API. Is the ai-admin function deployed?'); }
-  if (res.status === 401 || res.status === 403) {
-    setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized');
-  }
-  let data = {};
-  try { data = await res.json(); } catch (e) {}
-  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-  return data;
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.signal) init.signal = opts.signal;
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(AI_API_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the AI admin API. Is the ai-admin function deployed?'); }
+if (res.status === 401 || res.status === 403) {
+setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized');
 }
-
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
 function showNote(html, sticky) {
-  const note = document.getElementById('admin-note');
-  if (!note) return;
-  note.innerHTML = html + (sticky ? ' <button class="btn btn-sm" style="margin-left:8px" onclick="this.parentElement.hidden=true">dismiss</button>' : '');
-  note.hidden = false;
-  if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 6000); }
+const note = document.getElementById('admin-note');
+if (!note) return;
+note.innerHTML = html + (sticky ? ' <button class="btn btn-sm" style="margin-left:8px" onclick="this.parentElement.hidden=true">dismiss</button>' : '');
+note.hidden = false;
+if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 6000); }
 }
-
 function renderLogin(msg) {
-  app.innerHTML =
-    '<div class="login-wrap"><div class="login-card">' +
-      '<div class="w login-w">W</div>' +
-      '<div><div class="login-title">Weaver Admin</div><div class="login-tag">Owner console</div></div>' +
-      (msg ? '<div class="err">' + esc(msg) + '</div>' : '') +
-      '<div class="field"><span>Email</span><input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
-      '<div class="field"><span>Password</span><input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
-      '<button id="li-btn" class="btn btn-gold">Sign in</button>' +
-      '<div class="login-hint">Only the owner account can enter this console.</div>' +
-    '</div></div>';
-  const btn = document.getElementById('li-btn');
-  const email = document.getElementById('li-email');
-  const pass = document.getElementById('li-pass');
-  async function go() {
-    if (!sb) { renderLogin('The auth script could not load. Check your connection and reload.'); return; }
-    btn.disabled = true; btn.textContent = 'One moment…';
-    try {
-      const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
-      if (res.error) { renderLogin(res.error.message || 'Sign-in failed.'); return; }
-      setSession(res.data.session.access_token, res.data.user && res.data.user.email);
-      renderShell('overview');
-    } catch (e) { renderLogin(e.message || 'Sign-in failed.'); }
-  }
-  btn.onclick = go;
-  pass.onkeydown = e => { if (e.key === 'Enter') go(); };
-  setTimeout(() => email.focus(), 60);
+app.innerHTML =
+'<div class="login-wrap"><div class="login-card">' +
+'<div class="w login-w">W</div>' +
+'<div><div class="login-title">Weaver Admin</div><div class="login-tag">Owner &amp; supervisor console</div></div>' +
+(msg ? '<div class="err">' + esc(msg) + '</div>' : '') +
+'<div class="field"><span>Email</span><input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
+'<div class="field"><span>Password</span><input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
+'<button id="li-btn" class="btn btn-gold">Sign in</button>' +
+'<div class="login-hint">Owner and supervisors can enter this console.</div>' +
+'</div></div>';
+const btn = document.getElementById('li-btn');
+const email = document.getElementById('li-email');
+const pass = document.getElementById('li-pass');
+async function go() {
+if (!sb) { renderLogin('The auth script could not load. Check your connection and reload.'); return; }
+btn.disabled = true; btn.textContent = 'One moment…';
+try {
+const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
+if (res.error) { renderLogin(res.error.message || 'Sign-in failed.'); return; }
+setSession(res.data.session.access_token, res.data.user && res.data.user.email);
+/* V4: detect role before rendering shell */
+await detectRole();
+if (userRole === 'none') {
+setSession('');
+renderNoAccess();
+return;
 }
-
-const TABS = [
-  { id: 'overview', label: 'Overview', ready: true },
-  { id: 'users', label: 'Users', ready: true },
-  { id: 'credits', label: 'Credits', ready: true },
-  { id: 'storage', label: 'Storage', ready: true },
-  { id: 'audit', label: 'Audit', ready: true },
-  { id: 'banner', label: 'Banner', ready: true },
-  { id: 'ai-keys', label: 'AI Keys', ready: true },
-  { id: 'messages', label: 'Messages', ready: true },
+renderShell(userRole === 'supervisor' ? 'messages' : 'overview');
+} catch (e) { renderLogin(e.message || 'Sign-in failed.'); }
+}
+btn.onclick = go;
+pass.onkeydown = e => { if (e.key === 'Enter') go(); };
+setTimeout(() => email.focus(), 60);
+}
+/* ---------- V4: role detection ---------- */
+async function detectRole() {
+try {
+const d = await supApi('/api/role');
+userRole = (d && d.role) || 'none';
+} catch (e) {
+userRole = 'none';
+}
+}
+function renderNoAccess() {
+app.innerHTML =
+'<div class="noaccess-wrap"><div class="noaccess-card">' +
+'<div class="w noaccess-w">W</div>' +
+'<div class="noaccess-title">No admin access</div>' +
+'<div class="noaccess-msg">This Weaver account is not registered as an owner or supervisor. If you believe this is a mistake, ask the owner to add your email on the Supervisors page.</div>' +
+'<button class="btn" onclick="location.reload()">Sign in with a different account</button>' +
+'</div></div>';
+}
+const FULL_TABS = [
+{ id: 'overview', label: 'Overview', ownerOnly: true },
+{ id: 'users', label: 'Users', ownerOnly: true },
+{ id: 'credits', label: 'Credits', ownerOnly: true },
+{ id: 'storage', label: 'Storage', ownerOnly: true },
+{ id: 'audit', label: 'Audit', ownerOnly: true },
+{ id: 'banner', label: 'Banner', ownerOnly: true },
+{ id: 'ai-keys', label: 'AI Keys', ownerOnly: true },
+{ id: 'messages', label: 'Messages', ownerOnly: false },
 ];
+function visibleTabs() {
+if (userRole === 'owner') return FULL_TABS;
+if (userRole === 'supervisor') return FULL_TABS.filter(t => !t.ownerOnly);
+return [];
+}
 function renderShell(tab) {
-  activeTab = tab;
-  app.innerHTML =
-    '<div class="top">' +
-      '<span class="w top-w">W</span>' +
-      '<span class="top-title">Weaver Admin</span>' +
-      '<span class="top-email">' + esc(getEmail()) + '</span>' +
-      '<div class="top-right">' +
-        '<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
-        '<button id="btn-out" class="btn btn-sm">Sign out</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="tabs" id="admin-tabs"></div>' +
-    '<div id="admin-note" class="admin-note-bar" hidden></div>' +
-    '<div id="admin-content"><div class="loading">Loading…</div></div>';
-  renderTabs();
-  document.getElementById('btn-refresh').onclick = () => loadTab(activeTab);
-  document.getElementById('btn-out').onclick = () => { setSession(''); renderLogin(''); };
-  loadTab(tab);
+activeTab = tab;
+const tabs = visibleTabs();
+if (!tabs.some(t => t.id === tab)) tab = tabs[0] ? tabs[0].id : 'messages';
+activeTab = tab;
+/* V4: Supervisors link (owner only) + role pill */
+const roleLabel = userRole === 'owner' ? 'owner' : (userRole === 'supervisor' ? 'supervisor' : 'guest');
+const supervisorsLink = userRole === 'owner'
+? '<a class="btn btn-sm" href="supervisors.html" title="Manage supervisor access">Supervisors</a>'
+: '';
+app.innerHTML =
+'<div class="top">' +
+'<span class="w top-w">W</span>' +
+'<span class="top-title">Weaver Admin</span>' +
+'<span class="top-role">' + roleLabel + '</span>' +
+'<span class="top-email">' + esc(getEmail()) + '</span>' +
+'<div class="top-right">' +
+supervisorsLink +
+'<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
+'<button id="btn-out" class="btn btn-sm">Sign out</button>' +
+'</div>' +
+'</div>' +
+'<div class="tabs" id="admin-tabs"></div>' +
+'<div id="admin-note" class="admin-note-bar" hidden></div>' +
+'<div id="admin-content"><div class="loading">Loading…</div></div>';
+renderTabs();
+document.getElementById('btn-refresh').onclick = () => loadTab(activeTab);
+document.getElementById('btn-out').onclick = () => { setSession(''); renderLogin(''); };
+loadTab(tab);
 }
 function renderTabs() {
-  const host = document.getElementById('admin-tabs');
-  host.innerHTML = TABS.map(t =>
-    '<span class="tab' + (t.id === activeTab ? ' on' : '') + '" data-tab="' + t.id + '">' +
-      t.label + (t.ready ? '' : '<span class="soon">soon</span>') +
-    '</span>').join('');
+const host = document.getElementById('admin-tabs');
+const tabs = visibleTabs();
+host.innerHTML = tabs.map(t =>
+'<span class="tab' + (t.id === activeTab ? ' on' : '') + '" data-tab="' + t.id + '">' +
+t.label +
+'</span>').join('');
 }
 function setTab(tab) { activeTab = tab; renderTabs(); loadTab(tab); }
 function loadTab(tab) {
-  const content = document.getElementById('admin-content');
-  if (tab === 'overview') return loadOverviewInto(content);
-  if (tab === 'users') return loadUsers();
-  if (tab === 'credits') return loadCredits();
-  if (tab === 'storage') return loadStorage();
-  if (tab === 'audit') return loadAudit();
-  if (tab === 'banner') return loadBanner();
-  if (tab === 'ai-keys') return loadAiKeys();
-  if (tab === 'messages') return loadMessagesTab(content);
-  content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
+const content = document.getElementById('admin-content');
+/* V4: supervisor block — only Messages tab allowed */
+if (userRole === 'supervisor' && tab !== 'messages') {
+content.innerHTML = '<div class="empty">This tab is restricted to the owner.</div>';
+return;
 }
-
+if (tab === 'overview') return loadOverviewInto(content);
+if (tab === 'users') return loadUsers();
+if (tab === 'credits') return loadCredits();
+if (tab === 'storage') return loadStorage();
+if (tab === 'audit') return loadAudit();
+if (tab === 'banner') return loadBanner();
+if (tab === 'ai-keys') return loadAiKeys();
+if (tab === 'messages') return loadMessagesTab(content);
+content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
+}
 function card(value, label, sub, cls) {
-  return '<div class="card">' +
-    '<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
-    '<div class="card-label">' + esc(label) + '</div>' +
-    (sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
-  '</div>';
+return '<div class="card">' +
+'<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
+'<div class="card-label">' + esc(label) + '</div>' +
+(sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
+'</div>';
 }
 async function loadOverviewInto(content) {
-  content.innerHTML = '<div class="loading">Loading overview…</div>';
-  let health = 'unreachable';
-  try { const h = await fetch(API_BASE + '/api/health'); if (h.ok) health = 'online'; } catch (e) {}
-  try {
-    const d = await api('/api/overview');
-    const problems = (d.problems && d.problems.length)
-      ? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
-    let updated = ''; try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
-    content.innerHTML = problems +
-      '<div class="grid">' +
-        card(num(d.usersTotal), 'Total users', 'all accounts') +
-        card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
-        card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
-        card(num(d.objects), 'Vault objects', 'compressed blobs') +
-        card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
-        card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1i', health === 'online' ? 'ok' : 'bad') +
-      '</div>' +
-      '<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1i</div>';
-  } catch (e) {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
-  }
+content.innerHTML = '<div class="loading">Loading overview…</div>';
+let health = 'unreachable';
+try { const h = await fetch(API_BASE + '/api/health'); if (h.ok) health = 'online'; } catch (e) {}
+try {
+const d = await api('/api/overview');
+const problems = (d.problems && d.problems.length)
+? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
+let updated = ''; try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
+content.innerHTML = problems +
+'<div class="grid">' +
+card(num(d.usersTotal), 'Total users', 'all accounts') +
+card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
+card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
+card(num(d.objects), 'Vault objects', 'compressed blobs') +
+card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
+card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1i', health === 'online' ? 'ok' : 'bad') +
+'</div>' +
+'<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1i</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
 }
-
+}
 function userCardHTML(u) {
-  const banned = !!u.banned_until;
-  const status = u.is_owner
-    ? '<span class="status-badge owner">owner</span>'
-    : (banned ? '<span class="status-badge banned">suspended</span>' : '<span class="status-badge active">active</span>');
-  let actions = '<button class="btn btn-sm" data-action="details" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>';
-  if (!u.is_owner) {
-    actions += banned
-      ? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
-      : '<button class="btn btn-sm" data-action="ban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Suspend</button>';
-  }
-  actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Emails this user a password-reset link. Nothing else is reset.">Reset password</button>';
-  if (!u.is_owner) {
-    actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
-  }
-  return '<div class="user-card" data-user-card="' + esc(u.id) + '">' +
-    '<div class="user-card-head"><span class="user-email">' + esc(u.email || '(no email)') + '</span>' + status + '</div>' +
-    '<div class="user-meta">created ' + fmtDate(u.created_at) + ' · last sign-in ' + (u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'never') + '</div>' +
-    '<div class="user-actions">' + actions + '</div>' +
-    '<div class="user-detail-slot"></div>' +
-  '</div>';
+const banned = !!u.banned_until;
+const status = u.is_owner
+? '<span class="status-badge owner">owner</span>'
+: (banned ? '<span class="status-badge banned">suspended</span>' : '<span class="status-badge active">active</span>');
+let actions = '<button class="btn btn-sm" data-action="details" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>';
+if (!u.is_owner) {
+actions += banned
+? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
+: '<button class="btn btn-sm" data-action="ban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Suspend</button>';
+}
+actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Emails this user a password-reset link. Nothing else is reset.">Reset password</button>';
+if (!u.is_owner) {
+actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
+}
+return '<div class="user-card" data-user-card="' + esc(u.id) + '">' +
+'<div class="user-card-head"><span class="user-email">' + esc(u.email || '(no email)') + '</span>' + status + '</div>' +
+'<div class="user-meta">created ' + fmtDate(u.created_at) + ' · last sign-in ' + (u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'never') + '</div>' +
+'<div class="user-actions">' + actions + '</div>' +
+'<div class="user-detail-slot"></div>' +
+'</div>';
 }
 function emptyUsersHTML() { return '<div class="empty">No users found.</div>'; }
 function loadUsers() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading users…</div>';
-  api('/api/users').then(d => {
-    allUsers = d.users || [];
-    renderUsers(allUsers);
-  }).catch(e => {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  });
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading users…</div>';
+api('/api/users').then(d => {
+allUsers = d.users || [];
+renderUsers(allUsers);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
 }
 function renderUsers(list) {
-  const content = document.getElementById('admin-content');
-  content.innerHTML =
-    '<div class="users-toolbar">' +
-      '<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
-      '<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
-      '<button id="btn-bulk-invite" class="btn" title="Create many accounts at once with a generic password — no emails sent">Bulk invite</button>' +
-      '<button id="btn-export-csv" class="btn" title="Download the user list as CSV">Export CSV</button>' +
-    '</div>' +
-    '<div id="create-form-wrap"></div>' +
-    '<div id="bulk-invite-wrap"></div>' +
-    '<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
-    '<div class="admin-note">Details opens entitlements, vault stats, history and account tools. Suspend blocks sign-in but keeps the vault. Delete removes the account AND wipes its vault. The owner account is protected.</div>';
-  document.getElementById('user-search').addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
-    const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
-    document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
-  });
-  document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
-  document.getElementById('btn-bulk-invite').addEventListener('click', toggleBulkInvite);
-  document.getElementById('btn-export-csv').addEventListener('click', exportUsersCsv);
+const content = document.getElementById('admin-content');
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
+'<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
+'<button id="btn-bulk-invite" class="btn" title="Create many accounts at once with a generic password — no emails sent">Bulk invite</button>' +
+'<button id="btn-export-csv" class="btn" title="Download the user list as CSV">Export CSV</button>' +
+'</div>' +
+'<div id="create-form-wrap"></div>' +
+'<div id="bulk-invite-wrap"></div>' +
+'<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
+'<div class="admin-note">Details opens entitlements, vault stats, history and account tools. Suspend blocks sign-in but keeps the vault. Delete removes the account AND wipes its vault. The owner account is protected.</div>';
+document.getElementById('user-search').addEventListener('input', e => {
+const q = e.target.value.trim().toLowerCase();
+const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
+document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
+});
+document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
+document.getElementById('btn-bulk-invite').addEventListener('click', toggleBulkInvite);
+document.getElementById('btn-export-csv').addEventListener('click', exportUsersCsv);
 }
 function exportUsersCsv() {
-  if (!allUsers.length) { showNote('⚠ No users to export.', false); return; }
-  downloadCsv('weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv',
-    'email,created,last_sign_in,status',
-    allUsers.map(u => [
-      csvEscape(u.email), u.created_at || '', u.last_sign_in_at || '',
-      u.banned_until ? 'suspended' : 'active',
-    ].join(',')));
+if (!allUsers.length) { showNote('⚠ No users to export.', false); return; }
+downloadCsv('weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv',
+'email,created,last_sign_in,status',
+allUsers.map(u => [
+csvEscape(u.email), u.created_at || '', u.last_sign_in_at || '',
+u.banned_until ? 'suspended' : 'active',
+].join(',')));
 }
 function exportCreditsCsv() {
-  if (!allCredits.length) { showNote('⚠ No credits data to export.', false); return; }
-  downloadCsv('weaver-credits-' + new Date().toISOString().slice(0, 10) + '.csv',
-    'email,plan,credits,pro_until',
-    allCredits.map(r => [csvEscape(r.email), csvEscape(r.plan), r.credits || 0, r.pro_until || ''].join(',')));
+if (!allCredits.length) { showNote('⚠ No credits data to export.', false); return; }
+downloadCsv('weaver-credits-' + new Date().toISOString().slice(0, 10) + '.csv',
+'email,plan,credits,pro_until',
+allCredits.map(r => [csvEscape(r.email), csvEscape(r.plan), r.credits || 0, r.pro_until || ''].join(',')));
 }
 function toggleCreateForm() {
-  const wrap = document.getElementById('create-form-wrap');
-  if (!wrap) return;
-  if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
-  const bw = document.getElementById('bulk-invite-wrap'); if (bw) bw.innerHTML = '';
-  wrap.innerHTML =
-    '<div class="create-form" style="margin:0 16px 12px">' +
-      '<div class="row">' +
-        '<input id="nu-email" class="input" type="email" placeholder="user@example.com">' +
-        '<input id="nu-pass" class="input" type="password" placeholder="password (min 6)">' +
-      '</div>' +
-      '<div class="row" style="justify-content:flex-end">' +
-        '<button class="btn btn-sm" data-create-cancel>Cancel</button>' +
-        '<button class="btn btn-sm btn-primary" data-create-go>Create account</button>' +
-      '</div>' +
-    '</div>';
-  wrap.querySelector('[data-create-cancel]').addEventListener('click', () => { wrap.innerHTML = ''; });
-  wrap.querySelector('[data-create-go]').addEventListener('click', async () => {
-    const email = document.getElementById('nu-email').value.trim();
-    const pass = document.getElementById('nu-pass').value;
-    if (!email || !pass) { showNote('⚠ Enter both an email and a password.', false); return; }
-    try {
-      await api('/api/users', { method: 'POST', body: { email, password: pass } });
-      wrap.innerHTML = '';
-      showNote('Account created for <b>' + esc(email) + '</b>.', false);
-      loadUsers();
-    } catch (e) {
-      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-    }
-  });
-  document.getElementById('nu-email').focus();
+const wrap = document.getElementById('create-form-wrap');
+if (!wrap) return;
+if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+const bw = document.getElementById('bulk-invite-wrap'); if (bw) bw.innerHTML = '';
+wrap.innerHTML =
+'<div class="create-form" style="margin:0 16px 12px">' +
+'<div class="row">' +
+'<input id="nu-email" class="input" type="email" placeholder="user@example.com">' +
+'<input id="nu-pass" class="input" type="password" placeholder="password (min 6)">' +
+'</div>' +
+'<div class="row" style="justify-content:flex-end">' +
+'<button class="btn btn-sm" data-create-cancel>Cancel</button>' +
+'<button class="btn btn-sm btn-primary" data-create-go>Create account</button>' +
+'</div>' +
+'</div>';
+wrap.querySelector('[data-create-cancel]').addEventListener('click', () => { wrap.innerHTML = ''; });
+wrap.querySelector('[data-create-go]').addEventListener('click', async () => {
+const email = document.getElementById('nu-email').value.trim();
+const pass = document.getElementById('nu-pass').value;
+if (!email || !pass) { showNote('⚠ Enter both an email and a password.', false); return; }
+try {
+await api('/api/users', { method: 'POST', body: { email, password: pass } });
+wrap.innerHTML = '';
+showNote('Account created for <b>' + esc(email) + '</b>.', false);
+loadUsers();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+});
+document.getElementById('nu-email').focus();
 }
 function toggleBulkInvite() {
-  const wrap = document.getElementById('bulk-invite-wrap');
-  if (!wrap) return;
-  if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
-  const cf = document.getElementById('create-form-wrap'); if (cf) cf.innerHTML = '';
-  wrap.innerHTML =
-    '<div class="create-form" style="margin:0 16px 12px">' +
-      '<div class="field"><span>Emails — one per line</span>' +
-        '<textarea id="bi-emails" class="textarea" rows="5" placeholder="reader1@example.com&#10;reader2@example.com"></textarea>' +
-      '</div>' +
-      '<div class="row">' +
-        '<input id="bi-pass" class="input" type="text" placeholder="Generic password for all invites (min 6)">' +
-        '<button class="btn btn-sm btn-primary" data-bi-go>Create all accounts</button>' +
-      '</div>' +
-      '<div class="admin-note" style="padding:0">No emails are sent — your email quota is untouched. Share the generic password with your invitees; after first sign-in each uses "Forgot password?" to choose their own.</div>' +
-    '</div>';
-  wrap.querySelector('[data-bi-go]').addEventListener('click', runBulkInvite);
-  document.getElementById('bi-emails').focus();
+const wrap = document.getElementById('bulk-invite-wrap');
+if (!wrap) return;
+if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+const cf = document.getElementById('create-form-wrap'); if (cf) cf.innerHTML = '';
+wrap.innerHTML =
+'<div class="create-form" style="margin:0 16px 12px">' +
+'<div class="field"><span>Emails — one per line</span>' +
+'<textarea id="bi-emails" class="textarea" rows="5" placeholder="reader1@example.com&#10;reader2@example.com"></textarea>' +
+'</div>' +
+'<div class="row">' +
+'<input id="bi-pass" class="input" type="text" placeholder="Generic password for all invites (min 6)">' +
+'<button class="btn btn-sm btn-primary" data-bi-go>Create all accounts</button>' +
+'</div>' +
+'<div class="admin-note" style="padding:0">No emails are sent — your email quota is untouched. Share the generic password with your invitees; after first sign-in each uses "Forgot password?" to choose their own.</div>' +
+'</div>';
+wrap.querySelector('[data-bi-go]').addEventListener('click', runBulkInvite);
+document.getElementById('bi-emails').focus();
 }
 async function runBulkInvite() {
-  const emails = (document.getElementById('bi-emails').value || '')
-    .split(/[\n,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
-  const pass = document.getElementById('bi-pass').value;
-  if (!emails.length) { showNote('⚠ Enter at least one email.', false); return; }
-  if (pass.length < 6) { showNote('⚠ The generic password must be at least 6 characters.', false); return; }
-  let ok = 0;
-  const failed = [];
-  for (const email of emails) {
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { failed.push(email + ' (invalid)'); continue; }
-    try {
-      await api('/api/users', { method: 'POST', body: { email, password: pass } });
-      ok++;
-    } catch (e) {
-      if (e.message === 'unauthorized') return;
-      failed.push(email + ' (' + e.message + ')');
-    }
-  }
-  let msg = 'Bulk invite: <b>' + ok + '</b> account' + (ok === 1 ? '' : 's') + ' created.';
-  if (failed.length) msg += ' <span style="color:var(--danger)">Failed: ' + esc(failed.join('; ')) + '</span>';
-  showNote(msg, true);
-  document.getElementById('bulk-invite-wrap').innerHTML = '';
-  loadUsers();
+const emails = (document.getElementById('bi-emails').value || '')
+.split(/[\n,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+const pass = document.getElementById('bi-pass').value;
+if (!emails.length) { showNote('⚠ Enter at least one email.', false); return; }
+if (pass.length < 6) { showNote('⚠ The generic password must be at least 6 characters.', false); return; }
+let ok = 0;
+const failed = [];
+for (const email of emails) {
+if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { failed.push(email + ' (invalid)'); continue; }
+try {
+await api('/api/users', { method: 'POST', body: { email, password: pass } });
+ok++;
+} catch (e) {
+if (e.message === 'unauthorized') return;
+failed.push(email + ' (' + e.message + ')');
+}
+}
+let msg = 'Bulk invite: <b>' + ok + '</b> account' + (ok === 1 ? '' : 's') + ' created.';
+if (failed.length) msg += ' <span style="color:var(--danger)">Failed: ' + esc(failed.join('; ')) + '</span>';
+showNote(msg, true);
+document.getElementById('bulk-invite-wrap').innerHTML = '';
+loadUsers();
 }
 async function handleUserAction(action, id, email) {
-  if (!id) return;
-  try {
-    if (action === 'ban' || action === 'unban') {
-      const verb = action === 'ban' ? 'Suspend' : 'Unsuspend';
-      if (!confirm(verb + ' ' + (email || 'this user') + '?')) return;
-      await api('/api/users/' + id + '/' + action, { method: 'POST' });
-      showNote((action === 'ban' ? 'Suspended ' : 'Unsuspended ') + '<b>' + esc(email || 'user') + '</b>.', false);
-      loadUsers();
-    } else if (action === 'recovery') {
-      const d = await api('/api/users/' + id + '/recovery', { method: 'POST' });
-      if (d && d.action_link) {
-        showNote('Password-reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
-          '<a href="' + esc(d.action_link) + '" target="_blank" rel="noopener" style="word-break:break-all">' + esc(d.action_link) + '</a>', true);
-      } else {
-        showNote('Password-reset email sent to <b>' + esc(email || 'user') + '</b>.', false);
-      }
-    } else if (action === 'delete') {
-      if (!confirm('Delete ' + (email || 'this user') + '? This cannot be undone.')) return;
-      if (!confirm('This also PERMANENTLY WIPES their cloud vault. Continue deleting ' + (email || 'this user') + '?')) return;
-      const d = await api('/api/users/' + id, { method: 'DELETE' });
-      let msg = '<b>' + esc(email || 'User') + '</b> deleted.';
-      if (d && d.storageOk === false) msg += ' <span style="color:var(--danger)">Vault cleanup issue: ' + esc(d.storageMsg || 'unknown') + '.</span>';
-      showNote(msg, false);
-      loadUsers();
-    }
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+if (!id) return;
+try {
+if (action === 'ban' || action === 'unban') {
+const verb = action === 'ban' ? 'Suspend' : 'Unsuspend';
+if (!confirm(verb + ' ' + (email || 'this user') + '?')) return;
+await api('/api/users/' + id + '/' + action, { method: 'POST' });
+showNote((action === 'ban' ? 'Suspended ' : 'Unsuspended ') + '<b>' + esc(email || 'user') + '</b>.', false);
+loadUsers();
+} else if (action === 'recovery') {
+const d = await api('/api/users/' + id + '/recovery', { method: 'POST' });
+if (d && d.action_link) {
+showNote('Password-reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
+'<a href="' + esc(d.action_link) + '" target="_blank" rel="noopener" style="word-break:break-all">' + esc(d.action_link) + '</a>', true);
+} else {
+showNote('Password-reset email sent to <b>' + esc(email || 'user') + '</b>.', false);
+}
+} else if (action === 'delete') {
+if (!confirm('Delete ' + (email || 'this user') + '? This cannot be undone.')) return;
+if (!confirm('This also PERMANENTLY WIPES their cloud vault. Continue deleting ' + (email || 'this user') + '?')) return;
+const d = await api('/api/users/' + id, { method: 'DELETE' });
+let msg = '<b>' + esc(email || 'User') + '</b> deleted.';
+if (d && d.storageOk === false) msg += ' <span style="color:var(--danger)">Vault cleanup issue: ' + esc(d.storageMsg || 'unknown') + '.</span>';
+showNote(msg, false);
+loadUsers();
+}
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
 }
 function detailHTML(ent, st, log, audits) {
-  const neverSynced = !st || !st.objects;
-  const plan = ent ? ent.plan : 'free';
-  const credits = ent ? ent.credits : 0;
-  const proUntil = ent && ent.pro_until ? fmtDate(ent.pro_until) : '—';
-  const credRows = (log || []).slice(0, 8).map(l =>
-    '<div class="cred-log-row">' +
-      '<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
-      '<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
-      '<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
-    '</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No credit activity yet.</div>';
-  const auditRows = (audits || []).map(a =>
-    '<div class="audit-row" style="padding:6px 10px">' +
-      '<span class="audit-time">' + fmtDateTime(a.created_at) + '</span>' +
-      '<span class="status-badge">' + esc(a.action) + '</span>' +
-      '<span class="audit-detail">' + esc(a.detail || '') + '</span>' +
-    '</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No admin actions recorded for this user.</div>';
-  return '<div class="user-detail">' +
-    '<div class="ud-grid">' +
-      '<div class="ud-box"><div class="ud-label">Entitlements</div>' +
-        '<div class="ud-line">plan <b>' + esc(plan) + '</b> · credits <b>' + num(credits) + '</b> · pro until <b>' + esc(proUntil) + '</b></div>' +
-      '</div>' +
-      '<div class="ud-box"><div class="ud-label">Vault</div>' +
-        (neverSynced
-          ? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
-          : '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
-      '</div>' +
-    '</div>' +
-    '<div class="ud-box"><div class="ud-label">Recent credit history</div>' + credRows + '</div>' +
-    '<div class="ud-box"><div class="ud-label">Admin actions on this user</div>' + auditRows + '</div>' +
-    '<div class="ud-grid">' +
-      '<div class="ud-box"><div class="ud-label">Change email</div>' +
-        '<div class="row">' +
-          '<input data-f="newemail" class="input" type="email" placeholder="new@email.com">' +
-          '<button class="btn btn-sm" data-detail-action="email">Change</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="ud-box"><div class="ud-label">Set password</div>' +
-        '<div class="row">' +
-          '<input data-f="newpass" class="input" type="text" placeholder="temporary password (min 6)">' +
-          '<button class="btn btn-sm" data-detail-action="password">Set</button>' +
-        '</div>' +
-        '<div class="ud-hint">The user signs in with this once, then uses "Forgot password?" to choose their own. Consumes no email quota.</div>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
+const neverSynced = !st || !st.objects;
+const plan = ent ? ent.plan : 'free';
+const credits = ent ? ent.credits : 0;
+const proUntil = ent && ent.pro_until ? fmtDate(ent.pro_until) : '—';
+const credRows = (log || []).slice(0, 8).map(l =>
+'<div class="cred-log-row">' +
+'<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+'<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+'<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+'</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No credit activity yet.</div>';
+const auditRows = (audits || []).map(a =>
+'<div class="audit-row" style="padding:6px 10px">' +
+'<span class="audit-time">' + fmtDateTime(a.created_at) + '</span>' +
+'<span class="status-badge">' + esc(a.action) + '</span>' +
+'<span class="audit-detail">' + esc(a.detail || '') + '</span>' +
+'</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No admin actions recorded for this user.</div>';
+return '<div class="user-detail">' +
+'<div class="ud-grid">' +
+'<div class="ud-box"><div class="ud-label">Entitlements</div>' +
+'<div class="ud-line">plan <b>' + esc(plan) + '</b> · credits <b>' + num(credits) + '</b> · pro until <b>' + esc(proUntil) + '</b></div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Vault</div>' +
+(neverSynced
+? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
+: '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
+'</div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Recent credit history</div>' + credRows + '</div>' +
+'<div class="ud-box"><div class="ud-label">Admin actions on this user</div>' + auditRows + '</div>' +
+'<div class="ud-grid">' +
+'<div class="ud-box"><div class="ud-label">Change email</div>' +
+'<div class="row">' +
+'<input data-f="newemail" class="input" type="email" placeholder="new@email.com">' +
+'<button class="btn btn-sm" data-detail-action="email">Change</button>' +
+'</div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Set password</div>' +
+'<div class="row">' +
+'<input data-f="newpass" class="input" type="text" placeholder="temporary password (min 6)">' +
+'<button class="btn btn-sm" data-detail-action="password">Set</button>' +
+'</div>' +
+'<div class="ud-hint">The user signs in with this once, then uses "Forgot password?" to choose their own. Consumes no email quota.</div>' +
+'</div>' +
+'</div>' +
+'</div>';
 }
 async function toggleUserDetails(id, email, btn) {
-  const card = btn ? btn.closest('.user-card') : null;
-  if (!card) return;
-  const slot = card.querySelector('.user-detail-slot');
-  if (!slot) return;
-  if (slot.querySelector('.user-detail')) { slot.innerHTML = ''; return; }
-  document.querySelectorAll('.user-detail-slot').forEach(s => { s.innerHTML = ''; });
-  slot.innerHTML = '<div class="loading" style="padding:16px">Loading details…</div>';
-  try {
-    const [credits, storage, audit] = await Promise.all([
-      api('/api/credits'), api('/api/storage'), api('/api/audit'),
-    ]);
-    const log = await api('/api/credits/' + id + '/log').catch(() => ({ log: [] }));
-    const ent = (credits.rows || []).find(r => r.user_id === id) || null;
-    const st = (storage.perUser || []).find(r => r.user_id === id) || null;
-    const audits = (audit.rows || []).filter(a => (a.target || '') === email || (a.target || '') === id).slice(0, 10);
-    slot.innerHTML = detailHTML(ent, st, log.log || [], audits);
-    const emailBtn = slot.querySelector('[data-detail-action="email"]');
-    const passBtn = slot.querySelector('[data-detail-action="password"]');
-    if (emailBtn) emailBtn.onclick = async () => {
-      const newEmail = slot.querySelector('[data-f="newemail"]').value.trim();
-      if (!newEmail || newEmail.indexOf('@') < 0) { showNote('⚠ Enter a valid email address.', false); return; }
-      if (!confirm('Change the email of ' + (email || 'this user') + ' to ' + newEmail + '?')) return;
-      try {
-        await api('/api/users/' + id + '/email', { method: 'POST', body: { email: newEmail } });
-        showNote('Email changed to <b>' + esc(newEmail) + '</b>.', false);
-        loadTab(activeTab);
-      } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
-    };
-    if (passBtn) passBtn.onclick = async () => {
-      const newPass = slot.querySelector('[data-f="newpass"]').value;
-      if (!newPass || newPass.length < 6) { showNote('⚠ Password must be at least 6 characters.', false); return; }
-      if (!confirm('Set a new password for ' + (email || 'this user') + '? Advise them to change it via "Forgot password?" afterwards.')) return;
-      try {
-        await api('/api/users/' + id + '/password', { method: 'POST', body: { password: newPass } });
-        showNote('Password set for <b>' + esc(email || 'user') + '</b>. Remind them to change it after first sign-in.', false);
-      } catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
-    };
-  } catch (e) {
-    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
-  }
+const card = btn ? btn.closest('.user-card') : null;
+if (!card) return;
+const slot = card.querySelector('.user-detail-slot');
+if (!slot) return;
+if (slot.querySelector('.user-detail')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.user-detail-slot').forEach(s => { s.innerHTML = ''; });
+slot.innerHTML = '<div class="loading" style="padding:16px">Loading details…</div>';
+try {
+const [credits, storage, audit] = await Promise.all([
+api('/api/credits'), api('/api/storage'), api('/api/audit'),
+]);
+const log = await api('/api/credits/' + id + '/log').catch(() => ({ log: [] }));
+const ent = (credits.rows || []).find(r => r.user_id === id) || null;
+const st = (storage.perUser || []).find(r => r.user_id === id) || null;
+const audits = (audit.rows || []).filter(a => (a.target || '') === email || (a.target || '') === id).slice(0, 10);
+slot.innerHTML = detailHTML(ent, st, log.log || [], audits);
+const emailBtn = slot.querySelector('[data-detail-action="email"]');
+const passBtn = slot.querySelector('[data-detail-action="password"]');
+if (emailBtn) emailBtn.onclick = async () => {
+const newEmail = slot.querySelector('[data-f="newemail"]').value.trim();
+if (!newEmail || newEmail.indexOf('@') < 0) { showNote('⚠ Enter a valid email address.', false); return; }
+if (!confirm('Change the email of ' + (email || 'this user') + ' to ' + newEmail + '?')) return;
+try {
+await api('/api/users/' + id + '/email', { method: 'POST', body: { email: newEmail } });
+showNote('Email changed to <b>' + esc(newEmail) + '</b>.', false);
+loadTab(activeTab);
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+};
+if (passBtn) passBtn.onclick = async () => {
+const newPass = slot.querySelector('[data-f="newpass"]').value;
+if (!newPass || newPass.length < 6) { showNote('⚠ Password must be at least 6 characters.', false); return; }
+if (!confirm('Set a new password for ' + (email || 'this user') + '? Advise them to change it via "Forgot password?" afterwards.')) return;
+try {
+await api('/api/users/' + id + '/password', { method: 'POST', body: { password: newPass } });
+showNote('Password set for <b>' + esc(email || 'user') + '</b>. Remind them to change it after first sign-in.', false);
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+};
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
 }
-
+}
 function creditCardHTML(r) {
-  const planBadge = r.plan === 'pro'
-    ? '<span class="status-badge owner">pro</span>'
-    : '<span class="status-badge">free</span>';
-  const proLine = r.pro_until ? 'Pro until ' + fmtDate(r.pro_until) : 'no Pro expiry';
-  return '<div class="user-card" data-credit-card="' + esc(r.user_id) + '">' +
-    '<div class="user-card-head">' +
-      '<span class="user-email">' + esc(r.email || '(no email)') + '</span>' +
-      '<span class="cred-badges">' + planBadge +
-        '<span class="status-badge active">' + num(r.credits) + ' credits</span>' +
-      '</span>' +
-    '</div>' +
-    '<div class="user-meta">' + esc(proLine) + '</div>' +
-    '<div class="user-actions">' +
-      '<button class="btn btn-sm" data-action="details" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>' +
-      '<button class="btn btn-sm btn-primary" data-action="grant" data-id="' + esc(r.user_id) + '" title="Add credits and/or Pro days">Grant</button>' +
-      '<button class="btn btn-sm btn-danger" data-action="revoke" data-id="' + esc(r.user_id) + '" title="Remove credits">Revoke</button>' +
-      '<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
-    '</div>' +
-    '<div class="cred-slot"></div>' +
-    '<div class="user-detail-slot"></div>' +
-  '</div>';
+const planBadge = r.plan === 'pro'
+? '<span class="status-badge owner">pro</span>'
+: '<span class="status-badge">free</span>';
+const proLine = r.pro_until ? 'Pro until ' + fmtDate(r.pro_until) : 'no Pro expiry';
+return '<div class="user-card" data-credit-card="' + esc(r.user_id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(r.email || '(no email)') + '</span>' +
+'<span class="cred-badges">' + planBadge +
+'<span class="status-badge active">' + num(r.credits) + ' credits</span>' +
+'</span>' +
+'</div>' +
+'<div class="user-meta">' + esc(proLine) + '</div>' +
+'<div class="user-actions">' +
+'<button class="btn btn-sm" data-action="details" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>' +
+'<button class="btn btn-sm btn-primary" data-action="grant" data-id="' + esc(r.user_id) + '" title="Add credits and/or Pro days">Grant</button>' +
+'<button class="btn btn-sm btn-danger" data-action="revoke" data-id="' + esc(r.user_id) + '" title="Remove credits">Revoke</button>' +
+'<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
+'</div>' +
+'<div class="cred-slot"></div>' +
+'<div class="user-detail-slot"></div>' +
+'</div>';
 }
 function loadCredits() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading entitlements…</div>';
-  api('/api/credits').then(d => {
-    allCredits = d.rows || [];
-    renderCredits(allCredits);
-  }).catch(e => {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  });
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading entitlements…</div>';
+api('/api/credits').then(d => {
+allCredits = d.rows || [];
+renderCredits(allCredits);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
 }
 function renderCredits(list) {
-  const content = document.getElementById('admin-content');
-  content.innerHTML =
-    '<div class="users-toolbar">' +
-      '<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
-      '<button id="btn-credits-csv" class="btn" title="Download the credits ledger as CSV">Export CSV</button>' +
-    '</div>' +
-    '<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
-    '<div class="admin-note">Details opens the full user view. Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
-  document.getElementById('credit-search').addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
-    const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
-    document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
-  });
-  document.getElementById('btn-credits-csv').addEventListener('click', exportCreditsCsv);
+const content = document.getElementById('admin-content');
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
+'<button id="btn-credits-csv" class="btn" title="Download the credits ledger as CSV">Export CSV</button>' +
+'</div>' +
+'<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
+'<div class="admin-note">Details opens the full user view. Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail. Revoking never takes a balance below zero; Pro time is never shortened by a revoke.</div>';
+document.getElementById('credit-search').addEventListener('input', e => {
+const q = e.target.value.trim().toLowerCase();
+const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
+document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
+});
+document.getElementById('btn-credits-csv').addEventListener('click', exportCreditsCsv);
 }
 function toggleAdjustForm(userId, mode) {
-  const card = document.querySelector('[data-credit-card="' + userId + '"]');
-  if (!card) return;
-  const slot = card.querySelector('.cred-slot');
-  if (!slot) return;
-  if (slot.querySelector('.create-form')) { slot.innerHTML = ''; return; }
-  document.querySelectorAll('.cred-slot').forEach(s => { s.innerHTML = ''; });
-  const isGrant = mode === 'grant';
-  slot.innerHTML =
-    '<div class="create-form">' +
-      '<div class="row">' +
-        '<input data-f="amount" class="input" type="number" min="0" step="1" placeholder="' + (isGrant ? 'Credits to add' : 'Credits to remove') + '">' +
-        (isGrant ? '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' : '') +
-      '</div>' +
-      '<input data-f="reason" class="input" type="text" placeholder="Reason (required — appears in the audit log)">' +
-      '<div class="row" style="justify-content:flex-end">' +
-        '<button class="btn btn-sm" data-cred-cancel>Cancel</button>' +
-        '<button class="btn btn-sm ' + (isGrant ? 'btn-primary' : 'btn-danger') + '" data-cred-apply>' + (isGrant ? 'Grant' : 'Revoke') + '</button>' +
-      '</div>' +
-    '</div>';
-  slot.querySelector('[data-cred-cancel]').addEventListener('click', () => { slot.innerHTML = ''; });
-  slot.querySelector('[data-cred-apply]').addEventListener('click', async () => {
-    const amount = Math.abs(parseInt(slot.querySelector('[data-f="amount"]').value, 10) || 0);
-    const proEl = slot.querySelector('[data-f="prodays"]');
-    const proDays = proEl ? (parseInt(proEl.value, 10) || 0) : 0;
-    const reason = slot.querySelector('[data-f="reason"]').value.trim();
-    if (amount === 0 && (!isGrant || proDays <= 0)) {
-      showNote('⚠ Enter a credit amount' + (isGrant ? ' and/or Pro days' : '') + '.', false);
-      return;
-    }
-    if (!reason) { showNote('⚠ A reason is required.', false); return; }
-    try {
-      await api('/api/credits/' + userId + '/adjust', {
-        method: 'POST',
-        body: { amount: isGrant ? amount : -amount, pro_days: isGrant ? proDays : 0, reason },
-      });
-      slot.innerHTML = '';
-      showNote((isGrant ? 'Granted to ' : 'Revoked from ') + '<b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
-      loadCredits();
-    } catch (e) {
-      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-    }
-  });
-  slot.querySelector('[data-f="amount"]').focus();
+const card = document.querySelector('[data-credit-card="' + userId + '"]');
+if (!card) return;
+const slot = card.querySelector('.cred-slot');
+if (!slot) return;
+if (slot.querySelector('.create-form')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.cred-slot').forEach(s => { s.innerHTML = ''; });
+const isGrant = mode === 'grant';
+slot.innerHTML =
+'<div class="create-form">' +
+'<div class="row">' +
+'<input data-f="amount" class="input" type="number" min="0" step="1" placeholder="' + (isGrant ? 'Credits to add' : 'Credits to remove') + '">' +
+(isGrant ? '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' : '') +
+'</div>' +
+'<input data-f="reason" class="input" type="text" placeholder="Reason (required — appears in the audit log)">' +
+'<div class="row" style="justify-content:flex-end">' +
+'<button class="btn btn-sm" data-cred-cancel>Cancel</button>' +
+'<button class="btn btn-sm ' + (isGrant ? 'btn-primary' : 'btn-danger') + '" data-cred-apply>' + (isGrant ? 'Grant' : 'Revoke') + '</button>' +
+'</div>' +
+'</div>';
+slot.querySelector('[data-cred-cancel]').addEventListener('click', () => { slot.innerHTML = ''; });
+slot.querySelector('[data-cred-apply]').addEventListener('click', async () => {
+const amount = Math.abs(parseInt(slot.querySelector('[data-f="amount"]').value, 10) || 0);
+const proEl = slot.querySelector('[data-f="prodays"]');
+const proDays = proEl ? (parseInt(proEl.value, 10) || 0) : 0;
+const reason = slot.querySelector('[data-f="reason"]').value.trim();
+if (amount === 0 && (!isGrant || proDays <= 0)) {
+showNote('⚠ Enter a credit amount' + (isGrant ? ' and/or Pro days' : '') + '.', false);
+return;
+}
+if (!reason) { showNote('⚠ A reason is required.', false); return; }
+try {
+await api('/api/credits/' + userId + '/adjust', {
+method: 'POST',
+body: { amount: isGrant ? amount : -amount, pro_days: isGrant ? proDays : 0, reason },
+});
+slot.innerHTML = '';
+showNote((isGrant ? 'Granted to ' : 'Revoked from ') + '<b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
+loadCredits();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+});
+slot.querySelector('[data-f="amount"]').focus();
 }
 async function toggleHistory(userId) {
-  const card = document.querySelector('[data-credit-card="' + userId + '"]');
-  if (!card) return;
-  const slot = card.querySelector('.cred-slot');
-  if (!slot) return;
-  if (slot.querySelector('.cred-history')) { slot.innerHTML = ''; return; }
-  slot.innerHTML = '<div class="loading" style="padding:16px">Loading history…</div>';
-  try {
-    const d = await api('/api/credits/' + userId + '/log');
-    const log = d.log || [];
-    if (!log.length) {
-      slot.innerHTML = '<div class="cred-history"><div style="color:var(--faint);font-size:.8rem">No credit activity yet.</div></div>';
-      return;
-    }
-    slot.innerHTML = '<div class="cred-history">' + log.map(l =>
-      '<div class="cred-log-row">' +
-        '<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
-        '<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
-        '<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
-      '</div>').join('') + '</div>';
-  } catch (e) {
-    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
-  }
+const card = document.querySelector('[data-credit-card="' + userId + '"]');
+if (!card) return;
+const slot = card.querySelector('.cred-slot');
+if (!slot) return;
+if (slot.querySelector('.cred-history')) { slot.innerHTML = ''; return; }
+slot.innerHTML = '<div class="loading" style="padding:16px">Loading history…</div>';
+try {
+const d = await api('/api/credits/' + userId + '/log');
+const log = d.log || [];
+if (!log.length) {
+slot.innerHTML = '<div class="cred-history"><div style="color:var(--faint);font-size:.8rem">No credit activity yet.</div></div>';
+return;
 }
-
+slot.innerHTML = '<div class="cred-history">' + log.map(l =>
+'<div class="cred-log-row">' +
+'<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+'<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+'<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+'</div>').join('') + '</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+}
+}
 function signupsChartSVG(days) {
-  if (!days || !days.length) return '';
-  const W = 640;
-  const H = 120;
-  const pad = 6;
-  let max = 1;
-  for (const d of days) if (d.count > max) max = d.count;
-  const bw = (W - pad * 2) / days.length;
-  let bars = '';
-  days.forEach((d, i) => {
-    const h = d.count ? Math.max(4, (d.count / max) * (H - 26)) : 2;
-    const x = (pad + i * bw + 2).toFixed(1);
-    const y = (H - 16 - h).toFixed(1);
-    const w = Math.max(2, bw - 4).toFixed(1);
-    const fill = d.count ? 'var(--accent)' : 'var(--border-strong)';
-    const op = d.count ? '0.9' : '0.5';
-    bars += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h.toFixed(1) + '" rx="3" fill="' + fill + '" opacity="' + op + '">' +
-      '<title>' + esc(d.label) + ': ' + d.count + '</title></rect>';
-  });
-  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" aria-label="Signups over the last 14 days">' +
-    bars +
-    '<text x="' + pad + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)">' + esc(days[0].label) + '</text>' +
-    '<text x="' + (W - pad) + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)" text-anchor="end">' + esc(days[days.length - 1].label) + '</text>' +
-  '</svg>';
+if (!days || !days.length) return '';
+const W = 640;
+const H = 120;
+const pad = 6;
+let max = 1;
+for (const d of days) if (d.count > max) max = d.count;
+const bw = (W - pad * 2) / days.length;
+let bars = '';
+days.forEach((d, i) => {
+const h = d.count ? Math.max(4, (d.count / max) * (H - 26)) : 2;
+const x = (pad + i * bw + 2).toFixed(1);
+const y = (H - 16 - h).toFixed(1);
+const w = Math.max(2, bw - 4).toFixed(1);
+const fill = d.count ? 'var(--accent)' : 'var(--border-strong)';
+const op = d.count ? '0.9' : '0.5';
+bars += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h.toFixed(1) + '" rx="3" fill="' + fill + '" opacity="' + op + '">' +
+'<title>' + esc(d.label) + ': ' + d.count + '</title></rect>';
+});
+return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" aria-label="Signups over the last 14 days">' +
+bars +
+'<text x="' + pad + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)">' + esc(days[0].label) + '</text>' +
+'<text x="' + (W - pad) + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)" text-anchor="end">' + esc(days[days.length - 1].label) + '</text>' +
+'</svg>';
 }
 function loadStorage() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading storage & metrics…</div>';
-  Promise.all([api('/api/storage'), api('/api/metrics')]).then(([s, m]) => {
-    renderStorage(s, m);
-  }).catch(e => {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  });
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading storage & metrics…</div>';
+Promise.all([api('/api/storage'), api('/api/metrics')]).then(([s, m]) => {
+renderStorage(s, m);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
 }
 function renderStorage(s, m) {
-  const content = document.getElementById('admin-content');
-  const neverSynced = Math.max(0, (m.usersTotal || 0) - (s.perUser || []).length);
-  const rows = (s.perUser || []).map(r =>
-    '<div class="user-card" data-storage-card="' + esc(r.user_id) + '">' +
-      '<div class="user-card-head">' +
-        '<span class="user-email">' + esc(r.email) + '</span>' +
-        '<span class="cred-badges">' +
-          '<span class="status-badge owner">' + num(r.projects) + ' projects</span>' +
-          '<span class="status-badge active">' + num(r.objects) + ' objects</span>' +
-          '<span class="status-badge owner">' + esc(fmtBytes(r.bytes)) + '</span>' +
-        '</span>' +
-      '</div>' +
-      '<div class="user-meta">last vault activity ' + (r.last ? fmtDate(r.last) : '—') + '</div>' +
-      '<div class="user-actions">' +
-        '<button class="btn btn-sm" data-action="projects" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Manage this user\'s projects — titles and sizes only, content is never opened">Projects</button>' +
-      '</div>' +
-      '<div class="proj-slot"></div>' +
-    '</div>').join('') || '<div class="empty">No vault data yet.</div>';
-  content.innerHTML =
-    '<div class="grid">' +
-      card(num(s.totalObjects), 'Vault objects', 'weaver-vault') +
-      card(fmtBytes(s.totalBytes), 'Vault size', 'compressed blobs') +
-      card(num(m.active7d), 'Active · 7 days', 'signed in', 'gold') +
-      card(num(m.active30d), 'Active · 30 days', 'signed in', 'gold') +
-      card(num(neverSynced), 'Never synced', 'signed up, empty vault', neverSynced ? 'bad' : 'ok') +
-    '</div>' +
-    '<div class="stor-chart-wrap">' +
-      '<div class="stor-chart-title">Sign-ups · last 14 days <span class="stor-chart-sum">' + num(m.signups14d) + ' total</span></div>' +
-      signupsChartSVG(m.signups || []) +
-    '</div>' +
-    '<div class="stor-users-title">Vault by user · largest first</div>' +
-    rows +
-    '<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
+const content = document.getElementById('admin-content');
+const neverSynced = Math.max(0, (m.usersTotal || 0) - (s.perUser || []).length);
+const rows = (s.perUser || []).map(r =>
+'<div class="user-card" data-storage-card="' + esc(r.user_id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(r.email) + '</span>' +
+'<span class="cred-badges">' +
+'<span class="status-badge owner">' + num(r.projects) + ' projects</span>' +
+'<span class="status-badge active">' + num(r.objects) + ' objects</span>' +
+'<span class="status-badge owner">' + esc(fmtBytes(r.bytes)) + '</span>' +
+'</span>' +
+'</div>' +
+'<div class="user-meta">last vault activity ' + (r.last ? fmtDate(r.last) : '—') + '</div>' +
+'<div class="user-actions">' +
+'<button class="btn btn-sm" data-action="projects" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Manage this user\'s projects — titles and sizes only, content is never opened">Projects</button>' +
+'</div>' +
+'<div class="proj-slot"></div>' +
+'</div>').join('') || '<div class="empty">No vault data yet.</div>';
+content.innerHTML =
+'<div class="grid">' +
+card(num(s.totalObjects), 'Vault objects', 'weaver-vault') +
+card(fmtBytes(s.totalBytes), 'Vault size', 'compressed blobs') +
+card(num(m.active7d), 'Active · 7 days', 'signed in', 'gold') +
+card(num(m.active30d), 'Active · 30 days', 'signed in', 'gold') +
+card(num(neverSynced), 'Never synced', 'signed up, empty vault', neverSynced ? 'bad' : 'ok') +
+'</div>' +
+'<div class="stor-chart-wrap">' +
+'<div class="stor-chart-title">Sign-ups · last 14 days <span class="stor-chart-sum">' + num(m.signups14d) + ' total</span></div>' +
+signupsChartSVG(m.signups || []) +
+'</div>' +
+'<div class="stor-users-title">Vault by user · largest first</div>' +
+rows +
+'<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
 }
-
 function auditBadge(a) {
-  const cls = a.indexOf('delete') >= 0 ? 'banned'
-    : a.indexOf('credits') === 0 || a.indexOf('banner') === 0 || a.indexOf('backup') === 0 ? 'owner'
-    : a.indexOf('suspend') >= 0 ? 'banned'
-    : 'active';
-  return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
+const cls = a.indexOf('delete') >= 0 ? 'banned'
+: a.indexOf('credits') === 0 || a.indexOf('banner') === 0 || a.indexOf('backup') === 0 ? 'owner'
+: a.indexOf('suspend') >= 0 ? 'banned'
+: 'active';
+return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
 }
 async function exportAuditCsv() {
-  try {
-    const d = await api('/api/audit');
-    const rows = d.rows || [];
-    if (!rows.length) { showNote('⚠ No audit entries to export.', false); return; }
-    downloadCsv('weaver-audit-' + new Date().toISOString().slice(0, 10) + '.csv',
-      'time,action,target,detail',
-      rows.map(r => [csvEscape(r.created_at), csvEscape(r.action), csvEscape(r.target), csvEscape(r.detail)].join(',')));
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+try {
+const d = await api('/api/audit');
+const rows = d.rows || [];
+if (!rows.length) { showNote('⚠ No audit entries to export.', false); return; }
+downloadCsv('weaver-audit-' + new Date().toISOString().slice(0, 10) + '.csv',
+'time,action,target,detail',
+rows.map(r => [csvEscape(r.created_at), csvEscape(r.action), csvEscape(r.target), csvEscape(r.detail)].join(',')));
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
 }
 async function emailBackupNow() {
-  const btn = document.getElementById('btn-backup-email');
-  if (!btn) return;
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-  try {
-    const d = await api('/api/backup', { method: 'POST' });
-    const c = d.counts || {};
-    showNote('Ledger backup emailed to <b>' + esc(d.emailedTo || 'you') + '</b> — ' +
-      num(c.entitlements) + ' entitlements, ' + num(c.creditLog) + ' credit rows, ' + num(c.audit) +
-      ' audit rows. Check your inbox (and spam) for the three CSVs.', true);
-    loadAudit();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
-  btn.disabled = false;
-  btn.textContent = 'Email backup now';
+const btn = document.getElementById('btn-backup-email');
+if (!btn) return;
+btn.disabled = true;
+btn.textContent = 'Sending…';
+try {
+const d = await api('/api/backup', { method: 'POST' });
+const c = d.counts || {};
+showNote('Ledger backup emailed to <b>' + esc(d.emailedTo || 'you') + '</b> — ' +
+num(c.entitlements) + ' entitlements, ' + num(c.creditLog) + ' credit rows, ' + num(c.audit) +
+' audit rows. Check your inbox (and spam) for the three CSVs.', true);
+loadAudit();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+btn.disabled = false;
+btn.textContent = 'Email backup now';
 }
 function loadAudit() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading audit log…</div>';
-  api('/api/audit').then(d => {
-    const rows = d.rows || [];
-    const body = rows.length ? rows.map(r =>
-      '<div class="audit-row">' +
-        '<span class="audit-time">' + fmtDateTime(r.created_at) + '</span>' +
-        auditBadge(r.action) +
-        '<span class="audit-target">' + esc(r.target || '—') + '</span>' +
-        '<span class="audit-detail">' + esc(r.detail || '') + '</span>' +
-      '</div>').join('')
-      : '<div class="empty">No admin actions logged yet.</div>';
-    content.innerHTML =
-      '<div class="users-toolbar">' +
-        '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">' + rows.length + ' entries · newest first</span>' +
-        '<button id="btn-backup-email" class="btn btn-primary" title="Email the three ledgers (entitlements, credit log, audit) to yourself right now">Email backup now</button>' +
-        '<button id="btn-audit-csv" class="btn" title="Download the audit log as CSV">Export CSV</button>' +
-      '</div>' +
-      '<div class="audit-list">' + body + '</div>' +
-      '<div class="admin-note">Every account, credits and banner action is recorded here with its reason (latest 200 entries). The three ledgers — entitlements, credit log, audit — are also emailed to you automatically every Monday at 04:00 UTC.</div>';
-    document.getElementById('btn-audit-csv').addEventListener('click', exportAuditCsv);
-    document.getElementById('btn-backup-email').addEventListener('click', emailBackupNow);
-  }).catch(e => {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  });
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading audit log…</div>';
+api('/api/audit').then(d => {
+const rows = d.rows || [];
+const body = rows.length ? rows.map(r =>
+'<div class="audit-row">' +
+'<span class="audit-time">' + fmtDateTime(r.created_at) + '</span>' +
+auditBadge(r.action) +
+'<span class="audit-target">' + esc(r.target || '—') + '</span>' +
+'<span class="audit-detail">' + esc(r.detail || '') + '</span>' +
+'</div>').join('')
+: '<div class="empty">No admin actions logged yet.</div>';
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">' + rows.length + ' entries · newest first</span>' +
+'<button id="btn-backup-email" class="btn btn-primary" title="Email the three ledgers (entitlements, credit log, audit) to yourself right now">Email backup now</button>' +
+'<button id="btn-audit-csv" class="btn" title="Download the audit log as CSV">Export CSV</button>' +
+'</div>' +
+'<div class="audit-list">' + body + '</div>' +
+'<div class="admin-note">Every account, credits and banner action is recorded here with its reason (latest 200 entries). The three ledgers — entitlements, credit log, audit — are also emailed to you automatically every Monday at 04:00 UTC.</div>';
+document.getElementById('btn-audit-csv').addEventListener('click', exportAuditCsv);
+document.getElementById('btn-backup-email').addEventListener('click', emailBackupNow);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
 }
-
 /* ---------- Banner tab ---------- */
 function bannerPreviewHTML(text, level) {
-  if (!text) return '<div class="banner-preview is-empty">No banner is live. Fill in the form and press Save to publish one.</div>';
-  return '<div class="banner-preview is-' + esc(level) + '">' + esc(text) + '</div>';
+if (!text) return '<div class="banner-preview is-empty">No banner is live. Fill in the form and press Save to publish one.</div>';
+return '<div class="banner-preview is-' + esc(level) + '">' + esc(text) + '</div>';
 }
 async function loadBanner() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading banner…</div>';
-  try {
-    const row = await api('/api/announcement');
-    bannerState = row || { text: '', level: 'info', show_until: null, updated_at: null };
-    renderBannerForm();
-  } catch (e) {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  }
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading banner…</div>';
+try {
+const row = await api('/api/announcement');
+bannerState = row || { text: '', level: 'info', show_until: null, updated_at: null };
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
 }
 function renderBannerForm() {
-  const content = document.getElementById('admin-content');
-  const untilValue = bannerState.show_until ? String(bannerState.show_until).slice(0, 16) : '';
-  const untilHintText = bannerState.show_until
-    ? 'Auto-hides after ' + fmtDateTime(bannerState.show_until)
-    : 'No expiry — banner stays until you clear it.';
-  const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
-  content.innerHTML =
-    '<div class="banner-wrap">' +
-      '<div class="banner-card">' +
-        '<div class="banner-card-head">' +
-          '<h3>Live preview</h3>' +
-          '<button id="bn-dismiss" class="btn btn-sm btn-danger"' + (bannerState.text ? '' : ' hidden') + '>Dismiss</button>' +
-        '</div>' +
-        '<div id="bn-preview">' + bannerPreviewHTML(bannerState.text, bannerState.level) + '</div>' +
-      '</div>' +
-      '<div class="banner-card">' +
-        '<h3>Compose</h3>' +
-        '<div class="field"><span>Message (≤ 400 characters)</span>' +
-          '<textarea id="bn-text" class="textarea" rows="3" maxlength="400" placeholder="e.g. Weaver will be briefly offline tonight 8–9pm UTC for a database upgrade. Your work saves locally throughout.">' + esc(bannerState.text) + '</textarea>' +
-          '<div class="banner-counter" id="bn-counter">' + (bannerState.text || '').length + ' / 400</div>' +
-        '</div>' +
-        '<div class="field"><span>Severity</span>' +
-          '<select id="bn-level" class="select">' +
-            '<option value="info"' + (bannerState.level === 'info' ? ' selected' : '') + '>Info — news, feature launch (gold)</option>' +
-            '<option value="warning"' + (bannerState.level === 'warning' ? ' selected' : '') + '>Warning — known issue, workaround (red)</option>' +
-            '<option value="maintenance"' + (bannerState.level === 'maintenance' ? ' selected' : '') + '>Maintenance — planned downtime (bold gold)</option>' +
-          '</select>' +
-        '</div>' +
-        '<div class="field"><span>Auto-hide (optional)</span>' +
-          '<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
-          '<div class="banner-counter" id="bn-until-hint">' + esc(untilHintText) + '</div>' +
-        '</div>' +
-        '<div class="banner-actions">' +
-          '<button id="bn-save" class="btn btn-primary">Save &amp; publish</button>' +
-        '</div>' +
-        '<div class="banner-counter">' + esc(updated) + '</div>' +
-      '</div>' +
-      '<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in. To take the banner down for everyone, press Dismiss in the preview card above.</div>' +
-    '</div>';
-  const textEl = document.getElementById('bn-text');
-  const levelEl = document.getElementById('bn-level');
-  const untilEl = document.getElementById('bn-until');
-  const counter = document.getElementById('bn-counter');
-  const untilHintEl = document.getElementById('bn-until-hint');
-  function refreshPreview() {
-    const text = textEl.value;
-    const level = levelEl.value;
-    counter.textContent = text.length + ' / 400';
-    const node = document.getElementById('bn-preview');
-    if (node) node.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
-    const dismiss = document.getElementById('bn-dismiss');
-    if (dismiss) dismiss.hidden = !text;
-  }
-  function refreshUntilHint() {
-    const v = untilEl.value;
-    untilHintEl.textContent = v
-      ? 'Auto-hides after ' + new Date(v).toLocaleString()
-      : 'No expiry — banner stays until you clear it.';
-  }
-  textEl.addEventListener('input', refreshPreview);
-  levelEl.addEventListener('change', refreshPreview);
-  untilEl.addEventListener('input', refreshUntilHint);
-  document.getElementById('bn-save').addEventListener('click', saveBanner);
-  document.getElementById('bn-dismiss').addEventListener('click', clearBanner);
+const content = document.getElementById('admin-content');
+const untilValue = bannerState.show_until ? String(bannerState.show_until).slice(0, 16) : '';
+const untilHintText = bannerState.show_until
+? 'Auto-hides after ' + fmtDateTime(bannerState.show_until)
+: 'No expiry — banner stays until you clear it.';
+const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
+content.innerHTML =
+'<div class="banner-wrap">' +
+'<div class="banner-card">' +
+'<div class="banner-card-head">' +
+'<h3>Live preview</h3>' +
+'<button id="bn-dismiss" class="btn btn-sm btn-danger"' + (bannerState.text ? '' : ' hidden') + '>Dismiss</button>' +
+'</div>' +
+'<div id="bn-preview">' + bannerPreviewHTML(bannerState.text, bannerState.level) + '</div>' +
+'</div>' +
+'<div class="banner-card">' +
+'<h3>Compose</h3>' +
+'<div class="field"><span>Message (≤ 400 characters)</span>' +
+'<textarea id="bn-text" class="textarea" rows="3" maxlength="400" placeholder="e.g. Weaver will be briefly offline tonight 8–9pm UTC for a database upgrade. Your work saves locally throughout.">' + esc(bannerState.text) + '</textarea>' +
+'<div class="banner-counter" id="bn-counter">' + (bannerState.text || '').length + ' / 400</div>' +
+'</div>' +
+'<div class="field"><span>Severity</span>' +
+'<select id="bn-level" class="select">' +
+'<option value="info"' + (bannerState.level === 'info' ? ' selected' : '') + '>Info — news, feature launch (gold)</option>' +
+'<option value="warning"' + (bannerState.level === 'warning' ? ' selected' : '') + '>Warning — known issue, workaround (red)</option>' +
+'<option value="maintenance"' + (bannerState.level === 'maintenance' ? ' selected' : '') + '>Maintenance — planned downtime (bold gold)</option>' +
+'</select>' +
+'</div>' +
+'<div class="field"><span>Auto-hide (optional)</span>' +
+'<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
+'<div class="banner-counter" id="bn-until-hint">' + esc(untilHintText) + '</div>' +
+'</div>' +
+'<div class="banner-actions">' +
+'<button id="bn-save" class="btn btn-primary">Save &amp; publish</button>' +
+'</div>' +
+'<div class="banner-counter">' + esc(updated) + '</div>' +
+'</div>' +
+'<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in. To take the banner down for everyone, press Dismiss in the preview card above.</div>' +
+'</div>';
+const textEl = document.getElementById('bn-text');
+const levelEl = document.getElementById('bn-level');
+const untilEl = document.getElementById('bn-until');
+const counter = document.getElementById('bn-counter');
+const untilHintEl = document.getElementById('bn-until-hint');
+function refreshPreview() {
+const text = textEl.value;
+const level = levelEl.value;
+counter.textContent = text.length + ' / 400';
+const node = document.getElementById('bn-preview');
+if (node) node.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
+const dismiss = document.getElementById('bn-dismiss');
+if (dismiss) dismiss.hidden = !text;
+}
+function refreshUntilHint() {
+const v = untilEl.value;
+untilHintEl.textContent = v
+? 'Auto-hides after ' + new Date(v).toLocaleString()
+: 'No expiry — banner stays until you clear it.';
+}
+textEl.addEventListener('input', refreshPreview);
+levelEl.addEventListener('change', refreshPreview);
+untilEl.addEventListener('input', refreshUntilHint);
+document.getElementById('bn-save').addEventListener('click', saveBanner);
+document.getElementById('bn-dismiss').addEventListener('click', clearBanner);
 }
 async function saveBanner() {
-  const text = document.getElementById('bn-text').value.trim();
-  const level = document.getElementById('bn-level').value;
-  const until = document.getElementById('bn-until').value;
-  try {
-    const res = await api('/api/announcement', {
-      method: 'POST',
-      body: { text, level, show_until: until ? new Date(until).toISOString() : null },
-    });
-    bannerState = res.row || bannerState;
-    showNote(text
-      ? 'Banner published — every signed-in user will see it on next page load.'
-      : 'Banner cleared — the strip is gone for every user.', false);
-    renderBannerForm();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+const text = document.getElementById('bn-text').value.trim();
+const level = document.getElementById('bn-level').value;
+const until = document.getElementById('bn-until').value;
+try {
+const res = await api('/api/announcement', {
+method: 'POST',
+body: { text, level, show_until: until ? new Date(until).toISOString() : null },
+});
+bannerState = res.row || bannerState;
+showNote(text
+? 'Banner published — every signed-in user will see it on next page load.'
+: 'Banner cleared — the strip is gone for every user.', false);
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
 }
 async function clearBanner() {
-  if (bannerState.text && !confirm('Dismiss this banner? It will disappear for every user.')) return;
-  try {
-    const res = await api('/api/announcement', { method: 'POST', body: { text: '', level: 'info', show_until: null } });
-    bannerState = res.row || { text: '', level: 'info', show_until: null, updated_at: null };
-    showNote('Banner dismissed.', false);
-    renderBannerForm();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+if (bannerState.text && !confirm('Dismiss this banner? It will disappear for every user.')) return;
+try {
+const res = await api('/api/announcement', { method: 'POST', body: { text: '', level: 'info', show_until: null } });
+bannerState = res.row || { text: '', level: 'info', show_until: null, updated_at: null };
+showNote('Banner dismissed.', false);
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
 }
-
+}
 /* ---------- AI Keys tab ---------- */
 async function loadAiKeys() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="loading">Loading AI providers…</div>';
-  try {
-    const d = await aiApi('/api/providers');
-    aiProviders = {};
-    (d.providers || []).forEach(p => { aiProviders[p.provider] = p; });
-    renderAiKeys();
-  } catch (e) {
-    if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
-  }
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading AI providers…</div>';
+try {
+const d = await aiApi('/api/providers');
+aiProviders = {};
+(d.providers || []).forEach(p => { aiProviders[p.provider] = p; });
+renderAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
 }
 function renderAiKeys() {
-  const content = document.getElementById('admin-content');
-  const BUILTINS = ['openrouter', 'groq', 'mistral'];
-  const cardHTML = (p, c, isCustom) => {
-    const on = c.enabled !== false && !!c.api_key;
-    const updated = c.updated_at ? 'Last saved ' + fmtDateTime(c.updated_at) : 'Never saved.';
-    return '<div class="user-card" data-ai-provider="' + esc(p.id) + '">' +
-      '<div class="user-card-head">' +
-        '<span class="user-email">' + esc(p.label) + (isCustom ? ' <span class="status-badge owner">custom</span>' : '') + '</span>' +
-        '<span class="cred-badges"><span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span></span>' +
-      '</div>' +
-      '<div class="user-meta">' + esc(p.hint) + '</div>' +
-      (isCustom
-        ? '<div class="field" style="margin-top:6px"><span>Base URL</span><input data-ai-f="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1" value="' + esc(c.base_url || '') + '"></div>' +
-          '<div class="field" style="margin-top:6px"><span>Model name (required)</span><input data-ai-f="model" class="input" type="text" placeholder="llama3.1-8b" value="' + esc(c.model_override || '') + '"></div>'
-        : '<div class="field" style="margin-top:6px"><span>Model override (optional)</span><input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '"></div>') +
-      '<div class="field" style="margin-top:6px"><span>API key</span>' +
-        '<input data-ai-f="key" class="input" type="password" placeholder="Paste ' + esc(p.label) + ' API key…" value="' + esc(c.api_key || '') + '" autocomplete="off">' +
-      '</div>' +
-      '<div class="ud-grid" style="margin-top:8px">' +
-        '<div class="field"><span>Enabled</span><label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label></div>' +
-        '<div class="field"><span>Priority (lower = tried first)</span><input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '"></div>' +
-      '</div>' +
-      '<div class="user-actions" style="margin-top:10px">' +
-        '<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
-        '<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save</button>' +
-        (isCustom ? '<button class="btn btn-sm btn-danger" data-ai-action="delete-custom" data-provider="' + esc(p.id) + '">Remove</button>' : '') +
-      '</div>' +
-      '<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
-      '<div class="user-meta" data-ai-result style="margin-top:8px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">Not tested yet.</div>' +
-    '</div>';
-  };
-  const cards = PROVIDER_DEFS.map(p => cardHTML(p, aiProviders[p.id] || {}, false)).join('');
-  const customCards = Object.keys(aiProviders).filter(k => !BUILTINS.includes(k))
-    .map(k => cardHTML({ id: k, label: k, hint: 'Custom OpenAI-compatible endpoint (base URL + model required).', modelPh: '' }, aiProviders[k], true)).join('');
-  const addForm =
-    '<div class="user-card" style="border-style:dashed">' +
-      '<div class="user-card-head"><span class="user-email">Add any OpenAI-compatible provider</span></div>' +
-      '<div class="user-meta">Cerebras, SambaNova, Cloudflare Workers AI, Requesty, Together, Fireworks, or a self-hosted vLLM/Ollama OpenAI shim — anything that speaks /chat/completions.</div>' +
-      '<div class="ud-grid" style="margin-top:8px">' +
-        '<div class="field"><span>Name (id)</span><input data-ai-add="name" class="input" type="text" placeholder="cerebras"></div>' +
-        '<div class="field"><span>Base URL</span><input data-ai-add="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1"></div>' +
-        '<div class="field"><span>Model</span><input data-ai-add="model" class="input" type="text" placeholder="llama3.1-8b"></div>' +
-        '<div class="field"><span>API key</span><input data-ai-add="key" class="input" type="password" placeholder="key"></div>' +
-        '<div class="field"><span>Priority</span><input data-ai-add="priority" class="input" type="number" value="10"></div>' +
-      '</div>' +
-      '<div class="user-actions" style="margin-top:10px"><button class="btn btn-sm btn-primary" data-ai-action="add-custom">Add provider</button></div>' +
-    '</div>';
-  const AI_TEST_GUIDE = [
-    { code: 'ok', cls: 'active', meaning: 'Connected — key valid and a 1-token test generation succeeded.' },
-    { code: 'invalid_key', cls: 'banned', meaning: '401/403 — key wrong, revoked, or belongs to a different account/org. Re-copy it from the provider dashboard.' },
-    { code: 'billing', cls: 'banned', meaning: '402 — credits or quota depleted; the provider requires payment. Top up or switch key.' },
-    { code: 'rate_limit', cls: 'owner', meaning: '429 — too many requests in the current window (free-tier traffic). Wait ~60s; the proxy fails over automatically meanwhile.' },
-    { code: 'model_retired', cls: 'banned', meaning: '404 — that model ID no longer exists or your key lacks access. Clear the model override or pick a current model.' },
-    { code: 'no_models', cls: 'banned', meaning: 'Key accepted but the provider returned zero usable chat models (mass retirement). Check the provider status page.' },
-    { code: 'provider_down', cls: 'owner', meaning: '5xx — provider outage or overload on their side. Retry later; the proxy fails over automatically.' },
-    { code: 'network', cls: 'banned', meaning: 'Could not reach the provider at all — DNS/firewall/connectivity problem.' },
-    { code: 'timeout', cls: 'owner', meaning: 'Provider took longer than 15s to answer (heavy traffic). Retry in a moment.' },
-    { code: 'client', cls: 'banned', meaning: 'The admin page itself could not complete the request (30s cutoff or session problem).' },
-    { code: 'http_###', cls: '', meaning: 'Anything else — the raw provider message follows the code in the result line.' },
-  ];
-  content.innerHTML =
-    '<div class="users-toolbar">' +
-      '<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">providers · changes take effect immediately, no redeploy needed</span>' +
-    '</div>' +
-    '<div id="ai-keys-list">' + cards + customCards + addForm + '</div>' +
-    '<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Custom rows need a Base URL and a Model name; the proxy appends /chat/completions if the URL lacks it.</div>' +
-    '<details class="user-card" style="cursor:pointer;margin-top:4px">' +
-      '<summary class="user-email" style="cursor:pointer">▸ Error code guide — what each test result means</summary>' +
-      '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">' +
-        AI_TEST_GUIDE.map(g =>
-          '<div class="ud-line" style="align-items:flex-start"><span class="status-badge ' + g.cls + '" style="flex:none">' + esc(g.code) + '</span><span style="flex:1;min-width:0;color:var(--muted)">' + esc(g.meaning) + '</span></div>'
-        ).join('') +
-      '</div>' +
-    '</details>';
+const content = document.getElementById('admin-content');
+const BUILTINS = ['openrouter', 'groq', 'mistral'];
+const cardHTML = (p, c, isCustom) => {
+const on = c.enabled !== false && !!c.api_key;
+const updated = c.updated_at ? 'Last saved ' + fmtDateTime(c.updated_at) : 'Never saved.';
+return '<div class="user-card" data-ai-provider="' + esc(p.id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(p.label) + (isCustom ? ' <span class="status-badge owner">custom</span>' : '') + '</span>' +
+'<span class="cred-badges"><span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span></span>' +
+'</div>' +
+'<div class="user-meta">' + esc(p.hint) + '</div>' +
+(isCustom
+? '<div class="field" style="margin-top:6px"><span>Base URL</span><input data-ai-f="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1" value="' + esc(c.base_url || '') + '"></div>' +
+'<div class="field" style="margin-top:6px"><span>Model name (required)</span><input data-ai-f="model" class="input" type="text" placeholder="llama3.1-8b" value="' + esc(c.model_override || '') + '"></div>'
+: '<div class="field" style="margin-top:6px"><span>Model override (optional)</span><input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '"></div>') +
+'<div class="field" style="margin-top:6px"><span>API key</span>' +
+'<input data-ai-f="key" class="input" type="password" placeholder="Paste ' + esc(p.label) + ' API key…" value="' + esc(c.api_key || '') + '" autocomplete="off">' +
+'</div>' +
+'<div class="ud-grid" style="margin-top:8px">' +
+'<div class="field"><span>Enabled</span><label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label></div>' +
+'<div class="field"><span>Priority (lower = tried first)</span><input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '"></div>' +
+'</div>' +
+'<div class="user-actions" style="margin-top:10px">' +
+'<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
+'<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save</button>' +
+(isCustom ? '<button class="btn btn-sm btn-danger" data-ai-action="delete-custom" data-provider="' + esc(p.id) + '">Remove</button>' : '') +
+'</div>' +
+'<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+'<div class="user-meta" data-ai-result style="margin-top:8px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">Not tested yet.</div>' +
+'</div>';
+};
+const cards = PROVIDER_DEFS.map(p => cardHTML(p, aiProviders[p.id] || {}, false)).join('');
+const customCards = Object.keys(aiProviders).filter(k => !BUILTINS.includes(k))
+.map(k => cardHTML({ id: k, label: k, hint: 'Custom OpenAI-compatible endpoint (base URL + model required).', modelPh: '' }, aiProviders[k], true)).join('');
+const addForm =
+'<div class="user-card" style="border-style:dashed">' +
+'<div class="user-card-head"><span class="user-email">Add any OpenAI-compatible provider</span></div>' +
+'<div class="user-meta">Cerebras, SambaNova, Cloudflare Workers AI, Requesty, Together, Fireworks, or a self-hosted vLLM/Ollama OpenAI shim — anything that speaks /chat/completions.</div>' +
+'<div class="ud-grid" style="margin-top:8px">' +
+'<div class="field"><span>Name (id)</span><input data-ai-add="name" class="input" type="text" placeholder="cerebras"></div>' +
+'<div class="field"><span>Base URL</span><input data-ai-add="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1"></div>' +
+'<div class="field"><span>Model</span><input data-ai-add="model" class="input" type="text" placeholder="llama3.1-8b"></div>' +
+'<div class="field"><span>API key</span><input data-ai-add="key" class="input" type="password" placeholder="key"></div>' +
+'<div class="field"><span>Priority</span><input data-ai-add="priority" class="input" type="number" value="10"></div>' +
+'</div>' +
+'<div class="user-actions" style="margin-top:10px"><button class="btn btn-sm btn-primary" data-ai-action="add-custom">Add provider</button></div>' +
+'</div>';
+const AI_TEST_GUIDE = [
+{ code: 'ok', cls: 'active', meaning: 'Connected — key valid and a 1-token test generation succeeded.' },
+{ code: 'invalid_key', cls: 'banned', meaning: '401/403 — key wrong, revoked, or belongs to a different account/org. Re-copy it from the provider dashboard.' },
+{ code: 'billing', cls: 'banned', meaning: '402 — credits or quota depleted; the provider requires payment. Top up or switch key.' },
+{ code: 'rate_limit', cls: 'owner', meaning: '429 — too many requests in the current window (free-tier traffic). Wait ~60s; the proxy fails over automatically meanwhile.' },
+{ code: 'model_retired', cls: 'banned', meaning: '404 — that model ID no longer exists or your key lacks access. Clear the model override or pick a current model.' },
+{ code: 'no_models', cls: 'banned', meaning: 'Key accepted but the provider returned zero usable chat models (mass retirement). Check the provider status page.' },
+{ code: 'provider_down', cls: 'owner', meaning: '5xx — provider outage or overload on their side. Retry later; the proxy fails over automatically.' },
+{ code: 'network', cls: 'banned', meaning: 'Could not reach the provider at all — DNS/firewall/connectivity problem.' },
+{ code: 'timeout', cls: 'owner', meaning: 'Provider took longer than 15s to answer (heavy traffic). Retry in a moment.' },
+{ code: 'client', cls: 'banned', meaning: 'The admin page itself could not complete the request (30s cutoff or session problem).' },
+{ code: 'http_###', cls: '', meaning: 'Anything else — the raw provider message follows the code in the result line.' },
+];
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">providers · changes take effect immediately, no redeploy needed</span>' +
+'</div>' +
+'<div id="ai-keys-list">' + cards + customCards + addForm + '</div>' +
+'<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users. The AI proxy reads this table on every generation and tries enabled providers in priority order, silently failing over on errors or rate limits. Custom rows need a Base URL and a Model name; the proxy appends /chat/completions if the URL lacks it.</div>' +
+'<details class="user-card" style="cursor:pointer;margin-top:4px">' +
+'<summary class="user-email" style="cursor:pointer">▸ Error code guide — what each test result means</summary>' +
+'<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">' +
+AI_TEST_GUIDE.map(g =>
+'<div class="ud-line" style="align-items:flex-start"><span class="status-badge ' + g.cls + '" style="flex:none">' + esc(g.code) + '</span><span style="flex:1;min-width:0;color:var(--muted)">' + esc(g.meaning) + '</span></div>'
+).join('') +
+'</div>' +
+'</details>';
 }
 function aiCardFields(card) {
-  const g = (f) => { const n = card.querySelector('[data-ai-f="' + f + '"]'); return n ? n.value.trim() : ''; };
-  return {
-    key: g('key'), base: g('base'), model: g('model'),
-    enabled: card.querySelector('[data-ai-f="enabled"]').checked,
-    priority: parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0,
-  };
+const g = (f) => { const n = card.querySelector('[data-ai-f="' + f + '"]'); return n ? n.value.trim() : ''; };
+return {
+key: g('key'), base: g('base'), model: g('model'),
+enabled: card.querySelector('[data-ai-f="enabled"]').checked,
+priority: parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0,
+};
 }
 async function testAiKey(providerId) {
-  const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
-  if (!card) return;
-  const testBtn = card.querySelector('[data-ai-action="test"]');
-  const resultEl = card.querySelector('[data-ai-result]');
-  const setMsg = (text, color) => { if (resultEl) { resultEl.textContent = text; resultEl.style.color = color || 'var(--faint)'; } };
-  if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
-  setMsg('Testing connection…', 'var(--muted)');
-  const f = aiCardFields(card);
-  if (!f.key) {
-    setMsg('⚠ Enter an API key first.', 'var(--danger)');
-    if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
-    return;
-  }
-  const LABELS = {
-    ok: ['Connected', 'var(--success)'],
-    invalid_key: ['Invalid/revoked key', 'var(--danger)'],
-    billing: ['Quota/billing depleted', 'var(--danger)'],
-    rate_limit: ['Rate limit / quota window', 'var(--accent)'],
-    model_retired: ['Model retired / no access', 'var(--danger)'],
-    no_models: ['No usable models left', 'var(--danger)'],
-    provider_down: ['Provider outage', 'var(--accent)'],
-    network: ['Network unreachable', 'var(--danger)'],
-    timeout: ['Timed out', 'var(--accent)'],
-    missing: ['Model name required', 'var(--danger)'],
-  };
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 30000);
-  try {
-    const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: f.key, base_url: f.base || '', model: f.model || '' } });
-    clearTimeout(timer);
-    const info = LABELS[result.code] || ['See the error guide below', 'var(--muted)'];
-    setMsg((result.ok ? '✓ ' : '✗ ') + '[' + esc(result.code || '?') + '] ' + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
-    console.log('[AI test]', providerId, result);
-  } catch (e) {
-    clearTimeout(timer);
-    const msg = (e && e.name === 'AbortError')
-      ? 'Timed out after 30s — ai-admin did not respond (check weaver-server deploy or network).'
-      : (e.message || 'Unknown error');
-    setMsg('✗ [client] ' + msg, 'var(--danger)');
-    console.error('[AI test] error', providerId, e);
-  }
-  if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
+const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
+if (!card) return;
+const testBtn = card.querySelector('[data-ai-action="test"]');
+const resultEl = card.querySelector('[data-ai-result]');
+const setMsg = (text, color) => { if (resultEl) { resultEl.textContent = text; resultEl.style.color = color || 'var(--faint)'; } };
+if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
+setMsg('Testing connection…', 'var(--muted)');
+const f = aiCardFields(card);
+if (!f.key) {
+setMsg('⚠ Enter an API key first.', 'var(--danger)');
+if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
+return;
+}
+const LABELS = {
+ok: ['Connected', 'var(--success)'],
+invalid_key: ['Invalid/revoked key', 'var(--danger)'],
+billing: ['Quota/billing depleted', 'var(--danger)'],
+rate_limit: ['Rate limit / quota window', 'var(--accent)'],
+model_retired: ['Model retired / no access', 'var(--danger)'],
+no_models: ['No usable models left', 'var(--danger)'],
+provider_down: ['Provider outage', 'var(--accent)'],
+network: ['Network unreachable', 'var(--danger)'],
+timeout: ['Timed out', 'var(--accent)'],
+missing: ['Model name required', 'var(--danger)'],
+};
+const ctrl = new AbortController();
+const timer = setTimeout(() => ctrl.abort(), 30000);
+try {
+const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: f.key, base_url: f.base || '', model: f.model || '' } });
+clearTimeout(timer);
+const info = LABELS[result.code] || ['See the error guide below', 'var(--muted)'];
+setMsg((result.ok ? '✓ ' : '✗ ') + '[' + esc(result.code || '?') + '] ' + info[0] + ' — ' + (result.message || ''), result.ok ? 'var(--success)' : info[1]);
+console.log('[AI test]', providerId, result);
+} catch (e) {
+clearTimeout(timer);
+const msg = (e && e.name === 'AbortError')
+? 'Timed out after 30s — ai-admin did not respond (check weaver-server deploy or network).'
+: (e.message || 'Unknown error');
+setMsg('✗ [client] ' + msg, 'var(--danger)');
+console.error('[AI test] error', providerId, e);
+}
+if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
 }
 async function saveAiKey(providerId) {
-  const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
-  if (!card) return;
-  const saveBtn = card.querySelector('[data-ai-action="save"]');
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
-  const f = aiCardFields(card);
-  try {
-    await aiApi('/api/providers', {
-      method: 'POST',
-      body: { provider: providerId, api_key: f.key, enabled: f.enabled, priority: f.priority, model_override: f.model || null, base_url: f.base || null },
-    });
-    showNote('<b>' + esc(providerId) + '</b> saved. The AI proxy will use it on the next Scribe request.', false);
-    loadAiKeys();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
-  }
+const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
+if (!card) return;
+const saveBtn = card.querySelector('[data-ai-action="save"]');
+if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+const f = aiCardFields(card);
+try {
+await aiApi('/api/providers', {
+method: 'POST',
+body: { provider: providerId, api_key: f.key, enabled: f.enabled, priority: f.priority, model_override: f.model || null, base_url: f.base || null },
+});
+showNote('<b>' + esc(providerId) + '</b> saved. The AI proxy will use it on the next Scribe request.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+}
 }
 async function addCustomProvider() {
-  const get = (f) => { const n = document.querySelector('[data-ai-add="' + f + '"]'); return n ? n.value.trim() : ''; };
-  const name = get('name').toLowerCase();
-  const base = get('base');
-  const model = get('model');
-  const key = get('key');
-  const priority = parseInt(get('priority'), 10) || 10;
-  if (!/^[a-z0-9_-]{2,24}$/.test(name)) { showNote('⚠ Name must be 2–24 chars: letters, numbers, dash, underscore.', true); return; }
-  if (['openrouter', 'groq', 'mistral'].includes(name)) { showNote('⚠ That name is reserved for a built-in provider.', true); return; }
-  if (!base || !model || !key) { showNote('⚠ Custom providers need Base URL, Model and API key.', true); return; }
-  try {
-    await aiApi('/api/providers', { method: 'POST', body: { provider: name, api_key: key, enabled: true, priority, model_override: model, base_url: base } });
-    showNote('<b>' + esc(name) + '</b> added to the fallback chain.', false);
-    loadAiKeys();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+const get = (f) => { const n = document.querySelector('[data-ai-add="' + f + '"]'); return n ? n.value.trim() : ''; };
+const name = get('name').toLowerCase();
+const base = get('base');
+const model = get('model');
+const key = get('key');
+const priority = parseInt(get('priority'), 10) || 10;
+if (!/^[a-z0-9_-]{2,24}$/.test(name)) { showNote('⚠ Name must be 2–24 chars: letters, numbers, dash, underscore.', true); return; }
+if (['openrouter', 'groq', 'mistral'].includes(name)) { showNote('⚠ That name is reserved for a built-in provider.', true); return; }
+if (!base || !model || !key) { showNote('⚠ Custom providers need Base URL, Model and API key.', true); return; }
+try {
+await aiApi('/api/providers', { method: 'POST', body: { provider: name, api_key: key, enabled: true, priority, model_override: model, base_url: base } });
+showNote('<b>' + esc(name) + '</b> added to the fallback chain.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
 }
 async function deleteCustomProvider(providerId) {
-  if (!confirm('Remove provider "' + providerId + '" from the fallback chain?')) return;
-  try {
-    await aiApi('/api/providers/' + encodeURIComponent(providerId), { method: 'DELETE' });
-    showNote('<b>' + esc(providerId) + '</b> removed.', false);
-    loadAiKeys();
-  } catch (e) {
-    if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-  }
+if (!confirm('Remove provider "' + providerId + '" from the fallback chain?')) return;
+try {
+await aiApi('/api/providers/' + encodeURIComponent(providerId), { method: 'DELETE' });
+showNote('<b>' + esc(providerId) + '</b> removed.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
 }
-
+}
 /* ---------- Per-project admin (V3.1i) ---------- */
 function projectRowHTML(p) {
-  return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
-    '<span class="proj-name">' + esc(p.name) + '</span>' +
-    '<span class="proj-meta">' + esc(fmtBytes(p.bytes)) + ' · ' + (p.updatedAt ? fmtDate(p.updatedAt) : '—') + (p.missing ? ' · blob missing' : '') + '</span>' +
-    '<button class="btn btn-sm btn-danger" data-action="proj-delete" data-id="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Delete</button>' +
-  '</div>';
+return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
+'<span class="proj-name">' + esc(p.name) + '</span>' +
+'<span class="proj-meta">' + esc(fmtBytes(p.bytes)) + ' · ' + (p.updatedAt ? fmtDate(p.updatedAt) : '—') + (p.missing ? ' · blob missing' : '') + '</span>' +
+'<button class="btn btn-sm btn-danger" data-action="proj-delete" data-id="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Delete</button>' +
+'</div>';
 }
 async function toggleUserProjects(userId, email, btn) {
-  const card = btn ? btn.closest('[data-storage-card]') : null;
-  if (!card) return;
-  const slot = card.querySelector('.proj-slot');
-  if (!slot) return;
-  if (slot.querySelector('.proj-list, .proj-note')) { slot.innerHTML = ''; return; }
-  document.querySelectorAll('.proj-slot').forEach(s => { s.innerHTML = ''; });
-  slot.innerHTML = '<div class="loading" style="padding:14px">Reading vault index…</div>';
-  try {
-    const d = await api('/api/users/' + userId + '/projects');
-    if (d.neverSynced) {
-      slot.innerHTML = '<div class="proj-note">This user has never synced a vault — nothing to manage.</div>';
-      return;
-    }
-    if (!d.projects || !d.projects.length) {
-      slot.innerHTML = '<div class="proj-note">Vault index found, but it lists no projects.</div>';
-      return;
-    }
-    slot.innerHTML = '<div class="proj-list">' + d.projects.map(projectRowHTML).join('') + '</div>' +
-      '<div class="proj-note">Titles, sizes and dates only — manuscript content is never opened or downloaded. Deleting removes the project from the vault and its index entry. The user\'s own browser copy can re-upload on their next sync; for takedowns, suspend the account first.</div>';
-  } catch (e) {
-    if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
-  }
+const card = btn ? btn.closest('[data-storage-card]') : null;
+if (!card) return;
+const slot = card.querySelector('.proj-slot');
+if (!slot) return;
+if (slot.querySelector('.proj-list, .proj-note')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.proj-slot').forEach(s => { s.innerHTML = ''; });
+slot.innerHTML = '<div class="loading" style="padding:14px">Reading vault index…</div>';
+try {
+const d = await api('/api/users/' + userId + '/projects');
+if (d.neverSynced) {
+slot.innerHTML = '<div class="proj-note">This user has never synced a vault — nothing to manage.</div>';
+return;
+}
+if (!d.projects || !d.projects.length) {
+slot.innerHTML = '<div class="proj-note">Vault index found, but it lists no projects.</div>';
+return;
+}
+slot.innerHTML = '<div class="proj-list">' + d.projects.map(projectRowHTML).join('') + '</div>' +
+'<div class="proj-note">Titles, sizes and dates only — manuscript content is never opened or downloaded. Deleting removes the project from the vault and its index entry. The user\'s own browser copy can re-upload on their next sync; for takedowns, suspend the account first.</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+}
 }
 function handleProjectDelete(projectId, projectName, btn) {
-  const row = btn ? btn.closest('[data-proj-row]') : null;
-  if (!row) return;
-  const card = btn.closest('[data-storage-card]');
-  const userId = card ? card.getAttribute('data-storage-card') : '';
-  const emailEl = card ? card.querySelector('.user-email') : null;
-  const email = emailEl ? emailEl.textContent : '';
-  const existing = row.querySelector('.proj-warn');
-  if (existing) { existing.remove(); return; }
-  document.querySelectorAll('.proj-warn').forEach(w => w.remove());
-  const warn = document.createElement('div');
-  warn.className = 'proj-warn';
-  warn.innerHTML =
-    '<div><b>Permanently delete "' + esc(projectName) + '"?</b><br>' +
-    'This removes the project from Weaver\'s servers and from the user\'s vault index. It cannot be undone from here. ' +
-    'If this is a legal or takedown case, suspend the account as well — otherwise the user\'s browser may re-upload the project on their next sync.</div>' +
-    '<div>Type the project name exactly to unlock the final delete:</div>' +
-    '<input class="input" data-proj-confirm placeholder="' + esc(projectName) + '" autocomplete="off">' +
-    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-      '<button class="btn btn-sm" data-proj-cancel>Cancel</button>' +
-      '<button class="btn btn-sm btn-danger" data-proj-go disabled>Permanently delete project</button>' +
-    '</div>';
-  row.appendChild(warn);
-  const input = warn.querySelector('[data-proj-confirm]');
-  const go = warn.querySelector('[data-proj-go]');
-  input.addEventListener('input', () => {
-    go.disabled = input.value.trim() !== projectName.trim();
-  });
-  warn.querySelector('[data-proj-cancel]').addEventListener('click', () => warn.remove());
-  go.addEventListener('click', async () => {
-    go.disabled = true;
-    go.textContent = 'Deleting…';
-    try {
-      await api('/api/users/' + userId + '/projects/' + projectId, { method: 'DELETE' });
-      showNote('Project <b>' + esc(projectName) + '</b> deleted from <b>' + esc(email || 'user') + '</b>\'s vault. Recorded in Audit.', false);
-      if (card) { const slot = card.querySelector('.proj-slot'); if (slot) slot.innerHTML = ''; }
-      loadStorage();
-    } catch (e) {
-      if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
-      go.disabled = false;
-      go.textContent = 'Permanently delete project';
-    }
-  });
-  input.focus();
-}
-
-app.addEventListener('click', e => {
-  const msgView = e.target.closest('[data-msg-view]');
-  if (msgView) { activeMsgView = msgView.dataset.msgView; loadTab('messages'); return; }
-  const msgAction = e.target.closest('[data-msg-action]');
-  if (msgAction) { handleMsgAction(msgAction); return; }
-  const aiAdd = e.target.closest('[data-ai-action="add-custom"]');
-  if (aiAdd) { addCustomProvider(); return; }
-  const aiDel = e.target.closest('[data-ai-action="delete-custom"]');
-  if (aiDel) { deleteCustomProvider(aiDel.dataset.provider); return; }
-  const aiTest = e.target.closest('[data-ai-action="test"]');
-  if (aiTest) { testAiKey(aiTest.dataset.provider); return; }
-  const aiSave = e.target.closest('[data-ai-action="save"]');
-  if (aiSave) { saveAiKey(aiSave.dataset.provider); return; }
-
-  const btn = e.target.closest('[data-action]');
-  if (btn) {
-    const a = btn.dataset.action;
-    if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email, btn); return; }
-    if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
-    if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
-    if (a === 'history') { toggleHistory(btn.dataset.id); return; }
-    if (a === 'projects') { toggleUserProjects(btn.dataset.id, btn.dataset.email, btn); return; }
-    if (a === 'proj-delete') { handleProjectDelete(btn.dataset.id, btn.dataset.name, btn); return; }
-    handleUserAction(a, btn.dataset.id, btn.dataset.email);
-    return;
-  }
-  const tabEl = e.target.closest('[data-tab]');
-  if (tabEl) { setTab(tabEl.dataset.tab); return; }
+const row = btn ? btn.closest('[data-proj-row]') : null;
+if (!row) return;
+const card = btn.closest('[data-storage-card]');
+const userId = card ? card.getAttribute('data-storage-card') : '';
+const emailEl = card ? card.querySelector('.user-email') : null;
+const email = emailEl ? emailEl.textContent : '';
+const existing = row.querySelector('.proj-warn');
+if (existing) { existing.remove(); return; }
+document.querySelectorAll('.proj-warn').forEach(w => w.remove());
+const warn = document.createElement('div');
+warn.className = 'proj-warn';
+warn.innerHTML =
+'<div><b>Permanently delete "' + esc(projectName) + '"?</b><br>' +
+'This removes the project from Weaver\'s servers and from the user\'s vault index. It cannot be undone from here. ' +
+'If this is a legal or takedown case, suspend the account as well — otherwise the user\'s browser may re-upload the project on their next sync.</div>' +
+'<div>Type the project name exactly to unlock the final delete:</div>' +
+'<input class="input" data-proj-confirm placeholder="' + esc(projectName) + '" autocomplete="off">' +
+'<div style="display:flex;gap:8px;justify-content:flex-end">' +
+'<button class="btn btn-sm" data-proj-cancel>Cancel</button>' +
+'<button class="btn btn-sm btn-danger" data-proj-go disabled>Permanently delete project</button>' +
+'</div>';
+row.appendChild(warn);
+const input = warn.querySelector('[data-proj-confirm]');
+const go = warn.querySelector('[data-proj-go]');
+input.addEventListener('input', () => {
+go.disabled = input.value.trim() !== projectName.trim();
 });
-
-if (getToken()) renderShell('overview'); else renderLogin('');
+warn.querySelector('[data-proj-cancel]').addEventListener('click', () => warn.remove());
+go.addEventListener('click', async () => {
+go.disabled = true;
+go.textContent = 'Deleting…';
+try {
+await api('/api/users/' + userId + '/projects/' + projectId, { method: 'DELETE' });
+showNote('Project <b>' + esc(projectName) + '</b> deleted from <b>' + esc(email || 'user') + '</b>\'s vault. Recorded in Audit.', false);
+if (card) { const slot = card.querySelector('.proj-slot'); if (slot) slot.innerHTML = ''; }
+loadStorage();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+go.disabled = false;
+go.textContent = 'Permanently delete project';
+}
+});
+input.focus();
+}
+app.addEventListener('click', e => {
+const msgView = e.target.closest('[data-msg-view]');
+if (msgView) { activeMsgView = msgView.dataset.msgView; loadTab('messages'); return; }
+const msgAction = e.target.closest('[data-msg-action]');
+if (msgAction) { handleMsgAction(msgAction); return; }
+const aiAdd = e.target.closest('[data-ai-action="add-custom"]');
+if (aiAdd) { addCustomProvider(); return; }
+const aiDel = e.target.closest('[data-ai-action="delete-custom"]');
+if (aiDel) { deleteCustomProvider(aiDel.dataset.provider); return; }
+const aiTest = e.target.closest('[data-ai-action="test"]');
+if (aiTest) { testAiKey(aiTest.dataset.provider); return; }
+const aiSave = e.target.closest('[data-ai-action="save"]');
+if (aiSave) { saveAiKey(aiSave.dataset.provider); return; }
+const btn = e.target.closest('[data-action]');
+if (btn) {
+const a = btn.dataset.action;
+if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email, btn); return; }
+if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
+if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
+if (a === 'history') { toggleHistory(btn.dataset.id); return; }
+if (a === 'projects') { toggleUserProjects(btn.dataset.id, btn.dataset.email, btn); return; }
+if (a === 'proj-delete') { handleProjectDelete(btn.dataset.id, btn.dataset.name, btn); return; }
+handleUserAction(a, btn.dataset.id, btn.dataset.email);
+return;
+}
+const tabEl = e.target.closest('[data-tab]');
+if (tabEl) { setTab(tabEl.dataset.tab); return; }
+});
+/* ---------- Boot: auto-sign-in if a session exists ---------- */
+(async function boot() {
+if (!sb) { renderLogin('Could not load Supabase. Check your connection.'); return; }
+try {
+const { data } = await sb.auth.getSession();
+if (data && data.session) {
+setSession(data.session.access_token, data.session.user && data.session.user.email);
+await detectRole();
+if (userRole === 'none') {
+setSession('');
+renderNoAccess();
+return;
+}
+renderShell(userRole === 'supervisor' ? 'messages' : 'overview');
+return;
+}
+} catch (e) { /* no session — fall through to login */ }
+renderLogin('');
+})();
 </script>
 </body>
 </html>
