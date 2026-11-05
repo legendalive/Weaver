@@ -770,6 +770,9 @@ const roleLabel = userRole === 'owner' ? 'owner' : (userRole === 'supervisor' ? 
 const supervisorsLink = userRole === 'owner'
 ? '<a class="btn btn-sm" href="supervisors.html" title="Manage supervisor access">Supervisors</a>'
 : '';
+const diagnosticsLink = userRole === 'owner'
+? '<a class="btn btn-sm" href="diagnostics.html" title="AI-assisted code diagnostics">Diagnostics</a>'
+: '';
 app.innerHTML =
 '<div class="top">' +
 '<span class="w top-w">W</span>' +
@@ -778,8 +781,8 @@ app.innerHTML =
 '<span class="top-email">' + esc(getEmail()) + '</span>' +
 '<div class="top-right">' +
 supervisorsLink +
+diagnosticsLink +
 '<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
-'<button id="btn-out" class="btn btn-sm">Sign out</button>' +
 '</div>' +
 '</div>' +
 '<div class="tabs" id="admin-tabs"></div>' +
