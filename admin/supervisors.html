@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver — Supervisors</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0b0c; color: #e8e5dd;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 18px;
+  }
+  .card {
+    width: min(560px, 100%); background: #141416;
+    border: 1px solid #2b2b30; border-radius: 14px; padding: 26px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+  }
+  h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
+  .sub { color: #94918a; font-size: .8rem; margin-bottom: 20px; line-height: 1.5; }
+  .row { display: flex; gap: 8px; margin-bottom: 18px; }
+  input[type="email"] {
+    flex: 1; padding: 10px 12px; border: 1px solid #3a3a40; border-radius: 10px;
+    background: #0f0f11; color: #e8e5dd; font-size: .9rem;
+  }
+  input[type="email"]:focus { outline: none; border-color: #e0a43c; }
+  button {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid #3a3a40;
+    background: #1c1c20; color: #e8e5dd; font-size: .88rem; font-weight: 600; cursor: pointer;
+  }
+  button.primary { background: #e0a43c; border-color: #e0a43c; color: #17130a; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.sm { padding: 6px 12px; font-size: .78rem; }
+  button.danger { color: #d4604f; border-color: #3a3a40; background: transparent; }
+  button.danger:hover { background: rgba(212,96,79,.12); border-color: #d4604f; }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; border: 1px solid #2b2b30; border-radius: 10px; background: #1c1c20;
+  }
+  .item .email { font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .date { color: #6b6862; font-size: .7rem; font-family: monospace; flex: none; }
+  .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
+  .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
+  .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
+  .empty { color: #6b6862; font-size: .85rem; padding: 14px 0; text-align: center; }
+  .back { display: inline-block; margin-top: 18px; color: #e0a43c; font-size: .82rem; text-decoration: none; }
+  .gate { text-align: center; padding: 30px 10px; color: #94918a; font-size: .9rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Supervisor access</h1>
+  <div class="sub">Grant trusted helpers access to the support inbox (tickets, replies, AI monitor) without giving them full admin control. Owner only.</div>
+  <div id="gate" class="gate">Checking your session…</div>
+  <div id="app" style="display:none">
+    <div id="msg" class="msg"></div>
+    <div class="row">
+      <input type="email" id="email" placeholder="helper@example.com">
+      <button class="primary" id="addBtn">Add supervisor</button>
+    </div>
+    <div class="list" id="list"></div>
+    <a class="back" href="./index.html">&larr; Back to admin console</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+  var FN = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin';
+  var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+  var msg = document.getElementById('msg');
+  var list = document.getElementById('list');
+  var emailInput = document.getElementById('email');
+  var addBtn = document.getElementById('addBtn');
+
+  function showMsg(text, ok) {
+    msg.textContent = text;
+    msg.className = 'msg ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(function () { msg.className = 'msg'; }, 2500);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  async function call(path, opts) {
+    var session = (await client.auth.getSession()).data.session;
+    if (!session) throw new Error('no-session');
+    var res = await fetch(FN + path, {
+      method: (opts && opts.method) || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json'
+      },
+      body: opts && opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    var data = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+
+  async function renderList() {
+    list.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      var data = await call('/api/list');
+      var rows = data.supervisors || [];
+      if (!rows.length) { list.innerHTML = '<div class="empty">No supervisors yet.</div>'; return; }
+      list.innerHTML = '';
+      rows.forEach(function (r) {
+        var item = document.createElement('div');
+        item.className = 'item';
+        var when = '';
+        try { when = new Date(r.created_at).toLocaleDateString(); } catch (e) {}
+        item.innerHTML = '<span class="email">' + esc(r.email) + '</span>' +
+          '<span class="date">' + esc(when) + '</span>';
+        var rm = document.createElement('button');
+        rm.className = 'sm danger';
+        rm.textContent = 'Remove';
+        rm.onclick = async function () {
+          if (!confirm('Remove supervisor ' + r.email + '?')) return;
+          try {
+            await call('/api/remove', { method: 'POST', body: { email: r.email } });
+            showMsg('Removed ' + r.email, true);
+            renderList();
+          } catch (e) { showMsg(e.message, false); }
+        };
+        item.appendChild(rm);
+        list.appendChild(item);
+      });
+    } catch (e) {
+      list.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+    }
+  }
+
+  addBtn.onclick = async function () {
+    var email = emailInput.value.trim();
+    if (!email) { showMsg('Enter an email first.', false); return; }
+    addBtn.disabled = true;
+    try {
+      await call('/api/add', { method: 'POST', body: { email: email } });
+      showMsg('Added ' + email + ' as a supervisor.', true);
+      emailInput.value = '';
+      renderList();
+    } catch (e) {
+      showMsg(e.message, false);
+    }
+    addBtn.disabled = false;
+  };
+
+  (async function init() {
+    try {
+      var session = (await client.auth.getSession()).data.session;
+      if (!session) {
+        gate.innerHTML = 'You need to sign in first.<br><a href="../" style="color:#e0a43c">Open Weaver and sign in</a>, then reload this page.';
+        return;
+      }
+      var role = await call('/api/role');
+      if (role.role !== 'owner') {
+        gate.textContent = 'Only the owner can manage supervisors.';
+        return;
+      }
+      gate.style.display = 'none';
+      app.style.display = 'block';
+      renderList();
+    } catch (e) {
+      gate.textContent = e.message === 'no-session'
+        ? 'Session expired — reload and sign in again.'
+        : 'Could not reach the supervisor service: ' + e.message;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
