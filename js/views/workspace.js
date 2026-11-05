@@ -10,6 +10,8 @@ so the footer ALWAYS docks at the screen bottom; JS refines
 the top edge to sit flush under the pill bar.
 V4 Phase 2: Manuscript footer renders "Accept highlighted"
 (former "Accept as is") + "Accept whole".
+V4: Cover button (topbar-left) + Focus button (topbar-right;
+folds into the ⋯ sheet on phones via tb-fold).
 ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -181,8 +183,10 @@ export function renderWorkspace() {
     (() => {
       const guideBtn = topBtn('guide', 'book', 'Guide', () => openGuide());
       const exportBtn = topBtn('export', 'download', 'Export', () => exportProject());
+      const focusBtn = topBtn('focus', 'expand', 'Focus', () => import('../features/focus-mode.js').then((m) => m.toggleFocusMode()));
       guideBtn.classList.add('tb-fold');
       exportBtn.classList.add('tb-fold');
+      focusBtn.classList.add('tb-fold');
       moreBtnRef = el('button', {
         class: 'btn btn-ghost tb-more',
         title: 'More',
@@ -193,6 +197,7 @@ export function renderWorkspace() {
         topBtn('library', 'library', 'Library', () => { flushSave(); autoSync(); closeProject(); }),
         guideBtn,
         exportBtn,
+        focusBtn,
         topBtn('settings', 'gear', 'Settings', () => openSettings()),
         moreBtnRef,
       ]);
