@@ -219,3 +219,38 @@ proxy) so users can ask questions without providing their own API key.
    existing Messages tab — then show the friendly fallback. Nothing gets lost.
 4. **Guardrails:** read-only (never changes data), rate-limited, always offers
    the human fallback. Uses the owner's key via the V3.4 proxy, not the user's.
+   Pre-V5 — Support Context Bundle (AI-assisted diagnostics)
+Owner-requested 2026-11-04. Parked for a future edit before V5 marketing launch.
+
+Goal
+Give the admin console an AI diagnostics assistant that has full knowledge of
+both codebases, so when an issue is reported the owner can ask "what's wrong?"
+and get an accurate, context-aware answer instead of a generic guess.
+
+What it does
+- Bundles all source code from both repos (Weaver frontend + weaver-server
+  edge functions), the annotated file trees, and key reference docs
+  (HANDOFF decisions, gotchas, schema notes, deploy runbook).
+- Saves the bundle as a single Markdown or TXT file under admin/
+  (e.g., admin/SUPPORT_CONTEXT.md) so it ships with the console.
+- Wires an AI query interface (via the existing ai-proxy / Scribe pipeline)
+  into the admin console — likely a new "Diagnostics" tab or a panel inside
+  the existing AI Monitor — where the owner types a symptom and the AI
+  answers using the bundle as context.
+
+Design notes (decide at build time)
+- Context-window budget: the raw bundle will exceed most model limits.
+  Plan a compression strategy — e.g., include full file trees + function
+  signatures + decision log + gotchas, but trim repetitive boilerplate.
+  Alternatively, chunk the bundle and use retrieval (keyword match) like
+  the existing help/lookup flow does with HELP.md.
+- Reuse the help/index.ts retrieval pattern (section scoring + silent
+  context injection) rather than building a new RAG system.
+- The bundle must be regenerated whenever code changes. Consider a
+  build-time script or a manual "refresh bundle" button in admin.
+- Security: the bundle contains no secrets (keys live in env vars /
+  ai_config, not in source). Verify before committing.
+
+Trigger to build
+After V4 polish is complete and before V5 marketing launch, when the
+owner wants a self-service debugging tool for support escalations.
