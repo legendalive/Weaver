@@ -310,7 +310,7 @@ function streamInto(block) {
 }
 
 /* ---------- Pro upgrade notice (free users) ---------- */
-const UPGRADE_URL = 'https://mbenson62.gumroad.com/l/cqxxpt';
+const UPGRADE_URL = 'https://legendalive.github.io/Weaver/welcome/pricing.html';
 function showUpgradeNotice() {
   const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
   if (!body || body.querySelector('.upgrade-notice')) return;
