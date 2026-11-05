@@ -2,16 +2,15 @@
 Weaver — js/views/workspace.js
 v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
 V3.3a: Plot button. V3.3c: Plot opens Plot Reference.
-V3.8: mobile "More" sheet (Guide+Export+Support fold into ⋯
-on ≤480px). V3.8b: mobile panel pills (one full-height panel
-at a time, remember-last, AI attention dot). V3.8c: mobile
-panel stack is pinned to the viewport via CSS (position:fixed)
-so the footer ALWAYS docks at the screen bottom; JS refines
-the top edge to sit flush under the pill bar.
-V4 Phase 2: Manuscript footer renders "Accept highlighted"
-(former "Accept as is") + "Accept whole".
-V4: Cover button (topbar-left) + Focus button (topbar-right;
-folds into the ⋯ sheet on phones via tb-fold).
+V3.8: mobile panel pills (one full-height panel at a time,
+remember-last, AI attention dot). Panel stack pinned via CSS
+(position:fixed) so the footer always docks at the bottom.
+V4: Accept split footer · Cover button · Focus button ·
+Recheck return-slot tooltips.
+V4 mobile declutter: at ≤860px the topbar keeps ONLY Library
+and Config beside the title; every other tool folds into the
+⋯ sheet (Plot, Cover, Hierarchy, Export, Focus, Guide,
+Settings, Support). Desktop layout is unchanged.
 ========================================================= */
 import { el, clear, weaverLogo } from '../utils/dom.js';
 import { icon } from '../utils/icons.js';
@@ -65,7 +64,7 @@ function safe(label, fn, ...args) {
 }
 
 const STYLE_ID = 'workspace-style';
-const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:480px){ .topbar-right .tb-fold{display:none;} .topbar-right .tb-support{display:none;} .tb-more{display:inline-flex;} } @media (max-width:860px){ .workspace-panels{display:flex !important;flex-direction:column !important;position:fixed;left:0;right:0;bottom:0;top:104px;min-height:0;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
+const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:170px;max-width:240px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .tb-more-sheet .btn span{white-space:normal;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:860px){ .topbar .tb-fold{display:none;} .topbar .tb-support{display:none;} .tb-more{display:inline-flex;} .workspace-panels{display:flex !important;flex-direction:column !important;position:fixed;left:0;right:0;bottom:0;top:104px;min-height:0;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
 function ensureStyle() {
   if (!document.getElementById(STYLE_ID)) {
     const s = document.createElement('style');
@@ -110,15 +109,19 @@ function topBtn(key, iconName, label, onclick) {
   }, [icon(iconName), el('span', { class: 'btn-label', text: label })]);
 }
 
-/* ---------- mobile "More" sheet ---------- */
+/* ---------- mobile "More" sheet (holds every folded tool) ---------- */
 let moreSheet = null;
 let moreBtnRef = null;
 function ensureMoreSheet() {
   if (moreSheet) return moreSheet;
   moreSheet = el('div', { class: 'tb-more-sheet' }, [
-    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); togglePlotReference(); } }, [icon('file-text', 'icon-sm'), el('span', { text: 'Plot' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); import('../features/cover-gen.js').then((m) => m.openCoverGenerator()); } }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Cover' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); if (toggleHier) toggleHier(); } }, [icon('tree', 'icon-sm'), el('span', { text: 'Hierarchy' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); exportProject(); } }, [icon('download', 'icon-sm'), el('span', { text: 'Export' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); import('../features/focus-mode.js').then((m) => m.toggleFocusMode()); } }, [icon('expand', 'icon-sm'), el('span', { text: 'Focus' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSettings(); } }, [icon('gear', 'icon-sm'), el('span', { text: 'Settings' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSupport(); } }, [icon('send', 'icon-sm'), el('span', { text: 'Support' })]),
   ]);
   document.body.appendChild(moreSheet);
@@ -163,15 +166,23 @@ export function renderWorkspace() {
   const project = state.project;
   if (!project) return;
 
+  /* Left cluster: Config stays on mobile; Plot/Cover/Hierarchy fold. */
+  const plotBtn = topBtn('plot', 'file-text', 'Plot', () => togglePlotReference());
+  const coverBtn = topBtn('cover', 'sparkles', 'Cover', () => import('../features/cover-gen.js').then((m) => m.openCoverGenerator()));
+  const hierBtn = topBtn('hierarchy', 'tree', 'Hierarchy', () => {
+    if (toggleHier) toggleHier();
+  });
+  plotBtn.classList.add('tb-fold');
+  coverBtn.classList.add('tb-fold');
+  hierBtn.classList.add('tb-fold');
+
   const topbar = el('header', { class: 'topbar' }, [
     el('div', { class: 'topbar-left' }, [
       weaverLogo('sm'),
       topBtn('config', 'sliders', 'Config', () => openConfigBible()),
-      topBtn('plot', 'file-text', 'Plot', () => togglePlotReference()),
-      topBtn('cover', 'sparkles', 'Cover', () => import('../features/cover-gen.js').then((m) => m.openCoverGenerator())),
-      topBtn('hierarchy', 'tree', 'Hierarchy', () => {
-        if (toggleHier) toggleHier();
-      }),
+      plotBtn,
+      coverBtn,
+      hierBtn,
     ]),
     el('div', { class: 'topbar-center' }, [
       el('h1', { class: 'topbar-title', text: project.name }),
@@ -181,16 +192,19 @@ export function renderWorkspace() {
       }),
     ]),
     (() => {
+      /* Right cluster: Library stays on mobile; the rest fold into ⋯. */
       const guideBtn = topBtn('guide', 'book', 'Guide', () => openGuide());
       const exportBtn = topBtn('export', 'download', 'Export', () => exportProject());
       const focusBtn = topBtn('focus', 'expand', 'Focus', () => import('../features/focus-mode.js').then((m) => m.toggleFocusMode()));
+      const settingsBtn = topBtn('settings', 'gear', 'Settings', () => openSettings());
       guideBtn.classList.add('tb-fold');
       exportBtn.classList.add('tb-fold');
       focusBtn.classList.add('tb-fold');
+      settingsBtn.classList.add('tb-fold');
       moreBtnRef = el('button', {
         class: 'btn btn-ghost tb-more',
-        title: 'More',
-        'aria-label': 'More actions',
+        title: 'More tools',
+        'aria-label': 'More tools',
         onclick: () => toggleMoreSheet(),
       }, [el('span', { class: 'tb-more-glyph', text: '⋯' })]);
       return el('div', { class: 'topbar-right' }, [
@@ -198,7 +212,7 @@ export function renderWorkspace() {
         guideBtn,
         exportBtn,
         focusBtn,
-        topBtn('settings', 'gear', 'Settings', () => openSettings()),
+        settingsBtn,
         moreBtnRef,
       ]);
     })(),
@@ -300,7 +314,7 @@ export function renderWorkspace() {
   safe('renderManuscript', renderManuscript);
   safe('renderMainNovel', renderNovel);
 
-  /* V4 Phase 2: Accept split — two explicit buttons. */
+  /* V4: Accept split — two explicit buttons. */
   if (acceptAsIs && manuscript.footer.children.length === 0) {
     manuscript.footer.appendChild(el('button', {
       class: 'btn btn-sm btn-primary',
