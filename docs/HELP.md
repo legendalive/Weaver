@@ -1,543 +1,453 @@
 # Weaver — Help & Knowledge Base
 
-> This document is the official knowledge base for Weaver. It answers common
-> questions, explains every feature, and serves as the reference for the
-> in-app AI help assistant. Last updated for Weaver v2.x.
-
----
+This document is the official knowledge base for Weaver. It answers common
+questions, explains every feature, and serves as the reference for the
+in-app AI help assistant. Last updated for Weaver v4.
 
 ## Quick Orientation
 
 Weaver is a privacy-first, distraction-free writing app built for serious
 story construction. It combines a local-first editor with optional cloud sync,
-an AI writing assistant (Scribe), a structured project bible, and a plot
-builder. Your manuscripts are always yours — stored locally first, synced
-to your private cloud vault only when you want.
+an AI writing assistant (Scribe), a structured project bible, a plot
+builder, and a cover studio. Your manuscripts are always yours — stored
+locally first, synced to your private cloud vault only when you want.
 
-**Free tier:** Write locally in your browser. All core editing tools.
-**Pro tier:** Cloud sync across devices, AI writing (Scribe), and AI-assisted
-plot building. Upgrade via the button in Settings.
-
----
+Free tier: Write locally in your browser. All core editing tools, focus
+mode, and cover upload.
+Pro tier: Cloud sync across devices, AI writing (Scribe), AI cover
+concepts, AI-assisted plot building, and market-ready EPUB export with
+your cover embedded. Upgrade via the button in Settings.
 
 ## Getting Started
 
 ### How do I sign up or sign in?
 Open Weaver and you'll see the sign-in screen. If you don't have an account,
-click **Sign up**, enter your email and a password, and you're in. If you
-already have an account, enter your email and password and click **Sign in**.
-
+click Sign up, enter your email and a password, and you're in. If you
+already have an account, enter your email and password and click Sign in.
 Your account is tied to your email address. Use the same email everywhere
 (including when purchasing Weaver Pro) so your upgrades and data stay linked.
 
 ### How do I reset my password?
-On the sign-in screen, click **Forgot password?** Enter your email and
+On the sign-in screen, click Forgot password? Enter your email and
 you'll receive a reset link. Follow it to choose a new password.
 
 ### I just signed up — where do I start?
-After signing in you'll land on your **Library**. Click **New Project**
-(or the + button) to launch the **Wizard**, which walks you through naming
-your project, choosing whether it's part of a series, and setting up your
-first book.
-
----
+After signing in you'll land on your Library. Click New Project
+(or the + button) to launch the Wizard, which walks you through naming
+your project, choosing whether it's part of a series, setting an optional
+book number, and writing your first pages.
 
 ## The Library
 
-The Library is your home screen. It shows every project you've created,
-with word counts, last-edited times, and series groupings.
+The Library is your home screen. Every project appears as a single neat
+line, with the most recently edited item always on top.
+
+### How are series shown?
+Books that belong to a series are grouped into one collapsed row showing
+the series name and how many books it holds. Tap the row to expand it and
+see each book as its own line. The ＋ button on the series row starts a new
+book in that series, inheriting the shared Config Bible. Standalone
+projects appear as ordinary lines.
+
+### What are book numbers?
+When you create a project you can optionally give it a book number
+(Book 1, Book 2, Book 3…). The number shows as a small gold tag next to
+series books in the Library. Book numbers are labels only — they never
+change the Library order, which always follows your latest edit.
 
 ### How do I open a project?
-Click on the project card in your Library. It opens directly into the
-Workspace where you can write.
+Click its line in the Library. It opens directly into the Workspace.
 
 ### How do I create a new project?
-Click **New Project** (or the + button) in the Library. The Wizard will
-guide you through setup.
+Click New Project (or the + button) in the Library. The Wizard guides
+you through setup.
 
 ### How do I delete a project?
-From the Library, use the project's options menu (usually a small icon or
-right-click) and choose **Delete**. You'll be asked to confirm. Deleting a
-project removes it from your local browser. If it was synced to the cloud,
-the cloud copy is also removed on your next sync.
-
-### How do I create a series?
-When creating a project in the Wizard, choose the option to make it part of
-a series. You can name the series and each book within it. Books in a series
-share a **Config Bible** (characters, settings, world rules) so details stay
-consistent across the whole series.
-
----
+Use the trash icon on the project's line and confirm. Deleting a project
+removes it from your browser; if it was synced, the cloud copy is removed
+on your next sync. If it was the last book of a series, the shared series
+bible is removed too — export first if you want a copy.
 
 ## The Workspace
 
-When you open a project, you enter the **Workspace**. It has three main
-panels and a topbar with tools.
+When you open a project, you enter the Workspace: three main panels and a
+topbar of tools.
 
 ### The three panels
-- **Manuscript:** Your raw, working draft. This is where you write freely,
-  experiment, and use the MOVES system (see below).
-- **Main Novel:** Your polished, "final" text. You accept passages from the
-  Manuscript into the Main Novel when they're ready.
-- **AI Output (Scribe):** Where AI-generated text appears when you use
-  Scribe. You can accept, rewrite, or discard each AI block.
-
-### On phones
-The workspace shows **one panel at a time**, switched with the pill bar under
-the topbar (Manuscript · Main Novel · AI Output). A gold dot on the AI pill
-means a generation finished while you were elsewhere. Guide, Export and
-Support fold into the **⋯ menu** on small screens; your writing panel always
-fills the screen with its action buttons docked at the bottom.
+Manuscript: Your raw, working draft. Write freely here.
+Main Novel: Your polished, finalized text. Accept passages into it when
+they're ready. This is the layer your exports read.
+AI Output (Scribe): Where AI-generated text appears. Accept, rewrite, or
+discard each block.
 
 ### The topbar tools
-- **Config:** Opens the Project Bible (see Config Bible section).
-- **Plot:** Opens the Plot Builder / Plot Reference (see Plot Builder).
-- **Hierarchy:** Shows a structural outline of your manuscript.
-- **Library:** Returns to your Library (saves and syncs first).
-- **Guide:** Opens the in-app guide.
-- **Export:** Exports your project (see Export section).
-- **Settings:** Opens Settings (see Settings section).
+Config: Opens the Project Bible.
+Plot: Opens the Plot Reference rail (and the Plot Builder via Edit).
+Cover: Opens the Cover Studio.
+Hierarchy: Structural outline of your manuscript.
+Library: Returns to your Library (saves and syncs first).
+Guide: Opens this guide.
+Export: Exports your project (.docx + .txt, or EPUB on Pro).
+Focus: Enters focus mode (on phones, Focus lives in the ⋯ menu).
+Settings: Account, cloud, export, and preferences.
 
-### What is the MOVES system?
-MOVES is Weaver's revision workflow. You write freely in the **Manuscript**,
-then when a passage is ready, you "accept" it into the **Main Novel**. This
-keeps your working draft and your polished text separate, so you can always
-see what's finalized and what's still in progress.
+### On phones
+The workspace shows one panel at a time, switched with the pill bar under
+the topbar (Manuscript · Main Novel · AI Output). A gold dot on the AI pill
+means a generation finished while you were elsewhere. Guide, Export and
+Focus fold into the ⋯ menu on small screens; your writing panel always
+fills the screen with its action buttons docked at the bottom.
 
-- **Accept as is:** Moves the current Manuscript text into the Main Novel
-  without changes (button in the Manuscript panel footer).
-- **Recheck:** Cuts selected Main Novel text back into the Manuscript for
-  further revision (button in the Main Novel panel footer).
+## Focus Mode
 
----
+Focus mode strips every distraction — topbar, panel pills, floating
+buttons, and the other panels — leaving only your Manuscript filling the
+screen.
+
+### How do I enter focus mode?
+Click Focus in the topbar, or press Ctrl+Shift+F (Windows/Linux) /
+Cmd+Shift+F (Mac). On phones, Focus is inside the ⋯ menu.
+
+### How do I leave focus mode?
+Press Escape or click the small × button at the top-right corner.
+
+### Focus mode vs the expand button — what's the difference?
+To expand the manuscript with all buttons present, use the expand button
+inside the Manuscript panel header — the panel grows to fill the workspace
+but keeps its toolbar and footer buttons. To be rid of all distractions,
+use focus mode — everything except the text disappears.
 
 ## Writing & Editing
 
 ### How do I write?
-Just click in the **Manuscript** panel and type. Weaver autosaves as you
-write — you never need to press Ctrl+S. Your work is saved locally in your
-browser immediately.
+Click in the Manuscript panel and type. Weaver autosaves as you write —
+you never need to press Ctrl+S. Your work is saved locally in your browser
+immediately.
 
-### How do I change the font size?
-Go to **Settings → General → Aesthetics → Font Scale**. Choose from Small
-(0.9x), Default (1.0x), Large (1.1x), or Extra Large (1.2x). The change
-applies immediately.
+### How does text move from Manuscript to Main Novel?
+Two buttons in the Manuscript footer:
+- Accept highlighted (gold): pushes the text you have selected into the
+  Main Novel and cuts it from the Manuscript.
+- Accept whole: after a confirmation showing the word count, moves the
+  entire Manuscript into the Main Novel and clears the Manuscript.
+Both always cut — text is moved, never duplicated. If the exact text is
+already in the Main Novel, Weaver asks before adding it again.
 
-### How do I change sentences per page?
-Go to **Settings → General → Editor Behavior → Sentences per page**. This
-controls how text is chunked in the Manuscript window. Default is 15.
+### How do I revise text that's already in the Main Novel?
+Select the passage in the Main Novel and click Recheck. The text is cut
+back into the Manuscript, and Weaver remembers where it came from.
 
-### How do I change the autosave delay?
-Go to **Settings → General → Editor Behavior → Autosave delay**. Default is
-3000ms (3 seconds). You can set it between 500ms and 5000ms.
+### How does the rewrite get back to its place?
+After rewriting in the Manuscript, highlight the rewrite and click
+Accept highlighted. Weaver sees the pending Recheck and asks:
+- Return to its place — slots the text back exactly where it was cut from.
+- Append to bottom — adds it to the end of the Main Novel instead.
+- Cancel — nothing changes.
+If the surrounding text changed too much to find the original spot, Weaver
+tells you and offers to append to the bottom. The Main Novel scrolls to
+show you where the text landed.
 
----
+### Headings and formatting
+Start a line with #, ## or ### to create chapter and section headings, or
+use the H1/H2/H3/¶ buttons above the Manuscript. Press Enter to start a
+new paragraph; Shift+Enter inserts a line break inside a paragraph.
 
 ## Config Bible
 
-The **Config Bible** (also called the Project Bible) is your story's
-reference document. It holds all the facts about your world, characters,
-and style so that Scribe (the AI assistant) can stay consistent with your
-story.
+The Config Bible (Project Bible) is your story's reference document. It
+holds the facts about your world, characters, and style so Scribe stays
+consistent with your story.
 
 ### How do I open the Config Bible?
-Click **Config** in the Workspace topbar.
+Click Config in the Workspace topbar.
 
 ### What sections are in the Config Bible?
-1. **Characters** — Profiles for each character (name, traits, history).
-2. **Settings & Places** — Locations, environments, and their details.
-3. **Plot Arcs** — Major story arcs and their progression.
-4. **World Rules & Physics** — The rules of your world (magic systems,
-   technology, laws of nature, etc.).
-5. **Item Catalog** — Important objects, artifacts, and their significance.
-6. **General Prose** — Your house style, voice, tense, and rhythm. Scribe
-   uses this to match your writing style.
-7. **AI Instructions** — Standing directives bundled with every Scribe
-   prompt (e.g., "Never break established world rules").
+Characters — profiles for each character.
+Settings & Places — locations and their details.
+Plot Arcs — major story arcs.
+World Rules & Physics — the rules of your world.
+Item Catalog — important objects and artifacts.
+General Prose — your house style, voice, tense, and rhythm.
+AI Instructions — standing directives bundled with every Scribe prompt.
 
-### How do I add an entry?
-Open the Config Bible, choose a section from the left rail, and click
-**Add [character/setting/etc.]**. Type the name and details. Entries save
-automatically as you type.
-
-### How do I edit or delete an entry?
-Click on a collapsed entry row to expand it. Edit the fields directly.
-To delete, click the trash icon in the entry's header and confirm.
+### How do I add, edit, or delete an entry?
+Open the Config Bible, choose a section from the left rail, and click the
+Add button. Click a collapsed entry row to expand and edit it. Use the
+trash icon to delete. Entries save automatically.
 
 ### What does "series bible" mean?
-If your project is part of a series, the Config Bible is **shared across all
-books in that series**. Edits you make in one book's Config Bible apply to
-every book. This keeps characters, settings, and world rules consistent
-throughout the series.
+If your project is part of a series, the Config Bible is shared across all
+books in that series. Edits apply to every book, keeping characters,
+settings, and world rules consistent throughout.
 
 ### How do I import or export the Config Bible?
-- **Export:** Use the **Export** button in the Config Bible. It downloads a
-  `.txt` file with all your entries.
-- **Import:** Use the **Import** button and select a previously exported
-  `.txt` file. You can choose to **Replace** (overwrite everything) or
-  **Merge** (append new entries).
-
----
+Export always downloads the bible as a .txt alongside your .docx. In the
+Config Bible window, the Import button accepts a previously exported .txt,
+with a choice to Replace everything or Merge (append).
 
 ## Plot Builder
 
-The **Plot Builder** helps you structure your story into Acts and Beats
-before (or while) you write.
+The Plot Builder helps you structure your story into Acts and Beats.
 
-### How do I open the Plot Builder?
-Click **Plot** in the Workspace topbar. This opens the **Plot Reference
-panel** on the right side of the screen, which shows your current outline.
-Click **Edit** inside that panel to open the full **Plot Builder modal**.
+### How do I open it?
+Click Plot in the topbar to open the Plot Reference rail, then Edit inside
+it for the full builder.
 
 ### How do I create an outline?
-1. Open the Plot Builder (Plot → Edit).
-2. Write a **Premise** — one paragraph describing whose story it is, what
-   they want, and what stands in the way.
-3. Click **Add act** to create an Act. Give it a title and summary.
-4. Inside each Act, click **Add beat** to create Beats (scenes or moments).
-5. Everything saves automatically.
+Write a Premise — one paragraph: whose story, what they want, what stands
+in the way. Then Add act for each act (title + summary), and Add beat for
+the scenes inside each act. Everything saves automatically.
 
-### What are Acts and Beats?
-- **Acts** are the major structural divisions of your story (e.g., Act I —
-  Setup, Act II — Confrontation, Act III — Resolution).
-- **Beats** are the individual scenes or story moments within an Act. Each
-  beat has a title and a description of what happens.
-
-### Can the AI help me build my plot? (Pro feature)
-Yes! If you're a **Pro** user, the Plot Builder has AI buttons:
-- **Draft outline from premise:** Writes a full 3-act structure based on
-  your premise.
-- **Suggest twist:** Adds a plot twist or complication to an Act.
-- **Expand beat:** Takes a short beat description and fleshes it out into a
-  detailed scene summary.
-
-These buttons only appear for Pro users. Free users can still build outlines
-manually.
-
-### What is the Plot Reference panel?
-When you click **Plot** in the topbar, a panel slides in from the right
-showing your outline (premise, acts, beats) in a read-only format. It's
-designed so you can glance at your plan while writing without opening the
-full editor. Click the **Plot** button again (or the ✕) to close it.
-
----
+### Can the AI help me build my plot? (Pro)
+Yes. Pro users see AI buttons: Draft outline from premise (full 3-act
+structure), Suggest twist (adds a complication to an act), and Expand beat
+(fleshes a beat into a detailed scene summary). Free users can build
+outlines manually.
 
 ## Scribe — AI Writing Assistant (Pro)
 
-**Scribe** is Weaver's AI writing assistant. It can generate, rewrite,
-continue, or transform text based on your instructions, using your Config
-Bible for consistency.
+Scribe is Weaver's AI writing assistant. It generates, rewrites, continues,
+or transforms text using your Config Bible for consistency.
 
 ### How do I use Scribe?
-1. Make sure you're a **Pro** user (Scribe is a Pro feature).
-2. In the Workspace, find the **Scribe input** in the AI Output panel.
-3. Type an instruction, e.g., "Rewrite this passage in third person" or
-   "Continue the scene from here."
-4. Press Enter or click the send icon. Scribe will generate text and stream
-   it into the AI Output panel.
+In the AI Output panel, type an instruction (e.g. "rewrite in third person"
+or "continue the scene") and press Enter. The response streams in as a
+block with Accept, Rewrite, and Discard buttons.
 
 ### How do I give Scribe context?
-Highlight (select) some text in your **Manuscript** before sending a prompt.
-The highlighted text is bundled with your instruction as "source text," and
-Scribe will work with it. You'll see a small chip showing the character
-count of your selection.
+Highlight text in the Manuscript first — it is bundled with your
+instruction as source text, shown as a small gold chip. Clear the chip to
+unbundle.
 
 ### What can I ask Scribe to do?
-- **Rewrite** a passage (change tense, POV, tone, style).
-- **Continue** a scene from where you left off.
-- **Describe** something (a setting, a character's reaction, an object).
-- **Expand** a brief note into full prose.
-- **Summarize** or condense a long passage.
-- Any custom instruction you can write in plain English.
-
-### How do I use the AI output?
-Each AI response appears as a **block** in the AI Output panel with three
-buttons:
-- **Accept:** Inserts the AI text into your Main Novel.
-- **Rewrite:** Asks Scribe to try again with the same prompt.
-- **Discard:** Throws away the AI block.
+Rewrite a passage, continue a scene, describe a setting or reaction, expand
+a brief note, summarize, or any custom instruction in plain English.
 
 ### What are Quick Prompts?
-Quick Prompts are up to three one-tap shortcuts shown near the Scribe input.
-Set them in **Settings → General → Quick Prompts**. They're useful for
-frequent instructions like "Show, don't tell" or "Tighten this paragraph."
+Up to three one-tap shortcuts near the Scribe input. Set them in
+Settings → General → Quick Prompts. Pro users also get the Temperature
+slider there: 0 = precise, 1 = inventive.
 
 ### Why isn't Scribe working?
-- **Free users:** Scribe requires a Pro subscription. You'll see an upgrade
-  prompt instead of the AI input.
-- **Pro users:** If Scribe shows an error, the AI service may be temporarily
-  busy. Try again in a moment. Weaver automatically tries multiple AI
-  providers if one is unavailable.
+Scribe is a Pro feature — free accounts see a gold upgrade card in the AI
+Output panel instead. If you are Pro and see an error, the AI service may
+be briefly busy; try again in a moment. Weaver automatically tries multiple
+providers.
 
----
+## Cover Studio
+
+The Cover Studio helps you design and attach a book cover. Open it with the
+Cover button in the topbar.
+
+### How do I generate cover ideas? (Pro)
+Fill in the author name (optional) and choose where the author name should
+sit on the cover — top center, middle center, bottom center, or one of the
+four corners. Click Generate Cover Concepts. Scribe reads your Config
+Bible and Plot Builder and returns three distinct concepts, each with a
+ready-to-paste image prompt for your favorite image generator.
+
+### How do I attach a finished cover?
+Create the cover with your favorite image generator (or any artwork you
+own), save it, then click Upload cover image in the Cover Studio. Weaver
+accepts .jpg, .png and .webp, compresses the image for safe storage, and
+keeps it with the project. Uploading works on every plan — only AI concept
+generation needs Pro.
+
+### Where does the uploaded cover go?
+It is stored inside the project, so it autosaves, syncs to your cloud
+vault, and travels with backups. When you export EPUB (Pro), the cover is
+embedded automatically and opens as the first page of the book. You can
+also Download a copy, Replace it, or Remove it from the Cover Studio at any
+time.
 
 ## Search
 
 ### How do I search my manuscript?
-Click the **magnifying-glass icon** in the topbar. It expands into a search
-field that overlays the topbar. Type your phrase and Weaver finds all matches
-across both the **Manuscript** and **Main Novel**.
+Click the magnifying-glass icon in the topbar; it expands into a search
+field. Weaver finds matches across both the Manuscript and Main Novel.
 
-### How do I navigate search results?
-Use the **‹** (previous) and **›** (next) buttons, or press **Enter** (next) /
-**Shift+Enter** (previous). Weaver jumps to each match and briefly highlights
-it. The badge shows which match you're on (e.g., "3/17") and whether it's in
-the Manuscript or Main Novel.
-
-### How do I clear the search?
-Click the **✕** button, press **Escape**, or empty the field and click away —
-the search collapses back into the magnifying-glass icon.
-
----
+### How do I navigate results?
+Use ‹ and ›, or press Enter (next) / Shift+Enter (previous). The badge
+shows your position (e.g. 3/17) and whether the hit is in the Manuscript or
+Main Novel. Click ✕, press Escape, or empty the field to collapse.
 
 ## Quick Add to Config (+config)
 
-### How do I quickly add something to my Config Bible while writing?
-In the **Manuscript** or **Main Novel**, highlight a word or phrase — for
-example a character's name, a place, or an object. A small popup appears with a
-**+config** button. Click it to instantly add that word as a new entry in your
-Config Bible, so you can flesh it out without losing your place.
-
-### Does +config help me describe the item?
-If you're a **Pro** user, +config uses AI to draft a starting description for
-the item based on the highlighted word and your story context. You can then
-edit it. Free users add the entry and write the description manually.
-
----
+Highlight a word or phrase in the Manuscript or Main Novel and a small
++config pill appears. Click it to add that term to your Config Bible
+without losing your place. Pro users get an AI-drafted starting
+description; everyone can edit the entry freely.
 
 ## Export
 
 ### How do I export my project?
-Click **Export** in the topbar. Weaver packages your manuscript, config,
-and metadata into a downloadable file. This is useful for backups, sharing
-with editors, or moving to another tool.
+Click Export in the topbar. Weaver ALWAYS downloads both files: your
+Main Novel as a real .docx, and your Config Bible as a readable .txt.
 
----
+### How do I export an EPUB? (Pro)
+Click Export → Export EPUB, then choose the book. EPUB is built entirely
+in your browser: title page, chapters from your headings, a proper table
+of contents, and your uploaded cover as the opening page if you attached
+one.
+
+### Why is my EPUB empty or missing the cover?
+EPUB reads the Main Novel only — never the Manuscript draft. Use Accept
+highlighted or Accept whole to move text into the Main Novel before
+exporting. For the cover, upload it in the Cover Studio first, then export
+again; if a reader app still shows an old cover, delete its cached copy of
+the book and re-import the new file. The author shown on the title page is
+the author name from your Cover Studio (or "Anonymous" if blank).
 
 ## Notes
 
-### What is Notes?
-Notes is a quick scratchpad for the ideas, lines, and "what if" thoughts that
-strike you mid-scene. Instead of breaking your writing flow, you jot the idea
-into Notes and keep going.
-
-### How do I open Notes?
-Tap the round **pen button at the bottom-left** of the workspace, or press
-**Ctrl+Alt+N** (Windows/Linux) / **Cmd+Alt+N** (Mac). A small sheet slides up:
-type your thought and press **Enter** to save it (Shift+Enter for a new line).
-The button politely fades while you type and returns when you pause.
-
-### How do I review or delete notes?
-Open the Notes sheet again to see your full list, newest first, with the date
-each note was captured. Use the trash icon to delete a note you no longer need.
-Notes are saved with the project and sync to your vault.
-
-----
+Notes is a quick scratchpad for ideas that strike mid-scene. Tap the round
+pen button at the bottom-left, or press Ctrl+Alt+N (Cmd+Alt+N on Mac).
+Type your thought and press Enter to save it. Notes are stored with the
+project and sync to your vault. Open the sheet again to review or delete
+notes.
 
 ## Cloud Sync & Backup
 
 ### How does cloud sync work?
-When you're signed in and have a Pro subscription, Weaver automatically
-syncs your projects to your **private cloud vault** as you write. Your text
-is compressed before upload to save space. The sync badge in the Main Novel
-panel header shows the last sync time.
+When you're signed in with Pro, Weaver syncs your projects to your private
+cloud vault as you write (compressed to save space). The badge in the Main
+Novel panel header shows the last save. Upload to cloud and Download from
+cloud in Settings both run a safe two-way sync — newer wins, nothing is
+erased.
 
 ### What if the cloud is unavailable?
-Weaver uses a **failover system**. If the primary cloud (Supabase) is
-unreachable or full, Weaver can optionally use **Puter** as overflow storage.
-This is free and tied to your own Puter account — it costs you nothing and
-keeps your work safe even if the primary service is down.
+If your primary vault is full or unreachable, Weaver can overflow to Puter
+using your own free Puter account — optional, and only when needed. Manage
+it in Settings → Data & Storage → Overflow Storage.
 
-### How do I manually back up or restore?
-Go to **Settings → Data & Storage**:
-- **Backup to cloud:** Forces an immediate sync of all projects.
-- **Export:** Downloads a copy of your current project.
-- **Restore:** Pulls your projects back from the cloud (useful on a new
-  device or after clearing browser data).
-
-### What is Puter overflow storage?
-Puter is an optional secondary storage location. Weaver only uses it if your
-primary cloud vault is full or unreachable. You can connect or disconnect
-Puter in **Settings → Data & Storage → Overflow Storage**. It's completely
-optional — Weaver works fully without it.
-
-### I'm on a new device. How do I get my projects back?
-Sign in with your account on the new device. Go to **Settings → Data &
-Storage → Restore**. Weaver will download all your projects from the cloud
-into the new browser.
-
----
+### I'm on a new device — how do I get my projects back?
+Sign in, then Settings → Data & Storage → Download from cloud.
 
 ## Settings
 
-Open Settings via the **gear icon** in the topbar or the Settings button.
-
 ### Account
-Shows your signed-in email, your plan status (Free or Pro), and options to
-upgrade or sign out.
+Your signed-in email, your plan badge (Free or Pro), the Upgrade button,
+and sign out. Upgrade opens the pricing page with all three plans —
+monthly, yearly, and lifetime.
 
 ### Data & Storage
-Manage cloud backups, exports, restores, and Puter overflow storage.
+Upload to cloud, Export (.docx + .txt), Export EPUB, Download from cloud,
+and the optional Puter overflow card.
 
 ### General
-- **Editor Behavior:** Sentences per page and autosave delay. "Accept as is"
-  always MOVES text (cuts it from the Manuscript into the Main Novel).
-- **Quick Prompts:** Set up to three one-tap Scribe shortcuts. Pro users also
-  get a **Temperature** slider here: 0 = precise and faithful, 1 = bolder and
-  more inventive.
-- **Aesthetics:** Font scale for the editor.
----
+Sentences per page, autosave delay, Quick Prompts, font scale, and — for
+Pro — the Scribe temperature slider.
 
 ## Pro vs Free
 
 | Feature | Free | Pro |
-|---|---|---|
+| --- | --- | --- |
 | Write locally in browser | ✅ | ✅ |
-| Config Bible | ✅ | ✅ |
-| Plot Builder (manual) | ✅ | ✅ |
-| Search, Export, Hierarchy | ✅ | ✅ |
+| Config Bible, Plot Builder (manual) | ✅ | ✅ |
+| Search, Hierarchy, Notes, Focus mode | ✅ | ✅ |
+| Export .docx + .txt | ✅ | ✅ |
+| Cover upload & management | ✅ | ✅ |
+| Cover concept generation (AI) | ❌ | ✅ |
 | Cloud sync across devices | ❌ | ✅ |
 | Scribe AI writing | ❌ | ✅ |
 | Plot Builder AI (draft, expand, twist) | ❌ | ✅ |
+| EPUB export (with embedded cover) | ❌ | ✅ |
 
 ### How do I upgrade to Pro?
-Click the **Upgrade to Pro** button in **Settings → Account**, or follow the
-purchase link provided. After purchasing, your Pro status is activated by
-the Weaver team (usually within one business day). Make sure the email you
-use to purchase matches your Weaver account email.
-
-### How do I know if I'm Pro?
-Check **Settings → Account**. A gold **Pro** badge means you're on the Pro
-plan. A **Free** badge means you're on the free tier.
-
----
+Settings → Account → Upgrade to Pro opens the pricing page: $8/month,
+$60/year, or $149 lifetime. After purchasing on Gumroad with the same
+email as your Weaver account, Pro is activated by the Weaver team —
+usually within one business day.
 
 ## Series
 
 ### What is a series in Weaver?
-A series is a collection of related books (e.g., a trilogy). Books in a
-series share a single **Config Bible**, so characters, settings, and world
-rules stay consistent across every book.
+A collection of related books that share one Config Bible, so characters,
+settings, and world rules stay consistent across every book.
 
-### How do I create a series?
-When creating a new project in the Wizard, choose the option to make it part
-of a series. You can add more books to the series later.
+### How do I create one?
+In the New Project wizard choose Series installment, then pick an existing
+series or create a new one. Each book can also carry an optional book
+number shown as a tag in the Library.
 
-### How do I switch between books in a series?
-From the Library, series are grouped together. Click on any book in the
-series to open it. The shared Config Bible is accessible from any book.
-
----
+### How do I add more books?
+Use the ＋ button on the series row in the Library, or choose the series in
+the wizard.
 
 ## Troubleshooting
 
 ### Weaver won't load / blank screen
-Try reloading the page. If it still fails, check your internet connection.
-Weaver needs to reach the authentication service to sign you in. Your local
-projects are safe in your browser — they won't be lost by a reload.
+Reload the page and check your connection — sign-in needs the auth service
+reachable. Your local projects are safe in the browser and are not lost by
+a reload.
 
 ### My projects disappeared
-If you signed in on a new browser or cleared your data, your local projects
-may not be present. Sign in and use **Settings → Data & Storage → Restore**
-to pull them back from the cloud (requires Pro).
+If you switched browsers or devices, sign in and use Settings → Data &
+Storage → Download from cloud (requires Pro).
 
 ### Scribe isn't responding
-- Make sure you're a Pro user.
-- Check your internet connection.
-- The AI service may be temporarily busy — try again in a moment.
-- Weaver tries multiple AI providers automatically, so a single provider
-  outage shouldn't stop you.
+Confirm you are Pro, check your connection, and try again shortly — Weaver
+rotates through several AI providers automatically.
 
-### Cloud sync badge says "cloud save failed"
-This usually means a temporary network issue. Weaver will retry on your next
-edit. If it persists, check your connection or try **Settings → Data &
-Storage → Backup to cloud** manually.
+### Cloud badge says save failed
+Usually a momentary network issue; Weaver retries as you keep writing. You
+can also force it with Settings → Upload to cloud.
 
-### I bought Pro but it's not active yet
-Pro activation is handled manually and usually completes within one business
-day. Make sure the email you used to purchase matches your Weaver account
-email. If it's been more than a day, use the **Support** button in the app
-to contact us.
+### I bought Pro but it isn't active yet
+Activation is manual and usually completes within one business day. Make
+sure your Gumroad purchase email matches your Weaver account email. If it
+has been longer, contact support from the app.
 
----
+### My returned rewrite landed somewhere unexpected
+Return to its place works by finding the text that surrounded the original
+cut. If those surroundings changed, Weaver asks whether to append to the
+bottom instead — nothing is ever inserted blindly.
 
 ## Contacting Support
 
-### How do I get help?
-Click the **Support** button in the Workspace topbar. This opens a contact
-form. Describe your issue and send it — it goes directly to the Weaver team.
-We typically reply within one business day.
-The **Support** window (opened by the Support button in the topbar) includes an
-instant lookup: describe your issue and common questions are resolved directly.
-Complex queries requests may take longer. We do our best to respond within 24 hours.
-
-Your message is sent from your signed-in Weaver account, so we can see which
-account you're writing from. You don't need to include your email in the
-message body.
-
-### What should I include in a support message?
-- A clear description of what you were trying to do.
-- What happened instead (any error messages).
-- Your browser and device (e.g., "Chrome on Windows 11").
-- Steps to reproduce the issue, if possible.
-
-Please **do not** include passwords, API keys, or other sensitive
-information in support messages.
-
----
+Click Support in the Workspace topbar. Try the instant lookup first — many
+questions are answered on the spot. Anything the lookup can't resolve can
+be sent to the team as a request; replies appear under Your requests in the
+same window and are also emailed to you. We typically reply within one
+business day. Please don't include passwords or API keys in messages.
 
 ## Data & Privacy
 
-### Where is my data stored?
-Your manuscripts are stored **locally in your browser** first. If you have
-Pro and cloud sync enabled, your data is also uploaded to your **private
-cloud vault**. This vault is tied to your account — no one else can access it.
-
-### Can anyone read my manuscripts?
-No. Your cloud vault is private to your account. Weaver's team does not read
-your manuscripts. Your text is compressed and stored under your unique user
-ID.
-
-### What happens if I delete my account?
-If your account is deleted, your cloud vault is wiped. Any data stored only
-in your local browser remains on that device until you clear your browser
-data.
-
-### Does Weaver use my writing to train AI?
-No. Your manuscripts are never used to train AI models. Scribe uses your
-Config Bible as context for generation, but your actual manuscript text is
-only sent to the AI when you explicitly ask Scribe to work on a passage.
-
----
+Your manuscripts live in your browser first. Cloud sync (Pro) stores
+compressed copies in a private vault tied to your account — no one else can
+access it, and the Weaver team does not read your manuscripts. Deleting
+your account wipes the vault. Weaver never uses your writing to train AI
+models; Scribe only sees the bible and passages you actively send.
 
 ## Keyboard & Navigation Tips
 
-- **Enter / Shift+Enter** in Search: Jump to next / previous match.
-- **Escape** in Search: Clear and close the search.
-- **Panel expand icon (⤢):** Maximize any single panel; click again to
-  restore the split view.
-- **Drag panel dividers:** Resize the Manuscript, Main Novel, and AI panels.
-- **Autosave:** Happens automatically as you type. No need to save manually.
-
----
+Ctrl/Cmd+Shift+F — toggle focus mode.
+Ctrl/Cmd+Alt+N — open Notes.
+Enter / Shift+Enter in Search — next / previous match; Escape clears.
+Panel expand button (⤢ in a panel header) — maximize a panel while keeping
+all its buttons; different from focus mode, which hides everything.
+Drag panel dividers to resize; double-click a divider to reset.
+Autosave runs continuously — there is nothing to save manually.
 
 ## Glossary
 
-- **Manuscript:** Your raw, working draft panel.
-- **Main Novel:** Your polished, finalized text panel.
-- **MOVES:** The workflow for accepting text from Manuscript into Main Novel.
-- **Config Bible / Project Bible:** Your story's reference document
-  (characters, settings, rules, style).
-- **Scribe:** Weaver's AI writing assistant (Pro feature).
-- **Beat:** A scene or story moment within an Act in the Plot Builder.
-- **Act:** A major structural division of your story in the Plot Builder.
-- **Vault:** Your private cloud storage for synced projects.
-- **Puter:** Optional overflow cloud storage used as a backup if the primary
-  vault is unavailable.
-- **Quick Prompts:** One-tap Scribe shortcuts configured in Settings.
-- **Fallback chain:** The order of AI providers Weaver tries if one fails.
+Manuscript: your raw working-draft panel.
+Main Novel: your finalized text panel; the layer exports read.
+Accept highlighted / Accept whole: the two ways Manuscript text moves
+into the Main Novel.
+Recheck: cuts Main Novel text back to the Manuscript and remembers its
+origin for a one-tap return.
+MOVES: the overall draft → finalize workflow built on the above.
+Config Bible / Project Bible: your story's reference document.
+Cover Studio: generate cover concepts and attach your finished cover.
+Focus mode: full-screen, distraction-free writing.
+Book number: optional tag (Book 1, Book 2…) on series books.
+Scribe: Weaver's AI writing assistant (Pro).
+Beat / Act: plot structure units in the Plot Builder.
+Vault: your private cloud storage for synced projects.
+Puter: optional overflow storage used only when the vault is unavailable.
+Quick Prompts: one-tap Scribe shortcuts configured in Settings.
+Fallback chain: the order of AI providers Weaver tries if one fails.
 
----
-
-*End of Weaver Help & Knowledge Base.*
-*For feature requests or bug reports, use the in-app Support button.*
+End of Weaver Help & Knowledge Base. For anything else, use the in-app
+Support button.
