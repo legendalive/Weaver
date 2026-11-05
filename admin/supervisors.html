@@ -54,8 +54,18 @@
   <h1>Supervisor access</h1>
   <div class="sub">Grant trusted helpers access to the support inbox (tickets, replies, AI monitor) without giving them full admin control. Owner only.</div>
   <div id="gate" class="gate">Checking your session…</div>
-  <div id="app" style="display:none">
+    <div id="app" style="display:none">
     <div id="msg" class="msg"></div>
+    
+    <div style="margin-bottom:20px;padding:14px;background:#1c1c20;border:1px solid #2b2b30;border-radius:10px;">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#94918a;margin-bottom:8px;">Supervisor access link</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="adminUrl" readonly style="flex:1;padding:9px 12px;font-size:.82rem;color:#e8e5dd;border:1px solid #3a3a40;border-radius:8px;background:#0f0f11;font-family:monospace;">
+        <button class="btn sm" id="copyUrlBtn" style="background:#e0a43c;border-color:#e0a43c;color:#17130a;">Copy</button>
+      </div>
+      <div style="font-size:.74rem;color:#6b6862;margin-top:8px;line-height:1.5;">Share this exact link with your supervisors. They will sign in with their normal Weaver email and password to access the support inbox.</div>
+    </div>
+
     <div class="row">
       <input type="email" id="email" placeholder="helper@example.com">
       <button class="primary" id="addBtn">Add supervisor</button>
@@ -138,6 +148,27 @@
     } catch (e) {
       list.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
     }
+  }
+
+   /* Populate the shareable admin URL */
+  const urlInput = document.getElementById('adminUrl');
+  const copyBtn = document.getElementById('copyUrlBtn');
+  if (urlInput) {
+    /* Derive the admin index.html URL from the current supervisors.html URL */
+    urlInput.value = window.location.href.replace(/supervisors\.html(\?.*)?$/, 'index.html');
+  }
+  if (copyBtn) {
+    copyBtn.onclick = function() {
+      if (!urlInput) return;
+      urlInput.select();
+      try {
+        navigator.clipboard.writeText(urlInput.value);
+        showMsg('Link copied to clipboard.', true);
+      } catch (e) {
+        document.execCommand('copy');
+        showMsg('Link copied.', true);
+      }
+    };
   }
 
   addBtn.onclick = async function () {
