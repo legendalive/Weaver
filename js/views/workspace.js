@@ -116,6 +116,7 @@ function ensureMoreSheet() {
   moreSheet = el('div', { class: 'tb-more-sheet' }, [
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); exportProject(); } }, [icon('download', 'icon-sm'), el('span', { text: 'Export' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); import('../features/focus-mode.js').then((m) => m.toggleFocusMode()); } }, [icon('expand', 'icon-sm'), el('span', { text: 'Focus' })]),
     el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSupport(); } }, [icon('send', 'icon-sm'), el('span', { text: 'Support' })]),
   ]);
   document.body.appendChild(moreSheet);
