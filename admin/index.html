@@ -671,10 +671,17 @@ if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="m
 }
 }
 function userCardHTML(u) {
-const banned = !!u.banned_until;
-const status = u.is_owner
-? '<span class="status-badge owner">owner</span>'
-: (banned ? '<span class="status-badge banned">suspended</span>' : '<span class="status-badge active">active</span>');
+  const banned = !!u.banned_until;
+  let status = '';
+  if (u.is_owner) {
+    status = '<span class="status-badge owner">owner</span>';
+  } else if (u.is_supervisor) {
+    status = '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.45);background:rgba(126,184,218,.1)">supervisor</span>';
+  } else if (banned) {
+    status = '<span class="status-badge banned">suspended</span>';
+  } else {
+    status = '<span class="status-badge active">active</span>';
+  }
 let actions = '<button class="btn btn-sm" data-action="details" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>';
 if (!u.is_owner) {
 actions += banned
