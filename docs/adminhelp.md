@@ -45,7 +45,16819 @@ weaver-server/
     └── ai-admin/index.ts         # ai_config CRUD + tests
 
 ## 2. WEAVER FRONTEND BUNDLE
+<<<================================================================================
+REPOSITORY CODEBASE: Weaver-4.1.1.zip
+================================================================================
+Generated on: 2026-11-05 15:28:40 UTC by RepoBundle.
+Total Files: 72
+Total Directories: 20
+Total Uncompressed Size: 675.1 KB (691,307 bytes)
+Total Code Lines: 16,414
+All files are 100% verbatim and completely unedited.
+
+--------------------------------------------------------------------------------
+DIRECTORY HIERARCHY & FILE TREE
+--------------------------------------------------------------------------------
+Weaver-4.1.1/
+└── Weaver-4.1.1/
+    ├── .github/
+    │   └── workflows/
+    │       └── deploy-pages.yml (904 B)
+    ├── admin/
+    │   ├── diagnostics.html (16.4 KB)
+    │   ├── index.html (93.6 KB)
+    │   ├── messages.html (8.5 KB)
+    │   ├── supervisors.html (9.2 KB)
+    │   └── test.html (562 B)
+    ├── css/
+    │   ├── auth.css (2.8 KB)
+    │   ├── base.css (3.5 KB)
+    │   ├── components.css (6 KB)
+    │   ├── layout.css (4 KB)
+    │   └── views.css (11.7 KB)
+    ├── docs/
+    │   ├── Handover v3/
+    │   │   └── Handoverfile.md (20 KB)
+    │   ├── adminhelp.md (2.6 KB)
+    │   ├── BACKLOG.md (14.1 KB)
+    │   ├── docsHANDOFFv1.md (7.4 KB)
+    │   ├── HANDOFFV2.md (17.9 KB)
+    │   ├── HELP.md (18.9 KB)
+    │   ├── V3ROADMAP.md (8.5 KB)
+    │   ├── V4ROADMAP.md (12.3 KB)
+    │   └── V5_MARKETING_PLAN.md (7 KB)
+    ├── js/
+    │   ├── ai/
+    │   │   ├── providers/
+    │   │   │   ├── gemini.js (2.9 KB)
+    │   │   │   ├── groq.js (2.3 KB)
+    │   │   │   ├── mistral.js (2.4 KB)
+    │   │   │   ├── openrouter.js (2.7 KB)
+    │   │   │   └── sse.js (1.1 KB)
+    │   │   ├── manager.js (5.1 KB)
+    │   │   └── model-router.js (2 KB)
+    │   ├── auth/
+    │   │   └── auth.js (13.8 KB)
+    │   ├── cloud/
+    │   │   ├── s3.js (6.9 KB)
+    │   │   └── sigv4.js (5.4 KB)
+    │   ├── core/
+    │   │   ├── entitlements.js (2.2 KB)
+    │   │   ├── resizers.js (3.7 KB)
+    │   │   ├── state.js (2.9 KB)
+    │   │   ├── storage.js (12.2 KB)
+    │   │   └── supabase.js (1.9 KB)
+    │   ├── features/
+    │   │   ├── banner.js (6.8 KB)
+    │   │   ├── capture.js (10.1 KB)
+    │   │   ├── cloud.js (16.4 KB)
+    │   │   ├── config-bible.js (16.4 KB)
+    │   │   ├── cover-gen.js (15.1 KB)
+    │   │   ├── export.js (15.1 KB)
+    │   │   ├── focus-mode.js (4 KB)
+    │   │   ├── guide.js (9.4 KB)
+    │   │   ├── hierarchy.js (4.7 KB)
+    │   │   ├── mobile-dock.js (4.4 KB)
+    │   │   ├── notes.js (7.6 KB)
+    │   │   ├── plot-builder.js (14.7 KB)
+    │   │   ├── plot-reference.js (5.2 KB)
+    │   │   ├── puter-mirror.js (2.6 KB)
+    │   │   ├── scribe.js (17.8 KB)
+    │   │   ├── search.js (8.5 KB)
+    │   │   ├── settings.js (13.7 KB)
+    │   │   └── support.js (17.2 KB)
+    │   ├── panels/
+    │   │   ├── ai-output.js (3.8 KB)
+    │   │   ├── main-novel.js (11.2 KB)
+    │   │   └── manuscript.js (28 KB)
+    │   ├── utils/
+    │   │   ├── js/
+    │   │   │   └── panels/
+    │   │   │       └── manuscript.js (12.5 KB)
+    │   │   ├── docx.js (9.1 KB)
+    │   │   ├── dom.js (6 KB)
+    │   │   ├── icons.js (5.6 KB)
+    │   │   ├── text.js (4 KB)
+    │   │   └── zip.js (2.9 KB)
+    │   ├── views/
+    │   │   ├── launch.js (10.1 KB)
+    │   │   ├── wizard.js (12.8 KB)
+    │   │   └── workspace.js (18.4 KB)
+    │   └── app.js (7.3 KB)
+    ├── welcome/
+    │   ├── features.html (3.5 KB)
+    │   ├── index.html (4 KB)
+    │   ├── pricing.html (5.3 KB)
+    │   └── site.css (4.3 KB)
+    ├── index.html (1.7 KB)
+    └── README.md (973 B)
+
+================================================================================
+SOURCE CODE FILES
+================================================================================
+
+================================================================================
+File: Weaver-4.1.1/.github/workflows/deploy-pages.yml
+================================================================================
+# Weaver — GitHub Pages deployment pipeline.
+# Triggers automatically on every push to main. No manual runs needed.
+# One-time repo setup: Settings -> Pages -> Source -> "GitHub Actions".
+
+name: Deploy Weaver to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+
+================================================================================
+File: Weaver-4.1.1/admin/diagnostics.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver — Diagnostics</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0b0c; color: #e8e5dd;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 18px;
+  }
+  .card {
+    width: min(860px, 100%); background: #141416;
+    border: 1px solid #2b2b30; border-radius: 14px; padding: 26px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+  }
+  h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
+  .sub { color: #94918a; font-size: .8rem; margin-bottom: 18px; line-height: 1.55; }
+  .gate { text-align: center; padding: 30px 10px; color: #94918a; font-size: .9rem; line-height: 1.6; }
+  .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
+  .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
+  .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
+  .bundle-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    padding: 10px 12px; background: #1c1c20; border: 1px solid #2b2b30; border-radius: 10px; margin-bottom: 14px;
+  }
+  .bundle-status { font-size: .76rem; color: #94918a; font-family: monospace; font-family: "JetBrains Mono", monospace; }
+  textarea {
+    width: 100%; padding: 12px; font-size: .9rem; color: #e8e5dd;
+    border: 1px solid #3a3a40; border-radius: 10px; background: #0f0f11;
+    font-family: inherit; line-height: 1.55; resize: vertical; min-height: 96px;
+  }
+  textarea:focus { outline: none; border-color: #e0a43c; }
+  .row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+  button {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid #3a3a40;
+    background: #1c1c20; color: #e8e5dd; font-size: .88rem; font-weight: 600; cursor: pointer;
+  }
+  button.primary { background: #e0a43c; border-color: #e0a43c; color: #17130a; }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.sm { padding: 7px 12px; font-size: .78rem; }
+  pre#output {
+    display: none; white-space: pre-wrap; overflow-wrap: anywhere;
+    padding: 14px; background: #0f0f11; border: 1px solid #2b2b30; border-radius: 10px;
+    font-family: "JetBrains Mono", Consolas, monospace; font-size: .8rem; line-height: 1.6;
+    max-height: 60vh; overflow-y: auto; color: #d8d4ca;
+  }
+  pre#output.has-error { border-color: rgba(212,96,79,.5); color: #d4604f; }
+  .back { display: inline-block; margin-top: 18px; color: #e0a43c; font-size: .82rem; text-decoration: none; }
+  .hint { font-size: .72rem; color: #6b6862; line-height: 1.6; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Diagnostics</h1>
+  <div class="sub">Describe the problem. The AI reads the code bundle (docs/adminhelp.md), finds the relevant files, and answers with a diagnosis and corrected code. Owner only.</div>
+  <div id="gate" class="gate">Checking your session…</div>
+  <div id="app" style="display:none">
+    <div id="msg" class="msg"></div>
+    <div class="bundle-bar">
+      <span id="bundle-status" class="bundle-status">Bundle: loading…</span>
+      <button id="reload-bundle" class="sm">Reload bundle</button>
+    </div>
+    <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads a file but the cover page is missing' or paste the exact error message from the console."></textarea>
+    <div class="row">
+      <button id="run" class="primary" disabled>Diagnose</button>
+      <button id="stop" disabled>Stop</button>
+      <button id="copy" disabled>Copy response</button>
+    </div>
+    <pre id="output"></pre>
+    <div class="hint">
+      Powered by your configured AI providers (same chain as Scribe). Output is a <b>proposed patch</b> — review it before pasting, exactly like any other code delivery. Best results: include the exact error text, what you changed last, and where you saw it.
+    </div>
+    <a class="back" href="./index.html">&larr; Back to admin console</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+  var ROLE_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin/api/role';
+  var AI_PROXY = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
+  var DOC_URL = 'https://legendalive.github.io/Weaver/docs/adminhelp.md';
+  var CONTEXT_BUDGET = 40000;
+
+  var client = window.supabase.createClient(SB_URL, SB_ANON);
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+  var msg = document.getElementById('msg');
+  var statusEl = document.getElementById('bundle-status');
+  var issueEl = document.getElementById('issue');
+  var runBtn = document.getElementById('run');
+  var stopBtn = document.getElementById('stop');
+  var copyBtn = document.getElementById('copy');
+  var output = document.getElementById('output');
+  var token = '';
+  var chunks = [];
+  var treeText = '';
+  var bundleMeta = '';
+  var controller = null;
+
+  function showMsg(text, ok) {
+    msg.textContent = text;
+    msg.className = 'msg ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
+  }
+
+  /* ---------- bundle parsing ---------- */
+  function parseDoc(text) {
+    var lines = text.split('\n');
+    var re = /^\s*(?:\/\/|<!--)?\s*=== File \[\d+\s*\/\s*\d+\]:\s*(.+?)\s*===/;
+    var out = [];
+    var cur = null;
+    var section = '';
+    var tree = [];
+    var inTree = false;
+    var meta = '';
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if (/^bundle_version:/.test(line)) meta = line.replace('bundle_version:', '').trim();
+      if (/^## 1\. File tree/.test(line)) { inTree = true; continue; }
+      if (/^## 2\./.test(line)) { inTree = false; section = 'weaver'; continue; }
+      if (/^## 3\./.test(line)) { inTree = false; section = 'server'; continue; }
+      if (inTree) { tree.push(line); continue; }
+      var m = line.match(re);
+      if (m) {
+        if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
+        var path = m[1].trim().replace(/^Weaver-3\//, '').replace(/^weaver-server-1\.0\//, '');
+        cur = { path: path, repo: section === 'server' ? 'weaver-server' : 'Weaver', lines: [] };
+        continue;
+      }
+      if (cur && line.indexOf('<<<PASTE_SLOT') !== 0) cur.lines.push(line);
+    }
+    if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
+    treeText = tree.join('\n').trim();
+    bundleMeta = meta;
+    return out;
+  }
+
+  function setStatus() {
+    var stamp = '';
+    try { stamp = new Date().toLocaleString(); } catch (e) {}
+    if (!chunks.length) {
+      statusEl.textContent = 'Bundle: NO FILE MARKERS FOUND — paste the bundles into docs/adminhelp.md';
+    } else {
+      statusEl.textContent = 'Bundle ' + (bundleMeta || '?') + ' · ' + chunks.length + ' files · loaded ' + stamp;
+    }
+    runBtn.disabled = chunks.length === 0;
+  }
+
+  function loadDoc(force) {
+    statusEl.textContent = 'Bundle: loading…';
+    runBtn.disabled = true;
+    var url = DOC_URL + (force ? '?v=' + Date.now() : '');
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (text) {
+      chunks = parseDoc(text);
+      setStatus();
+    }).catch(function (e) {
+      statusEl.textContent = 'Bundle: FAILED to load (' + e.message + ') — is docs/adminhelp.md committed?';
+    });
+  }
+
+  /* ---------- retrieval ---------- */
+  var STOP = new Set(['the','a','an','my','i','is','are','was','were','to','of','in','on','for','and','or','it','with','when','how','do','does','did','not','no','yes','me','you','your','weaver','app','can','cannot','about','please','this','that','have','has','had','be','been','it\'s','its','after','before','now','still','will','would','should','could']);
+  function scoreChunks(query) {
+    var toks = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function (t) {
+      return t.length > 2 && !STOP.has(t);
+    });
+    var scored = chunks.map(function (ch) {
+      var pathLc = ch.path.toLowerCase();
+      var bodyLc = ch.body.toLowerCase();
+      var score = 0;
+      for (var i = 0; i < toks.length; i++) {
+        var t = toks[i];
+        if (pathLc.indexOf(t) >= 0) score += 8;
+        var idx = bodyLc.indexOf(t), c = 0;
+        while (idx >= 0 && c < 6) { score += 1; c++; idx = bodyLc.indexOf(t, idx + t.length); }
+      }
+      return { ch: ch, score: score };
+    }).filter(function (x) { return x.score > 0; })
+      .sort(function (a, b) { return b.score - a.score; });
+    return scored;
+  }
+
+  function buildContext(query) {
+    var ranked = scoreChunks(query);
+    var budget = CONTEXT_BUDGET;
+    var picked = [];
+    for (var i = 0; i < ranked.length && picked.length < 8; i++) {
+      var ch = ranked[i].ch;
+      if (budget - ch.body.length < 0 && picked.length >= 2) break;
+      picked.push(ch);
+      budget -= ch.body.length;
+      if (budget <= 0 && picked.length >= 1) break;
+    }
+    var ctx = '';
+    for (var j = 0; j < picked.length; j++) {
+      ctx += '\n\n=== Repo: ' + picked[j].repo + ' | ' + picked[j].path + ' ===\n' + picked[j].body;
+    }
+    return { ctx: ctx, names: picked.map(function (p) { return p.ch.path; }) };
+  }
+
+  /* ---------- prompt ---------- */
+  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based, privacy-first novel-writing studio (static ES-module frontend on GitHub Pages + Supabase Edge Functions backend).\n' +
+    'You receive CODE CONTEXT: the annotated file tree plus the full source of the files most relevant to the reported issue.\n\n' +
+    'HARD RULES\n' +
+    '1. Base every claim on the CODE CONTEXT. Never invent files, exports, functions, CSS classes or APIs that are not visible in it.\n' +
+    '2. If the context lacks the file you need, state exactly which file is missing and stop — do not guess its contents.\n' +
+    '3. Whenever the fix requires a code change you MUST output corrected code. Describing an edit without providing the code is a failure.\n' +
+    '4. Change larger than 3 lines: output the COMPLETE corrected file, ready to paste over the old one (the owner pastes whole files by hand; there is no terminal or CLI).\n' +
+    '5. Change of 3 lines or fewer: output the exact existing lines to find and the exact replacement, including one unchanged context line above and below.\n' +
+    '6. Before every code block state: "Repo: <repo> — <exact file path>".\n' +
+    '7. Respect codebase conventions: el(tag, props, children) DOM helper (never innerHTML), injected ensureStyle() CSS blocks, ES modules with .js extensions, targeted edits only when 3 lines or fewer.\n' +
+    '8. Preserve all existing behavior except what the issue requires.\n' +
+    '9. End with VERIFY (3-6 concrete test steps) and RISK (anything load-bearing near the change).\n\n' +
+    'RESPONSE FORMAT (always, in this order):\n' +
+    'DIAGNOSIS: root cause in 2-4 sentences.\n' +
+    'LOCATION: repo + exact file path(s).\n' +
+    'FIX: the corrected code.\n' +
+    'VERIFY: how to test.\n' +
+    'RISK: what must not break nearby.';
+
+  /* ---------- SSE ---------- */
+  function forEachSSE(res, onData) {
+    var reader = res.body.getReader();
+    var dec = new TextDecoder();
+    var buf = '';
+    function pump() {
+      return reader.read().then(function (r) {
+        if (r.done) return;
+        buf += dec.decode(r.value, { stream: true });
+        var idx;
+        while ((idx = buf.indexOf('\n')) >= 0) {
+          var line = buf.slice(0, idx).trim();
+          buf = buf.slice(idx + 1);
+          if (line.indexOf('data:') !== 0) continue;
+          var payload = line.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try { onData(JSON.parse(payload)); } catch (e) {}
+        }
+        return pump();
+      });
+    }
+    return pump();
+  }
+
+  /* ---------- run ---------- */
+  function diagnose() {
+    var query = issueEl.value.trim().slice(0, 1500);
+    if (!query) { showMsg('Describe the issue first.', false); return; }
+    var built = buildContext(query);
+    if (!built.names.length) { showMsg('No relevant files matched — try naming the file, feature or exact error text.', false); return; }
+    var userMsg = 'ISSUE REPORTED BY OWNER:\n' + query +
+      '\n\nREPO MAP:\n- Weaver = frontend (GitHub Pages, static ES modules)\n- weaver-server = Supabase Edge Functions\n' +
+      '\nFILE TREE:\n' + treeText +
+      '\n\nCODE CONTEXT — FULL SOURCE OF THE ' + built.names.length + ' MOST RELEVANT FILES (' + built.names.join(', ') + '):' +
+      built.ctx;
+
+    output.style.display = 'block';
+    output.className = '';
+    output.textContent = 'Reading ' + built.names.length + ' file(s): ' + built.names.join(', ') + '\n\n';
+    runBtn.disabled = true;
+    stopBtn.disabled = false;
+    copyBtn.disabled = true;
+    controller = new AbortController();
+    var full = '';
+    fetch(AI_PROXY, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userMsg }
+        ],
+        temperature: 0.15,
+        maxTokens: 8192
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (d) {
+          var extra = '';
+          if (res.status === 402) extra = ' — Diagnostics needs an active Pro entitlement on your account. Grant yourself Pro in the admin console Credits tab, then retry.';
+          if (res.status === 503) extra = ' — No AI providers are configured. Check the AI Keys tab.';
+          throw new Error((d.error || 'HTTP ' + res.status) + extra);
+        });
+      }
+      return forEachSSE(res, function (json) {
+        var delta = json && json.choices && json.choices[0] && json.choices[0].delta ? json.choices[0].delta.content : null;
+        if (delta) { full += delta; output.textContent = output.textContent.split('\n\n')[0] + '\n\n' + full; output.scrollTop = output.scrollHeight; }
+      }).then(function () {
+        if (!full) throw new Error('The AI returned an empty answer. Try again or rephrase.');
+        copyBtn.disabled = false;
+      });
+    }).catch(function (e) {
+      if (e.name === 'AbortError') {
+        output.textContent += '\n\n[stopped]';
+      } else {
+        output.className = 'has-error';
+        output.textContent += '\n\n⚠ ' + e.message;
+      }
+    }).then(function () {
+      runBtn.disabled = false;
+      stopBtn.disabled = true;
+      controller = null;
+    });
+  }
+
+  runBtn.onclick = diagnose;
+  stopBtn.onclick = function () { if (controller) controller.abort(); };
+  copyBtn.onclick = function () {
+    var text = output.textContent || '';
+    var i = text.indexOf('\n\n');
+    if (i >= 0) text = text.slice(i + 2);
+    try { navigator.clipboard.writeText(text); showMsg('Response copied.', true); } catch (e) { showMsg('Could not copy.', false); }
+  };
+  document.getElementById('reload-bundle').onclick = function () { loadDoc(true).then(function () { showMsg('Bundle reloaded.', true); }); };
+
+  /* ---------- boot ---------- */
+  (async function init() {
+    try {
+      var session = (await client.auth.getSession()).data.session;
+      if (!session) {
+        gate.innerHTML = 'Sign in first.<br><a href="../" style="color:#e0a43c">Open Weaver and sign in</a>, then reload this page.';
+        return;
+      }
+      token = session.access_token;
+      var roleRes = await fetch(ROLE_API, { headers: { 'Authorization': 'Bearer ' + token } });
+      var role = await roleRes.json().catch(function () { return {}; });
+      if (!role || role.role !== 'owner') {
+        gate.textContent = 'Diagnostics is owner-only.';
+        return;
+      }
+      gate.style.display = 'none';
+      app.style.display = 'block';
+      await loadDoc(false);
+    } catch (e) {
+      gate.textContent = 'Could not start: ' + e.message;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/admin/index.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='82' font-size='84' fill='%23e0a83c' font-family='Georgia' font-style='italic'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#0b0b0c; --surface:#141416; --surface-2:#1c1c20;
+--border:#2b2b30; --border-strong:#3a3a40;
+--text:#e8e5dd; --muted:#94918a; --faint:#6b6862;
+--accent:#e0a83c; --accent-soft:rgba(224,168,60,.14);
+--danger:#d4604f; --success:#7fb069;
+--font-ui:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+font-family:var(--font-ui);color:var(--text);
+background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);
+-webkit-font-smoothing:antialiased;
+}
+.w{
+font-family:'Great Vibes',Georgia,cursive;line-height:.85;user-select:none;
+background:linear-gradient(160deg,#fff6da 0%,#f9d97e 40%,#eebc52 70%,#e0a83c 100%);
+-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+filter:drop-shadow(0 2px 10px rgba(240,192,84,.35));
+}
+.btn{
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);
+background:var(--surface-2);color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;
+white-space:nowrap;
+}
+.btn:hover{background:#232327}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-gold{background:var(--accent);border-color:var(--accent);color:#17130a}
+.btn-gold:hover{background:#ecb84e}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#17130a;font-weight:600}
+.btn-primary:hover{background:#ecb84e}
+.btn-danger{background:transparent;border-color:var(--border-strong);color:var(--danger)}
+.btn-danger:hover{background:rgba(212,96,79,.12);border-color:var(--danger)}
+.btn-sm{padding:7px 12px;font-size:.78rem;border-radius:8px}
+.input,.textarea,.select{
+width:100%;padding:9px 12px;font-size:.88rem;color:var(--text);
+border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
+}
+.select{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+.textarea{resize:vertical;min-height:90px;line-height:1.5;font-family:var(--font-mono)}
+.input:focus,.textarea:focus,.select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder,.textarea::placeholder{color:var(--faint)}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{
+width:min(400px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
+background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
+box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
+}
+.login-w{font-size:3.6rem}
+.login-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em}
+.login-tag{margin-top:3px;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;text-align:left}
+.field span{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.err{
+padding:9px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;text-align:left;
+background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);
+}
+.login-hint{font-size:.72rem;color:var(--faint)}
+.top{
+position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
+padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+}
+.top-w{font-size:1.8rem}
+.top-title{font-weight:650;letter-spacing:.03em}
+.top-role{
+font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+padding:2px 8px;border-radius:999px;border:1px solid rgba(224,168,60,.5);
+background:var(--accent-soft);color:var(--accent);font-weight:700;font-family:var(--font-mono);
+}
+.top-email{
+font-size:.68rem;color:var(--faint);font-family:var(--font-mono);
+max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto}
+.tab{
+padding:7px 14px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;
+background:var(--surface);color:var(--muted);font-size:.8rem;cursor:pointer;
+}
+.tab.on{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);font-weight:600}
+.tab .soon{margin-left:6px;font-size:.6rem;font-family:var(--font-mono);color:var(--faint)}
+.admin-note-bar{
+margin:10px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+border:1px solid rgba(224,168,60,.35);background:var(--accent-soft);color:var(--text);
+}
+.admin-note-bar a{color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px}
+.card{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.card-num{font-size:1.9rem;font-weight:700;font-family:var(--font-mono)}
+.card-num.gold{color:var(--accent)}
+.card-num.ok{color:var(--success);font-size:1.25rem}
+.card-num.bad{color:var(--danger);font-size:1.25rem}
+.card-label{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card-sub{font-size:.72rem;color:var(--faint);overflow-wrap:anywhere}
+.notice{
+margin:12px 16px 0;padding:10px 12px;border-radius:10px;font-size:.8rem;line-height:1.5;
+border:1px solid rgba(212,96,79,.35);background:rgba(212,96,79,.08);color:var(--danger);
+}
+.meta{padding:4px 16px 26px;color:var(--faint);font-size:.72rem;font-family:var(--font-mono);line-height:1.7}
+.loading{padding:60px 24px;text-align:center;color:var(--muted)}
+.empty{padding:40px 24px;text-align:center;color:var(--faint);font-size:.85rem}
+.users-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
+.users-toolbar .input{flex:1;min-width:170px}
+.create-form{
+display:flex;flex-direction:column;gap:10px;padding:14px 16px;margin-top:10px;
+background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+}
+.create-form .row{display:flex;gap:8px;flex-wrap:wrap}
+.create-form .input{flex:1;min-width:150px}
+.user-card{
+display:flex;flex-direction:column;gap:8px;padding:14px 16px;margin:0 16px 10px;
+background:var(--surface);border:1px solid var(--border);border-radius:12px;
+}
+.user-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.user-email{font-size:.92rem;font-weight:600;color:var(--text);overflow-wrap:anywhere}
+.user-meta{font-size:.74rem;color:var(--faint);font-family:var(--font-mono)}
+.user-actions{display:flex;gap:8px;flex-wrap:wrap}
+.status-badge{
+display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+font-size:.66rem;font-family:var(--font-mono);border:1px solid var(--border);color:var(--muted);
+}
+.status-badge.active{color:var(--success);border-color:rgba(127,176,105,.45);background:rgba(127,176,105,.1)}
+.status-badge.banned{color:var(--danger);border-color:rgba(212,96,79,.45);background:rgba(212,96,79,.1)}
+.status-badge.owner{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)}
+.status-badge.wtag{
+color:#17130a;background:var(--accent);border-color:var(--accent);
+font-weight:700;letter-spacing:.06em;padding:3px 10px;
+}
+.admin-note{padding:0 16px 22px;color:var(--faint);font-size:.74rem;font-family:var(--font-mono);line-height:1.6}
+.user-detail{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-strong)}
+.ud-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.ud-box{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ud-label{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ud-line{font-size:.8rem;color:var(--text);line-height:1.6;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ud-hint{font-size:.7rem;color:var(--faint);line-height:1.5}
+.user-detail .row{display:flex;gap:8px;flex-wrap:wrap}
+.user-detail .row .input{flex:1;min-width:140px}
+.cred-badges{display:flex;gap:6px;flex-wrap:wrap}
+.cred-history{
+margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);
+}
+.cred-log-row{
+display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;
+}
+.cred-log-row:last-child{border-bottom:none}
+.cred-log-amt{font-family:var(--font-mono);flex:none;width:56px;font-weight:700}
+.cred-log-amt.pos{color:var(--success)}
+.cred-log-amt.neg{color:var(--danger)}
+.cred-log-reason{flex:1;min-width:0;color:var(--text);overflow-wrap:anywhere}
+.cred-log-date{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;flex:none}
+.stor-chart-wrap{margin:4px 16px 14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.stor-chart-title{
+font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+margin-bottom:10px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;
+}
+.stor-chart-sum{color:var(--accent);font-family:var(--font-mono);text-transform:none;letter-spacing:0}
+.stor-users-title{padding:2px 16px 8px;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.audit-list{padding:12px 16px 4px;display:flex;flex-direction:column;gap:6px}
+.audit-row{
+display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+padding:10px 12px;background:var(--surface);border:1px solid var(--border);
+border-radius:10px;font-size:.8rem;
+}
+.audit-time{font-family:var(--font-mono);font-size:.7rem;color:var(--faint);flex:none}
+.audit-target{color:var(--text);font-weight:600;overflow-wrap:anywhere}
+.audit-detail{color:var(--muted);flex:1;min-width:120px;overflow-wrap:anywhere}
+.banner-wrap{padding:16px;display:flex;flex-direction:column;gap:14px}
+.banner-card{
+background:var(--surface);border:1px solid var(--border);border-radius:12px;
+padding:16px;display:flex;flex-direction:column;gap:12px;
+}
+.banner-card h3{font-size:.78rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.banner-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.banner-preview{
+padding:12px 16px;border-radius:8px;font-size:.85rem;line-height:1.5;
+border:1px solid var(--border);min-height:44px;
+}
+.banner-preview.is-info{background:var(--accent-soft);border-color:rgba(224,168,60,.4);color:var(--accent)}
+.banner-preview.is-warning{background:rgba(212,96,79,.12);border-color:rgba(212,96,79,.4);color:var(--danger)}
+.banner-preview.is-maintenance{background:rgba(224,168,60,.22);border-color:rgba(224,168,60,.6);color:var(--accent);font-weight:600}
+.banner-preview.is-empty{color:var(--faint);font-style:italic;background:transparent;border-style:dashed}
+.banner-counter{font-size:.7rem;color:var(--faint);font-family:var(--font-mono);text-align:right}
+.banner-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.proj-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-strong)}
+.proj-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;font-size:.8rem}
+.proj-name{font-weight:650;color:var(--text);flex:1;min-width:120px;overflow-wrap:anywhere}
+.proj-meta{color:var(--faint);font-family:var(--font-mono);font-size:.7rem;white-space:nowrap}
+.proj-warn{margin-top:8px;padding:12px;border:1px solid rgba(212,96,79,.5);background:rgba(212,96,79,.08);border-radius:10px;display:flex;flex-direction:column;gap:8px;font-size:.78rem;line-height:1.5;color:var(--text)}
+.proj-warn b{color:var(--danger)}
+.proj-note{color:var(--faint);font-size:.72rem;padding:8px 2px 0;line-height:1.5}
+.noaccess-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.noaccess-card{
+width:min(460px,100%);display:flex;flex-direction:column;gap:16px;text-align:center;
+background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;
+box-shadow:0 8px 30px rgba(0,0,0,.55);padding:30px 26px;
+}
+.noaccess-w{font-size:3.6rem}
+.noaccess-title{font-size:1.2rem;font-weight:700;letter-spacing:.02em}
+.noaccess-msg{font-size:.88rem;color:var(--muted);line-height:1.6}
+.imp-toolbar{display:flex;gap:10px;align-items:center;padding:16px 16px 8px;flex-wrap:wrap}
+.imp-toolbar .input{flex:1;min-width:170px}
+.imp-list{display:flex;flex-direction:column;gap:6px;padding:0 16px 16px}
+.imp-item{border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden}
+.imp-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;user-select:none}
+.imp-head:hover{background:var(--surface-2)}
+.imp-icon{flex:none;font-size:.85rem;width:20px;text-align:center}
+.imp-title{flex:1;min-width:0;font-size:.88rem;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imp-url-short{flex:none;max-width:180px;font-size:.68rem;color:var(--faint);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imp-chevron{flex:none;color:var(--faint);font-size:.65rem;transition:transform .15s ease}
+.imp-item.is-open .imp-chevron{transform:rotate(180deg)}
+.imp-body{display:none;padding:4px 14px 14px;border-top:1px solid var(--border)}
+.imp-item.is-open .imp-body{display:block}
+.imp-url-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.imp-url-row a{color:var(--accent);font-size:.82rem;font-family:var(--font-mono);word-break:break-all;text-decoration:none}
+.imp-url-row a:hover{text-decoration:underline}
+.imp-desc{margin-top:10px}
+.imp-desc label{display:block;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.imp-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.imp-add-wrap{padding:0 16px 12px}
+.imp-add-form{padding:14px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;display:flex;flex-direction:column;gap:10px}
+.imp-add-form .row{display:flex;gap:8px;flex-wrap:wrap}
+.imp-add-form .input{flex:1;min-width:150px}
+.imp-empty{padding:40px 24px;text-align:center;color:var(--faint);font-size:.85rem}
+@media (max-width:520px){
+.grid{grid-template-columns:repeat(2,1fr)}
+.top-title{font-size:.9rem}
+.top-email{display:none}
+.imp-url-short{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
+const AI_API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-admin';
+const SUPPORT_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support-admin';
+const SUPERVISOR_ADMIN_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin';
+const TOKEN_KEY = 'weaver_admin_token';
+const EMAIL_KEY = 'weaver_admin_email';
+const IMPORTANT_KEY = 'weaver_admin_important_items';
+const app = document.getElementById('app');
+let sb = null;
+try {
+sb = window.supabase.createClient(SB_URL, SB_ANON, {
+auth: { detectSessionInUrl: false, persistSession: false, autoRefreshToken: false }
+});
+} catch (e) { sb = null; }
+let activeTab = 'overview';
+let allUsers = [];
+let allCredits = [];
+let bannerState = { text: '', level: 'info', show_until: null, updated_at: null };
+let aiProviders = {};
+let activeMsgView = 'tickets';
+let userRole = 'owner';
+let cachedMessages = [];
+let cachedAiLogs = [];
+
+/* =========================================================
+   IMPORTANT ITEMS — localStorage-backed reference tab
+   ========================================================= */
+function impDefaults() {
+return [
+{ id:'imp_studio', icon:'✍️', title:'Weaver Studio', url:'https://legendalive.github.io/Weaver/', desc:'The main writing app. Sign in here to write, use Scribe, and manage projects.' },
+{ id:'imp_admin', icon:'🛡️', title:'Admin Console', url:'https://legendalive.github.io/Weaver/admin/', desc:'Owner & supervisor dashboard — tickets, credits, users, storage, banners, AI keys.' },
+{ id:'imp_supervisors', icon:'👥', title:'Supervisor Access', url:'https://legendalive.github.io/Weaver/admin/supervisors.html', desc:'Grant or revoke supervisor rights by email. Supervisors can view tickets and the AI monitor.' },
+{ id:'imp_welcome', icon:'🌐', title:'Welcome / Marketing', url:'https://legendalive.github.io/Weaver/welcome/', desc:'Public landing page, pricing, and features tour.' },
+{ id:'imp_gum_month', icon:'💳', title:'Gumroad — Monthly', url:'https://mbenson62.gumroad.com/l/weaver-monthly', desc:'$8/month subscription product.' },
+{ id:'imp_gum_year', icon:'💳', title:'Gumroad — Yearly', url:'https://mbenson62.gumroad.com/l/weaver-yearly', desc:'$60/year subscription product (best value).' },
+{ id:'imp_gum_life', icon:'💳', title:'Gumroad — Lifetime', url:'https://mbenson62.gumroad.com/l/weaver-lifetime', desc:'$149 one-time lifetime product.' },
+{ id:'imp_supabase', icon:'🗄️', title:'Supabase Dashboard', url:'https://supabase.com/dashboard', desc:'Database, Auth, Storage, Edge Functions, and secrets for project hiqmvhkwuvvgalqxxtbc.' },
+{ id:'imp_gh_weaver', icon:'📦', title:'GitHub — Weaver', url:'https://github.com/legendalive/Weaver', desc:'Frontend repo. Pushes to main deploy to GitHub Pages automatically.' },
+{ id:'imp_gh_server', icon:'📦', title:'GitHub — weaver-server', url:'https://github.com/legendalive/weaver-server', desc:'Backend Edge Functions repo. Pushes to main deploy all functions via Actions.' },
+{ id:'imp_projref', icon:'🔑', title:'Supabase Project Ref', url:'', desc:'hiqmvhkwuvvgalqxxtbc — used in deploy workflows, CORS origins, and function URLs.' },
+{ id:'imp_owneruid', icon:'🔑', title:'Owner User UID', url:'', desc:'c4481e53-3dbd-4ff3-91b1-8f11f196894e — hardcoded as OWNER_USER_ID in admin and support-admin edge functions.' },
+{ id:'imp_fnbase', icon:'🔗', title:'Functions Base URL', url:'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co', desc:'Base for all edge functions: /admin, /ai-proxy, /ai-admin, /support, /help, /support-admin, /supervisor-admin.' },
+];
+}
+function impLoad() {
+try {
+const raw = localStorage.getItem(IMPORTANT_KEY);
+if (raw) return JSON.parse(raw);
+} catch (e) {}
+const defaults = impDefaults();
+impSave(defaults);
+return defaults;
+}
+function impSave(items) {
+try { localStorage.setItem(IMPORTANT_KEY, JSON.stringify(items)); } catch (e) {}
+}
+function impAdd(title, url, desc) {
+const items = impLoad();
+items.push({ id: 'imp_' + Date.now(), icon: '📌', title: title || 'Untitled', url: url || '', desc: desc || '' });
+impSave(items);
+}
+function impUpdate(id, patch) {
+const items = impLoad();
+const it = items.find(x => x.id === id);
+if (it) Object.assign(it, patch);
+impSave(items);
+}
+function impDelete(id) {
+let items = impLoad();
+items = items.filter(x => x.id !== id);
+impSave(items);
+}
+function shortUrl(u) {
+if (!u) return '';
+try { return new URL(u).hostname; } catch (e) { return u.slice(0, 30); }
+}
+function loadImportantTab(content) {
+const items = impLoad();
+let html = '<div class="imp-toolbar">' +
+'<input id="imp-search" class="input" type="search" placeholder="Filter items…">' +
+'<button id="btn-imp-add" class="btn btn-primary">+ Add item</button>' +
+'</div>';
+html += '<div id="imp-add-wrap" class="imp-add-wrap" style="display:none">' +
+'<div class="imp-add-form">' +
+'<div class="row">' +
+'<input id="imp-new-title" class="input" type="text" placeholder="Title (e.g. Weaver Studio)">' +
+'<input id="imp-new-url" class="input" type="text" placeholder="URL (optional)">' +
+'</div>' +
+'<textarea id="imp-new-desc" class="textarea" rows="2" placeholder="Description / notes…"></textarea>' +
+'<div class="row" style="justify-content:flex-end">' +
+'<button class="btn btn-sm" id="imp-new-cancel">Cancel</button>' +
+'<button class="btn btn-sm btn-primary" id="imp-new-save">Save item</button>' +
+'</div>' +
+'</div>' +
+'</div>';
+html += '<div id="imp-list" class="imp-list">';
+if (!items.length) {
+html += '<div class="imp-empty">No items yet. Click "+ Add item" to save a link or note.</div>';
+} else {
+for (const it of items) {
+html += impItemHTML(it);
+}
+}
+html += '</div>';
+html += '<div class="admin-note">Items are stored in this browser only. Add links, identifiers, credential locations, or reminders. Click a row to expand its URL and description.</div>';
+content.innerHTML = html;
+document.getElementById('btn-imp-add').addEventListener('click', () => {
+const w = document.getElementById('imp-add-wrap');
+w.style.display = w.style.display === 'none' ? 'block' : 'none';
+if (w.style.display === 'block') document.getElementById('imp-new-title').focus();
+});
+document.getElementById('imp-new-cancel').addEventListener('click', () => {
+document.getElementById('imp-add-wrap').style.display = 'none';
+});
+document.getElementById('imp-new-save').addEventListener('click', () => {
+const t = document.getElementById('imp-new-title').value.trim();
+const u = document.getElementById('imp-new-url').value.trim();
+const d = document.getElementById('imp-new-desc').value.trim();
+if (!t) { showNote('⚠ Give the item a title.', false); return; }
+impAdd(t, u, d);
+document.getElementById('imp-new-title').value = '';
+document.getElementById('imp-new-url').value = '';
+document.getElementById('imp-new-desc').value = '';
+document.getElementById('imp-add-wrap').style.display = 'none';
+loadImportantTab(content);
+showNote('Item added.', false);
+});
+document.getElementById('imp-search').addEventListener('input', e => {
+const q = e.target.value.trim().toLowerCase();
+const filtered = q ? items.filter(it => (it.title + ' ' + (it.url||'') + ' ' + (it.desc||'')).toLowerCase().includes(q)) : items;
+const listEl = document.getElementById('imp-list');
+listEl.innerHTML = filtered.length ? filtered.map(impItemHTML).join('') : '<div class="imp-empty">No matches.</div>';
+bindImpItemEvents(listEl);
+});
+bindImpItemEvents(document.getElementById('imp-list'));
+}
+function impItemHTML(it) {
+const hasUrl = it.url && it.url.trim();
+return '<div class="imp-item" data-imp-id="' + esc(it.id) + '">' +
+'<div class="imp-head">' +
+'<span class="imp-icon">' + (it.icon || '📌') + '</span>' +
+'<span class="imp-title">' + esc(it.title) + '</span>' +
+(hasUrl ? '<span class="imp-url-short">' + esc(shortUrl(it.url)) + '</span>' : '') +
+'<span class="imp-chevron">▼</span>' +
+'</div>' +
+'<div class="imp-body">' +
+(hasUrl ? '<div class="imp-url-row">' +
+'<a href="' + esc(it.url) + '" target="_blank" rel="noopener">' + esc(it.url) + '</a>' +
+'<button class="btn btn-sm" data-imp-open="' + esc(it.id) + '">Open</button>' +
+'<button class="btn btn-sm" data-imp-copy="' + esc(it.id) + '">Copy</button>' +
+'</div>' : '') +
+'<div class="imp-desc"><label>Description</label>' +
+'<textarea class="textarea" rows="2" data-imp-desc="' + esc(it.id) + '">' + esc(it.desc || '') + '</textarea>' +
+'</div>' +
+'<div class="imp-actions">' +
+'<button class="btn btn-sm btn-primary" data-imp-save="' + esc(it.id) + '">Save description</button>' +
+'<button class="btn btn-sm btn-danger" data-imp-del="' + esc(it.id) + '">Delete</button>' +
+'</div>' +
+'</div>' +
+'</div>';
+}
+function bindImpItemEvents(container) {
+container.querySelectorAll('.imp-head').forEach(head => {
+head.addEventListener('click', () => {
+const item = head.closest('.imp-item');
+item.classList.toggle('is-open');
+});
+});
+container.querySelectorAll('[data-imp-open]').forEach(btn => {
+btn.addEventListener('click', e => {
+e.stopPropagation();
+const id = btn.dataset.impOpen;
+const it = impLoad().find(x => x.id === id);
+if (it && it.url) window.open(it.url, '_blank');
+});
+});
+container.querySelectorAll('[data-imp-copy]').forEach(btn => {
+btn.addEventListener('click', e => {
+e.stopPropagation();
+const id = btn.dataset.impCopy;
+const it = impLoad().find(x => x.id === id);
+if (it && it.url) {
+navigator.clipboard.writeText(it.url).then(() => showNote('URL copied.', false));
+}
+});
+});
+container.querySelectorAll('[data-imp-save]').forEach(btn => {
+btn.addEventListener('click', e => {
+e.stopPropagation();
+const id = btn.dataset.impSave;
+const ta = container.querySelector('[data-imp-desc="' + id + '"]');
+if (ta) {
+impUpdate(id, { desc: ta.value });
+showNote('Description saved.', false);
+}
+});
+});
+container.querySelectorAll('[data-imp-del]').forEach(btn => {
+btn.addEventListener('click', e => {
+e.stopPropagation();
+const id = btn.dataset.impDel;
+if (confirm('Delete this item?')) {
+impDelete(id);
+loadImportantTab(document.getElementById('admin-content'));
+showNote('Item deleted.', false);
+}
+});
+});
+}
+
+/* =========================================================
+   EXISTING HELPERS & API LAYERS
+   ========================================================= */
+async function supApi(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(SUPERVISOR_ADMIN_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the supervisor-admin API. Is it deployed?'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
+async function saApi(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(SUPPORT_ADMIN_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the support-admin API. Is it deployed?'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (res.status === 401 || res.status === 403) { setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized'); }
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
+function downloadSupportCsv() {
+const rows = [];
+rows.push('--- TICKETS ---');
+rows.push('ticket_tag,created_at,email,subject,body,status,source');
+for (const m of cachedMessages) {
+rows.push([csvEscape(m.ticket_tag||''),csvEscape(m.created_at||''),csvEscape(m.email||''),csvEscape(m.subject||''),csvEscape(m.body||''),csvEscape(m.status||''),csvEscape(m.source||'')].join(','));
+}
+rows.push('');
+rows.push('--- AI LOOKUPS ---');
+rows.push('created_at,user_id,question,answer,resolved');
+for (const l of cachedAiLogs) {
+rows.push([csvEscape(l.created_at||''),csvEscape(l.user_id||''),csvEscape(l.question||''),csvEscape(l.answer||''),csvEscape(l.resolved===true?'yes':(l.resolved===false?'escalated':'pending'))].join(','));
+}
+downloadCsv('weaver-support-' + new Date().toISOString().slice(0,10) + '.csv', '', rows);
+showNote('Downloaded ' + cachedMessages.length + ' tickets + ' + cachedAiLogs.length + ' AI lookups.', false);
+}
+async function loadMessagesTab(content) {
+content.innerHTML = '<div class="loading">Loading support dashboard…</div>';
+try {
+const [msgs, logs] = await Promise.all([saApi('/api/support'), saApi('/api/help-log')]);
+const messages = msgs.messages || [];
+const aiLogs = logs.rows || [];
+cachedMessages = messages;
+cachedAiLogs = aiLogs;
+const openTickets = messages.filter(m => m.status !== 'closed');
+const resolved = aiLogs.filter(l => l.resolved === true).length;
+const escalated = aiLogs.filter(l => l.resolved === false).length;
+const rate = aiLogs.length ? Math.round((resolved / aiLogs.length) * 100) : 0;
+let html = '<div class="tabs" style="padding:12px 16px 4px">' +
+'<span class="tab' + (activeMsgView === 'tickets' ? ' on' : '') + '" data-msg-view="tickets">Tickets (' + openTickets.length + ' open)</span>' +
+'<span class="tab' + (activeMsgView === 'ai' ? ' on' : '') + '" data-msg-view="ai">AI Monitor</span>' +
+'<span style="margin-left:auto"><button id="btn-msg-csv" class="btn btn-sm" title="Download tickets + AI log as CSV">Download CSV</button></span>' +
+'</div>';
+if (activeMsgView === 'tickets') {
+html += '<div class="grid">' +
+card(openTickets.length, 'Open tickets', 'awaiting you') +
+card(messages.length - openTickets.length, 'Closed', 'resolved') +
+card(messages.filter(m => m.source === 'ai').length, 'AI-forwarded', 'lookup escalated', 'gold') +
+card(messages.filter(m => m.source !== 'ai').length, 'Direct contact', 'user wrote in') +
+'</div>';
+if (!messages.length) html += '<div class="empty">No tickets yet. User messages and AI escalations land here.</div>';
+for (const m of messages) {
+const closed = m.status === 'closed';
+const tagBadge = m.ticket_tag ? '<span class="status-badge wtag">' + esc(m.ticket_tag) + '</span>' : '';
+const srcBadge = m.source === 'ai'
+? '<span class="status-badge" style="color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--accent-soft)">AI-forwarded</span>'
+: '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.4);background:rgba(126,184,218,.08)">Direct</span>';
+const stBadge = closed ? '<span class="status-badge">Closed</span>' : '<span class="status-badge active">Open</span>';
+let bodyHtml = '';
+const raw = m.body || '';
+if (m.source === 'ai' && raw.indexOf('Attempted answer:') >= 0) {
+const q = raw.split('Attempted answer:')[0].replace('Question:', '').replace('(Forwarded automatically by Support lookup.)', '').trim();
+const a = raw.split('Attempted answer:')[1].replace('(Forwarded automatically by Support lookup.)', '').trim();
+bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--text);white-space:pre-wrap">' + esc(q) + '</div>' +
+'<div style="margin-top:8px;padding:8px 10px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:8px;font-size:.76rem;color:var(--faint);font-family:var(--font-mono);line-height:1.5"><b>AI attempted:</b> ' + esc(a) + '</div>';
+} else {
+bodyHtml = '<div style="font-size:.85rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(raw) + '</div>';
+}
+html += '<div class="user-card"' + (closed ? ' style="opacity:.6"' : '') + '>' +
+'<div class="user-card-head"><span class="user-email">' + esc(m.subject || '(no subject)') + '</span>' +
+'<span class="cred-badges">' + tagBadge + srcBadge + stBadge + '</span></div>' +
+'<div class="user-meta">' + esc(m.email || '') + ' · ' + fmtDateTime(m.created_at) + '</div>' +
+bodyHtml +
+'<div id="thread-' + esc(m.id) + '" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>' +
+'<div style="margin-top:10px"><textarea class="textarea" style="min-height:60px" placeholder="Reply to ' + esc(m.email || 'user') + '…" data-reply-text="' + esc(m.id) + '"></textarea></div>' +
+'<div class="user-actions" style="margin-top:8px">' +
+'<button class="btn btn-sm btn-primary" data-msg-action="reply" data-id="' + esc(m.id) + '">Send reply</button>' +
+'<button class="btn btn-sm" data-msg-action="load-thread" data-id="' + esc(m.id) + '">Load thread</button>' +
+(closed ? '<button class="btn btn-sm" data-msg-action="reopen" data-id="' + esc(m.id) + '">Reopen</button>'
+: '<button class="btn btn-sm btn-danger" data-msg-action="close" data-id="' + esc(m.id) + '">Close ticket</button>') +
+'</div></div>';
+}
+} else {
+html += '<div class="grid">' +
+card(aiLogs.length, 'Lookups', 'questions asked') +
+card(resolved, 'Resolved by AI', rate + '% success', 'ok') +
+card(escalated, 'Escalated', 'came to you', 'bad') +
+card(rate + '%', 'AI success rate', 'higher is better', 'gold') +
+'</div>';
+html += '<div class="stor-users-title">Recent AI activity · newest first</div>';
+if (!aiLogs.length) html += '<div class="empty">No AI lookups recorded yet.</div>';
+for (const l of aiLogs.slice(0, 50)) {
+const badge = l.resolved === true ? '<span class="status-badge active">Resolved</span>'
+: (l.resolved === false ? '<span class="status-badge banned">Escalated</span>' : '<span class="status-badge">Pending</span>');
+html += '<div class="user-card"><div class="user-card-head"><span class="user-email">' + esc(l.question) + '</span>' + badge + '</div>' +
+'<div class="user-meta">' + fmtDateTime(l.created_at) + '</div>' +
+(l.answer ? '<div style="font-size:.82rem;line-height:1.6;color:var(--muted);white-space:pre-wrap">' + esc(l.answer) + '</div>' : '') +
+'</div>';
+}
+}
+content.innerHTML = html + '<div class="admin-note">"AI-forwarded" tickets include the answer the AI attempted before escalating. Each ticket carries its W-tag for filing and cross-reference.</div>';
+const csvBtn = document.getElementById('btn-msg-csv');
+if (csvBtn) csvBtn.addEventListener('click', downloadSupportCsv);
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
+}
+async function handleMsgAction(btn) {
+const id = btn.dataset.id;
+const act = btn.dataset.msgAction;
+if (act === 'close' || act === 'reopen') {
+btn.disabled = true;
+try {
+await saApi('/api/support/' + id + '/' + act, { method: 'POST' });
+showNote('Ticket ' + (act === 'close' ? 'closed' : 'reopened') + '.', false);
+loadTab('messages');
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; }
+return;
+}
+if (act === 'reply') {
+const ta = document.querySelector('[data-reply-text="' + id + '"]');
+const text = ta ? ta.value.trim() : '';
+if (!text) { showNote('⚠ Write a reply first.', false); return; }
+btn.disabled = true; btn.textContent = 'Sending…';
+try {
+const replyRes = await saApi('/api/support/' + id + '/reply', { method: 'POST', body: { body: text } });
+showNote(replyRes && replyRes.emailed ? 'Sent to customer\'s app + Email' : 'Sent to app. Email failed: ' + (replyRes && replyRes.emailError ? replyRes.emailError : 'check server logs'), !(replyRes && replyRes.emailed));
+loadTab('messages');
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); btn.disabled = false; btn.textContent = 'Send reply'; }
+return;
+}
+if (act === 'load-thread') {
+const host = document.getElementById('thread-' + id);
+if (!host) return;
+host.innerHTML = '<div style="color:var(--faint);font-size:.78rem">Loading…</div>';
+try {
+const d = await saApi('/api/support/' + id + '/replies');
+const replies = d.replies || [];
+host.innerHTML = replies.length ? replies.map(r =>
+'<div style="padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap">' +
+'<div style="font-size:.66rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:4px">' + (r.author === 'team' ? 'You' : 'User') + ' · ' + fmtDateTime(r.created_at) + '</div>' +
+esc(r.body) + '</div>').join('')
+: '<div style="color:var(--faint);font-size:.78rem">No replies yet.</div>';
+} catch (e) { host.innerHTML = '<div style="color:var(--danger);font-size:.78rem">' + esc(e.message) + '</div>'; }
+return;
+}
+}
+const PROVIDER_DEFS = [
+{ id: 'openrouter', label: 'OpenRouter', hint: 'openrouter.ai — one key, many models. Default model: openrouter/auto', modelPh: 'openrouter/auto' },
+{ id: 'groq', label: 'Groq', hint: 'console.groq.com — fast, generous free tier. Model auto-discovered live.', modelPh: '(auto-discovered)' },
+{ id: 'mistral', label: 'Mistral', hint: 'console.mistral.ai — strong fallback. Default: mistral-large-latest', modelPh: 'mistral-large-latest' },
+];
+function esc(s) {
+return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function getToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+function getEmail() { try { return sessionStorage.getItem(EMAIL_KEY) || ''; } catch (e) { return ''; } }
+function setSession(token, email) {
+try {
+if (token) { sessionStorage.setItem(TOKEN_KEY, token); sessionStorage.setItem(EMAIL_KEY, email || ''); }
+else { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(EMAIL_KEY); }
+} catch (e) {}
+}
+function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString(); } catch (e) { return iso; } }
+function fmtDateTime(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
+function num(v) { return (v === null || v === undefined) ? '—' : String(v); }
+function creditEmailOf(uid) {
+const r = allCredits.find(x => x.user_id === uid);
+return r ? (r.email || '') : '';
+}
+function fmtBytes(n) {
+if (!Number.isFinite(n) || n <= 0) return '0 B';
+const units = ['B', 'KB', 'MB', 'GB'];
+let i = 0; let v = n;
+while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
+}
+function csvEscape(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+function downloadCsv(filename, header, rows) {
+const blob = new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+a.remove();
+setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function api(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(API_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the admin API (network or CORS). Is the weaver-server function deployed?'); }
+if (res.status === 401) { setSession(''); renderLogin('Session expired or wrong account — sign in again.'); throw new Error('unauthorized'); }
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
+async function aiApi(path, opts = {}) {
+const init = { method: opts.method || 'GET', headers: { 'Authorization': 'Bearer ' + getToken() } };
+if (opts.signal) init.signal = opts.signal;
+if (opts.body) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
+let res;
+try { res = await fetch(AI_API_BASE + path, init); }
+catch (e) { throw new Error('Could not reach the AI admin API. Is the ai-admin function deployed?'); }
+if (res.status === 401 || res.status === 403) {
+setSession(''); renderLogin('Session expired or not owner — sign in again.'); throw new Error('unauthorized');
+}
+let data = {};
+try { data = await res.json(); } catch (e) {}
+if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+return data;
+}
+function showNote(html, sticky) {
+const note = document.getElementById('admin-note');
+if (!note) return;
+note.innerHTML = html + (sticky ? ' <button class="btn btn-sm" style="margin-left:8px" onclick="this.parentElement.hidden=true">dismiss</button>' : '');
+note.hidden = false;
+if (!sticky) { clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 6000); }
+}
+function renderLogin(msg) {
+app.innerHTML =
+'<div class="login-wrap"><div class="login-card">' +
+'<div class="w login-w">W</div>' +
+'<div><div class="login-title">Weaver Admin</div><div class="login-tag">Owner &amp; supervisor console</div></div>' +
+(msg ? '<div class="err">' + esc(msg) + '</div>' : '') +
+'<div class="field"><span>Email</span><input id="li-email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
+'<div class="field"><span>Password</span><input id="li-pass" type="password" autocomplete="current-password" placeholder="Your Weaver password"></div>' +
+'<button id="li-btn" class="btn btn-gold">Sign in</button>' +
+'<div class="login-hint">Owner and supervisors can enter this console.</div>' +
+'</div></div>';
+const btn = document.getElementById('li-btn');
+const email = document.getElementById('li-email');
+const pass = document.getElementById('li-pass');
+async function go() {
+if (!sb) { renderLogin('The auth script could not load. Check your connection and reload.'); return; }
+btn.disabled = true; btn.textContent = 'One moment…';
+try {
+const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
+if (res.error) { renderLogin(res.error.message || 'Sign-in failed.'); return; }
+setSession(res.data.session.access_token, res.data.user && res.data.user.email);
+await detectRole();
+if (userRole === 'none') { setSession(''); renderNoAccess(); return; }
+renderShell(userRole === 'supervisor' ? 'messages' : 'overview');
+} catch (e) { renderLogin(e.message || 'Sign-in failed.'); }
+}
+btn.onclick = go;
+pass.onkeydown = e => { if (e.key === 'Enter') go(); };
+setTimeout(() => email.focus(), 60);
+}
+async function detectRole() {
+try {
+const d = await supApi('/api/role');
+userRole = (d && d.role) || 'none';
+} catch (e) { userRole = 'none'; }
+}
+function renderNoAccess() {
+app.innerHTML =
+'<div class="noaccess-wrap"><div class="noaccess-card">' +
+'<div class="w noaccess-w">W</div>' +
+'<div class="noaccess-title">No admin access</div>' +
+'<div class="noaccess-msg">This Weaver account is not registered as an owner or supervisor. If you believe this is a mistake, ask the owner to add your email on the Supervisors page.</div>' +
+'<button class="btn" onclick="location.reload()">Sign in with a different account</button>' +
+'</div></div>';
+}
+const FULL_TABS = [
+{ id: 'overview', label: 'Overview', ownerOnly: true },
+{ id: 'users', label: 'Users', ownerOnly: true },
+{ id: 'credits', label: 'Credits', ownerOnly: true },
+{ id: 'storage', label: 'Storage', ownerOnly: true },
+{ id: 'audit', label: 'Audit', ownerOnly: true },
+{ id: 'banner', label: 'Banner', ownerOnly: true },
+{ id: 'ai-keys', label: 'AI Keys', ownerOnly: true },
+{ id: 'messages', label: 'Messages', ownerOnly: false },
+{ id: 'important', label: 'Important', ownerOnly: false },
+];
+function visibleTabs() {
+if (userRole === 'owner') return FULL_TABS;
+if (userRole === 'supervisor') return FULL_TABS.filter(t => !t.ownerOnly);
+return [];
+}
+function renderShell(tab) {
+activeTab = tab;
+const tabs = visibleTabs();
+if (!tabs.some(t => t.id === tab)) tab = tabs[0] ? tabs[0].id : 'messages';
+activeTab = tab;
+const roleLabel = userRole === 'owner' ? 'owner' : (userRole === 'supervisor' ? 'supervisor' : 'guest');
+const supervisorsLink = userRole === 'owner'
+? '<a class="btn btn-sm" href="supervisors.html" title="Manage supervisor access">Supervisors</a>'
+: '';
+const diagnosticsLink = userRole === 'owner'
+? '<a class="btn btn-sm" href="diagnostics.html" title="AI-assisted code diagnostics">Diagnostics</a>'
+: '';
+app.innerHTML =
+'<div class="top">' +
+'<span class="w top-w">W</span>' +
+'<span class="top-title">Weaver Admin</span>' +
+'<span class="top-role">' + roleLabel + '</span>' +
+'<span class="top-email">' + esc(getEmail()) + '</span>' +
+'<div class="top-right">' +
+supervisorsLink +
+diagnosticsLink +
+'<button id="btn-refresh" class="btn btn-sm">Refresh</button>' +
+'<button id="btn-out" class="btn btn-sm">Sign out</button>' +
+'</div>' +
+'</div>' +
+'<div class="tabs" id="admin-tabs"></div>' +
+'<div id="admin-note" class="admin-note-bar" hidden></div>' +
+'<div id="admin-content"><div class="loading">Loading…</div></div>';
+renderTabs();
+document.getElementById('btn-refresh').onclick = () => loadTab(activeTab);
+document.getElementById('btn-out').onclick = () => { setSession(''); renderLogin(''); };
+loadTab(tab);
+}
+function renderTabs() {
+const host = document.getElementById('admin-tabs');
+const tabs = visibleTabs();
+host.innerHTML = tabs.map(t =>
+'<span class="tab' + (t.id === activeTab ? ' on' : '') + '" data-tab="' + t.id + '">' + t.label + '</span>').join('');
+}
+function setTab(tab) { activeTab = tab; renderTabs(); loadTab(tab); }
+function loadTab(tab) {
+const content = document.getElementById('admin-content');
+if (userRole === 'supervisor' && tab !== 'messages' && tab !== 'important') {
+content.innerHTML = '<div class="empty">This tab is restricted to the owner.</div>';
+return;
+}
+if (tab === 'overview') return loadOverviewInto(content);
+if (tab === 'users') return loadUsers();
+if (tab === 'credits') return loadCredits();
+if (tab === 'storage') return loadStorage();
+if (tab === 'audit') return loadAudit();
+if (tab === 'banner') return loadBanner();
+if (tab === 'ai-keys') return loadAiKeys();
+if (tab === 'messages') return loadMessagesTab(content);
+if (tab === 'important') return loadImportantTab(content);
+content.innerHTML = '<div class="loading" style="padding:40px 24px">Coming in a later step.</div>';
+}
+function card(value, label, sub, cls) {
+return '<div class="card">' +
+'<div class="card-num' + (cls ? ' ' + cls : '') + '">' + esc(value) + '</div>' +
+'<div class="card-label">' + esc(label) + '</div>' +
+(sub ? '<div class="card-sub">' + esc(sub) + '</div>' : '') +
+'</div>';
+}
+async function loadOverviewInto(content) {
+content.innerHTML = '<div class="loading">Loading overview…</div>';
+let health = 'unreachable';
+try { const h = await fetch(API_BASE + '/api/health'); if (h.ok) health = 'online'; } catch (e) {}
+try {
+const d = await api('/api/overview');
+const problems = (d.problems && d.problems.length)
+? '<div class="notice">' + d.problems.map(esc).join('<br>') + '</div>' : '';
+let updated = ''; try { updated = new Date(d.time).toLocaleString(); } catch (e) {}
+content.innerHTML = problems +
+'<div class="grid">' +
+card(num(d.usersTotal), 'Total users', 'all accounts') +
+card(num(d.users7d), 'New · 7 days', 'signups', 'gold') +
+card(num(d.users30d), 'New · 30 days', 'signups', 'gold') +
+card(num(d.objects), 'Vault objects', 'compressed blobs') +
+card(num(d.buckets && d.buckets.length), 'Buckets', (d.buckets || []).join(', ') || 'none') +
+card(health === 'online' ? 'online' : 'unreachable', 'API function', 'weaver-server · v3.1i', health === 'online' ? 'ok' : 'bad') +
+'</div>' +
+'<div class="meta">last updated ' + esc(updated) + '<br>UI on GitHub Pages · API on Supabase · weaver-server V3.1i</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message || 'Failed to load.') + '</div>';
+}
+}
+function userCardHTML(u) {
+const banned = !!u.banned_until;
+let status = '';
+if (u.is_owner) {
+status = '<span class="status-badge owner">owner</span>';
+} else if (u.is_supervisor) {
+status = '<span class="status-badge" style="color:#7eb8da;border-color:rgba(126,184,218,.45);background:rgba(126,184,218,.1)">supervisor</span>';
+} else if (banned) {
+status = '<span class="status-badge banned">suspended</span>';
+} else {
+status = '<span class="status-badge active">active</span>';
+}
+let actions = '<button class="btn btn-sm" data-action="details" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>';
+if (!u.is_owner) {
+actions += banned
+? '<button class="btn btn-sm" data-action="unban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Unsuspend</button>'
+: '<button class="btn btn-sm" data-action="ban" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Suspend</button>';
+}
+actions += '<button class="btn btn-sm" data-action="recovery" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '" title="Emails this user a password-reset link. Nothing else is reset.">Reset password</button>';
+if (!u.is_owner) {
+actions += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + esc(u.id) + '" data-email="' + esc(u.email || '') + '">Delete</button>';
+}
+return '<div class="user-card" data-user-card="' + esc(u.id) + '">' +
+'<div class="user-card-head"><span class="user-email">' + esc(u.email || '(no email)') + '</span>' + status + '</div>' +
+'<div class="user-meta">created ' + fmtDate(u.created_at) + ' · last sign-in ' + (u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : 'never') + '</div>' +
+'<div class="user-actions">' + actions + '</div>' +
+'<div class="user-detail-slot"></div>' +
+'</div>';
+}
+function emptyUsersHTML() { return '<div class="empty">No users found.</div>'; }
+function loadUsers() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading users…</div>';
+api('/api/users').then(d => {
+allUsers = d.users || [];
+renderUsers(allUsers);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
+}
+function renderUsers(list) {
+const content = document.getElementById('admin-content');
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<input id="user-search" class="input" type="search" placeholder="Search by email…">' +
+'<button id="btn-new-user" class="btn btn-primary">+ New user</button>' +
+'<button id="btn-bulk-invite" class="btn" title="Create many accounts at once with a generic password — no emails sent">Bulk invite</button>' +
+'<button id="btn-export-csv" class="btn" title="Download the user list as CSV">Export CSV</button>' +
+'</div>' +
+'<div id="create-form-wrap"></div>' +
+'<div id="bulk-invite-wrap"></div>' +
+'<div id="users-list">' + (list.map(userCardHTML).join('') || emptyUsersHTML()) + '</div>' +
+'<div class="admin-note">Details opens entitlements, vault stats, history and account tools. Suspend blocks sign-in but keeps the vault. Delete removes the account AND wipes its vault. The owner account is protected.</div>';
+document.getElementById('user-search').addEventListener('input', e => {
+const q = e.target.value.trim().toLowerCase();
+const filtered = q ? allUsers.filter(u => (u.email || '').toLowerCase().includes(q)) : allUsers;
+document.getElementById('users-list').innerHTML = filtered.map(userCardHTML).join('') || emptyUsersHTML();
+});
+document.getElementById('btn-new-user').addEventListener('click', toggleCreateForm);
+document.getElementById('btn-bulk-invite').addEventListener('click', toggleBulkInvite);
+document.getElementById('btn-export-csv').addEventListener('click', exportUsersCsv);
+}
+function exportUsersCsv() {
+if (!allUsers.length) { showNote('⚠ No users to export.', false); return; }
+downloadCsv('weaver-users-' + new Date().toISOString().slice(0, 10) + '.csv',
+'email,created,last_sign_in,status',
+allUsers.map(u => [csvEscape(u.email), u.created_at || '', u.last_sign_in_at || '', u.banned_until ? 'suspended' : 'active'].join(',')));
+}
+function exportCreditsCsv() {
+if (!allCredits.length) { showNote('⚠ No credits data to export.', false); return; }
+downloadCsv('weaver-credits-' + new Date().toISOString().slice(0, 10) + '.csv',
+'email,plan,credits,pro_until',
+allCredits.map(r => [csvEscape(r.email), csvEscape(r.plan), r.credits || 0, r.pro_until || ''].join(',')));
+}
+function toggleCreateForm() {
+const wrap = document.getElementById('create-form-wrap');
+if (!wrap) return;
+if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+const bw = document.getElementById('bulk-invite-wrap'); if (bw) bw.innerHTML = '';
+wrap.innerHTML =
+'<div class="create-form" style="margin:0 16px 12px">' +
+'<div class="row">' +
+'<input id="nu-email" class="input" type="email" placeholder="user@example.com">' +
+'<input id="nu-pass" class="input" type="password" placeholder="password (min 6)">' +
+'</div>' +
+'<div class="row" style="justify-content:flex-end">' +
+'<button class="btn btn-sm" data-create-cancel>Cancel</button>' +
+'<button class="btn btn-sm btn-primary" data-create-go>Create account</button>' +
+'</div>' +
+'</div>';
+wrap.querySelector('[data-create-cancel]').addEventListener('click', () => { wrap.innerHTML = ''; });
+wrap.querySelector('[data-create-go]').addEventListener('click', async () => {
+const email = document.getElementById('nu-email').value.trim();
+const pass = document.getElementById('nu-pass').value;
+if (!email || !pass) { showNote('⚠ Enter both an email and a password.', false); return; }
+try {
+await api('/api/users', { method: 'POST', body: { email, password: pass } });
+wrap.innerHTML = '';
+showNote('Account created for <b>' + esc(email) + '</b>.', false);
+loadUsers();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+});
+document.getElementById('nu-email').focus();
+}
+function toggleBulkInvite() {
+const wrap = document.getElementById('bulk-invite-wrap');
+if (!wrap) return;
+if (wrap.querySelector('.create-form')) { wrap.innerHTML = ''; return; }
+const cf = document.getElementById('create-form-wrap'); if (cf) cf.innerHTML = '';
+wrap.innerHTML =
+'<div class="create-form" style="margin:0 16px 12px">' +
+'<div class="field"><span>Emails — one per line</span>' +
+'<textarea id="bi-emails" class="textarea" rows="5" placeholder="reader1@example.com&#10;reader2@example.com"></textarea>' +
+'</div>' +
+'<div class="row">' +
+'<input id="bi-pass" class="input" type="text" placeholder="Generic password for all invites (min 6)">' +
+'<button class="btn btn-sm btn-primary" data-bi-go>Create all accounts</button>' +
+'</div>' +
+'<div class="admin-note" style="padding:0">No emails are sent — your email quota is untouched. Share the generic password with your invitees; after first sign-in each uses "Forgot password?" to choose their own.</div>' +
+'</div>';
+wrap.querySelector('[data-bi-go]').addEventListener('click', runBulkInvite);
+document.getElementById('bi-emails').focus();
+}
+async function runBulkInvite() {
+const emails = (document.getElementById('bi-emails').value || '')
+.split(/[\n,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+const pass = document.getElementById('bi-pass').value;
+if (!emails.length) { showNote('⚠ Enter at least one email.', false); return; }
+if (pass.length < 6) { showNote('⚠ The generic password must be at least 6 characters.', false); return; }
+let ok = 0;
+const failed = [];
+for (const email of emails) {
+if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { failed.push(email + ' (invalid)'); continue; }
+try {
+await api('/api/users', { method: 'POST', body: { email, password: pass } });
+ok++;
+} catch (e) {
+if (e.message === 'unauthorized') return;
+failed.push(email + ' (' + e.message + ')');
+}
+}
+let msg = 'Bulk invite: <b>' + ok + '</b> account' + (ok === 1 ? '' : 's') + ' created.';
+if (failed.length) msg += ' <span style="color:var(--danger)">Failed: ' + esc(failed.join('; ')) + '</span>';
+showNote(msg, true);
+document.getElementById('bulk-invite-wrap').innerHTML = '';
+loadUsers();
+}
+async function handleUserAction(action, id, email) {
+if (!id) return;
+try {
+if (action === 'ban' || action === 'unban') {
+const verb = action === 'ban' ? 'Suspend' : 'Unsuspend';
+if (!confirm(verb + ' ' + (email || 'this user') + '?')) return;
+await api('/api/users/' + id + '/' + action, { method: 'POST' });
+showNote((action === 'ban' ? 'Suspended ' : 'Unsuspended ') + '<b>' + esc(email || 'user') + '</b>.', false);
+loadUsers();
+} else if (action === 'recovery') {
+const d = await api('/api/users/' + id + '/recovery', { method: 'POST' });
+if (d && d.action_link) {
+showNote('Password-reset link generated for <b>' + esc(email || 'user') + '</b>. If the email does not arrive, copy and send this link:<br>' +
+'<a href="' + esc(d.action_link) + '" target="_blank" rel="noopener" style="word-break:break-all">' + esc(d.action_link) + '</a>', true);
+} else {
+showNote('Password-reset email sent to <b>' + esc(email || 'user') + '</b>.', false);
+}
+} else if (action === 'delete') {
+if (!confirm('Delete ' + (email || 'this user') + '? This cannot be undone.')) return;
+if (!confirm('This also PERMANENTLY WIPES their cloud vault. Continue deleting ' + (email || 'this user') + '?')) return;
+const d = await api('/api/users/' + id, { method: 'DELETE' });
+let msg = '<b>' + esc(email || 'User') + '</b> deleted.';
+if (d && d.storageOk === false) msg += ' <span style="color:var(--danger)">Vault cleanup issue: ' + esc(d.storageMsg || 'unknown') + '.</span>';
+showNote(msg, false);
+loadUsers();
+}
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+function detailHTML(ent, st, log, audits) {
+const neverSynced = !st || !st.objects;
+const plan = ent ? ent.plan : 'free';
+const credits = ent ? ent.credits : 0;
+const proUntil = ent && ent.pro_until ? fmtDate(ent.pro_until) : '—';
+const credRows = (log || []).slice(0, 8).map(l =>
+'<div class="cred-log-row">' +
+'<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+'<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+'<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+'</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No credit activity yet.</div>';
+const auditRows = (audits || []).map(a =>
+'<div class="audit-row" style="padding:6px 10px">' +
+'<span class="audit-time">' + fmtDateTime(a.created_at) + '</span>' +
+'<span class="status-badge">' + esc(a.action) + '</span>' +
+'<span class="audit-detail">' + esc(a.detail || '') + '</span>' +
+'</div>').join('') || '<div style="color:var(--faint);font-size:.78rem">No admin actions recorded for this user.</div>';
+return '<div class="user-detail">' +
+'<div class="ud-grid">' +
+'<div class="ud-box"><div class="ud-label">Entitlements</div>' +
+'<div class="ud-line">plan <b>' + esc(plan) + '</b> · credits <b>' + num(credits) + '</b> · pro until <b>' + esc(proUntil) + '</b></div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Vault</div>' +
+(neverSynced
+? '<div class="ud-line"><span class="status-badge banned">never synced</span> no vault objects yet</div>'
+: '<div class="ud-line"><b>' + num(st.projects) + '</b> projects · <b>' + num(st.objects) + '</b> objects · <b>' + esc(fmtBytes(st.bytes)) + '</b> · last activity ' + (st.last ? fmtDate(st.last) : '—') + '</div>') +
+'</div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Recent credit history</div>' + credRows + '</div>' +
+'<div class="ud-box"><div class="ud-label">Admin actions on this user</div>' + auditRows + '</div>' +
+'<div class="ud-grid">' +
+'<div class="ud-box"><div class="ud-label">Change email</div>' +
+'<div class="row">' +
+'<input data-f="newemail" class="input" type="email" placeholder="new@email.com">' +
+'<button class="btn btn-sm" data-detail-action="email">Change</button>' +
+'</div>' +
+'</div>' +
+'<div class="ud-box"><div class="ud-label">Set password</div>' +
+'<div class="row">' +
+'<input data-f="newpass" class="input" type="text" placeholder="temporary password (min 6)">' +
+'<button class="btn btn-sm" data-detail-action="password">Set</button>' +
+'</div>' +
+'<div class="ud-hint">The user signs in with this once, then uses "Forgot password?" to choose their own. Consumes no email quota.</div>' +
+'</div>' +
+'</div>' +
+'</div>';
+}
+async function toggleUserDetails(id, email, btn) {
+const card = btn ? btn.closest('.user-card') : null;
+if (!card) return;
+const slot = card.querySelector('.user-detail-slot');
+if (!slot) return;
+if (slot.querySelector('.user-detail')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.user-detail-slot').forEach(s => { s.innerHTML = ''; });
+slot.innerHTML = '<div class="loading" style="padding:16px">Loading details…</div>';
+try {
+const [credits, storage, audit] = await Promise.all([
+api('/api/credits'), api('/api/storage'), api('/api/audit'),
+]);
+const log = await api('/api/credits/' + id + '/log').catch(() => ({ log: [] }));
+const ent = (credits.rows || []).find(r => r.user_id === id) || null;
+const st = (storage.perUser || []).find(r => r.user_id === id) || null;
+const audits = (audit.rows || []).filter(a => (a.target || '') === email || (a.target || '') === id).slice(0, 10);
+slot.innerHTML = detailHTML(ent, st, log.log || [], audits);
+const emailBtn = slot.querySelector('[data-detail-action="email"]');
+const passBtn = slot.querySelector('[data-detail-action="password"]');
+if (emailBtn) emailBtn.onclick = async () => {
+const newEmail = slot.querySelector('[data-f="newemail"]').value.trim();
+if (!newEmail || newEmail.indexOf('@') < 0) { showNote('⚠ Enter a valid email address.', false); return; }
+if (!confirm('Change the email of ' + (email || 'this user') + ' to ' + newEmail + '?')) return;
+try {
+await api('/api/users/' + id + '/email', { method: 'POST', body: { email: newEmail } });
+showNote('Email changed to <b>' + esc(newEmail) + '</b>.', false);
+loadTab(activeTab);
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+};
+if (passBtn) passBtn.onclick = async () => {
+const newPass = slot.querySelector('[data-f="newpass"]').value;
+if (!newPass || newPass.length < 6) { showNote('⚠ Password must be at least 6 characters.', false); return; }
+if (!confirm('Set a new password for ' + (email || 'this user') + '? Advise them to change it via "Forgot password?" afterwards.')) return;
+try {
+await api('/api/users/' + id + '/password', { method: 'POST', body: { password: newPass } });
+showNote('Password set for <b>' + esc(email || 'user') + '</b>. Remind them to change it after first sign-in.', false);
+} catch (e) { if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true); }
+};
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+}
+}
+function creditCardHTML(r) {
+const planBadge = r.plan === 'pro'
+? '<span class="status-badge owner">pro</span>'
+: '<span class="status-badge">free</span>';
+const proLine = r.pro_until ? 'Pro until ' + fmtDate(r.pro_until) : 'no Pro expiry';
+return '<div class="user-card" data-credit-card="' + esc(r.user_id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(r.email || '(no email)') + '</span>' +
+'<span class="cred-badges">' + planBadge +
+'<span class="status-badge active">' + num(r.credits) + ' credits</span>' +
+'</span>' +
+'</div>' +
+'<div class="user-meta">' + esc(proLine) + '</div>' +
+'<div class="user-actions">' +
+'<button class="btn btn-sm" data-action="details" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Full detail: entitlements, vault, history, email & password tools">Details</button>' +
+'<button class="btn btn-sm btn-primary" data-action="grant" data-id="' + esc(r.user_id) + '" title="Add credits and/or Pro days">Grant</button>' +
+'<button class="btn btn-sm btn-danger" data-action="revoke" data-id="' + esc(r.user_id) + '" title="Remove credits">Revoke</button>' +
+'<button class="btn btn-sm" data-action="history" data-id="' + esc(r.user_id) + '">History</button>' +
+'</div>' +
+'<div class="cred-slot"></div>' +
+'<div class="user-detail-slot"></div>' +
+'</div>';
+}
+function loadCredits() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading entitlements…</div>';
+api('/api/credits').then(d => {
+allCredits = d.rows || [];
+renderCredits(allCredits);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
+}
+function renderCredits(list) {
+const content = document.getElementById('admin-content');
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<input id="credit-search" class="input" type="search" placeholder="Search by email…">' +
+'<button id="btn-credits-csv" class="btn" title="Download the credits ledger as CSV">Export CSV</button>' +
+'</div>' +
+'<div id="credits-list">' + (list.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>') + '</div>' +
+'<div class="admin-note">Details opens the full user view. Grant adds credits and/or Pro days; Revoke removes credits. Both require a reason for the audit trail.</div>';
+document.getElementById('credit-search').addEventListener('input', e => {
+const q = e.target.value.trim().toLowerCase();
+const filtered = q ? allCredits.filter(r => (r.email || '').toLowerCase().includes(q)) : allCredits;
+document.getElementById('credits-list').innerHTML = filtered.map(creditCardHTML).join('') || '<div class="empty">No users found.</div>';
+});
+document.getElementById('btn-credits-csv').addEventListener('click', exportCreditsCsv);
+}
+function toggleAdjustForm(userId, mode) {
+const card = document.querySelector('[data-credit-card="' + userId + '"]');
+if (!card) return;
+const slot = card.querySelector('.cred-slot');
+if (!slot) return;
+if (slot.querySelector('.create-form')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.cred-slot').forEach(s => { s.innerHTML = ''; });
+const isGrant = mode === 'grant';
+slot.innerHTML =
+'<div class="create-form">' +
+'<div class="row">' +
+'<input data-f="amount" class="input" type="number" min="0" step="1" placeholder="' + (isGrant ? 'Credits to add' : 'Credits to remove') + '">' +
+(isGrant ? '<input data-f="prodays" class="input" type="number" min="0" step="1" placeholder="Pro days (optional)">' : '') +
+'</div>' +
+'<input data-f="reason" class="input" type="text" placeholder="Reason (required — appears in the audit log)">' +
+'<div class="row" style="justify-content:flex-end">' +
+'<button class="btn btn-sm" data-cred-cancel>Cancel</button>' +
+'<button class="btn btn-sm ' + (isGrant ? 'btn-primary' : 'btn-danger') + '" data-cred-apply>' + (isGrant ? 'Grant' : 'Revoke') + '</button>' +
+'</div>' +
+'</div>';
+slot.querySelector('[data-cred-cancel]').addEventListener('click', () => { slot.innerHTML = ''; });
+slot.querySelector('[data-cred-apply]').addEventListener('click', async () => {
+const amount = Math.abs(parseInt(slot.querySelector('[data-f="amount"]').value, 10) || 0);
+const proEl = slot.querySelector('[data-f="prodays"]');
+const proDays = proEl ? (parseInt(proEl.value, 10) || 0) : 0;
+const reason = slot.querySelector('[data-f="reason"]').value.trim();
+if (amount === 0 && (!isGrant || proDays <= 0)) {
+showNote('⚠ Enter a credit amount' + (isGrant ? ' and/or Pro days' : '') + '.', false);
+return;
+}
+if (!reason) { showNote('⚠ A reason is required.', false); return; }
+try {
+await api('/api/credits/' + userId + '/adjust', {
+method: 'POST',
+body: { amount: isGrant ? amount : -amount, pro_days: isGrant ? proDays : 0, reason },
+});
+slot.innerHTML = '';
+showNote((isGrant ? 'Granted to ' : 'Revoked from ') + '<b>' + esc(creditEmailOf(userId) || 'user') + '</b>.', false);
+loadCredits();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+});
+slot.querySelector('[data-f="amount"]').focus();
+}
+async function toggleHistory(userId) {
+const card = document.querySelector('[data-credit-card="' + userId + '"]');
+if (!card) return;
+const slot = card.querySelector('.cred-slot');
+if (!slot) return;
+if (slot.querySelector('.cred-history')) { slot.innerHTML = ''; return; }
+slot.innerHTML = '<div class="loading" style="padding:16px">Loading history…</div>';
+try {
+const d = await api('/api/credits/' + userId + '/log');
+const log = d.log || [];
+if (!log.length) {
+slot.innerHTML = '<div class="cred-history"><div style="color:var(--faint);font-size:.8rem">No credit activity yet.</div></div>';
+return;
+}
+slot.innerHTML = '<div class="cred-history">' + log.map(l =>
+'<div class="cred-log-row">' +
+'<span class="cred-log-amt ' + (l.amount >= 0 ? 'pos' : 'neg') + '">' + (l.amount >= 0 ? '+' : '') + l.amount + '</span>' +
+'<span class="cred-log-reason">' + esc(l.reason || '—') + '</span>' +
+'<span class="cred-log-date">' + fmtDate(l.created_at) + '</span>' +
+'</div>').join('') + '</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+}
+}
+function signupsChartSVG(days) {
+if (!days || !days.length) return '';
+const W = 640; const H = 120; const pad = 6;
+let max = 1;
+for (const d of days) if (d.count > max) max = d.count;
+const bw = (W - pad * 2) / days.length;
+let bars = '';
+days.forEach((d, i) => {
+const h = d.count ? Math.max(4, (d.count / max) * (H - 26)) : 2;
+const x = (pad + i * bw + 2).toFixed(1);
+const y = (H - 16 - h).toFixed(1);
+const w = Math.max(2, bw - 4).toFixed(1);
+const fill = d.count ? 'var(--accent)' : 'var(--border-strong)';
+const op = d.count ? '0.9' : '0.5';
+bars += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h.toFixed(1) + '" rx="3" fill="' + fill + '" opacity="' + op + '">' +
+'<title>' + esc(d.label) + ': ' + d.count + '</title></rect>';
+});
+return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" aria-label="Signups over the last 14 days">' +
+bars +
+'<text x="' + pad + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)">' + esc(days[0].label) + '</text>' +
+'<text x="' + (W - pad) + '" y="' + (H - 4) + '" fill="var(--faint)" font-size="10" font-family="var(--font-mono)" text-anchor="end">' + esc(days[days.length - 1].label) + '</text>' +
+'</svg>';
+}
+function loadStorage() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading storage & metrics…</div>';
+Promise.all([api('/api/storage'), api('/api/metrics')]).then(([s, m]) => {
+renderStorage(s, m);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
+}
+function renderStorage(s, m) {
+const content = document.getElementById('admin-content');
+const neverSynced = Math.max(0, (m.usersTotal || 0) - (s.perUser || []).length);
+const rows = (s.perUser || []).map(r =>
+'<div class="user-card" data-storage-card="' + esc(r.user_id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(r.email) + '</span>' +
+'<span class="cred-badges">' +
+'<span class="status-badge owner">' + num(r.projects) + ' projects</span>' +
+'<span class="status-badge active">' + num(r.objects) + ' objects</span>' +
+'<span class="status-badge owner">' + esc(fmtBytes(r.bytes)) + '</span>' +
+'</span>' +
+'</div>' +
+'<div class="user-meta">last vault activity ' + (r.last ? fmtDate(r.last) : '—') + '</div>' +
+'<div class="user-actions">' +
+'<button class="btn btn-sm" data-action="projects" data-id="' + esc(r.user_id) + '" data-email="' + esc(r.email || '') + '" title="Manage this user\'s projects — titles and sizes only, content is never opened">Projects</button>' +
+'</div>' +
+'<div class="proj-slot"></div>' +
+'</div>').join('') || '<div class="empty">No vault data yet.</div>';
+content.innerHTML =
+'<div class="grid">' +
+card(num(s.totalObjects), 'Vault objects', 'weaver-vault') +
+card(fmtBytes(s.totalBytes), 'Vault size', 'compressed blobs') +
+card(num(m.active7d), 'Active · 7 days', 'signed in', 'gold') +
+card(num(m.active30d), 'Active · 30 days', 'signed in', 'gold') +
+card(num(neverSynced), 'Never synced', 'signed up, empty vault', neverSynced ? 'bad' : 'ok') +
+'</div>' +
+'<div class="stor-chart-wrap">' +
+'<div class="stor-chart-title">Sign-ups · last 14 days <span class="stor-chart-sum">' + num(m.signups14d) + ' total</span></div>' +
+signupsChartSVG(m.signups || []) +
+'</div>' +
+'<div class="stor-users-title">Vault by user · largest first</div>' +
+rows +
+'<div class="admin-note">Sizes come from upload metadata recorded by the app; deleted accounts are labelled. "Projects" counts real project blobs in each vault.</div>';
+}
+function auditBadge(a) {
+const cls = a.indexOf('delete') >= 0 ? 'banned'
+: a.indexOf('credits') === 0 || a.indexOf('banner') === 0 || a.indexOf('backup') === 0 ? 'owner'
+: a.indexOf('suspend') >= 0 ? 'banned'
+: 'active';
+return '<span class="status-badge ' + cls + '">' + esc(a) + '</span>';
+}
+async function exportAuditCsv() {
+try {
+const d = await api('/api/audit');
+const rows = d.rows || [];
+if (!rows.length) { showNote('⚠ No audit entries to export.', false); return; }
+downloadCsv('weaver-audit-' + new Date().toISOString().slice(0, 10) + '.csv',
+'time,action,target,detail',
+rows.map(r => [csvEscape(r.created_at), csvEscape(r.action), csvEscape(r.target), csvEscape(r.detail)].join(',')));
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+async function emailBackupNow() {
+const btn = document.getElementById('btn-backup-email');
+if (!btn) return;
+btn.disabled = true;
+btn.textContent = 'Sending…';
+try {
+const d = await api('/api/backup', { method: 'POST' });
+const c = d.counts || {};
+showNote('Ledger backup emailed to <b>' + esc(d.emailedTo || 'you') + '</b> — ' +
+num(c.entitlements) + ' entitlements, ' + num(c.creditLog) + ' credit rows, ' + num(c.audit) +
+' audit rows. Check your inbox (and spam) for the three CSVs.', true);
+loadAudit();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+btn.disabled = false;
+btn.textContent = 'Email backup now';
+}
+function loadAudit() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading audit log…</div>';
+api('/api/audit').then(d => {
+const rows = d.rows || [];
+const body = rows.length ? rows.map(r =>
+'<div class="audit-row">' +
+'<span class="audit-time">' + fmtDateTime(r.created_at) + '</span>' +
+auditBadge(r.action) +
+'<span class="audit-target">' + esc(r.target || '—') + '</span>' +
+'<span class="audit-detail">' + esc(r.detail || '') + '</span>' +
+'</div>').join('')
+: '<div class="empty">No admin actions logged yet.</div>';
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">' + rows.length + ' entries · newest first</span>' +
+'<button id="btn-backup-email" class="btn btn-primary" title="Email the three ledgers (entitlements, credit log, audit) to yourself right now">Email backup now</button>' +
+'<button id="btn-audit-csv" class="btn" title="Download the audit log as CSV">Export CSV</button>' +
+'</div>' +
+'<div class="audit-list">' + body + '</div>' +
+'<div class="admin-note">Every account, credits and banner action is recorded here with its reason (latest 200 entries). The three ledgers are also emailed to you automatically every Monday at 04:00 UTC.</div>';
+document.getElementById('btn-audit-csv').addEventListener('click', exportAuditCsv);
+document.getElementById('btn-backup-email').addEventListener('click', emailBackupNow);
+}).catch(e => {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+});
+}
+function bannerPreviewHTML(text, level) {
+if (!text) return '<div class="banner-preview is-empty">No banner is live. Fill in the form and press Save to publish one.</div>';
+return '<div class="banner-preview is-' + esc(level) + '">' + esc(text) + '</div>';
+}
+async function loadBanner() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading banner…</div>';
+try {
+const row = await api('/api/announcement');
+bannerState = row || { text: '', level: 'info', show_until: null, updated_at: null };
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
+}
+function renderBannerForm() {
+const content = document.getElementById('admin-content');
+const untilValue = bannerState.show_until ? String(bannerState.show_until).slice(0, 16) : '';
+const untilHintText = bannerState.show_until
+? 'Auto-hides after ' + fmtDateTime(bannerState.show_until)
+: 'No expiry — banner stays until you clear it.';
+const updated = bannerState.updated_at ? 'Last saved ' + fmtDateTime(bannerState.updated_at) : 'Never saved.';
+content.innerHTML =
+'<div class="banner-wrap">' +
+'<div class="banner-card">' +
+'<div class="banner-card-head">' +
+'<h3>Live preview</h3>' +
+'<button id="bn-dismiss" class="btn btn-sm btn-danger"' + (bannerState.text ? '' : ' hidden') + '>Dismiss</button>' +
+'</div>' +
+'<div id="bn-preview">' + bannerPreviewHTML(bannerState.text, bannerState.level) + '</div>' +
+'</div>' +
+'<div class="banner-card">' +
+'<h3>Compose</h3>' +
+'<div class="field"><span>Message (≤ 400 characters)</span>' +
+'<textarea id="bn-text" class="textarea" rows="3" maxlength="400" placeholder="e.g. Weaver will be briefly offline tonight 8–9pm UTC for a database upgrade. Your work saves locally throughout.">' + esc(bannerState.text) + '</textarea>' +
+'<div class="banner-counter" id="bn-counter">' + (bannerState.text || '').length + ' / 400</div>' +
+'</div>' +
+'<div class="field"><span>Severity</span>' +
+'<select id="bn-level" class="select">' +
+'<option value="info"' + (bannerState.level === 'info' ? ' selected' : '') + '>Info — news, feature launch (gold)</option>' +
+'<option value="warning"' + (bannerState.level === 'warning' ? ' selected' : '') + '>Warning — known issue, workaround (red)</option>' +
+'<option value="maintenance"' + (bannerState.level === 'maintenance' ? ' selected' : '') + '>Maintenance — planned downtime (bold gold)</option>' +
+'</select>' +
+'</div>' +
+'<div class="field"><span>Auto-hide (optional)</span>' +
+'<input id="bn-until" class="input" type="datetime-local" value="' + esc(untilValue) + '">' +
+'<div class="banner-counter" id="bn-until-hint">' + esc(untilHintText) + '</div>' +
+'</div>' +
+'<div class="banner-actions">' +
+'<button id="bn-save" class="btn btn-primary">Save &amp; publish</button>' +
+'</div>' +
+'<div class="banner-counter">' + esc(updated) + '</div>' +
+'</div>' +
+'<div class="admin-note">The banner appears at the top of the app for every signed-in user. Users can dismiss it for the current session; it returns on their next sign-in.</div>' +
+'</div>';
+const textEl = document.getElementById('bn-text');
+const levelEl = document.getElementById('bn-level');
+const untilEl = document.getElementById('bn-until');
+const counter = document.getElementById('bn-counter');
+const untilHintEl = document.getElementById('bn-until-hint');
+function refreshPreview() {
+const text = textEl.value;
+const level = levelEl.value;
+counter.textContent = text.length + ' / 400';
+const node = document.getElementById('bn-preview');
+if (node) node.outerHTML = '<div id="bn-preview">' + bannerPreviewHTML(text, level) + '</div>';
+const dismiss = document.getElementById('bn-dismiss');
+if (dismiss) dismiss.hidden = !text;
+}
+function refreshUntilHint() {
+const v = untilEl.value;
+untilHintEl.textContent = v
+? 'Auto-hides after ' + new Date(v).toLocaleString()
+: 'No expiry — banner stays until you clear it.';
+}
+textEl.addEventListener('input', refreshPreview);
+levelEl.addEventListener('change', refreshPreview);
+untilEl.addEventListener('input', refreshUntilHint);
+document.getElementById('bn-save').addEventListener('click', saveBanner);
+document.getElementById('bn-dismiss').addEventListener('click', clearBanner);
+}
+async function saveBanner() {
+const text = document.getElementById('bn-text').value.trim();
+const level = document.getElementById('bn-level').value;
+const until = document.getElementById('bn-until').value;
+try {
+const res = await api('/api/announcement', {
+method: 'POST',
+body: { text, level, show_until: until ? new Date(until).toISOString() : null },
+});
+bannerState = res.row || bannerState;
+showNote(text
+? 'Banner published — every signed-in user will see it on next page load.'
+: 'Banner cleared — the strip is gone for every user.', false);
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+async function clearBanner() {
+if (bannerState.text && !confirm('Dismiss this banner? It will disappear for every user.')) return;
+try {
+const res = await api('/api/announcement', { method: 'POST', body: { text: '', level: 'info', show_until: null } });
+bannerState = res.row || { text: '', level: 'info', show_until: null, updated_at: null };
+showNote('Banner dismissed.', false);
+renderBannerForm();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+async function loadAiKeys() {
+const content = document.getElementById('admin-content');
+content.innerHTML = '<div class="loading">Loading AI providers…</div>';
+try {
+const d = await aiApi('/api/providers');
+aiProviders = {};
+(d.providers || []).forEach(p => { aiProviders[p.provider] = p; });
+renderAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') content.innerHTML = '<div class="err" style="margin:24px">' + esc(e.message) + '</div>';
+}
+}
+function renderAiKeys() {
+const content = document.getElementById('admin-content');
+const BUILTINS = ['openrouter', 'groq', 'mistral'];
+const cardHTML = (p, c, isCustom) => {
+const on = c.enabled !== false && !!c.api_key;
+const updated = c.updated_at ? 'Last saved ' + fmtDateTime(c.updated_at) : 'Never saved.';
+return '<div class="user-card" data-ai-provider="' + esc(p.id) + '">' +
+'<div class="user-card-head">' +
+'<span class="user-email">' + esc(p.label) + (isCustom ? ' <span class="status-badge owner">custom</span>' : '') + '</span>' +
+'<span class="cred-badges"><span class="status-badge ' + (on ? 'active' : 'banned') + '">' + (on ? 'active' : 'inactive') + '</span></span>' +
+'</div>' +
+'<div class="user-meta">' + esc(p.hint) + '</div>' +
+(isCustom
+? '<div class="field" style="margin-top:6px"><span>Base URL</span><input data-ai-f="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1" value="' + esc(c.base_url || '') + '"></div>' +
+'<div class="field" style="margin-top:6px"><span>Model name (required)</span><input data-ai-f="model" class="input" type="text" placeholder="llama3.1-8b" value="' + esc(c.model_override || '') + '"></div>'
+: '<div class="field" style="margin-top:6px"><span>Model override (optional)</span><input data-ai-f="model" class="input" type="text" placeholder="' + esc(p.modelPh) + '" value="' + esc(c.model_override || '') + '"></div>') +
+'<div class="field" style="margin-top:6px"><span>API key</span>' +
+'<input data-ai-f="key" class="input" type="password" placeholder="Paste ' + esc(p.label) + ' API key…" value="' + esc(c.api_key || '') + '" autocomplete="off">' +
+'</div>' +
+'<div class="ud-grid" style="margin-top:8px">' +
+'<div class="field"><span>Enabled</span><label class="ud-line" style="gap:8px"><input type="checkbox" data-ai-f="enabled" ' + (c.enabled !== false ? 'checked' : '') + '> Include in fallback chain</label></div>' +
+'<div class="field"><span>Priority (lower = tried first)</span><input data-ai-f="priority" class="input" type="number" value="' + (c.priority ?? 0) + '"></div>' +
+'</div>' +
+'<div class="user-actions" style="margin-top:10px">' +
+'<button class="btn btn-sm" data-ai-action="test" data-provider="' + esc(p.id) + '">Test connection</button>' +
+'<button class="btn btn-sm btn-primary" data-ai-action="save" data-provider="' + esc(p.id) + '">Save</button>' +
+(isCustom ? '<button class="btn btn-sm btn-danger" data-ai-action="delete-custom" data-provider="' + esc(p.id) + '">Remove</button>' : '') +
+'</div>' +
+'<div class="user-meta" style="margin-top:6px">' + esc(updated) + '</div>' +
+'<div class="user-meta" data-ai-result style="margin-top:8px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">Not tested yet.</div>' +
+'</div>';
+};
+const cards = PROVIDER_DEFS.map(p => cardHTML(p, aiProviders[p.id] || {}, false)).join('');
+const customCards = Object.keys(aiProviders).filter(k => !BUILTINS.includes(k))
+.map(k => cardHTML({ id: k, label: k, hint: 'Custom OpenAI-compatible endpoint (base URL + model required).', modelPh: '' }, aiProviders[k], true)).join('');
+const addForm =
+'<div class="user-card" style="border-style:dashed">' +
+'<div class="user-card-head"><span class="user-email">Add any OpenAI-compatible provider</span></div>' +
+'<div class="user-meta">Cerebras, SambaNova, Cloudflare Workers AI, Requesty, Together, Fireworks, or a self-hosted vLLM/Ollama OpenAI shim.</div>' +
+'<div class="ud-grid" style="margin-top:8px">' +
+'<div class="field"><span>Name (id)</span><input data-ai-add="name" class="input" type="text" placeholder="cerebras"></div>' +
+'<div class="field"><span>Base URL</span><input data-ai-add="base" class="input" type="text" placeholder="https://api.cerebras.ai/v1"></div>' +
+'<div class="field"><span>Model</span><input data-ai-add="model" class="input" type="text" placeholder="llama3.1-8b"></div>' +
+'<div class="field"><span>API key</span><input data-ai-add="key" class="input" type="password" placeholder="key"></div>' +
+'<div class="field"><span>Priority</span><input data-ai-add="priority" class="input" type="number" value="10"></div>' +
+'</div>' +
+'<div class="user-actions" style="margin-top:10px"><button class="btn btn-sm btn-primary" data-ai-action="add-custom">Add provider</button></div>' +
+'</div>';
+content.innerHTML =
+'<div class="users-toolbar">' +
+'<span style="flex:1;color:var(--faint);font-size:.78rem;font-family:var(--font-mono)">providers · changes take effect immediately, no redeploy needed</span>' +
+'</div>' +
+'<div id="ai-keys-list">' + cards + customCards + addForm + '</div>' +
+'<div class="admin-note">Keys are stored privately in the <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);font-size:.78rem">ai_config</code> table and never exposed to end users.</div>';
+}
+function aiCardFields(card) {
+const g = (f) => { const n = card.querySelector('[data-ai-f="' + f + '"]'); return n ? n.value.trim() : ''; };
+return {
+key: g('key'), base: g('base'), model: g('model'),
+enabled: card.querySelector('[data-ai-f="enabled"]').checked,
+priority: parseInt(card.querySelector('[data-ai-f="priority"]').value, 10) || 0,
+};
+}
+async function testAiKey(providerId) {
+const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
+if (!card) return;
+const testBtn = card.querySelector('[data-ai-action="test"]');
+const resultEl = card.querySelector('[data-ai-result]');
+const setMsg = (text, color) => { if (resultEl) { resultEl.textContent = text; resultEl.style.color = color || 'var(--faint)'; } };
+if (testBtn) { testBtn.disabled = true; testBtn.textContent = 'Testing…'; }
+setMsg('Testing connection…', 'var(--muted)');
+const f = aiCardFields(card);
+if (!f.key) {
+setMsg('⚠ Enter an API key first.', 'var(--danger)');
+if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
+return;
+}
+const ctrl = new AbortController();
+const timer = setTimeout(() => ctrl.abort(), 30000);
+try {
+const result = await aiApi('/api/test', { method: 'POST', signal: ctrl.signal, body: { provider: providerId, api_key: f.key, base_url: f.base || '', model: f.model || '' } });
+clearTimeout(timer);
+setMsg((result.ok ? '✓ ' : '✗ ') + '[' + esc(result.code || '?') + '] ' + (result.message || ''), result.ok ? 'var(--success)' : 'var(--danger)');
+} catch (e) {
+clearTimeout(timer);
+setMsg('✗ [client] ' + (e.message || 'Unknown error'), 'var(--danger)');
+}
+if (testBtn) { testBtn.disabled = false; testBtn.textContent = 'Test connection'; }
+}
+async function saveAiKey(providerId) {
+const card = document.querySelector('[data-ai-provider="' + providerId + '"]');
+if (!card) return;
+const saveBtn = card.querySelector('[data-ai-action="save"]');
+if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+const f = aiCardFields(card);
+try {
+await aiApi('/api/providers', {
+method: 'POST',
+body: { provider: providerId, api_key: f.key, enabled: f.enabled, priority: f.priority, model_override: f.model || null, base_url: f.base || null },
+});
+showNote('<b>' + esc(providerId) + '</b> saved.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+}
+}
+async function addCustomProvider() {
+const get = (f) => { const n = document.querySelector('[data-ai-add="' + f + '"]'); return n ? n.value.trim() : ''; };
+const name = get('name').toLowerCase();
+const base = get('base');
+const model = get('model');
+const key = get('key');
+const priority = parseInt(get('priority'), 10) || 10;
+if (!/^[a-z0-9_-]{2,24}$/.test(name)) { showNote('⚠ Name must be 2–24 chars.', true); return; }
+if (['openrouter', 'groq', 'mistral'].includes(name)) { showNote('⚠ That name is reserved.', true); return; }
+if (!base || !model || !key) { showNote('⚠ Custom providers need Base URL, Model and API key.', true); return; }
+try {
+await aiApi('/api/providers', { method: 'POST', body: { provider: name, api_key: key, enabled: true, priority, model_override: model, base_url: base } });
+showNote('<b>' + esc(name) + '</b> added.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+async function deleteCustomProvider(providerId) {
+if (!confirm('Remove provider "' + providerId + '"?')) return;
+try {
+await aiApi('/api/providers/' + encodeURIComponent(providerId), { method: 'DELETE' });
+showNote('<b>' + esc(providerId) + '</b> removed.', false);
+loadAiKeys();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+}
+}
+function projectRowHTML(p) {
+return '<div class="proj-row" data-proj-row="' + esc(p.id) + '">' +
+'<span class="proj-name">' + esc(p.name) + '</span>' +
+'<span class="proj-meta">' + esc(fmtBytes(p.bytes)) + ' · ' + (p.updatedAt ? fmtDate(p.updatedAt) : '—') + (p.missing ? ' · blob missing' : '') + '</span>' +
+'<button class="btn btn-sm btn-danger" data-action="proj-delete" data-id="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Delete</button>' +
+'</div>';
+}
+async function toggleUserProjects(userId, email, btn) {
+const card = btn ? btn.closest('[data-storage-card]') : null;
+if (!card) return;
+const slot = card.querySelector('.proj-slot');
+if (!slot) return;
+if (slot.querySelector('.proj-list, .proj-note')) { slot.innerHTML = ''; return; }
+document.querySelectorAll('.proj-slot').forEach(s => { s.innerHTML = ''; });
+slot.innerHTML = '<div class="loading" style="padding:14px">Reading vault index…</div>';
+try {
+const d = await api('/api/users/' + userId + '/projects');
+if (d.neverSynced) {
+slot.innerHTML = '<div class="proj-note">This user has never synced a vault — nothing to manage.</div>';
+return;
+}
+if (!d.projects || !d.projects.length) {
+slot.innerHTML = '<div class="proj-note">Vault index found, but it lists no projects.</div>';
+return;
+}
+slot.innerHTML = '<div class="proj-list">' + d.projects.map(projectRowHTML).join('') + '</div>' +
+'<div class="proj-note">Titles, sizes and dates only — manuscript content is never opened or downloaded.</div>';
+} catch (e) {
+if (e.message !== 'unauthorized') slot.innerHTML = '<div class="err" style="margin:8px 0">' + esc(e.message) + '</div>';
+}
+}
+function handleProjectDelete(projectId, projectName, btn) {
+const row = btn ? btn.closest('[data-proj-row]') : null;
+if (!row) return;
+const card = btn.closest('[data-storage-card]');
+const userId = card ? card.getAttribute('data-storage-card') : '';
+const emailEl = card ? card.querySelector('.user-email') : null;
+const email = emailEl ? emailEl.textContent : '';
+const existing = row.querySelector('.proj-warn');
+if (existing) { existing.remove(); return; }
+document.querySelectorAll('.proj-warn').forEach(w => w.remove());
+const warn = document.createElement('div');
+warn.className = 'proj-warn';
+warn.innerHTML =
+'<div><b>Permanently delete "' + esc(projectName) + '"?</b><br>' +
+'This removes the project from Weaver\'s servers and from the user\'s vault index. It cannot be undone from here.</div>' +
+'<div>Type the project name exactly to unlock the final delete:</div>' +
+'<input class="input" data-proj-confirm placeholder="' + esc(projectName) + '" autocomplete="off">' +
+'<div style="display:flex;gap:8px;justify-content:flex-end">' +
+'<button class="btn btn-sm" data-proj-cancel>Cancel</button>' +
+'<button class="btn btn-sm btn-danger" data-proj-go disabled>Permanently delete project</button>' +
+'</div>';
+row.appendChild(warn);
+const input = warn.querySelector('[data-proj-confirm]');
+const go = warn.querySelector('[data-proj-go]');
+input.addEventListener('input', () => {
+go.disabled = input.value.trim() !== projectName.trim();
+});
+warn.querySelector('[data-proj-cancel]').addEventListener('click', () => warn.remove());
+go.addEventListener('click', async () => {
+go.disabled = true;
+go.textContent = 'Deleting…';
+try {
+await api('/api/users/' + userId + '/projects/' + projectId, { method: 'DELETE' });
+showNote('Project <b>' + esc(projectName) + '</b> deleted.', false);
+if (card) { const slot = card.querySelector('.proj-slot'); if (slot) slot.innerHTML = ''; }
+loadStorage();
+} catch (e) {
+if (e.message !== 'unauthorized') showNote('⚠ ' + esc(e.message), true);
+go.disabled = false;
+go.textContent = 'Permanently delete project';
+}
+});
+input.focus();
+}
+app.addEventListener('click', e => {
+const msgView = e.target.closest('[data-msg-view]');
+if (msgView) { activeMsgView = msgView.dataset.msgView; loadTab('messages'); return; }
+const msgAction = e.target.closest('[data-msg-action]');
+if (msgAction) { handleMsgAction(msgAction); return; }
+const aiAdd = e.target.closest('[data-ai-action="add-custom"]');
+if (aiAdd) { addCustomProvider(); return; }
+const aiDel = e.target.closest('[data-ai-action="delete-custom"]');
+if (aiDel) { deleteCustomProvider(aiDel.dataset.provider); return; }
+const aiTest = e.target.closest('[data-ai-action="test"]');
+if (aiTest) { testAiKey(aiTest.dataset.provider); return; }
+const aiSave = e.target.closest('[data-ai-action="save"]');
+if (aiSave) { saveAiKey(aiSave.dataset.provider); return; }
+const btn = e.target.closest('[data-action]');
+if (btn) {
+const a = btn.dataset.action;
+if (a === 'details') { toggleUserDetails(btn.dataset.id, btn.dataset.email, btn); return; }
+if (a === 'grant') { toggleAdjustForm(btn.dataset.id, 'grant'); return; }
+if (a === 'revoke') { toggleAdjustForm(btn.dataset.id, 'revoke'); return; }
+if (a === 'history') { toggleHistory(btn.dataset.id); return; }
+if (a === 'projects') { toggleUserProjects(btn.dataset.id, btn.dataset.email, btn); return; }
+if (a === 'proj-delete') { handleProjectDelete(btn.dataset.id, btn.dataset.name, btn); return; }
+handleUserAction(a, btn.dataset.id, btn.dataset.email);
+return;
+}
+const tabEl = e.target.closest('[data-tab]');
+if (tabEl) { setTab(tabEl.dataset.tab); return; }
+});
+(async function boot() {
+if (!sb) { renderLogin('Could not load Supabase. Check your connection.'); return; }
+try {
+const { data } = await sb.auth.getSession();
+if (data && data.session) {
+setSession(data.session.access_token, data.session.user && data.session.user.email);
+await detectRole();
+if (userRole === 'none') { setSession(''); renderNoAccess(); return; }
+renderShell(userRole === 'supervisor' ? 'messages' : 'overview');
+return;
+}
+} catch (e) { /* no session */ }
+renderLogin('');
+})();
+</script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/admin/messages.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver Admin — Messages</title>
+<style>
+:root{--bg:#0b0b0c;--surface:#141416;--surface-2:#1c1c20;--border:#2b2b30;--strong:#3a3a40;--text:#e8e5dd;--muted:#94918a;--faint:#6b6862;--accent:#e0a83c;--soft:rgba(224,168,60,.14);--danger:#d4604f;--ok:#7fb069}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px}
+a{color:var(--accent);text-decoration:none}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:1.35rem}
+.sub{color:var(--faint);font-size:.78rem;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:9px;border:1px solid var(--strong);background:var(--surface-2);color:var(--text);font-size:.8rem;cursor:pointer;font-weight:600}
+.btn:hover{background:#232327}
+.btn-sm{padding:5px 10px;font-size:.72rem}
+select{padding:8px 12px;border:1px solid var(--strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:.82rem}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.62rem;font-family:ui-monospace,monospace;border:1px solid var(--border);color:var(--muted);flex:none;text-transform:uppercase;letter-spacing:.05em}
+.badge.open{color:var(--accent);border-color:rgba(224,168,60,.5);background:var(--soft)}
+.badge.resolved{color:var(--ok);border-color:rgba(127,176,105,.4)}
+.badge.archived{color:var(--faint)}
+.toolbar-note{color:var(--faint);font-size:.76rem;line-height:1.6;margin:0 0 22px}
+.note-box{padding:10px 12px;border-radius:9px;font-size:.82rem;margin-bottom:14px;display:none}
+.note-box.info{display:block;background:var(--soft);border:1px solid rgba(224,168,60,.4);color:var(--accent)}
+.note-box.alert{display:block;background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.4);color:var(--danger)}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+.msg-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.msg-line{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;min-width:0}
+.msg-line:hover{background:var(--surface-2)}
+.msg-email{flex:none;font-size:.76rem;color:var(--muted);font-family:ui-monospace,monospace;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-subject{flex:1;min-width:0;font-size:.85rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-caret{flex:none;color:var(--faint);font-size:.66rem;transition:transform .15s ease}
+.msg-row.expanded .msg-caret{transform:rotate(90deg)}
+.msg-detail{border-top:1px solid var(--border);padding:12px 14px;background:var(--surface-2)}
+.msg-date{font-size:.7rem;color:var(--faint);font-family:ui-monospace,monospace;margin-bottom:8px}
+.msg-body{font-size:.85rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:12px}
+.msg-actions{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<script>
+/* =========================================================
+Weaver Admin — Messages (V3.7d)
+Compact one-line inbox: status · email · subject. Click a row
+to expand the body and actions. Reuses the admin session.
+========================================================= */
+const API='https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
+const app=document.getElementById('app');
+let filter='open';
+let messages=[];
+let expandedId=null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function extractJwt(v){
+  if(!v||typeof v!=='string')return null;
+  if(v.startsWith('eyJ')&&v.split('.').length===3)return v;
+  if(v.trim().startsWith('{')){try{const o=JSON.parse(v);if(o&&o.access_token)return o.access_token;}catch(e){}}
+  return null;
+}
+function findToken(){
+  try{
+    const direct=sessionStorage.getItem('weaver_admin_token')||localStorage.getItem('weaver_admin_token');
+    if(direct)return direct;
+    for(const store of[sessionStorage,localStorage]){
+      for(let i=0;i<store.length;i++){
+        const jwt=extractJwt(store.getItem(store.key(i)));
+        if(jwt)return jwt;
+      }
+    }
+  }catch(e){}
+  return '';
+}
+function toConsole(){window.location.href='index.html';}
+
+async function api(path,opts){
+  const res=await fetch(API+path,{
+    method:(opts&&opts.method)||'GET',
+    headers:{'Authorization':'Bearer '+findToken(),'Content-Type':'application/json'},
+    body:opts&&opts.body?JSON.stringify(opts.body):undefined
+  });
+  const data=await res.json().catch(()=>({}));
+  if(res.status===401){toConsole();throw new Error('unauthorized');}
+  if(!res.ok)throw new Error(data.error||('HTTP '+res.status));
+  return data;
+}
+
+function note(text,isErr){
+  const n=document.getElementById('note');
+  if(!n)return;
+  n.className='note-box '+(isErr?'alert':'info');
+  n.textContent=text;
+  clearTimeout(n._t);
+  n._t=setTimeout(()=>{n.className='note-box';n.textContent='';},4000);
+}
+
+function renderShell(){
+  app.innerHTML='<div class="topbar">'
+    +'<a href="index.html" class="btn btn-sm">← Console</a>'
+    +'<h1>Support inbox</h1>'
+    +'<span style="flex:1"></span>'
+    +'<select id="filter"><option value="open">Open</option><option value="resolved">Resolved</option><option value="archived">Archived</option><option value="all">All messages</option></select>'
+    +'<button id="refresh" class="btn btn-sm">Refresh</button>'
+    +'</div>'
+    +'<div class="sub">Weaver Admin · messages from your writers · click a row to read it</div>'
+    +'<div class="toolbar-note">Reply from your own email client using the sender\'s address — your address is never shown to users.</div>'
+    +'<div id="note" class="note-box"></div>'
+    +'<div id="list"><div class="loading">Loading messages…</div></div>';
+  document.getElementById('filter').value=filter;
+  document.getElementById('filter').onchange=e=>{filter=e.target.value;renderList();};
+  document.getElementById('refresh').onclick=load;
+  load();
+}
+
+async function load(){
+  try{const d=await api('/api/inbox');messages=d.messages||[];renderList();}
+  catch(e){if(e.message!=='unauthorized')note(e.message,true);}
+}
+
+function renderList(){
+  const host=document.getElementById('list');
+  if(!host)return;
+  const rows=filter==='all'?messages:messages.filter(m=>m.status===filter);
+  if(!rows.length){host.innerHTML='<div class="loading">No '+esc(filter)+' messages.</div>';return;}
+  host.innerHTML=rows.map(m=>{
+    const isOpen=String(m.id)===expandedId;
+    let date='—';try{date=new Date(m.created_at).toLocaleString();}catch(e){}
+    let html='<div class="msg-row'+(isOpen?' expanded':'')+'">'
+      +'<div class="msg-line" data-toggle="'+m.id+'">'
+      +'<span class="badge '+esc(m.status)+'">'+esc(m.status)+'</span>'
+      +'<span class="msg-email">'+esc(m.email)+'</span>'
+      +'<span class="msg-subject">'+esc(m.subject)+'</span>'
+      +'<span class="msg-caret">▶</span>'
+      +'</div>';
+    if(isOpen){
+      html+='<div class="msg-detail">'
+        +'<div class="msg-date">'+date+'</div>'
+        +'<div class="msg-body">'+esc(m.body)+'</div>'
+        +'<div class="msg-actions">'
+        +'<button class="btn btn-sm" data-copy="'+esc(m.email)+'">Copy email</button>'
+        +(m.status==='resolved'
+          ?'<button class="btn btn-sm" data-status="open" data-id="'+m.id+'">Reopen</button>'
+          :'<button class="btn btn-sm" data-status="resolved" data-id="'+m.id+'">Mark resolved</button>')
+        +'<button class="btn btn-sm" data-status="archived" data-id="'+m.id+'">Archive</button>'
+        +'</div></div>';
+    }
+    html+='</div>';
+    return html;
+  }).join('');
+}
+
+app.addEventListener('click',async e=>{
+  const toggle=e.target.closest('[data-toggle]');
+  if(toggle){
+    const id=String(toggle.dataset.toggle);
+    expandedId=(expandedId===id)?null:id;
+    renderList();
+    return;
+  }
+  const copy=e.target.closest('[data-copy]');
+  if(copy){
+    try{await navigator.clipboard.writeText(copy.dataset.copy);note('Email copied to clipboard.');}
+    catch(err){note('Copy failed — select the address manually.',true);}
+    return;
+  }
+  const b=e.target.closest('[data-status]');
+  if(b){
+    try{await api('/api/'+b.dataset.id+'/status',{method:'POST',body:{status:b.dataset.status}});load();}
+    catch(err){if(err.message!=='unauthorized')note(err.message,true);}
+  }
+});
+
+if(findToken())renderShell();else toConsole();
+</script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/admin/supervisors.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver — Supervisors</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0b0c; color: #e8e5dd;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 18px;
+  }
+  .card {
+    width: min(560px, 100%); background: #141416;
+    border: 1px solid #2b2b30; border-radius: 14px; padding: 26px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+  }
+  h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
+  .sub { color: #94918a; font-size: .8rem; margin-bottom: 20px; line-height: 1.5; }
+  .row { display: flex; gap: 8px; margin-bottom: 18px; }
+  input[type="email"] {
+    flex: 1; padding: 10px 12px; border: 1px solid #3a3a40; border-radius: 10px;
+    background: #0f0f11; color: #e8e5dd; font-size: .9rem;
+  }
+  input[type="email"]:focus { outline: none; border-color: #e0a43c; }
+  button {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid #3a3a40;
+    background: #1c1c20; color: #e8e5dd; font-size: .88rem; font-weight: 600; cursor: pointer;
+  }
+  button.primary { background: #e0a43c; border-color: #e0a43c; color: #17130a; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.sm { padding: 6px 12px; font-size: .78rem; }
+  button.danger { color: #d4604f; border-color: #3a3a40; background: transparent; }
+  button.danger:hover { background: rgba(212,96,79,.12); border-color: #d4604f; }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; border: 1px solid #2b2b30; border-radius: 10px; background: #1c1c20;
+  }
+  .item .email { font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .date { color: #6b6862; font-size: .7rem; font-family: monospace; flex: none; }
+  .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
+  .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
+  .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
+  .empty { color: #6b6862; font-size: .85rem; padding: 14px 0; text-align: center; }
+  .back { display: inline-block; margin-top: 18px; color: #e0a43c; font-size: .82rem; text-decoration: none; }
+  .gate { text-align: center; padding: 30px 10px; color: #94918a; font-size: .9rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Supervisor access</h1>
+  <div class="sub">Grant trusted helpers access to the support inbox (tickets, replies, AI monitor) without giving them full admin control. Owner only.</div>
+  <div id="gate" class="gate">Checking your session…</div>
+    <div id="app" style="display:none">
+    <div id="msg" class="msg"></div>
+    
+    <div style="margin-bottom:20px;padding:14px;background:#1c1c20;border:1px solid #2b2b30;border-radius:10px;">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#94918a;margin-bottom:8px;">Supervisor access link</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="adminUrl" readonly style="flex:1;padding:9px 12px;font-size:.82rem;color:#e8e5dd;border:1px solid #3a3a40;border-radius:8px;background:#0f0f11;font-family:monospace;">
+        <button class="btn sm" id="copyUrlBtn" style="background:#e0a43c;border-color:#e0a43c;color:#17130a;">Copy</button>
+      </div>
+      <div style="font-size:.74rem;color:#6b6862;margin-top:8px;line-height:1.5;">Share this exact link with your supervisors. They will sign in with their normal Weaver email and password to access the support inbox.</div>
+    </div>
+
+    <div class="row">
+      <input type="email" id="email" placeholder="helper@example.com">
+      <button class="primary" id="addBtn">Add supervisor</button>
+    </div>
+    <div class="list" id="list"></div>
+    <a class="back" href="./index.html">&larr; Back to admin console</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+  var FN = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin';
+  var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+  var msg = document.getElementById('msg');
+  var list = document.getElementById('list');
+  var emailInput = document.getElementById('email');
+  var addBtn = document.getElementById('addBtn');
+
+  function showMsg(text, ok) {
+    msg.textContent = text;
+    msg.className = 'msg ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(function () { msg.className = 'msg'; }, 2500);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  async function call(path, opts) {
+    var session = (await client.auth.getSession()).data.session;
+    if (!session) throw new Error('no-session');
+    var res = await fetch(FN + path, {
+      method: (opts && opts.method) || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json'
+      },
+      body: opts && opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    var data = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+
+  async function renderList() {
+    list.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      var data = await call('/api/list');
+      var rows = data.supervisors || [];
+      if (!rows.length) { list.innerHTML = '<div class="empty">No supervisors yet.</div>'; return; }
+      list.innerHTML = '';
+      rows.forEach(function (r) {
+        var item = document.createElement('div');
+        item.className = 'item';
+        var when = '';
+        try { when = new Date(r.created_at).toLocaleDateString(); } catch (e) {}
+        item.innerHTML = '<span class="email">' + esc(r.email) + '</span>' +
+          '<span class="date">' + esc(when) + '</span>';
+        var rm = document.createElement('button');
+        rm.className = 'sm danger';
+        rm.textContent = 'Remove';
+        rm.onclick = async function () {
+          if (!confirm('Remove supervisor ' + r.email + '?')) return;
+          try {
+            await call('/api/remove', { method: 'POST', body: { email: r.email } });
+            showMsg('Removed ' + r.email, true);
+            renderList();
+          } catch (e) { showMsg(e.message, false); }
+        };
+        item.appendChild(rm);
+        list.appendChild(item);
+      });
+    } catch (e) {
+      list.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+    }
+  }
+
+   /* Populate the shareable admin URL */
+  const urlInput = document.getElementById('adminUrl');
+  const copyBtn = document.getElementById('copyUrlBtn');
+  if (urlInput) {
+    /* Derive the admin index.html URL from the current supervisors.html URL */
+    urlInput.value = window.location.href.replace(/supervisors\.html(\?.*)?$/, 'index.html');
+  }
+  if (copyBtn) {
+    copyBtn.onclick = function() {
+      if (!urlInput) return;
+      urlInput.select();
+      try {
+        navigator.clipboard.writeText(urlInput.value);
+        showMsg('Link copied to clipboard.', true);
+      } catch (e) {
+        document.execCommand('copy');
+        showMsg('Link copied.', true);
+      }
+    };
+  }
+
+  addBtn.onclick = async function () {
+    var email = emailInput.value.trim();
+    if (!email) { showMsg('Enter an email first.', false); return; }
+    addBtn.disabled = true;
+    try {
+      await call('/api/add', { method: 'POST', body: { email: email } });
+      showMsg('Added ' + email + ' as a supervisor.', true);
+      emailInput.value = '';
+      renderList();
+    } catch (e) {
+      showMsg(e.message, false);
+    }
+    addBtn.disabled = false;
+  };
+
+  (async function init() {
+    try {
+      var session = (await client.auth.getSession()).data.session;
+      if (!session) {
+        gate.innerHTML = 'You need to sign in first.<br><a href="../" style="color:#e0a43c">Open Weaver and sign in</a>, then reload this page.';
+        return;
+      }
+      var role = await call('/api/role');
+      if (role.role !== 'owner') {
+        gate.textContent = 'Only the owner can manage supervisors.';
+        return;
+      }
+      gate.style.display = 'none';
+      app.style.display = 'block';
+      renderList();
+    } catch (e) {
+      gate.textContent = e.message === 'no-session'
+        ? 'Session expired — reload and sign in again.'
+        : 'Could not reach the supervisor service: ' + e.message;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/admin/test.html
+================================================================================
+<!DOCTYPE html>
+<html>
+<head><title>Admin test</title></head>
+<body>
+<h1>Admin test page</h1>
+<p>If you see this, GitHub Pages is serving the /admin/ folder correctly.</p>
+<div id="out" style="color:red"></div>
+<script>
+try {
+  const r = await fetch('https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin/api/health');
+  const d = await r.json();
+  document.getElementById('out').textContent = 'Edge function: ' + JSON.stringify(d);
+} catch (e) {
+  document.getElementById('out').textContent = 'Edge function error: ' + e.message;
+}
+</script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/css/auth.css
+================================================================================
+/* =========================================================
+   Weaver — css/auth.css
+   v2.0 Stage 1: sign-in gate (Clerk). Desktop + mobile.
+   Dormant until app.js activates #view-auth in Stage 2.
+   ========================================================= */
+
+/* ---------- Shell ---------- */
+.auth-wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 32px 18px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(224, 168, 60, .06), transparent 60%),
+    var(--bg);
+}
+
+/* ---------- Card ---------- */
+.auth-card {
+  width: min(430px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.auth-head { display: flex; align-items: center; gap: 12px; }
+.auth-logo { width: 44px; height: 44px; color: var(--accent); flex: none; }
+.auth-logo svg { width: 100%; height: 100%; display: block; }
+.auth-title { font-size: 1.45rem; font-weight: 650; letter-spacing: .03em; line-height: 1.15; }
+.auth-tag {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .66rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+/* ---------- Tabs ---------- */
+.auth-tabs { display: flex; gap: 8px; }
+.auth-tabs .btn { flex: 1; justify-content: center; }
+.auth-tabs .btn.is-selected {
+  border-color: rgba(224, 168, 60, .55);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- Form ---------- */
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-form .field { gap: 6px; }
+.auth-form .btn-primary { width: 100%; margin-top: 4px; }
+
+.auth-error {
+  font-size: .8rem;
+  line-height: 1.45;
+  color: var(--danger);
+  background: rgba(212, 96, 79, .1);
+  border: 1px solid rgba(212, 96, 79, .35);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.auth-error[hidden] { display: none; }
+
+.auth-hint {
+  font-size: .74rem;
+  color: var(--faint);
+  line-height: 1.55;
+}
+
+.auth-code-row { display: flex; gap: 8px; }
+.auth-code-row .input {
+  flex: 1;
+  letter-spacing: .35em;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+.auth-code-row .btn { flex: none; }
+
+/* ---------- Setup notice (shown only if no Clerk key pasted) ---------- */
+.auth-notice {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  font-size: .85rem;
+  line-height: 1.6;
+}
+.auth-notice code {
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: .78rem;
+}
+
+@media (max-width: 640px) {
+  .auth-wrap { padding: 24px 14px; }
+  .auth-card { padding: 20px; }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/css/base.css
+================================================================================
+/* =========================================================
+   Weaver — css/base.css
+   Step 1: reset, design tokens, view switching, splash screen.
+   ========================================================= */
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden; /* each panel/view manages its own scrolling */
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---------- Design tokens (dark charcoal + gold, per reference UI) ---------- */
+:root {
+  --bg: #0b0b0c;
+  --surface: #141416;
+  --surface-2: #1c1c20;
+  --surface-3: #232327;
+  --border: #2b2b30;
+  --border-strong: #3a3a40;
+  --text: #e8e5dd;
+  --muted: #94918a;
+  --faint: #6b6862;
+  --accent: #e0a83c;
+  --accent-soft: rgba(224, 168, 60, 0.14);
+  --danger: #d4604f;
+  --success: #7fb069;
+  --font-ui: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-prose: "Georgia", "Iowan Old Style", "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-1: 0 2px 10px rgba(0, 0, 0, .45);
+  --shadow-2: 0 8px 30px rgba(0, 0, 0, .55);
+}
+
+/* ---------- View routing ---------- */
+.app-root { height: 100%; }
+.view { display: none; height: 100%; }
+.view.is-active { display: block; }
+
+/* ---------- Splash (Step-1 boot screen; replaced by dashboard in Stage D) ---------- */
+.splash {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(224, 168, 60, .06), transparent 60%),
+    var(--bg);
+}
+.splash-logo { width: 84px; height: 84px; }
+.splash-title { font-size: 2.6rem; font-weight: 600; letter-spacing: .04em; }
+.splash-tag {
+  color: var(--muted);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-size: .72rem;
+}
+.splash-status {
+  margin-top: 18px;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: .75rem;
+}
+
+/* ---------- Scrollbars ---------- */
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Accessibility ---------- */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ---------- Weaver Logo (Stage 6.10: freehand script W) ---------- */
+.weaver-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Great Vibes', 'Georgia', cursive;
+  font-weight: 400;
+  background: linear-gradient(160deg, #fff6da 0%, #f9d97e 40%, #eebc52 70%, #e0a83c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(240, 192, 84, 0.35));
+  line-height: 0.85;
+  user-select: none;
+  pointer-events: none;
+}
+.weaver-logo.logo-sm { font-size: 1.8rem; margin-right: 6px; }
+.weaver-logo.logo-md { font-size: 3rem; }
+.weaver-logo.logo-lg { font-size: 4.6rem; filter: drop-shadow(0 6px 22px rgba(240, 192, 84, 0.4)); }
+.weaver-logo.logo-xl { font-size: 6.5rem; filter: drop-shadow(0 8px 30px rgba(240, 192, 84, 0.45)); }
+
+
+================================================================================
+File: Weaver-4.1.1/css/components.css
+================================================================================
+/* =========================================================
+   Weaver — css/components.css
+   Step 2: reusable UI atoms — icons, buttons, fields, badges,
+   modals, toasts, misc primitives.
+   ========================================================= */
+
+/* ---------- Icons ---------- */
+.icon { width: 16px; height: 16px; flex: none; display: inline-block; vertical-align: middle; }
+.icon-sm { width: 13px; height: 13px; }
+.icon-lg { width: 20px; height: 20px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: .85rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .05s ease;
+}
+.btn:hover { background: var(--surface-3); border-color: var(--faint); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn.is-disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #17130a; font-weight: 600; }
+.btn-primary:hover { background: #ecb84e; border-color: #ecb84e; }
+
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+
+.btn-danger { background: transparent; border-color: var(--border-strong); color: var(--danger); }
+.btn-danger:hover { background: rgba(212, 96, 79, .12); border-color: var(--danger); }
+
+.btn-sm { padding: 6px 10px; font-size: .78rem; border-radius: var(--radius-sm); gap: 6px; }
+.btn-lg { padding: 11px 20px; font-size: .95rem; }
+
+.btn-icon { padding: 8px; width: 34px; height: 34px; }
+.btn-icon.btn-sm { width: 28px; height: 28px; }
+
+/* ---------- Form fields ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field-hint { font-size: .72rem; color: var(--faint); }
+
+.input, .textarea, .select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: .88rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.input::placeholder, .textarea::placeholder { color: var(--faint); }
+.textarea { resize: vertical; min-height: 84px; line-height: 1.55; }
+.select {
+  appearance: none;
+  padding-right: 30px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .68rem;
+  font-family: var(--font-mono);
+}
+.badge-accent { background: var(--accent-soft); border-color: rgba(224, 168, 60, .35); color: var(--accent); }
+.badge-success { background: rgba(127, 176, 105, .12); border-color: rgba(127, 176, 105, .35); color: var(--success); }
+.badge-danger { background: rgba(212, 96, 79, .12); border-color: rgba(212, 96, 79, .35); color: var(--danger); }
+
+/* ---------- Modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 6, .68);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+  animation: fade-in .15s ease;
+}
+.modal {
+  width: min(560px, 100%);
+  max-height: min(82vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  animation: modal-in .18s ease;
+}
+.modal-lg { width: min(860px, 100%); }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 1rem; font-weight: 600; letter-spacing: .02em; }
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Toasts ---------- */
+.toast-container {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+  font-size: .82rem;
+  max-width: 340px;
+  animation: toast-in .18s ease;
+}
+.toast-success { border-left-color: var(--success); }
+.toast-danger { border-left-color: var(--danger); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Misc primitives ---------- */
+.divider { height: 1px; background: var(--border); border: none; }
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  padding: 24px;
+  color: var(--faint);
+  font-size: .85rem;
+  text-align: center;
+}
+.empty-state .icon { width: 28px; height: 28px; opacity: .6; }
+
+
+================================================================================
+File: Weaver-4.1.1/css/layout.css
+================================================================================
+/* =========================================================
+   Weaver — css/layout.css
+   Step 2: top bar, workspace panel grid, panel chrome,
+   resizer handles, responsive mobile stacking.
+   ========================================================= */
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.topbar-left { display: flex; align-items: center; gap: 8px; justify-content: flex-start; }
+.topbar-center { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.topbar-title { font-size: 1.02rem; font-weight: 650; letter-spacing: .03em; }
+.topbar-sub { font-size: .68rem; color: var(--faint); font-family: var(--font-mono); }
+
+/* ---------- Workspace skeleton ---------- */
+#view-workspace.is-active { display: flex; flex-direction: column; }
+.workspace-panels {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
+/* ---------- Panels ---------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg);
+}
+.panel.is-hidden { display: none; }
+.panel.is-expanded { flex: 1 1 100%; }
+
+.panel-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .78rem;
+  font-weight: 650;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.panel-title .icon { color: var(--accent); }
+.panel-actions { display: flex; align-items: center; gap: 6px; }
+
+.panel-body { flex: 1; overflow-y: auto; min-height: 0; }
+
+.panel-footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.panel-footer .btn { flex: 1; }
+
+/* ---------- Resizer handles (JS behaviour arrives in Step 9) ---------- */
+.resizer {
+  flex: none;
+  width: 6px;
+  background: var(--border);
+  cursor: col-resize;
+  position: relative;
+  z-index: 5;
+  transition: background .15s ease;
+}
+.resizer:hover, .resizer.is-dragging { background: var(--accent); }
+
+/* ---------- Responsive: mobile stacks vertically ---------- */
+@media (max-width: 860px) {
+  .workspace-panels { flex-direction: column; }
+  .resizer {
+    width: auto;
+    height: 6px;
+    cursor: row-resize;
+  }
+}
+/* =========================================================
+   Step 8: top bar extras — Scribe bar + responsive labels
+   ========================================================= */
+.scribe-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: min(320px, 30vw);
+}
+.scribe-bar .input { padding: 7px 10px; font-size: .8rem; }
+.btn-label { white-space: nowrap; }
+
+@media (max-width: 860px) {
+  .scribe-bar { display: none; }         /* mobile Scribe entry arrives with Step 21 */
+  .topbar .btn-label { display: none; }  /* icon-only top bar on phones */
+  .topbar .btn { padding: 8px; width: 34px; height: 34px; }
+}
+/* =========================================================
+   Step 9: resize engine touch support
+   ========================================================= */
+.resizer { touch-action: none; }
+.resizer.is-dragging { background: var(--accent); }
+
+@media (max-width: 860px) {
+  .resizer { height: 10px; } /* fatter touch target on phones */
+}
+/* ---------- Stage 6.5: topbar — shrinkable center, truncating title ---------- */
+.topbar { grid-template-columns: auto minmax(0, 1fr) auto; }
+.topbar-center { min-width: 0; }
+.topbar-title {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-sub {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/css/views.css
+================================================================================
+/* =========================================================
+   Weaver — css/views.css
+   Step 6: launch dashboard styles (wizard styles append in Step 7).
+   ========================================================= */
+
+/* ---------- Dashboard shell ---------- */
+.launch-wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  padding: 48px 24px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(224, 168, 60, .06), transparent 60%),
+    var(--bg);
+}
+
+.launch-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(960px, 100%);
+}
+.launch-logo { width: 52px; height: 52px; color: var(--accent); flex: none; }
+.launch-logo svg { width: 100%; height: 100%; display: block; }
+.launch-title { font-size: 1.9rem; font-weight: 650; letter-spacing: .03em; }
+.launch-tag {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .7rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.launch-spacer { flex: 1; }
+
+/* ---------- Project cards ---------- */
+.launch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  width: min(960px, 100%);
+}
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.project-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-1);
+}
+.project-card.is-active { border-color: rgba(224, 168, 60, .5); }
+
+.project-name {
+  font-size: 1rem;
+  font-weight: 600;
+  padding-right: 30px; /* keep clear of delete button */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.project-updated {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+}
+.project-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.project-card:hover .project-delete,
+.project-card:focus-within .project-delete { opacity: 1; }
+
+/* ---------- Empty state ---------- */
+.launch-empty {
+  width: min(960px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+}
+.launch-empty .icon { width: 30px; height: 30px; color: var(--faint); }
+.launch-empty-hint {
+  font-size: .8rem;
+  color: var(--faint);
+  max-width: 340px;
+  text-align: center;
+  line-height: 1.5;
+}
+.launch-empty .btn { margin-top: 8px; }
+/* =========================================================
+   Step 7: New Project wizard
+   ========================================================= */
+.wizard-seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.wizard-seg .btn { flex: 1; justify-content: flex-start; }
+.wizard-seg .btn.is-selected {
+  border-color: rgba(224, 168, 60, .55);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.wizard-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.wizard-upload:hover, .wizard-upload.is-drag {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.wizard-upload.is-loaded {
+  border-style: solid;
+  border-color: rgba(127, 176, 105, .5);
+  color: var(--success);
+}
+.wizard-upload .icon { color: var(--faint); }
+.wizard-upload-hint { font-size: .8rem; text-align: center; }
+/* =========================================================
+   Step 11: Manuscript editor
+   ========================================================= */
+.ms-scroll {
+  padding: 18px 20px 45vh; /* bottom padding = comfortable scroll runway */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 100%;
+}
+.ms-block {
+  padding: 3px 8px;
+  border-radius: 4px;
+  line-height: 1.7;
+  font-family: var(--font-prose);
+  font-size: calc(0.98rem * var(--font-scale, 1));
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  outline: none;
+  min-height: 1.7em;
+}
+.ms-block:focus {
+  background: var(--surface);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.ms-block:empty::before { content: 'Type here…'; color: var(--faint); }
+.ms-h1 {
+  font-family: var(--font-ui);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 16px;
+}
+.ms-h2 {
+  font-family: var(--font-ui);
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+.ms-h3 {
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.ms-toolbar { display: flex; gap: 2px; margin-right: 8px; }
+.ms-tb-btn { min-width: 30px; padding: 5px 7px; font-size: .72rem; font-weight: 700; }
+.ms-tb-btn.is-selected { background: var(--accent-soft); color: var(--accent); }
+/* =========================================================
+   Step 12: Paging engine spacers
+   ========================================================= */
+.ms-spacer {
+  flex: none;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+/* =========================================================
+   Step 13: Main Novel panel
+   ========================================================= */
+.mn-scroll {
+  padding: 18px 20px 45vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  font-family: var(--font-prose);
+  font-size: calc(0.98rem * var(--font-scale, 1));
+  line-height: 1.7;
+  color: var(--text);
+  user-select: text; /* Crucial: allows highlighting text for Recheck */
+}
+.mn-block {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.mn-h1 { font-family: var(--font-ui); font-size: 1.45rem; font-weight: 700; color: var(--accent); margin-top: 16px; }
+.mn-h2 { font-family: var(--font-ui); font-size: 1.18rem; font-weight: 600; margin-top: 12px; }
+.mn-h3 { font-family: var(--font-ui); font-size: 1.02rem; font-weight: 600; color: var(--muted); margin-top: 8px; }
+.mn-word-count { margin-right: 12px; }
+/* =========================================================
+   Step 26: slim mobile panel footers
+   ========================================================= */
+@media (max-width: 860px) {
+  .panel-footer { padding: 4px 6px; gap: 4px; }
+  .panel-footer .btn { padding: 6px 8px; font-size: .72rem; }
+}
+@media (max-width: 640px) {
+  .panel-footer .btn-label { display: none; }
+  .panel-footer .btn { padding: 6px 12px; }
+}
+/* =========================================================
+   Step 28.6: centered Library hero
+   ========================================================= */
+.launch-header,
+.launch-grid,
+.launch-empty{
+  max-width:1100px;
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+}
+.launch-empty{
+  min-height:calc(100vh - 240px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+/* ---------- Stage 6.4: Library action buttons ---------- */
+.launch-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto; /* push actions to the right edge of the header */
+}
+
+/* =========================================================
+   Stage 6.9 — Library hero: centered emblem, wordmark, tagline
+   and a prominent CTA. Compacts to a masthead once projects exist.
+   ========================================================= */
+
+.launch-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  min-height: 56vh;
+  padding: 48px 20px 36px;
+}
+
+.launch-hero-logo {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: radial-gradient(circle at 32% 28%, rgba(224,168,60,.22), rgba(224,168,60,.05) 70%);
+  border: 1px solid rgba(224,168,60,.38);
+  box-shadow: 0 0 0 10px rgba(224,168,60,.04), var(--shadow-2);
+}
+.launch-hero-logo .icon { width: 40px; height: 40px; }
+
+.launch-hero-title {
+  font-family: var(--font-ui);
+  font-size: clamp(2.6rem, 8vw, 4rem);
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-indent: .16em; /* optically re-center the letter-spacing */
+  background: linear-gradient(180deg, #f6dda6 0%, var(--accent) 55%, #b9822a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.launch-hero-tag {
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: .95rem;
+  line-height: 1.65;
+}
+
+.launch-hero-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* The call to action — the loudest thing on the screen. */
+.launch-cta {
+  min-width: 280px;
+  padding: 15px 32px;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: .05em;
+  border-radius: 999px;
+  justify-content: center;
+  box-shadow: 0 8px 26px rgba(224,168,60,.26);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.launch-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(224,168,60,.34);
+  filter: brightness(1.06);
+}
+.launch-cta:active { transform: translateY(0); }
+.launch-cta .icon { width: 18px; height: 18px; }
+
+.launch-hero-sub { display: flex; align-items: center; gap: 10px; }
+
+.launch-hero-hint {
+  max-width: 44ch;
+  color: var(--faint);
+  font-size: .8rem;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* ---------- Library bar (shown once projects exist) ---------- */
+.launch-lib-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 24px 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 18px;
+}
+.launch-lib-count {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- Compact hero: masthead above the grid ---------- */
+.launch-hero.is-compact {
+  min-height: 0;
+  gap: 8px;
+  padding: 26px 20px 18px;
+}
+.launch-hero.is-compact .launch-hero-logo {
+  width: 44px;
+  height: 44px;
+  box-shadow: none;
+}
+.launch-hero.is-compact .launch-hero-logo .icon { width: 22px; height: 22px; }
+.launch-hero.is-compact .launch-hero-title {
+  font-size: 1.5rem;
+  letter-spacing: .14em;
+  text-indent: .14em;
+}
+.launch-hero.is-compact .launch-hero-tag { font-size: .8rem; max-width: 46ch; }
+.launch-hero.is-compact .launch-hero-actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.launch-hero.is-compact .launch-cta {
+  min-width: 0;
+  padding: 10px 22px;
+  font-size: .88rem;
+  box-shadow: 0 4px 16px rgba(224,168,60,.22);
+}
+.launch-hero.is-compact .launch-hero-sub { gap: 8px; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .launch-hero { min-height: 62vh; padding: 44px 18px 30px; gap: 14px; }
+  .launch-hero-logo { width: 72px; height: 72px; box-shadow: 0 0 0 8px rgba(224,168,60,.04); }
+  .launch-hero-logo .icon { width: 34px; height: 34px; }
+  .launch-hero-tag { font-size: .88rem; max-width: 30ch; }
+  .launch-hero-actions { width: 100%; gap: 14px; }
+  .launch-cta { width: 100%; max-width: 360px; min-width: 0; padding: 16px 24px; }
+  .launch-hero-sub { width: 100%; justify-content: center; }
+  .launch-lib-bar { padding: 16px 16px 12px; }
+  .launch-hero.is-compact { padding: 20px 16px 14px; }
+  .launch-hero.is-compact .launch-hero-actions { width: auto; }
+  .launch-hero.is-compact .launch-cta { width: auto; }
+}
+
+/* ---------- Stage 6.10: hero logo — drop the circle ---------- */
+.launch-hero-logo {
+  width: auto;
+  height: auto;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.launch-hero.is-compact .launch-hero-logo {
+  width: auto;
+  height: auto;
+  box-shadow: none;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/docs/adminhelp.md
+================================================================================
+# Weaver Admin Diagnostics Bundle
+bundle_version: v4.0
+bundle_date: PASTE_TODAYS_DATE_HERE
+
+FORMAT NOTE FOR THE DIAGNOSTICS TOOL:
+- Each bundled file begins with a marker line: === File [n/N]: path ===
+- Bundles are pasted RAW. Never wrap them in code fences.
+- Paths beginning Weaver-3/ belong to repo: Weaver
+- Paths beginning weaver-server-1.0/ belong to repo: weaver-server
+
+## 1. File tree
+
+Weaver (frontend, GitHub Pages)
+Weaver/
+ ├── index.html                  # app shell (login → launch → workspace)
+ ├── css/                        # global stylesheet: tokens, .panel/.btn/.ms-block base
+ ├── docs/HELP.md                # Guide source + support AI knowledge
+ ├── welcome/                    # marketing site (index/pricing/features + site.css)
+ ├── admin/
+ │   ├── index.html              # console: Overview/Users/Credits/Storage/Audit/Banner/AI Keys/Messages/Important
+ │   ├── supervisors.html        # supervisor management
+ │   └── diagnostics.html        # this tool's UI
+ └── js/
+     ├── app.js                  # boot, auth gate, namespace, view routing, Focus shortcut
+     ├── core/{state,storage,entitlements,resizers,supabase}.js
+     ├── auth/auth.js
+     ├── views/{launch,workspace,wizard}.js
+     ├── panels/{manuscript,main-novel,ai-output}.js
+     ├── features/{scribe,export,settings,notes,cloud,puter-mirror,plot-reference,
+     │             plot-builder,config-bible,guide,support,hierarchy,
+     │             cover-gen,focus-mode,search,capture,banner,mobile-dock}.js
+     ├── ai/{manager,model-router}.js + providers/
+     └── utils/{dom,icons,text,docx,zip}.js
+
+weaver-server (Supabase Edge Functions)
+weaver-server/
+├── .github/workflows/{deploy-functions,backup-schedule}.yml
+└── supabase/functions/
+    ├── admin/index.ts            # owner console API
+    ├── support-admin/index.ts    # tickets/replies/help-log (owner + supervisor)
+    ├── supervisor-admin/index.ts # supervisor CRUD + role check
+    ├── support/index.ts          # user tickets + W-tag assignment
+    ├── help/index.ts             # support lookup (HELP.md retrieval)
+    ├── ai-proxy/index.ts         # streaming AI gateway
+    └── ai-admin/index.ts         # ai_config CRUD + tests
+
+## 2. WEAVER FRONTEND BUNDLE
 <<<PASTE_SLOT_A: Delete this line and paste the ENTIRE Weaver repo bundle here (your bundler output with the === File [n/N] markers).>>>
+
+## 3. WEAVER-SERVER BACKEND BUNDLE
+<<<PASTE_SLOT_B: Delete this line and paste the ENTIRE weaver-server bundle here (your bundler output with the === File [n/N] markers).>>>
+
+
+================================================================================
+File: Weaver-4.1.1/docs/BACKLOG.md
+================================================================================
+# Weaver — BACKLOG (Stages 6–7)
+
+## Status snapshot (parked after Stage 5 — all verified working)
+- v2 live on GitHub Pages. **Auth** = Supabase email/password.
+- **Cloud sync** = Supabase Storage, bucket `weaver-vault`, per-user paths
+  `{userId}/weaver/…` (isolation enforced server-side by bucket policy).
+- GitHub sync fully removed. `js/cloud/sigv4.js` + `js/cloud/s3.js` are dormant
+  leftovers from the abandoned B2/R2 path → delete in Stage 7.
+- Owner requests: pick up here when resuming. Sync docs/HANDOFF.md + CHANGELOG
+  at the end (HANDOFF still describes GitHub sync and is now stale).
+
+---
+
+## STAGE 6
+
+### 6.1 Secondary cloud provider (>1 GB, no CORS lock-in, no payment)
+Keep Supabase primary; add higher-capacity provider for bulky files.
+| Provider | Free | Payment? | CORS? | Notes |
+|---|---|---|---|---|
+| Puter.js | free tier (verify limit) | none | none (SDK) | top candidate; no key, browser sign-in popup |
+| Google Drive API | 15 GB | none | none (OAuth) | heavier OAuth setup |
+| Cloudflare R2 | 10 GB | card required | yes | excluded (payment) |
+| Backblaze B2 | 10 GB | often | yes (CLI) | excluded (CORS+payment) |
+| Filebase | 5 GB | none | yes (S3) | partial (CORS) |
+**Direction:** Supabase = auth + index/metadata; secondary = manuscript + bible
+blobs. Decide split + conflict handling. Validate Puter.js free limit first.
+
+### 6.2 Slim Settings ▸ General → exactly 3 actions
+Replace current Cloud Sync + Data & Backup sections with three buttons:
+- **Backup to cloud** — push now (replaces "Sync now").
+- **Export** — download Main Novel (.docx) + Config Bible (.txt); reuse
+  `exportProject()` from js/features/export.js.
+- **Restore** — pull from cloud (replaces "Pull from cloud" / "Restore from this PC").
+**Remove:** "Sync now", "Download full backup", "Restore from this PC…",
+"Pull from cloud" (as separate), and the auto-sync checkbox.
+Files: js/features/settings.js (cloudSection + dataSection).
+
+### 6.3 Continuous autosync (every few seconds, as they write)
+- Runs automatically (no checkbox), a few seconds after each edit.
+- Saves the **active project's** Main Novel + Config Bible (series-aware).
+- **Debounce**, not fixed-interval spam: reset timer on each edit, fire ~3s
+  after idle; hook into the local-autosave cadence (autosaveInterval).
+- Scope to active project + index; do NOT re-upload the whole library per tick.
+Files: js/features/cloud.js (new debounced autosync), js/panels/manuscript.js
+(touchProject), js/features/config-bible.js (saveNow), js/views/workspace.js
+(remove exit-only autoSync call).
+
+### 6.4 Library buttons (Getting Started / New Project)
+Nearly touching, misaligned; New Project gold-filled, Getting Started outline.
+Add consistent gap + alignment in `.launch-actions`; harmonize styling.
+Files: js/views/launch.js, css/views.css (.launch-header/.launch-actions).
+
+### 6.5 Top bar overflow with long project names (mobile worst)
+Long names jumble/overlap the topbar. Let `.topbar-center` shrink and truncate
+the title with ellipsis; verify on phone.
+Files: css/layout.css (.topbar, .topbar-center, .topbar-title),
+js/views/workspace.js, js/features/search.js (has topbar CSS overrides).
+
+### 6.6 Wizard: fix "Create config now", remove "Skip for later" card
+- The "Create config now" control in the New Project wizard doesn't work — fix/rewire.
+- Remove the "Skip for later" card; replace with a single hint line
+  ("Config is optional — add it any time from the Config button.").
+  Do not present skip as a clickable card.
+Files: js/views/wizard.js (configSeg / configField).
+
+### 6.7 Guarantee uploads & restores ALWAYS carry BOTH files
+Every backup / restore / export path must always include **Main Novel** AND
+**Config Bible** (project bible); neither may be silently omitted.
+Audit: exportProject() (docx+txt), exportAllData()/importAllData() (JSON),
+cloud push/pull (projects/<id>.json must hold mainNovel.text + configBible /
+series config).
+Files: js/features/export.js, js/core/storage.js, js/features/cloud.js.
+### 6.8 True password change via email link (PRIORITY auth item)
+Owner decision: Supabase free-tier email rate limits make the "log in using
+email" flow costly; TRUE password RESET is the priority. The emailed link
+currently signs the user in without changing the password. Implement the
+set-new-password screen (recovery-token interception + auth.updateUser) and
+consider custom SMTP (e.g. Resend) for headroom before Gumroad launch.
+Files: js/auth/auth.js (+ Supabase dashboard SMTP settings).
+---
+### 6.9 Mobile Library (welcome screen) cascade layout
+Owner-reported (phone): the Library header squeezes logo/name/tagline to the
+left and truncates Getting Started / New Project on the right; ~80% of the
+screen sits empty with "No projects yet" floating mid-screen.
+Target on mobile: stacked cascade — logo + name top-center, tagline centered
+beneath it, then Getting Started + New Project side-by-side below (generous,
+near-full-width buttons); empty state fills the remaining space properly.
+Desktop layout unchanged. Revisits the 6.4 `.launch-actions` rule inside a
+mobile media query (margin-left:auto must reset there).
+Files: css/views.css (@media for .launch-header/.launch-actions/.launch-empty),
+js/views/launch.js only if markup order must change.
+### 6.10 Logo redesign: wavy / freehand golden W
+Owner verdict on the Cinzel version: too Roman, too dark, and the circular
+badge is wrong. Target: a flowing, calligraphic / freehand golden W —
+hand-drawn feel, bright gold, NO enclosing circle (drop the round emblem
+containers on splash/auth/hero).
+Preferred implementation: a custom SVG path (crisp at any size, no font
+dependency, room for a flourish) — the right choice for a market-facing app.
+A script webfont (e.g. Great Vibes / Allura) is only the quick interim option.
+Apply everywhere the mark appears: splash, auth card, Library hero (full +
+compact), workspace topbar, favicon.
+Files: js/utils/dom.js (weaverLogo), css/base.css (.weaver-logo),
+index.html (favicon data URI), js/views/launch.js (.launch-hero-logo circle),
+js/auth/auth.js (.auth-logo circle).
+
+### 6.11 Consolidate Supabase clients (tech debt)
+Console warns "Multiple GoTrueClient instances detected" (auth.js + cloud.js
++ transient reset client). Safe today — flows never run concurrently — but
+the long-term fix is one shared client factory used by all modules.
+Files: js/auth/auth.js, js/features/cloud.js.
+## STAGE 7 — Close out
+- End-to-end QA of 6.1–6.7 on desktop AND phone (owner tests with screenshots).
+- Delete dormant js/cloud/sigv4.js + js/cloud/s3.js.
+- Sync docs/HANDOFF.md to the Supabase reality + CHANGELOG + tag release.
+---
+
+## V3 — Commercialization & expansion (parked by owner, post Stage 7)
+
+> These items change Weaver's architecture: several require a real server
+> component. Supabase Edge Functions are the natural home, since Supabase
+> already holds auth + storage. Flagged per item.
+
+### V3.1 Admin dashboard (+ hosting research)
+Owner-facing dashboard: users, subscriptions, storage usage, AI spend.
+Research targets: Streamlit, Gradio, Retool/Appsmith, or a small JS admin
+page (Vite + Supabase admin API) on Vercel/Netlify/Cloudflare Pages free tiers.
+NOTE: must run server-side — it needs the Supabase `service_role` key,
+which must NEVER ship in the browser app.
+
+### V3.2 Paywall — cloud storage + AI behind it
+Entitlements table in Supabase (plan, status, renewal); gate storage quota
+and AI access on it. Stripe/PayPal webhooks update entitlements (see V3.6).
+Free tier keeps local-only writing; paid unlocks sync + AI.
+
+### V3.3 AI-powered Plot Builder
+New panel/feature: beats, arcs, tension maps. AI-assisted for paid users;
+fully manual scaffolding for free users. Design before code — decide where
+it lives (fourth panel vs. modal vs. tab in Config).
+
+### V3.4 Centralize AI keys (remove from user Settings)
+Owner's keys live in the admin dashboard / server only. Users call a
+server-side proxy (Supabase Edge Function or Cloudflare Worker) that holds
+the keys and forwards to Groq/Gemini/OpenRouter/Mistral. Enables metering,
+per-plan limits, and kills key-sharing. Large refactor of js/ai/manager.js.
+
+### V3.5 Free EU domain for the app
+Research: truly-free TLDs are effectively dead (freenom collapse); realistic
+options are free subdomains (eu.org, is-a.dev, js.org) or a cheap .eu/.de
+(~€5/yr). Pair with GDPR-friendly hosting. Replaces legendalive.github.io as
+the canonical URL (update Supabase redirect URLs when it happens).
+
+#### V3.6 Payments: Gumroad (Merchant of Record)
+Launch on Gumroad to avoid EU VAT compliance burden (Gumroad acts as
+merchant of record, handling tax collection, invoicing, and payouts).
+Fulfillment is manual: sale lands in Gumroad dashboard → owner clicks
+**Grant** in the Weaver admin Credits tab. Zero new payment code needed;
+the existing admin console IS the fulfillment tool.
+
+### V4.0 Payments: Direct Processor (Stripe / Alternatives)
+Add automatic fulfillment via webhooks (checkout → webhook → Supabase
+entitlements row → app unlocks features).
+**CRITICAL RESEARCH:** Verify if Stripe is available and fully usable for
+a creator based in Kenya. If Stripe is blocked or has severe payout
+restrictions in Kenya, research and select the best alternative
+(e.g., PayPal, Paddle, Flutterwave, or local Kenyan gateways). Do not
+write webhook code until the processor is confirmed.
+
+### V3 dependency order (suggested)
+V3.1 → V3.6 → V3.2 → V3.4 → V3.3 → V3.5 (domain last, once stable). 
+## V4 (post-V3) — Trash & 30-day recovery for user-deleted projects
+
+Requested 2026-10-26. Today a user-deleted project is gone immediately and
+permanently (client hard-delete + ledger-driven vault removal).
+
+**Desired behaviour**
+- Deleting a project in the app removes it from the Library view only.
+- The blob stays in the vault, marked deleted, for 30 days.
+- Library gains a collapsed "Recently deleted" area listing soft-deleted
+  projects with days remaining and a Restore button.
+- After 30 days the project is purged permanently (blob + index entry).
+- Keep a "Delete forever" escape hatch for GDPR right-to-erasure requests.
+
+**Implementation notes**
+- `storage.js`: `deleteProject(id)` gains a soft mode — write `deletedAt` into
+  the project meta and the vault `index.json` entry instead of removing.
+  Preserve the existing hard-delete path for the purge.
+- Purge: a pass on boot/sync hard-deletes anything with `deletedAt` older than
+  30 days. A server-side scheduled purge is more reliable (catches users who
+  never return) — the weekly backup cron in weaver-server is the natural host.
+  Decide at build time.
+- Series bibles: a soft-deleted last book must NOT remove the series registry
+  until the purge actually runs.
+- **The admin console's project delete stays a HARD delete.** Takedown/legal
+  removal must be immediate and must not leave a restorable copy. State this
+  difference in the admin note text.
+  ## Parked — In-app Help Assistant (AI answers how-to questions)
+
+Requested by owner; deferred to a later phase. Depends on V3.4 (central AI
+proxy) so users can ask questions without providing their own API key.
+
+**Concept**
+- A Markdown knowledge base (`docs/HELP.md`) documents how Weaver works
+  (config bible setup, cloud sync, series, Scribe, etc.).
+- Users ask questions in-app via a Help panel.
+- The app sends the question + help doc to the AI.
+- If it's a how-to question → the AI answers instantly.
+- If it can't answer, or the question needs an admin action (credits, billing,
+  suspension, account changes) → reply "Thanks for reaching out — we'll get
+  back to you shortly" AND file the request into the admin Messages inbox.
+
+**Recommended implementation (refined)**
+1. **Skip search/retrieval for now.** The help doc is small, so send the WHOLE
+   doc as context instead of building keyword/vector matching. Simpler and more
+   reliable. Add retrieval only if the doc grows very large.
+2. **One AI call does two jobs:** classify intent (answerable how-to vs
+   needs-human) and, when answerable, produce the answer. Single round-trip.
+3. **Auto-escalate to the inbox:** when a human is needed, create a
+   `support_messages` row pre-filled with the question, so it lands in the
+   existing Messages tab — then show the friendly fallback. Nothing gets lost.
+4. **Guardrails:** read-only (never changes data), rate-limited, always offers
+   the human fallback. Uses the owner's key via the V3.4 proxy, not the user's.
+   Pre-V5 — Support Context Bundle (AI-assisted diagnostics)
+Owner-requested 2026-11-04. Parked for a future edit before V5 marketing launch.
+
+Goal
+Give the admin console an AI diagnostics assistant that has full knowledge of
+both codebases, so when an issue is reported the owner can ask "what's wrong?"
+and get an accurate, context-aware answer instead of a generic guess.
+
+What it does
+- Bundles all source code from both repos (Weaver frontend + weaver-server
+  edge functions), the annotated file trees, and key reference docs
+  (HANDOFF decisions, gotchas, schema notes, deploy runbook).
+- Saves the bundle as a single Markdown or TXT file under admin/
+  (e.g., admin/SUPPORT_CONTEXT.md) so it ships with the console.
+- Wires an AI query interface (via the existing ai-proxy / Scribe pipeline)
+  into the admin console — likely a new "Diagnostics" tab or a panel inside
+  the existing AI Monitor — where the owner types a symptom and the AI
+  answers using the bundle as context.
+
+Design notes (decide at build time)
+- Context-window budget: the raw bundle will exceed most model limits.
+  Plan a compression strategy — e.g., include full file trees + function
+  signatures + decision log + gotchas, but trim repetitive boilerplate.
+  Alternatively, chunk the bundle and use retrieval (keyword match) like
+  the existing help/lookup flow does with HELP.md.
+- Reuse the help/index.ts retrieval pattern (section scoring + silent
+  context injection) rather than building a new RAG system.
+- The bundle must be regenerated whenever code changes. Consider a
+  build-time script or a manual "refresh bundle" button in admin.
+- Security: the bundle contains no secrets (keys live in env vars /
+  ai_config, not in source). Verify before committing.
+
+Trigger to build
+After V4 polish is complete and before V5 marketing launch, when the
+owner wants a self-service debugging tool for support escalations.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/docsHANDOFFv1.md
+================================================================================
+
+## 3. Data model (localStorage; all keys prefixed `weaver_`)
+
+- `project_ids[]`, `project_data_<id>`, `project_meta_<id>`
+- `series_ids[]`, `series_meta_<id>`, `series_config_<id>` (series-shared bible)
+- `settings`, `active_project_id`, and raw `weaver_sync_ledger` (cloud.js)
+
+Project: `{ id, name, scope:'standalone'|'series', seriesId, seriesName,
+bookTitle, createdAt, updatedAt, wordCount, configInitialized,
+uploadedFileName, manuscript:{ text, viewStart }, mainNovel:{ text },
+configBible:{ characters[], settings[], plotArcs[], worldRules[], items[],
+generalProse, generalAiInstructions } }`
+Entry: `{ id, name, body }`. Meta mirrors identity fields + updatedAt/wordCount.
+Settings: `{ general:{ theme, fontScale, sentencesPerPage, autosaveInterval,
+panelSizes[3], acceptMovesText, quickPrompts[3] }, ai:{ providers{4×{key,enabled}},
+fallbackOrder, activeModel, temperature, maxTokens }, github:{ token, repo, autoSync } }`
+
+## 4. Text engine invariants (the heart — read before touching)
+
+- Raw text is a string of **lines**; headings encoded as `# `/`## `/`### ` prefixes.
+  DOM blocks strip the prefix; level lives in `dataset.level`.
+- `buildBlockIndex(text)` → `[{s,e,level,sentences}]`; measured once per change
+  (~2.8 ms / 1.8 MB). Never scan text in render paths.
+- Virtualization: `mounted {from,to}` window + top/bottom spacers holding pruned
+  pixel heights; `MAX_MOUNTED=300`, `SCROLL_THRESHOLD=300`; append/prepend/prune
+  keep `scrollHeight` stable by spacer arithmetic.
+- Edits splice back via `spliceBlocks(oldText, index, from, to, newStrings)` in
+  `flushManuscriptSync()`; `project.manuscript.viewStart = mounted.from` persists
+  for resume.
+- **Sticky bottom:** `isStickyBottom` (within 30px) → synchronous pin after appends
+  + rAF confirm; `pruneTop()` must skip its scrollTop restore while sticky.
+  Runway = `paddingBottom = clientHeight` (one empty page), debounced on resize.
+- Main Novel groups consecutive body lines into one `.mn-block`; its
+  `renderMainNovel(startBlock=null)` auto-picks scroll mode: append→bottom,
+  removal→preserve, jump/open→top (via `lastNovelText/lastNovelProjectId`).
+
+## 5. Selection & bundle semantics
+
+- Bundle = `selectionInfo = { text }` captured with `sel.toString()` on
+  `selectionchange` (sticky: collapsing or clicking elsewhere does NOT clear).
+  **No offsets are stored** — offset math was the original bug; never reintroduce.
+- Consumed on Scribe send (`clearManuscriptSelection()`); gold tint `.is-bundled`.
+- Accept-as-is: selection-only; duplicate guard via `confirmDialog`; move-mode cuts
+  by exact `indexOf` match. Recheck cuts Novel selection back into Manuscript.
+- Search/capture use their own observers; capture never mutates the bundle.
+
+## 6. Cloud sync semantics (js/features/cloud.js)
+
+- Private repos only (refused otherwise). Token in `settings.github`, never in
+  backups (`sanitizedSettings`) nor in the repo.
+- Layout: `weaver/index.json` manifest + `weaver/projects/<id>.json` +
+  `weaver/series/<id>.json`; two-way merge by `updatedAt`; one commit per sync.
+- Mutex (`syncing`) per tab; `commitAll` re-reads head immediately before commit
+  and rebases+retries (≤3) on 422 "not a fast forward".
+- **Only** 404 / "Git Repository is empty" may be read as "no head"; any other
+  error must surface (the 422 saga was a swallowed 403 rate-limit).
+- Empty repo bootstrap: single README commit via Contents API, then normal path.
+- **Deletions propagate via `weaver_sync_ledger`** (ids known at last sync but
+  gone now → tree entry `sha:null`). Removing the ledger resurrects deletes.
+- `autoSync()` fires quietly on Library exit when enabled.
+
+## 7. AI pipeline
+
+- Fallback order from settings; runtime `listModels()` discovery (zero hardcoded
+  models); router scores free models for creative fit; temperature/maxTokens
+  injected by manager.
+- `compileBible(cfg, context, budget=6000)`: DIRECTIVES → STYLE → matched entries
+  (name/word overlap vs context) → name-only ROSTER, hard-capped. Context cap 8000.
+- Scribe system rules 1-6 (transform-only-if-source; clarifying question; never
+  open with interjections). No cross-send conversation memory (by design).
+- AI blocks live in DOM (`scribe.blocks`), not persisted — refresh discards them.
+
+## 8. Landmines & quirks (learned the hard way)
+
+1. Desktop Manuscript sticky-bottom has an accepted ~1% bounce (layout timing).
+   Do not "fix" by deleting pins/runway; retest with a 5,000-chapter doc.
+2. `icon()` with an unknown name renders an empty svg silently (help-circle
+   incident). Check `icons.js` names before using.
+3. `text-overflow: ellipsis` does nothing on flex `.btn` — needs an inner span
+   (quick-prompts pills).
+4. Several modules inject their own `<style id="*-style">`; don't migrate their
+   CSS into views.css without deleting the injection (duplicate-source bugs).
+5. Workspace renders an unbound `.scribe-bar` placeholder; scribe replaces it
+   (guarded by `dataset.scribeBound`). Don't bind twice.
+6. `getSettings()` once dropped the `github` block on reload — keep it in the
+   merge list if you refactor settings.
+7. Mobile resizers carry a `.resizer-line` child + inline styles from
+   `styleResizers()`; the visible divider is the child, not the element bg.
+8. Search marks (`mark.ws-hit`) are transient and sync-safe (bodyString walks
+   through them); clear on jump/clear, never persist.
+9. Novel `viewStart` is NOT persisted (parked). Manuscript's is.
+10. Cross-device delete semantics: delete on the device you sync most; a second
+    device still holding the project will re-push it.
+
+## 9. Parked list (post-v1, deliberate)
+
+Stored-range "already sent" tint · Novel resume position · mobile search entry in
+drawer · per-provider model picker · DOCX tables/images · extra themes · custom
+undo/redo · multi-send conversation memory · desktop bounce (see §8.1).
+
+## 10. Conventions for future sessions
+
+- Small verified steps; after each, update this doc + CHANGELOG in the same commit.
+- Targeted edits use exact anchors; at the first sign of a botched patch, replace
+  the ENTIRE file (the "FULL" protocol).
+- Tag releases (`v1.0` = this baseline); snapshot downloads pin to tags.
+- Park ideas in `docs/BACKLOG.md` / GitHub Issues, not in conversation.
+- Verify on desktop AND phone; the owner tests with screenshots — match that bar.
+
+## 11. Orientation cheat-sheet
+
+| Task | Start at |
+|---|---|
+| Block/offset/sentence logic | `js/utils/text.js` |
+| Editor behavior, caret, paste | `js/panels/manuscript.js` |
+| Canon rendering / recheck | `js/panels/main-novel.js` |
+| Prompt payload & bible budget | `js/features/scribe.js` |
+| Providers / fallback / gen params | `js/ai/manager.js` + providers |
+| Sync / backups / secrets | `js/features/cloud.js`, `js/core/storage.js` |
+| Mobile chrome | `js/views/workspace.js` CSS + `css/views.css` EOF |
+| Any UI primitive | `js/utils/dom.js`, `css/components.css` |
+
+## 12. Changelog seed (condensed)
+
+1-4 foundation (store/state/text/utils, launch shell) · 5-7 library, wizard,
+settings · 8-10 workspace, resizers, text engine · 11-14 manuscript editor,
+novel panel, hierarchy, paging fixes · 15-17 config bible + series sharing +
+import/export · 18-20 AI providers/manager/router + hardening · 21-24 Scribe
+bundle, sticky tint, resume, sel.toString capture · 25 preferences pass ·
+26 quick prompts, DOCX in/out, mobile hairline system · 27 QA + cross-doc
+search · 27.5 capture-to-bible + AI descriptions · 28 backup/restore, GitHub
+sync (mutex, rebase retry, ledger deletions), guide, library gear.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/HANDOFFV2.md
+================================================================================
+# Weaver — HANDOFF V2 (the Supabase era)
+
+> Read this file top to bottom before writing any V3 code.
+> It is the complete operating manual for Weaver v2: architecture, verified
+> APIs, landmines learned the hard way, owner constraints, and the V3 seed.
+> Companion file: `docs/BACKLOG.md` (parked work + status).
+
+---
+
+## 1. Product in one paragraph
+
+Weaver is an offline-first novel-writing studio that runs entirely in the
+browser (GitHub Pages, no server). Three panels — Manuscript (raw drafts),
+Main Novel (finalized canon), AI Output (Scribe streams) — plus a per-project
+Config Bible (characters, places, plot arcs, world rules, items, prose style,
+standing AI instructions). Series books share one Config Bible. Auth, cloud
+vault and sync are Supabase; an optional per-user Puter account acts as
+overflow storage. AI is optional and provider-agnostic (Groq, OpenRouter,
+Gemini, Mistral) with a fallback chain. Market direction: Gumroad sale page
+later; V3 adds paywall, admin dashboard, plot builder.
+
+## 2. Owner constraints & working agreements (HARD RULES)
+
+- **No terminal, no desktop apps, no local server.** Everything happens in
+  the browser + GitHub web UI + provider dashboards.
+- **Max 3 code files per step.** Prefer FULL file replacements; targeted
+  cut/paste only for trivially safe edits with exact anchors.
+- Owner tests on **desktop Chrome AND phone**; visual polish matters to them
+  (prominent CTAs, unreserved branding, no clutter, no "reserved" look).
+- Owner pastes files by hand — never assume a file matches your memory of it;
+  when in doubt, re-deliver the whole file.
+- Small verified steps; after each, owner reports results before next step.
+- Park ideas in `docs/BACKLOG.md`, never in conversation.
+
+## 3. Hosting, accounts & secrets
+
+| Thing | Where | Notes |
+|---|---|---|
+| App | GitHub Pages, `https://legendalive.github.io/Weaver/` | deploys on push to `main` via `.github/workflows/deploy-pages.yml` |
+| Auth + primary vault | Supabase (free tier) | bucket `weaver-vault`, PRIVATE; policies "Give users access to own folder" (INSERT/SELECT/UPDATE/DELETE) enforce `{userId}/…` isolation server-side |
+| Supabase keys | **`js/core/supabase.js`** (single source) | URL + anon key are public by design; `service_role` must NEVER appear in client code |
+| Redirect URLs | Supabase → Auth → URL Configuration | must include `https://legendalive.github.io/Weaver/` (reset links depend on it) |
+| Email limits | Supabase built-in mailer throttles hard | test resets sparingly; Resend SMTP parked as headroom (BACKLOG 6.8) |
+| Overflow storage | Puter.js (per end-user account, optional) | no keys, no CORS, no payment; popup only on failover or manual connect |
+| AI keys | per-user, Settings ▸ AI Providers, localStorage only | never synced; V3.4 will centralize behind a server proxy |
+
+## 4. File tree (repo root folder: `Weaver`)
+
+```
+Weaver/
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml        # GitHub Pages deploy on push to main
+├── css/
+│   ├── base.css                    # tokens; .weaver-logo (Great Vibes gold script W)
+│   ├── components.css              # buttons, inputs, modals, toasts, badges
+│   ├── layout.css                  # topbar grid (auto minmax(0,1fr) auto), panels
+│   ├── views.css                   # library hero/cards/wizard + 6.9/6.10 overrides
+│   └── auth.css                    # auth screen base (card CSS also injected by auth.js)
+├── docs/
+│   ├── BACKLOG.md                  # Stages 6–7 status + V3 parking lot
+│   └── HANDOFFV2.md                # THIS FILE
+├── index.html                      # splash (script W), Great Vibes font link, favicon data-URI
+├── README.md
+└── js/
+    ├── app.js                      # boot, auth gate, watchdog, per-user namespace, v1 migration
+    ├── auth/
+    │   └── auth.js                 # Supabase auth UI; recovery-lock password reset
+    ├── core/
+    │   ├── state.js                # single store; subscribe/emit; touchProject; flushSave
+    │   ├── storage.js              # localStorage; per-user namespace; series; ledger helpers
+    │   ├── resizers.js             # bindResizers(ctx)/refreshLayout(); flex %, pointer events
+    │   └── supabase.js             # ONE shared client (detectSessionInUrl:false); keys live here
+    ├── cloud/
+    │   ├── sigv4.js                # DORMANT — delete (Stage 7 leftover)
+    │   └── s3.js                   # DORMANT — delete (Stage 7 leftover)
+    ├── utils/
+    │   ├── dom.js                  # el/clear/qs/qsa/delegate/escapeHtml/weaverLogo/toast/modal/confirmDialog
+    │   ├── icons.js                # inline SVG registry; UNKNOWN NAMES RENDER EMPTY (silent!)
+    │   ├── text.js                 # block index, headings, word count, sentence windows
+    │   └── docx.js                 # readDocx (upload), buildDocx (export)
+    ├── views/
+    │   ├── launch.js               # Library hero (script W + CTA) + project cards
+    │   ├── wizard.js               # New Project wizard (scope/source/config checkbox)
+    │   └── workspace.js            # BLANK-PROOF wiring; topbar; panels; footers; mobile CSS
+    ├── panels/
+    │   ├── manuscript.js           # editor; virtualized; selection chip; Accept-as-is footer
+    │   ├── main-novel.js           # read-only virtualized canon; word-count badge; Recheck
+    │   └── ai-output.js            # block select + Accept/Rewrite/Discard actions
+    ├── features/
+    │   ├── cloud.js                # sync engine: gzip envelope, Supabase→Puter failover,
+    │   │                           #   3s debounced autosync, badge, two-way merge + ledger
+    │   ├── puter-mirror.js         # Puter transport only (connect/put/get/del/list)
+    │   ├── settings.js             # 3 tabs: AI Providers / Data & Storage / General
+    │   ├── guide.js                # Getting Started modal (v2 content)
+    │   ├── export.js               # ALWAYS downloads .docx + .txt (both files guarantee)
+    │   ├── config-bible.js         # bible modal; saveNow() calls scheduleCloudSave()
+    │   ├── hierarchy.js            # drawer; exports ONLY toggleHierarchyDrawer()
+    │   ├── capture.js              # floating ＋ Config pill on selections
+    │   ├── search.js               # topbar search (+ injects topbar truncation CSS)
+    │   └── scribe.js               # AI streaming; mobile FAB
+    └── ai/
+        ├── manager.js              # fallback chain runner
+        └── providers/              # groq.js, openrouter.js, gemini.js, mistral.js
+```
+
+## 5. Architecture & data flow
+
+### 5.1 State
+`core/state.js` holds one store. Mutations emit change flags:
+`{ project, novel, view, ui, settings, hierarchy, silent }`.
+- Panels subscribe to their own flags (manuscript/novel/ai re-render themselves).
+- `workspace.js` re-renders the shell **only on `change.view`** — content edits
+  must NOT rebuild panels (would detach AI blocks & scroll positions).
+- `touchProject(change)` marks dirty + emits; local autosave flushes on
+  `settings.general.autosaveInterval` (default 3000ms).
+
+### 5.2 Storage layout (localStorage, per user)
+Namespace prefix `weaver_u_<userId>_` set by `setUserNamespace()` at boot.
+- Project object: `{ id, name, scope, seriesId, seriesName, bookTitle,
+  manuscript:{text}, mainNovel:{text}, configBible:{...}, createdAt,
+  updatedAt, wordCount, source, uploadedFileName }`.
+- Series config lives in its own key; `getEffectiveConfig(project)` resolves
+  series bible vs standalone bible.
+- Sync ledger (`weaver_sync_ledger`) remembers ids known at last sync →
+  deletions propagate to cloud.
+- One-time silent migration adopts pre-account (v1) data when the user's
+  namespace is empty.
+
+### 5.3 Auth (Supabase)
+- Single client from `core/supabase.js`, created with
+  `auth: { detectSessionInUrl: false }` — **required**, otherwise recovery
+  links auto-sign-in and skip the reset screen.
+- Reset flow: `resetPasswordForEmail` → link lands with `#type=recovery` →
+  `detectRecovery()` captures tokens into memory + `sessionStorage`
+  (`weaver_pw_recovery`), strips hash → reset screen → `setSession(tokens)` +
+  `updateUser({password})` → clear + reload.
+- **Recovery lock:** while `recoveryTokens` is set, `onAuthChange` swallows
+  session events so `app.js` cannot reload the user into the app mid-reset.
+- `app.js` boot: watchdog (15s) + `bootFailed()` card — the splash can never
+  trap a user again. Session transitions = full page reload (deliberate).
+
+### 5.4 Cloud sync (`features/cloud.js`)
+- **Envelope v2 (compression):** blobs gzipped via native
+  `CompressionStream('gzip')`; reads sniff magic bytes `1f 8b` and fall back
+  to raw JSON parse — old v1 blobs remain readable forever, no migration.
+  Effective vault capacity ≈ 3–5× raw text size.
+- **Paths:** `{userId}/weaver/index.json`, `…/projects/<id>.json`,
+  `…/series/<id>.json`. Index = manifest `{projects:{id:{updatedAt,name}},
+  series:{…}, updatedAt}`.
+- **Failover:** Supabase first. `isFailoverError()` (quota/exceeded/507/
+  network/timeout) → Puter (`puter-mirror.js`). Auth/permission errors surface
+  honestly. When Supabase is healthy again, a successful primary write quietly
+  deletes the stale Puter copy (single source of truth).
+- **Autosync:** debounced 3s after any `change.project` (and on
+  `visibilitychange→hidden`); pushes ONLY the active project + its series
+  bible + patched index. Never the whole library per tick.
+- **Manual:** `syncNow()` = two-way merge by `updatedAt` + ledger deletions.
+  Settings buttons "Backup to cloud" and "Restore" both call it (two-way is
+  deliberate; strict push/pull split is parked).
+- **Badge** (Main Novel header): `saved to cloud · HH:MM` (green) /
+  `saved via Puter · HH:MM` (gold) / `cloud save failed` (red).
+
+### 5.5 Workspace wiring (the BLANK-PROOF pattern)
+Named ES imports are a **module-graph landmine**: one missing export blanks
+the whole app with a single console SyntaxError. `workspace.js` therefore:
+1. imports panels/hierarchy/resizers as **namespaces** (`import * as x`);
+2. resolves functions via `pick(api, [candidateNames])`;
+3. calls everything through `safe()` (try/catch → console.warn);
+4. shows a gold in-app banner listing unresolved names if any critical is
+   missing (screenshot = one-line fix).
+**V3 rule: verify a module's real exports (read the file) before importing
+named symbols from it. Never invent export names.**
+
+### 5.6 Branding
+`weaverLogo(size)` in `utils/dom.js` renders `<span class="weaver-logo
+logo-{sm|md|lg|xl}">W</span>`; Great Vibes script, bright gold gradient,
+NO enclosing circles. Placements: splash (`logo-xl`), auth card (`md`,
+stacked above wordmark), Library hero (`xl` full / `md` compact), workspace
+topbar-left (`sm`). Favicon = italic gold W data-URI in `index.html`.
+Owner verdict history: Cinzel Roman W rejected ("too Roman, too dark, circle
+wrong"); custom SVG path remains the preferred FINAL form (BACKLOG 6.10).
+
+## 6. Verified export map (read before importing anything)
+
+| Module | Exports |
+|---|---|
+| core/resizers.js | `bindResizers(context)`, `refreshLayout()` |
+| core/supabase.js | `getSupabaseClient()`, `supabaseConfigured()`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
+| panels/main-novel.js | `mountMainNovel(panel)`, `renderMainNovel(startBlock?)`, `jumpNovelToBlock(i)`, `recheck()` |
+| panels/ai-output.js | `initAiOutput()`, `acceptAiBlock()`, `rewriteAiBlock()`, `discardAiBlock()` |
+| panels/manuscript.js | `renderManuscript()`, `initManuscript()`, `flushManuscriptSync()`, `jumpManuscriptToBlock(i)` (+ mount name — see workspace pick list) |
+| features/hierarchy.js | `toggleHierarchyDrawer()` **only** |
+| features/cloud.js | `syncNow()`, `autoSync()`, `scheduleCloudSave()`, `isCloudConfigured()`, `getCloudUserEmail()`, `signOutAndReload()`, `connectCloud()`, `copyAllToPuter()`, `restoreFromPuter()` |
+| features/puter-mirror.js | `puterSignedIn()`, `connectPuter()`, `disconnectPuter()`, `puterPut()`, `puterGet()`, `puterDel()`, `puterList()` |
+| js/auth/auth.js | `initAuth()`, `authConfigured()`, `currentUserId()`, `currentUserEmail()`, `onAuthChange()`, `signOutUser()`, `renderAuthView()` |
+| utils/dom.js | `el`, `clear`, `qs`, `qsa`, `delegate`, `escapeHtml`, `weaverLogo`, `toast`, `modal`, `confirmDialog` |
+| views/* | `initLaunch/setOpenWizard/renderLaunch`, `initWizard/openProjectWizard`, `initWorkspace/renderWorkspace` |
+| features/* | `openSettings`, `openGuide`, `exportProject`, `openConfigBible` |
+
+## 7. Landmines & lessons (the expensive list)
+
+1. **Invented export names blank the app** (three separate outages:
+   `ensureHierarchyDrawer`, `initMainNovel`, `initManuscript`). Namespace +
+   pick + safe() is now mandatory in workspace.js; verify exports elsewhere.
+2. **Multiple GoTrueClient instances** warning → fixed by the single factory
+   in `core/supabase.js`. Do not create ad-hoc clients (the old transient
+   reset client was retired).
+3. **Supabase recovery links auto-sign-in** unless
+   `detectSessionInUrl:false` + recovery lock. Both are load-bearing.
+4. **Free-tier email throttling** — repeated reset tests lock you out for
+   ~an hour. Resend SMTP is the parked fix.
+5. **GitHub Pages/Actions quirks:** stuck run = queued runner → Cancel +
+   Re-run; ❗ on a commit = cancelled/queued (not failure); latest green run
+   deploys the whole branch; favicon is tab-cached (new tab / clear site data).
+6. **Settings merge** must preserve every block (v1 once dropped the github
+   block on reload). Keep `getSettings()` merge list complete when refactoring.
+7. **Autosync scope:** active project only, debounced. Full-library sync per
+   keystroke-tick will melt free-tier quotas.
+8. **Deletions** travel via the ledger; 404/"not found" is the ONLY error that
+   may be read as "absent". Everything else surfaces.
+9. **Mobile CSS once hid resizers** and referenced nonexistent
+   `.panel-mid/.panel-right` classes (dead rules). Mobile is now: flex column,
+   transparent panel borders, 16px touch-drag resizer bands (`touch-action:none`).
+10. **icons.js renders unknown names as empty SVG silently** — a "missing
+    icon" is always a typo, never a crash.
+11. **`config-bible.js` saves bypass state emits** — it calls
+    `scheduleCloudSave()` directly; keep that line when editing saveNow().
+
+## 8. Stage 6 status (all DONE unless noted)
+
+| Item | Landed as |
+|---|---|
+| 6.1 secondary storage | gzip envelope + per-user Puter **failover** (not mirror); shared-admin Puter ruled impossible (no service creds, no isolation, no capacity gain) |
+| 6.2 settings slimming | 3 tabs; Data & Storage = Backup/Export/Restore + optional Puter card |
+| 6.3 continuous autosync | 3s debounce + visibilitychange; badge in Main Novel header |
+| 6.4/6.9 library layout | hero cascade (desktop + mobile), prominent gold CTA |
+| 6.5 topbar truncation | grid `auto minmax(0,1fr) auto` + ellipsis |
+| 6.6 wizard config | single checkbox + optional hint line; opens bible on create |
+| 6.7 both-files guarantee | export always docx+txt; sync blobs carry novel+manuscript+bible |
+| 6.8 password reset | true reset via recovery lock; Resend SMTP **parked** |
+| 6.10 logo | Great Vibes script W, circles removed; **custom SVG path still preferred final form** |
+| 6.11 client consolidation | `core/supabase.js` singleton |
+| Stage 7 leftovers | delete `js/cloud/sigv4.js` + `js/cloud/s3.js`; write CHANGELOG.md; tag v2.0.0 (see §10); owner QA sweep |
+
+## 9. V3 seed (from BACKLOG; dependency order V3.1→V3.6→V3.2→V3.4→V3.3→V3.5)
+
+- V3.1 admin dashboard: MUST be server-side (Supabase Edge Functions);
+  `service_role` never ships to client. Research: Retool/Appsmith vs small
+  Vite admin page on Pages/Netlify.
+- V3.2 paywall: entitlements table in Supabase; Stripe/PayPal webhooks flip it.
+- V3.3 plot builder: AI-assisted (paid) / manual scaffolding (free).
+- V3.4 centralize AI keys behind Edge-Function proxy (metering, kill sharing).
+- V3.5 EU domain (eu.org / cheap .eu); update Supabase redirect URLs on swap.
+- V3.6 Stripe primary, PayPal optional.
+- Capacity math for planning: 1GB Supabase ≈ ~2,500 gzipped full projects;
+  Puter adds per-user ~0.5–1GB free; paid Supabase Pro (100GB) or R2 (card)
+  become viable once revenue exists — swap is credentials-only thanks to the
+  cloud.js abstraction.
+
+## 10. Release & versioning procedure (browser-only)
+
+1. Commit everything; wait for the green Actions tick.
+2. Repo → **Releases** (right column) → **Create a new release**.
+3. Tag: type `v2.0.0` → "Create new tag on publish"; target `main`.
+4. Title `Weaver v2.0 — the Supabase era`; paste CHANGELOG bullets (§11).
+5. **Publish release.** The tag freezes this snapshot forever.
+6. Optional: create branch `v2-maintenance` from the tag for hotfixes; V3
+   continues on `main` (or a fresh repo seeded with this file + BACKLOG).
+
+## 11. v2.0 changelog bullets (for the release body)
+
+- Accounts: Supabase email/password sign-in, true password reset, sign-out.
+- Private per-user cloud vault (server-enforced isolation) + continuous
+  compressed autosync with save badge.
+- Optional Puter overflow storage (failover when vault full/unreachable).
+- Library hero redesign + script-gold W brand mark everywhere.
+- Settings rebuilt (3 tabs); export always yields .docx + .txt.
+- Mobile: cascading library, truncating topbar, invisible panel borders,
+  touch-drag panel resizing.
+- Boot hardened: watchdog + failure card; single Supabase client.
+
+## 12. Verification playbook (how the owner tests)
+
+- Hard-refresh after every deploy; test desktop + phone.
+- Badge states are the sync truth; Supabase Dashboard → Storage →
+  `weaver-vault` shows blobs (binary = gzipped, expected).
+- SQL truth: `select name, updated_at from storage.objects where
+  bucket_id='weaver-vault' order by updated_at desc limit 20;` (UTC times).
+- Any blank screen: F12 → Console → first RED error names file+line;
+  gold in-app banner names unresolved panel functions.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/Handover v3/Handoverfile.md
+================================================================================
+# HANDOVER/00_START_HERE.md
+# Weaver → V4 Handover: Start Here
+
+## 1. Identity
+- Product: **Weaver** — privacy-first novel-writing studio (local-first, cloud vault, canon-aware AI).
+- Company: **LegendAlive Studio** (footer/eyebrow on marketing pages; Gumroad seller name should match).
+- Owner account: mbenson.mb62@gmail.com · Supabase UID `c4481e53-3dbd-4ff3-91b1-8f11f196894e`
+  (hardcoded as OWNER_USER_ID in `admin` and `support-admin` edge functions).
+
+## 2. Where everything lives
+| Asset | Location |
+|---|---|
+| Frontend app (static ES modules, no build step) | GitHub repo `Weaver` → GitHub Pages: `https://legendalive.github.io/Weaver/` |
+| Admin console | same repo, `/Weaver/admin/` |
+| Marketing site (3 pages) | same repo, `/Weaver/welcome/` |
+| Backend (Deno Edge Functions) | GitHub repo `weaver-server` → Supabase project `hiqmvhkwuvvgalqxxtbc` |
+| Functions base URL | `https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/{admin,ai-proxy,ai-admin,support,help,support-admin}` |
+| DB + Auth + Secrets | Supabase dashboard (same project) |
+| Transactional email | Brevo (SMTP for auth; HTTP API for support replies) |
+| Ledger backups | Resend (owner-only deliveries) |
+| Payments | Gumroad seller `mbenson62` (manual Pro provisioning — no webhook) |
+| Optional overflow storage | Puter (each user's own account) |
+
+## 3. Read order for a new session
+1. This file. 2. `03_FILE_TREES.md`. 3. `01_FRONTEND_ARCHITECTURE.md`.
+4. `02_BACKEND_SERVICES.md`. 5. `04_DECISIONS_RULES.md`. 6. `06_GOTCHAS_WARSTORIES.md`.
+7. Start work from `05_V4_BACKLOG.md`.
+
+## 4. Secrets & credentials map (where, not what)
+- **GitHub `weaver-server` → Settings → Secrets:** `SUPABASE_ACCESS_TOKEN` (CLI deploys; EXPIRES — see 06), plus anything `deploy-functions.yml` references.
+- **Supabase Dashboard → Edge Functions → Secrets:** `BREVO_API_KEY` (support-reply emails), `BACKUP_SECRET` (cron), Resend key. Secrets inject **at deploy time** → changing one requires a redeploy (empty commit).
+- **AI provider keys (Groq/OpenRouter/Gemini/Mistral):** NOT env vars — stored in `ai_config` table, edited via admin console (service_role-only).
+- **Brevo SMTP creds:** Supabase Dashboard → Auth → SMTP settings (host/port/user/password = Brevo "SMTP key value").
+- Never put live secret values into these handover files or chat.
+
+## 5. Deploy runbook
+- Frontend: commit/push `Weaver` → Pages auto-publish (~30 s). Hard-refresh after.
+- Backend: commit/push `weaver-server` → Actions `deploy-functions.yml` deploys all functions. Watch for green tick.
+- New/changed function secret: add in Supabase dashboard, THEN trigger a redeploy (empty commit) or it won't be visible.
+- Workflows red with `401 Invalid access token`: regenerate Supabase access token (avatar → Access tokens, longest expiry), update GitHub secret, re-run.
+
+## 6. Source-of-truth rule
+The live repos are truth. Chat snapshots/KB uploads (manuscript.txt, scribe.txt, etc.) are point-in-time and MAY BE STALE (several were captured pre-fix). When in doubt, re-read the live file before editing.
+
+# HANDOVER/01_FRONTEND_ARCHITECTURE.md
+# Frontend (Weaver repo) — architecture & mechanisms
+
+No bundler, no framework: native ES modules + a hand-rolled DOM helper.
+Global stylesheet lives in `css/` (defines .panel, .btn, .ms-block base, tokens like --accent #e0a43c).
+Feature modules inject their own <style> via ensureStyle() with a unique STYLE_ID.
+
+## 1. Core patterns
+- `utils/dom.js` → `el(tag, props, children)`: props = class/text/title/dataset/onclick/etc.
+  **It does NOT support innerHTML and style-object props are unreliable** → set `node.style.x` imperatively.
+- `core/state.js` → getState(), subscribe(fn(state, change)), touchProject(), flushSave(), setUI(), openProject/closeProject.
+  change flags: {view, project, silent, settings, ui}.
+- `core/storage.js` → namespaced localStorage: prefix `weaver_u_{userId}_` set by app.js after Supabase sign-in
+  (file comment says "Clerk" — legacy wording; live auth is Supabase).
+  Keys: project_ids · project_meta_{id} (SUMMARY ONLY: id,name,scope,source,seriesId,seriesName,createdAt,updatedAt,wordCount) ·
+  project_data_{id} (FULL blob: manuscript{text,viewStart}, mainNovel{text}, configBible, notes[], plot, scribeHistory…) ·
+  series_ids · series_meta_{id}{bookIds[]} · series_config_{id} · active_project_id · settings.
+  **GOTCHA: listProjects() returns metas (no text). getProject(id) returns the full blob.** (Caused the EPUB "empty" bug — see 06.)
+  getEffectiveConfig(project): series books share series_config; standalones use own configBible.
+  exportAllData/importAllData = backup bundle v1 (settings sanitized: AI keys/github/cloud stripped).
+- `core/entitlements.js` → isPro(), isKnownFree(), onEntitlementChange(); entitlements cached client-side,
+  refreshed on load; server tables are service_role-only. Pro provisioning is MANUAL (admin console) after Gumroad purchase.
+
+## 2. Views & panels
+- `views/launch.js` — Library: hero + project cards (meta-driven), delete guard, "＋ Add book" icon on series cards
+  (calls openWizardFn({seriesId}) — V3.9). V4 will regroup cards by series.
+- `views/wizard.js` — New Project modal: scope seg (standalone/series), series select (+__new), book title,
+  source seg (scratch/upload .txt/.md/.docx via readDocx), config checkbox; accepts `prefill` for add-book.
+- `views/workspace.js` — topbar (Config/Plot/Hierarchy left; Library/Guide/Export/Settings/More right),
+  three panels (manuscript/novel/ai) + resizers; defensive `pick()` resolution with MISSING banner;
+  mobile ≤860px: pill bar (remember-last, AI attention dot via MutationObserver), position:fixed panel stack,
+  docked footers; ≤480px: Guide/Export fold into "?" More-sheet.
+- `panels/manuscript.js` — THE block engine (load-bearing; do not replace):
+  buildBlockIndex levels (1=#,2=##,3=###), windowed mount (MAX_MOUNTED 300) with top/bottom spacers,
+  sticky-bottom paging + one-page runway, resume via viewStart, contenteditable plaintext-only (fallback true),
+  Enter=splitBlock, Shift+Enter=<br>, Backspace-at-0=merge, paste splits lines into blocks,
+  H1/H2/H3/¶ toolbar, selection bundling (.is-bundled gold edge) → getManuscriptSelection(),
+  debounced sync → spliceBlocks back into project.manuscript.text,
+  acceptAsIs(): selection → Main Novel with duplicate-guard confirm; **V3.9 D1 freeze: ALWAYS cuts from Manuscript**
+  (old acceptMovesText toggle removed from UI; dead default remains in settings).
+  V3.9 continuity: injected MS_CSS with !important overrides (global css boxes .ms-block otherwise) +
+  single `.ms-empty-hint` "Type here or upload a manuscript" shown only while whole manuscript empty
+  (refreshEmptyHint via scheduleSync + render); per-block ::before placeholders suppressed.
+- `panels/main-novel.js` — finalized text view + recheck (cut back to manuscript).
+- `panels/ai-output.js` — block registry actions Accept/Rewrite/Discard; active-block selection; empty-state restore.
+- `features/scribe.js` — command deck (transparent pills), context chip, mobile FAB + sheet,
+  compileBible (token-budgeted: DIRECTIVES/STYLE/matched entries/ROSTER), buildMessages rules 1–6,
+  streamChatWithFallback wiring, **free-gate: isKnownFree() → showUpgradeNotice() gold card + toast**,
+  createBlock removes stale upgrade notice/empty-state.
+- `features/export.js` — Export = .docx (buildDocx from Main Novel blocks) + .txt bible, ALWAYS both;
+  Export EPUB (Pro) = openEpubExportList() modal listing listProjects() metas → on tap getProject(id) full blob →
+  chapters from H1 (fallback H2; else single chapter), title page, nav.xhtml + toc.ncx, style.css, OPF v3,
+  utils/zip.js STORE-method zip (mimetype first, uncompressed), author constant 'Anonymous' (prompt removed),
+  Main-Novel-only rule (never Manuscript); filename safe-slugged.
+- `features/settings.js` — 2 tabs. Data & Storage: Account (email badge, Pro/Free badge, Upgrade link cqxxpt,
+  sign-out), **Cloud Sync & Export** row = Upload to cloud / Export / Export EPUB / Download from cloud
+  (both sync buttons call syncNow() = two-way reconcile, newer-wins, never erases), Puter overflow card.
+  General: sentences/page, autosave ms, quick prompts (3), font scale; Pro-only temperature slider.
+- `features/notes.js` — V3.8-trimmed: single-surface sheet, borderless textarea, placeholder IS the empty message
+  ("Your quick scratchpad for sudden ideas."), hairline rows, faint ×, Ctrl/Cmd+Alt+N, FAB auto-hide while typing.
+- `features/plot-reference.js` — right rail desktop; **mobile = full-screen sheet (z 85)** since V3.9
+  (was display:none → "dead Plot button").
+- `features/cloud.js` — autoSync/syncNow/scheduleCloudSave; compressed vault payloads.
+- `features/puter-mirror.js` — optional overflow (connect/disconnect, copyAllToPuter, restoreFromPuter).
+- `features/support.js` — Support Center: instant lookup (help fn, capped), request form, Your-requests threaded
+  list w/ unread badges; voice rules in 04.
+- `features/guide.js` — renders docs/HELP.md (DOC_V).
+- `features/config-bible.js`, `features/plot-builder.js`, `features/hierarchy.js`, `core/resizers.js`.
+- `ai/manager.js` — streamChatWithFallback (provider order, onProviderSwitch/onToken).
+- `utils/text.js` — buildBlockIndex/windowBounds/spliceBlocks/headingPrefix/normalizeNewlines.
+- `utils/docx.js` — buildDocx + readDocx. `utils/zip.js` — buildZip (CRC32 + STORE) for EPUB.
+
+## 3. Mobile invariants (regression checklist)
+Pills remember last panel · AI dot when generation lands off-panel · footers dock to viewport bottom ·
+More-sheet at ≤480px · Scribe FAB right / Notes FAB left · Plot = full-screen sheet · topbar buttons 34px squares.
+# HANDOVER/02_BACKEND_SERVICES.md
+# Backend, database & external services
+
+## 1. Edge functions (weaver-server/supabase/functions/*)
+| Fn | Purpose / key routes |
+|---|---|
+| admin | Owner console API: /api/health, tickets list, credits/pro-days grants, announcements, audit (admin_log). Auth = Supabase user must equal OWNER_USER_ID. |
+| support-admin | GET /api/support (tickets+replies), POST /api/support/:id/reply → inserts support_replies + sends Brevo notification; returns {ok, emailed, emailError}. Owner-gated. |
+| help | Support lookup: /api/lookup (caps: Free 5/hr + 12/day, Pro 60/hr, enforced via help_log), /api/tickets (ESCALATE auto-file). |
+| support | User ticket creation → support_messages. |
+| ai-proxy | Streaming chat with server-held provider keys + fallback; entitlement-aware. |
+| ai-admin | ai_config CRUD (provider keys/models) — admin console only. |
+| backup* | Cron-driven ledger backup email via Resend (backup-schedule.yml + BACKUP_SECRET). *verify fn name in repo. |
+
+## 2. Schema gotchas (Supabase Postgres)
+- support_messages.id = **bigint** · support_replies.ticket_id = **bigint** (not uuid/int — inserts must match).
+- service_role-only tables (never expose anon keys): entitlements, credit_log, admin_log, announcement, ai_config.
+- help_log(question, answer, resolved, created_at) backs the lookup caps.
+- entitlements drive Pro (pro-days/credits); client caches via entitlements.js; provisioning is MANUAL after Gumroad.
+
+## 3. Supabase Auth
+- Email/password; custom SMTP = Brevo (below). Password-reset email = the historical 500-error surface (see 06).
+- Redirects include the Pages origin; recovery flow tested live V3.
+
+## 4. Brevo (two integrations)
+a) **SMTP for Auth** (Supabase Auth → SMTP): host smtp-relay.brevo.com · port 587 · user = mbenson.mb62@gmail.com ·
+   password = the **"SMTP key value"** from Brevo → SMTP & API (NOT login password, NOT xkeysib API key) ·
+   sender mbenson.mb62@gmail.com ("Weaver") must be **Verified** in Brevo → Senders & IP.
+b) **HTTP API for support replies** (support-admin): POST `https://api.brevo.com/v3/smtp/email`,
+   header `api-key: $BREVO_API_KEY`, body keys: sender{}, to[], subject, **htmlContent** (NOT `html`).
+   Wrong endpoint/param = "Invalid route/method" / "htmlContent or textContent required" (see 06).
+
+## 5. Resend — ledger backups only; onboarding sender delivers solely to owner. Never user-facing mail.
+
+## 6. Gumroad
+- Seller mbenson62. Live product today: `cqxxpt` (pricing buttons currently all point here post-fix).
+- Intended final state: THREE products — permalinks weaver-monthly ($8/mo), weaver-yearly ($60/yr),
+  weaver-lifetime ($149 once); pricing.html hrefs + scribe.js UPGRADE_URL + settings upgrade link must match.
+- **No webhook:** owner grants Pro manually (admin console → entitlements) after purchase; buyer must use their
+  Weaver email at checkout (copy says so).
+
+## 7. Puter — optional per-user overflow; silent auto-accounts SCRAPPED (auth model + privacy).
+
+## 8. CI/CD
+- deploy-functions.yml: deploys all functions; uses SUPABASE_ACCESS_TOKEN (expires → 401 red runs; see 05/06).
+- backup-schedule.yml: cron → backup fn with BACKUP_SECRET.
+- Secrets changed in Supabase dashboard require a redeploy to take effect.
+# HANDOVER/03_FILE_TREES.md
+# Annotated trees (live names; * = verify if touched)
+
+## Weaver (frontend, GitHub Pages)
+```
+Weaver/
+├── index.html                  # app shell (login → launch → workspace)
+├── css/                        # global stylesheet: tokens, .panel/.btn/.ms-block base *
+├── docs/HELP.md                # Guide source (rendered by features/guide.js)
+├── welcome/                    # marketing site (favicon = inline SVG data-URI, gold italic W)
+│   ├── index.html              # landing: what/why + differentiation cards
+│   ├── pricing.html            # Free vs Pro value lists + $8/$60/$149 cards + FAQ
+│   ├── features.html           # 9-card tour
+│   └── site.css                # shared marketing styles
+├── admin/
+│   ├── index.html              # console: Messages (Tickets/AI Monitor, threaded replies), credits, announcements
+│   └── ai-keys.html            # DELETE pending (verify gone)
+└── js/
+    ├── app.js                  # boot, auth gate, namespace set, view routing
+    ├── core/{state,storage,entitlements,resizers}.js
+    ├── views/{launch,workspace,wizard}.js
+    ├── panels/{manuscript,main-novel,ai-output}.js
+    ├── features/{scribe,export,settings,notes,cloud,puter-mirror,plot-reference,
+    │             plot-builder,config-bible,guide,support,hierarchy}.js
+    ├── ai/manager.js            # streamChatWithFallback
+    └── utils/{dom,icons,text,docx,zip}.js
+```
+(landing.html at root was deleted when welcome/ launched.)
+
+## weaver-server (Supabase Edge Functions)
+```
+weaver-server/
+├── .github/workflows/
+│   ├── deploy-functions.yml    # deploys all fns; SUPABASE_ACCESS_TOKEN
+│   └── backup-schedule.yml     # cron ledger backup (BACKUP_SECRET)
+└── supabase/functions/
+    ├── admin/index.ts
+    ├── support-admin/index.ts  # replies + Brevo htmlContent email
+    ├── help/index.ts           # lookup caps + ESCALATE tickets
+    ├── support/index.ts
+    ├── ai-proxy/index.ts
+    ├── ai-admin/index.ts
+    └── backup/index.ts         # * name verify; Resend ledger mail
+```
+# HANDOVER/04_DECISIONS_RULES.md
+# Decision log & standing rules
+
+## Decisions
+- D1 Accept-as-is ALWAYS cuts Manuscript→Main Novel (toggle gone; freeze landed V3.9; duplicate-guard kept).
+- D2 Exports: .docx+.txt always both; EPUB Pro-only, Main-Novel-only, picker lists all books (series individually),
+  loads full blob via getProject(); author constant 'Anonymous'.
+- D3 Mobile: More-sheet ≤480px; pills + dock; Plot = full-screen sheet.
+- D4 Brevo = auth SMTP + reply notifications; Resend = ledger backups only.
+- D5 Help caps: Free 5/hr+12/day, Pro 60/hr (help_log-enforced server-side).
+- D6 Support voice: never mention docs/guide/help; no chat; one request = one resolution;
+  ESCALATE marker auto-files a ticket; replies email via Brevo + thread in-app.
+- D7 Pricing: undercut market — $8/mo · $60/yr · $149 lifetime (research: Dabble $15–39, LivingWriter $25–35,
+  Sudowrite $10–59, Novelcrafter $4–20 BYOK, Plottr $199 lt, Campfire $336 lt, Scrivener $60 no-AI/cloud).
+- D8 Branding: LegendAlive Studio; marketing = welcome/ 3 pages; no admin links in marketing; favicon gold W.
+- D9 Manuscript stays a block engine; continuity is CSS-only (!important injections); single empty-doc hint.
+- D10 Settings sync row renamed: Upload to cloud / Download from cloud (both = two-way syncNow; honest hint).
+
+## Standing engineering rules
+1. `el()` never innerHTML; imperative style sets. 2. ES imports carry .js. 3. >3 edits in a file → deliver full file.
+4. Code travels in chat text, not uploads (uploads mangle: \n→newline, |→escapes). 5. New files = safest pastes.
+6. Injected CSS vs global css: use !important or lose specificity war. 7. No browser prompt()/confirm() in flows.
+8. Every user-facing failure message names the next step (see upgrade CTA, EPUB empty notice).
+9. Pro gates client (isPro/isKnownFree) AND server (caps/entitlements) — never client-only for cost-bearing ops.
+# HANDOVER/05_V4_BACKLOG.md
+# V4 backlog (prioritized) + parked + scrapped
+
+## Now (growth + delegation)
+1. Library series grouping: series = one card (name + book count); expand → books; move "＋ Add book" to series row.
+2. Accept split: "Accept whole" / "Accept highlighted"; add note: move Manuscript→Main Novel before EPUB export.
+3. Supervisor role: lesser admin tier (support delegation without full control) — design perms vs OWNER_USER_ID gate.
+4. Ticket report CSV: admin-side export (tickets + replies + help_log); client-built CSV from saApi or new /api/report.
+5. Gumroad 3-product setup + relink pricing.html/UPGRADE_URL/settings; purchase end-to-end test (fresh account →
+   buy → manual grant → verify unlocks: cloud, Scribe, temp slider, EPUB).
+6. Verifies: admin/ai-keys.html deleted; workflows green; token expiry calendar note.
+
+## Later
+7. Strict one-way cloud actions (push-only/pull-only) if users ask — needs cloud.js internals.
+8. Credits-exhausted CTA parity on server-denied generations (currently client-gate only).
+
+## Parked
+Full PDF import (reject-with-guidance is final behavior) · TTS/audiobook · multi-platform Gumroad ·
+Stripe/PayPal + Kenya research · EU-domain/GDPR pass · trash/30-day recovery · legacy env AI-secret cleanup.
+
+## Scrapped (do not revive without new facts)
+Silent Puter auto-accounts · merged contextual "Cloud Sync" button (erase ambiguity) · free-user AI panel removal
+(kills trial funnel; CTA card is the replacement) · Stonecode/SwingMatrix company names.
+# HANDOVER/06_GOTCHAS_WARSTORIES.md
+# Bug war stories (symptom → root cause → fix) — read before debugging
+
+1. Blank app after an edit → mangled paste broke module parse. Cure: full-file replace from clean source; F12 first red line names culprit.
+2. "Error sending recovery email" 500 → Brevo sender unverified / wrong password field. Verify sender + use SMTP key value.
+3. Brevo "Invalid route/method" → endpoint must be /v3/smtp/email. "htmlContent or textContent required" → param is htmlContent.
+4. EPUB "Main Novel is empty" on a full book → listProjects() metas have no text; load via getProject(id). DOCX worked because it reads the open project.
+5. Plot button dead on mobile → CSS `@media(max-width:860px){.plot-ref-panel{display:none}}`; now full-screen sheet.
+6. Workflows 401 → SUPABASE_ACCESS_TOKEN expiry; regenerate + update secret + re-run.
+7. Secret added but function ignores it → secrets inject at deploy; redeploy (empty commit).
+8. Manuscript looked segmented / placeholders everywhere → global css specificity; MS_CSS !important + per-block ::before suppression + single .ms-empty-hint.
+9. Gumroad 404 from pricing → placeholder concat garbage (`.../l/cqxxpt.gumroad.com/l/...`); replace whole price-grid block, verify via console href dump.
+10. support inserts failing → bigint ids (support_messages.id, support_replies.ticket_id).
+11. Settings "tremble" → saved-badge row height collapse; keep row height stable.
+12. Uploads mangle code (\n, ||, quotes) → paste code in chat; treat uploaded .txt/.docx as reference only.
+13. KB snapshots stale: manuscript.txt predates D1 freeze; launch.js predates add-book; notes.js predates trim; settings.docx predates EPUB row. Live repo wins.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/HELP.md
+================================================================================
+# Weaver — Help & Knowledge Base
+
+This document is the official knowledge base for Weaver. It answers common
+questions, explains every feature, and serves as the reference for the
+in-app AI help assistant. Last updated for Weaver v4.
+
+## Quick Orientation
+
+Weaver is a privacy-first, distraction-free writing app built for serious
+story construction. It combines a local-first editor with optional cloud sync,
+an AI writing assistant (Scribe), a structured project bible, a plot
+builder, and a cover studio. Your manuscripts are always yours — stored
+locally first, synced to your private cloud vault only when you want.
+
+Free tier: Write locally in your browser. All core editing tools, focus
+mode, and cover upload.
+Pro tier: Cloud sync across devices, AI writing (Scribe), AI cover
+concepts, AI-assisted plot building, and market-ready EPUB export with
+your cover embedded. Upgrade via the button in Settings.
+
+## Getting Started
+
+### How do I sign up or sign in?
+Open Weaver and you'll see the sign-in screen. If you don't have an account,
+click Sign up, enter your email and a password, and you're in. If you
+already have an account, enter your email and password and click Sign in.
+Your account is tied to your email address. Use the same email everywhere
+(including when purchasing Weaver Pro) so your upgrades and data stay linked.
+
+### How do I reset my password?
+On the sign-in screen, click Forgot password? Enter your email and
+you'll receive a reset link. Follow it to choose a new password.
+
+### I just signed up — where do I start?
+After signing in you'll land on your Library. Click New Project
+(or the + button) to launch the Wizard, which walks you through naming
+your project, choosing whether it's part of a series, setting an optional
+book number, and writing your first pages.
+
+## The Library
+
+The Library is your home screen. Every project appears as a single neat
+line, with the most recently edited item always on top.
+
+### How are series shown?
+Books that belong to a series are grouped into one collapsed row showing
+the series name and how many books it holds. Tap the row to expand it and
+see each book as its own line. The ＋ button on the series row starts a new
+book in that series, inheriting the shared Config Bible. Standalone
+projects appear as ordinary lines.
+
+### What are book numbers?
+When you create a project you can optionally give it a book number
+(Book 1, Book 2, Book 3…). The number shows as a small gold tag next to
+series books in the Library. Book numbers are labels only — they never
+change the Library order, which always follows your latest edit.
+
+### How do I open a project?
+Click its line in the Library. It opens directly into the Workspace.
+
+### How do I create a new project?
+Click New Project (or the + button) in the Library. The Wizard guides
+you through setup.
+
+### How do I delete a project?
+Use the trash icon on the project's line and confirm. Deleting a project
+removes it from your browser; if it was synced, the cloud copy is removed
+on your next sync. If it was the last book of a series, the shared series
+bible is removed too — export first if you want a copy.
+
+## The Workspace
+
+When you open a project, you enter the Workspace: three main panels and a
+topbar of tools.
+
+### The three panels
+Manuscript: Your raw, working draft. Write freely here.
+Main Novel: Your polished, finalized text. Accept passages into it when
+they're ready. This is the layer your exports read.
+AI Output (Scribe): Where AI-generated text appears. Accept, rewrite, or
+discard each block.
+
+### The topbar tools
+Config: Opens the Project Bible.
+Plot: Opens the Plot Reference rail (and the Plot Builder via Edit).
+Cover: Opens the Cover Studio.
+Hierarchy: Structural outline of your manuscript.
+Library: Returns to your Library (saves and syncs first).
+Guide: Opens this guide.
+Export: Exports your project (.docx + .txt, or EPUB on Pro).
+Focus: Enters focus mode (on phones, Focus lives in the ⋯ menu).
+Settings: Account, cloud, export, and preferences.
+
+### On phones
+The workspace shows one panel at a time, switched with the pill bar under
+the topbar (Manuscript · Main Novel · AI Output). A gold dot on the AI pill
+means a generation finished while you were elsewhere. Guide, Export and
+Focus fold into the ⋯ menu on small screens; your writing panel always
+fills the screen with its action buttons docked at the bottom.
+
+## Focus Mode
+
+Focus mode strips every distraction — topbar, panel pills, floating
+buttons, and the other panels — leaving only your Manuscript filling the
+screen.
+
+### How do I enter focus mode?
+Click Focus in the topbar, or press Ctrl+Shift+F (Windows/Linux) /
+Cmd+Shift+F (Mac). On phones, Focus is inside the ⋯ menu.
+
+### How do I leave focus mode?
+Press Escape or click the small × button at the top-right corner.
+
+### Focus mode vs the expand button — what's the difference?
+To expand the manuscript with all buttons present, use the expand button
+inside the Manuscript panel header — the panel grows to fill the workspace
+but keeps its toolbar and footer buttons. To be rid of all distractions,
+use focus mode — everything except the text disappears.
+
+## Writing & Editing
+
+### How do I write?
+Click in the Manuscript panel and type. Weaver autosaves as you write —
+you never need to press Ctrl+S. Your work is saved locally in your browser
+immediately.
+
+### How does text move from Manuscript to Main Novel?
+Two buttons in the Manuscript footer:
+- Accept highlighted (gold): pushes the text you have selected into the
+  Main Novel and cuts it from the Manuscript.
+- Accept whole: after a confirmation showing the word count, moves the
+  entire Manuscript into the Main Novel and clears the Manuscript.
+Both always cut — text is moved, never duplicated. If the exact text is
+already in the Main Novel, Weaver asks before adding it again.
+
+### How do I revise text that's already in the Main Novel?
+Select the passage in the Main Novel and click Recheck. The text is cut
+back into the Manuscript, and Weaver remembers where it came from.
+
+### How does the rewrite get back to its place?
+After rewriting in the Manuscript, highlight the rewrite and click
+Accept highlighted. Weaver sees the pending Recheck and asks:
+- Return to its place — slots the text back exactly where it was cut from.
+- Append to bottom — adds it to the end of the Main Novel instead.
+- Cancel — nothing changes.
+If the surrounding text changed too much to find the original spot, Weaver
+tells you and offers to append to the bottom. The Main Novel scrolls to
+show you where the text landed.
+
+### Headings and formatting
+Start a line with #, ## or ### to create chapter and section headings, or
+use the H1/H2/H3/¶ buttons above the Manuscript. Press Enter to start a
+new paragraph; Shift+Enter inserts a line break inside a paragraph.
+
+## Config Bible
+
+The Config Bible (Project Bible) is your story's reference document. It
+holds the facts about your world, characters, and style so Scribe stays
+consistent with your story.
+
+### How do I open the Config Bible?
+Click Config in the Workspace topbar.
+
+### What sections are in the Config Bible?
+Characters — profiles for each character.
+Settings & Places — locations and their details.
+Plot Arcs — major story arcs.
+World Rules & Physics — the rules of your world.
+Item Catalog — important objects and artifacts.
+General Prose — your house style, voice, tense, and rhythm.
+AI Instructions — standing directives bundled with every Scribe prompt.
+
+### How do I add, edit, or delete an entry?
+Open the Config Bible, choose a section from the left rail, and click the
+Add button. Click a collapsed entry row to expand and edit it. Use the
+trash icon to delete. Entries save automatically.
+
+### What does "series bible" mean?
+If your project is part of a series, the Config Bible is shared across all
+books in that series. Edits apply to every book, keeping characters,
+settings, and world rules consistent throughout.
+
+### How do I import or export the Config Bible?
+Export always downloads the bible as a .txt alongside your .docx. In the
+Config Bible window, the Import button accepts a previously exported .txt,
+with a choice to Replace everything or Merge (append).
+
+## Plot Builder
+
+The Plot Builder helps you structure your story into Acts and Beats.
+
+### How do I open it?
+Click Plot in the topbar to open the Plot Reference rail, then Edit inside
+it for the full builder.
+
+### How do I create an outline?
+Write a Premise — one paragraph: whose story, what they want, what stands
+in the way. Then Add act for each act (title + summary), and Add beat for
+the scenes inside each act. Everything saves automatically.
+
+### Can the AI help me build my plot? (Pro)
+Yes. Pro users see AI buttons: Draft outline from premise (full 3-act
+structure), Suggest twist (adds a complication to an act), and Expand beat
+(fleshes a beat into a detailed scene summary). Free users can build
+outlines manually.
+
+## Scribe — AI Writing Assistant (Pro)
+
+Scribe is Weaver's AI writing assistant. It generates, rewrites, continues,
+or transforms text using your Config Bible for consistency.
+
+### How do I use Scribe?
+In the AI Output panel, type an instruction (e.g. "rewrite in third person"
+or "continue the scene") and press Enter. The response streams in as a
+block with Accept, Rewrite, and Discard buttons.
+
+### How do I give Scribe context?
+Highlight text in the Manuscript first — it is bundled with your
+instruction as source text, shown as a small gold chip. Clear the chip to
+unbundle.
+
+### What can I ask Scribe to do?
+Rewrite a passage, continue a scene, describe a setting or reaction, expand
+a brief note, summarize, or any custom instruction in plain English.
+
+### What are Quick Prompts?
+Up to three one-tap shortcuts near the Scribe input. Set them in
+Settings → General → Quick Prompts. Pro users also get the Temperature
+slider there: 0 = precise, 1 = inventive.
+
+### Why isn't Scribe working?
+Scribe is a Pro feature — free accounts see a gold upgrade card in the AI
+Output panel instead. If you are Pro and see an error, the AI service may
+be briefly busy; try again in a moment. Weaver automatically tries multiple
+providers.
+
+## Cover Studio
+
+The Cover Studio helps you design and attach a book cover. Open it with the
+Cover button in the topbar.
+
+### How do I generate cover ideas? (Pro)
+Fill in the author name (optional) and choose where the author name should
+sit on the cover — top center, middle center, bottom center, or one of the
+four corners. Click Generate Cover Concepts. Scribe reads your Config
+Bible and Plot Builder and returns three distinct concepts, each with a
+ready-to-paste image prompt for your favorite image generator.
+
+### How do I attach a finished cover?
+Create the cover with your favorite image generator (or any artwork you
+own), save it, then click Upload cover image in the Cover Studio. Weaver
+accepts .jpg, .png and .webp, compresses the image for safe storage, and
+keeps it with the project. Uploading works on every plan — only AI concept
+generation needs Pro.
+
+### Where does the uploaded cover go?
+It is stored inside the project, so it autosaves, syncs to your cloud
+vault, and travels with backups. When you export EPUB (Pro), the cover is
+embedded automatically and opens as the first page of the book. You can
+also Download a copy, Replace it, or Remove it from the Cover Studio at any
+time.
+
+## Search
+
+### How do I search my manuscript?
+Click the magnifying-glass icon in the topbar; it expands into a search
+field. Weaver finds matches across both the Manuscript and Main Novel.
+
+### How do I navigate results?
+Use ‹ and ›, or press Enter (next) / Shift+Enter (previous). The badge
+shows your position (e.g. 3/17) and whether the hit is in the Manuscript or
+Main Novel. Click ✕, press Escape, or empty the field to collapse.
+
+## Quick Add to Config (+config)
+
+Highlight a word or phrase in the Manuscript or Main Novel and a small
++config pill appears. Click it to add that term to your Config Bible
+without losing your place. Pro users get an AI-drafted starting
+description; everyone can edit the entry freely.
+
+## Export
+
+### How do I export my project?
+Click Export in the topbar. Weaver ALWAYS downloads both files: your
+Main Novel as a real .docx, and your Config Bible as a readable .txt.
+
+### How do I export an EPUB? (Pro)
+Click Export → Export EPUB, then choose the book. EPUB is built entirely
+in your browser: title page, chapters from your headings, a proper table
+of contents, and your uploaded cover as the opening page if you attached
+one.
+
+### Why is my EPUB empty or missing the cover?
+EPUB reads the Main Novel only — never the Manuscript draft. Use Accept
+highlighted or Accept whole to move text into the Main Novel before
+exporting. For the cover, upload it in the Cover Studio first, then export
+again; if a reader app still shows an old cover, delete its cached copy of
+the book and re-import the new file. The author shown on the title page is
+the author name from your Cover Studio (or "Anonymous" if blank).
+
+## Notes
+
+Notes is a quick scratchpad for ideas that strike mid-scene. Tap the round
+pen button at the bottom-left, or press Ctrl+Alt+N (Cmd+Alt+N on Mac).
+Type your thought and press Enter to save it. Notes are stored with the
+project and sync to your vault. Open the sheet again to review or delete
+notes.
+
+## Cloud Sync & Backup
+
+### How does cloud sync work?
+When you're signed in with Pro, Weaver syncs your projects to your private
+cloud vault as you write (compressed to save space). The badge in the Main
+Novel panel header shows the last save. Upload to cloud and Download from
+cloud in Settings both run a safe two-way sync — newer wins, nothing is
+erased.
+
+### What if the cloud is unavailable?
+If your primary vault is full or unreachable, Weaver can overflow to Puter
+using your own free Puter account — optional, and only when needed. Manage
+it in Settings → Data & Storage → Overflow Storage.
+
+### I'm on a new device — how do I get my projects back?
+Sign in, then Settings → Data & Storage → Download from cloud.
+
+## Settings
+
+### Account
+Your signed-in email, your plan badge (Free or Pro), the Upgrade button,
+and sign out. Upgrade opens the pricing page with all three plans —
+monthly, yearly, and lifetime.
+
+### Data & Storage
+Upload to cloud, Export (.docx + .txt), Export EPUB, Download from cloud,
+and the optional Puter overflow card.
+
+### General
+Sentences per page, autosave delay, Quick Prompts, font scale, and — for
+Pro — the Scribe temperature slider.
+
+## Pro vs Free
+
+| Feature | Free | Pro |
+| --- | --- | --- |
+| Write locally in browser | ✅ | ✅ |
+| Config Bible, Plot Builder (manual) | ✅ | ✅ |
+| Search, Hierarchy, Notes, Focus mode | ✅ | ✅ |
+| Export .docx + .txt | ✅ | ✅ |
+| Cover upload & management | ✅ | ✅ |
+| Cover concept generation (AI) | ❌ | ✅ |
+| Cloud sync across devices | ❌ | ✅ |
+| Scribe AI writing | ❌ | ✅ |
+| Plot Builder AI (draft, expand, twist) | ❌ | ✅ |
+| EPUB export (with embedded cover) | ❌ | ✅ |
+
+### How do I upgrade to Pro?
+Settings → Account → Upgrade to Pro opens the pricing page: $8/month,
+$60/year, or $149 lifetime. After purchasing on Gumroad with the same
+email as your Weaver account, Pro is activated by the Weaver team —
+usually within one business day.
+
+## Series
+
+### What is a series in Weaver?
+A collection of related books that share one Config Bible, so characters,
+settings, and world rules stay consistent across every book.
+
+### How do I create one?
+In the New Project wizard choose Series installment, then pick an existing
+series or create a new one. Each book can also carry an optional book
+number shown as a tag in the Library.
+
+### How do I add more books?
+Use the ＋ button on the series row in the Library, or choose the series in
+the wizard.
+
+## Troubleshooting
+
+### Weaver won't load / blank screen
+Reload the page and check your connection — sign-in needs the auth service
+reachable. Your local projects are safe in the browser and are not lost by
+a reload.
+
+### My projects disappeared
+If you switched browsers or devices, sign in and use Settings → Data &
+Storage → Download from cloud (requires Pro).
+
+### Scribe isn't responding
+Confirm you are Pro, check your connection, and try again shortly — Weaver
+rotates through several AI providers automatically.
+
+### Cloud badge says save failed
+Usually a momentary network issue; Weaver retries as you keep writing. You
+can also force it with Settings → Upload to cloud.
+
+### I bought Pro but it isn't active yet
+Activation is manual and usually completes within one business day. Make
+sure your Gumroad purchase email matches your Weaver account email. If it
+has been longer, contact support from the app.
+
+### My returned rewrite landed somewhere unexpected
+Return to its place works by finding the text that surrounded the original
+cut. If those surroundings changed, Weaver asks whether to append to the
+bottom instead — nothing is ever inserted blindly.
+
+## Contacting Support
+
+Click Support in the Workspace topbar. Try the instant lookup first — many
+questions are answered on the spot. Anything the lookup can't resolve can
+be sent to the team as a request; replies appear under Your requests in the
+same window and are also emailed to you. We typically reply within one
+business day. Please don't include passwords or API keys in messages.
+
+## Data & Privacy
+
+Your manuscripts live in your browser first. Cloud sync (Pro) stores
+compressed copies in a private vault tied to your account — no one else can
+access it, and the Weaver team does not read your manuscripts. Deleting
+your account wipes the vault. Weaver never uses your writing to train AI
+models; Scribe only sees the bible and passages you actively send.
+
+## Keyboard & Navigation Tips
+
+Ctrl/Cmd+Shift+F — toggle focus mode.
+Ctrl/Cmd+Alt+N — open Notes.
+Enter / Shift+Enter in Search — next / previous match; Escape clears.
+Panel expand button (⤢ in a panel header) — maximize a panel while keeping
+all its buttons; different from focus mode, which hides everything.
+Drag panel dividers to resize; double-click a divider to reset.
+Autosave runs continuously — there is nothing to save manually.
+
+## Glossary
+
+Manuscript: your raw working-draft panel.
+Main Novel: your finalized text panel; the layer exports read.
+Accept highlighted / Accept whole: the two ways Manuscript text moves
+into the Main Novel.
+Recheck: cuts Main Novel text back to the Manuscript and remembers its
+origin for a one-tap return.
+MOVES: the overall draft → finalize workflow built on the above.
+Config Bible / Project Bible: your story's reference document.
+Cover Studio: generate cover concepts and attach your finished cover.
+Focus mode: full-screen, distraction-free writing.
+Book number: optional tag (Book 1, Book 2…) on series books.
+Scribe: Weaver's AI writing assistant (Pro).
+Beat / Act: plot structure units in the Plot Builder.
+Vault: your private cloud storage for synced projects.
+Puter: optional overflow storage used only when the vault is unavailable.
+Quick Prompts: one-tap Scribe shortcuts configured in Settings.
+Fallback chain: the order of AI providers Weaver tries if one fails.
+
+End of Weaver Help & Knowledge Base. For anything else, use the in-app
+Support button.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/V3ROADMAP.md
+================================================================================
+# Weaver V3 — Roadmap & Admin Build Plan
+
+> Living document. Check items off as they land. Approved stack (2026-10-24):
+> **Supabase Edge Functions** for ALL server-side work — admin dashboard,
+> payment webhooks, AI proxy. One runtime end-to-end, no mid-V3 re-platform.
+> Companion docs: `HANDOFFV2.md` (operating manual), `BACKLOG.md` (parking lot).
+
+---
+
+## 1. Decision record — why not Python/Streamlit/Retool?
+
+| Candidate | Verdict |
+|---|---|
+| Streamlit / Gradio (Streamlit Cloud, HF Spaces) | Rejected. Great dashboards, but cannot host Stripe webhooks (V3.6) or the user-facing AI proxy (V3.4) — would force a mid-V3 platform switch (owner hard rule: end-to-end, no switching). Free tiers sleep; service_role would live with a third party. |
+| Retool / Appsmith | Rejected. Third party holds the master key; weak fit for webhook/proxy phases; free tiers narrow. |
+| Python app on Render/Railway/Fly | Rejected. Free tiers spin down or need a card; adds a fifth vendor; same webhook/proxy fit problem. |
+| **Supabase Edge Functions** | ✅ Chosen. service_role never leaves Supabase; one home for admin + webhooks + AI proxy; deploys from GitHub web UI via one Action (access token minted in Supabase dashboard, stored as a GitHub secret); free tier ample at launch; UI is fully brandable HTML — a real product screen, not a dev console. |
+
+## 2. Repo strategy
+
+| Repo | Contains | Deploys to |
+|---|---|---|
+| `Weaver` (this one) | The app (GitHub Pages). All client code, docs. | legendalive.github.io/Weaver |
+| `weaver-server` (new) | Every Edge Function: `admin` (V3.1), `stripe-webhook` + `create-checkout` (V3.6), `ai-proxy` (V3.4). Plus the deploy workflow. | `<project-ref>.functions.supabase.co` |
+
+Rationale: main repo is uploaded wholesale to public Pages — server code must not ride along.
+
+## 3. Admin dashboard spec (V3.1)
+
+Branded Weaver admin (charcoal + script-gold W, Great Vibes mark), fully
+responsive (owner tests desktop **and** phone), sign-in = owner's normal
+Weaver account; server checks user id against OWNER_USER_ID.
+
+**Tabs & features**
+
+- [ ] Overview: user totals, signups 7/30d (bars, hand-rolled SVG — no chart lib), storage used, active last 7d, health, plan mix
+- [ ] Users: search by email · create account · last sign-in / last sync · suspend (reversible) · delete (auth + vault wipe, double confirm) · send password-reset email
+- [ ] Credits & plans: grant/revoke with reason + expiry · set Pro-until manually (Gumroad manual fulfillment) · quota boost · per-user credit history
+- [ ] Storage: per-user vault size, object counts, largest first
+- [ ] Audit log: every admin action, timestamped (table `admin_log`)
+- [ ] Polish: mobile pass, danger-zone styling, empty states
+
+**Privacy rule:** the dashboard exposes metadata (emails, dates, sizes,
+counts) — it never displays manuscript content, even though service_role
+technically could.
+
+**Admin needs the owner didn't ask for (deliberately included):** suspend
+before delete; audit trail; credit reasons/expiry; support password-reset
+send; quota overrides; destructive-action confirms; GDPR-ready user wipe
+(needed anyway by V3.5).
+
+**Metrics policy:** business truth (users/storage/credits/revenue) comes
+from Supabase inside the dashboard. Visitor counters (e.g. histats) are a
+separate, optional client-side snippet — parked mini-step: paste `<script>`
+tag into `index.html`, nothing else.
+
+## 4. V3.1 steps
+
+### V3.1a — Skeleton + login + Overview
+- [ ] Files: `weaver-server/supabase/functions/admin/index.ts`, `weaver-server/.github/workflows/deploy-functions.yml`, `weaver-server/README.md`
+- [ ] Manual adds: GitHub secret `SUPABASE_ACCESS_TOKEN`; replace `YOUR_PROJECT_REF` in the workflow; replace `PASTE_YOUR_USER_ID_HERE` in the function
+- [ ] Verify: green Action → function URL → sign in → Overview numbers on desktop + phone
+
+### V3.1b — Users tab
+- [ ] Replace `index.ts` (full file): GoTrue admin API — list/search/create users, suspend (`ban_duration`), delete + vault wipe (`DELETE /storage/v1/object/<uid>` prefix), send recovery email
+- [ ] Verify with a throwaway test account (create → suspend → delete)
+
+### V3.1c — Credits & entitlements
+- [ ] SQL (paste in Supabase SQL Editor): tables `entitlements` (user_id PK, plan, credits, pro_until, quota_mb, updated_at) + `credit_log` — RLS on, zero policies → only service_role can touch
+- [ ] Replace `index.ts`: Credits tab — grant/revoke with reason, expiry, history
+- [ ] Verify: grant yourself credits, see log row
+
+### V3.1d — Storage & metrics
+- [ ] Replace `index.ts`: per-user storage sizes (storage.objects via PostgREST), signups chart, active users, CSV export of user list
+- [ ] Verify numbers against Supabase dashboard Storage view
+
+### V3.1e — Audit log + polish
+- [ ] SQL: table `admin_log`; replace `index.ts` (log every mutating action, show Audit tab); mobile QA pass
+- [ ] V3.1 DONE → report → V3.6
+
+## 5. V3.6 — Payments (Stripe first, PayPal parked)
+
+- [ ] Stripe account (browser): products Weaver Pro monthly + yearly; copy keys
+- [ ] SQL: none new (entitlements from V3.1c is the ledger)
+- [ ] `weaver-server/supabase/functions/create-checkout/index.ts` — creates Stripe Checkout Session (owner's Stripe secret key as function secret via Action)
+- [ ] `weaver-server/supabase/functions/stripe-webhook/index.ts` — verifies signature, on `checkout.session.completed` / `invoice.paid` / `customer.subscription.deleted` writes entitlements; webhook secret as function secret
+- [ ] App side: Settings → "Upgrade" button → checkout; success/cancel redirect URLs back to the app
+- [ ] Test-mode-first verification checklist before live keys
+- [ ] PayPal: parked — revisit only if demand appears
+- [ ] Manual adds flagged per step: Stripe keys, webhook signing secret, price IDs
+
+## 6. V3.2 — Paywall
+
+- [ ] SQL: RLS policy letting a user SELECT **only their own** entitlements row (no writes from client)
+- [ ] App: entitlement fetch at boot + after checkout return; gate cloud sync + AI behind plan/pro_until/credits; free tier keeps local writing/export 100% intact
+- [ ] Upgrade surface: hero-level CTA style (prominent, gold), pricing modal, honest free-vs-pro table
+- [ ] Grace rules: expired mid-session → warn, never destroy work; local-only mode always available
+
+## 7. V3.4 — Centralized AI keys
+
+- [ ] `weaver-server/supabase/functions/ai-proxy/index.ts` — owner's provider keys as function secrets; streams back; enforces entitlement; meters into SQL table `ai_usage` (user_id, provider, model, tokens, day)
+- [ ] App: `js/ai/manager.js` refactor — entitled users hit the proxy; per-user key Settings UI retired (migration note for existing key holders)
+- [ ] Admin: AI spend tab reads `ai_usage`
+- [ ] Manual adds flagged: each provider key, set via GitHub Action secrets step
+
+## 8. V3.3 — Plot Builder (paid)
+
+- [ ] Design doc first (BACKLOG rule): fourth panel vs modal vs Config tab; beats, arcs, tension map; free = manual scaffolding, paid = AI-assisted via the V3.4 proxy
+- [ ] Build in small steps after design sign-off
+
+## 9. V3.5 — EU domain
+
+- [ ] Options: free subdomains (eu.org, is-a.dev) vs cheap .eu/.de (~€5/yr)
+- [ ] Pages CNAME + DNS; update Supabase Auth redirect URLs (reset links depend on this — HANDOFF landmine #3)
+- [ ] GDPR pass: privacy notice, the user-wipe action from V3.1b becomes the deletion workflow
+
+## 10. Delivery conventions (standing rules, repeated here so they survive)
+
+- Every delivered code block states its **exact file path** at the top.
+- Every step ends with a **manual-adds list** — anything the owner must paste (keys, URLs, refs, tokens, SQL) is named explicitly; nothing is silently hardcoded.
+- Max 3 files per step, full replacements preferred; owner pastes by hand.
+- Owner verifies desktop + phone and reports before the next step.
+- Ideas park in `docs/BACKLOG.md`, never in conversation.
+
+## 11. Secrets registry (what lives where — keep current)
+
+| Secret | Lives in | Set via |
+|---|---|---|
+| Supabase URL + anon key | `js/core/supabase.js` (public by design) | hand-paste (already done) |
+| Supabase access token (deploy) | `weaver-server` GitHub secret `SUPABASE_ACCESS_TOKEN` | GitHub web UI |
+| Project ref | `deploy-functions.yml` (not secret) | hand-edit |
+| OWNER_USER_ID | `admin/index.ts` constant (an ID, not a credential) | hand-edit |
+| service_role | NEVER in any file — auto-injected into functions by Supabase | nothing to do |
+| Stripe keys / webhook secret | function secrets via deploy Action | GitHub secrets |
+| AI provider keys (V3.4) | function secrets via deploy Action | GitHub secrets |
+
+
+================================================================================
+File: Weaver-4.1.1/docs/V4ROADMAP.md
+================================================================================
+# Weaver V4 — Roadmap & Delivery Plan
+
+Living document. Check items off as they land.
+Companion docs: `docs/Handover v3/Handoverfile.md` (source of truth), `docs/BACKLOG.md`.
+
+---
+
+## 0. Delivery protocol (read every session)
+
+These rules override everything else. They exist because partial edits have
+blanked the app before.
+
+| Rule | Meaning |
+|---|---|
+| No CLI | You paste into the GitHub web editor only. No terminal, no `git`, no local server. |
+| No local editors | The only code you touch is what I generate + the GitHub editor. |
+| Full-file default | Any change touching more than 3 lines ships as a COMPLETE file, ready to paste over the old one. |
+| ≤3-line edits only when tiny | I will only ask you to replace / insert / cut when the diff is 3 lines or fewer, and I will give the exact anchor text. |
+| Always name the target | Every delivered file states **Repo** + **exact GitHub file path** at the top. |
+| Verify → report → next | After each step you test on desktop AND phone, report the result, then we move on. |
+| Park, don't chat | New ideas go into `docs/BACKLOG.md`, never into conversation. |
+
+If a step ever blanks the app: open F12 → Console → first RED line names the
+file. Paste that line back to me; I will re-deliver the full clean file.
+
+---
+
+## 1. Phase 0 — Verify & housekeep (no code, ~15 min)
+
+Goal: confirm the V3 end-state is clean before building on it.
+
+- [ ] Open `https://legendalive.github.io/Weaver/admin/ai-keys.html` → should 404. If it loads, delete the file (Repo `Weaver`, path `admin/ai-keys.html`).
+- [ ] Open `https://legendalive.github.io/Weaver/admin/` → sign in → confirm Tickets, AI Monitor, Credits, Announcements tabs all load.
+- [ ] Open `https://legendalive.github.io/Weaver/welcome/pricing.html` → confirm all three purchase buttons resolve to a real Gumroad page (currently all point at `cqxxpt`; that's expected pre-Phase-5).
+- [ ] Note in your calendar: Supabase access tokens expire. When `weaver-server` Actions go red with `401`, regenerate the token (Supabase → avatar → Access tokens) and update the GitHub secret `SUPABASE_ACCESS_TOKEN`.
+
+Report back what you see, then we start Phase 1.
+
+---
+
+## 2. Phase 1 — Library series grouping
+
+**Goal:** In the Library, a series renders as ONE card (series name + book
+count). Tapping it expands to show its books. The "＋ Add book" button moves
+to the series row. Standalone projects stay as single cards.
+
+**Why first:** It's the highest-visibility growth item, frontend-only, and
+de-risks the `launch.js` rewrite in isolation before we touch the editor.
+
+**Files affected**
+
+| Repo | Path | Delivery |
+|---|---|---|
+| Weaver | `js/views/launch.js` | FULL file |
+| Weaver | `css/views.css` | FULL file (append new series-card rules; keeps existing hero/cards) |
+
+No backend change. `core/storage.js` already exposes `listSeries()`,
+`getSeries()`, and `listProjects()` with `seriesId` — we only regroup in the view.
+
+**Steps**
+1. I deliver full `js/views/launch.js`. Logic: group `listProjects()` by `seriesId`; series group → one expandable card; standalone → normal card. "＋ Add book" lives on the series card header and calls `openWizardFn({ seriesId, seriesName })`.
+2. I deliver full `css/views.css` with the new `.series-card`, `.series-card-books`, expand/collapse styles appended. Existing hero + project-card rules preserved verbatim.
+3. You paste both, hard-refresh, test:
+   - A series with 2+ books shows as one card with count.
+   - Tap → books list appears; tap a book → opens workspace.
+   - "＋ Add book" opens the wizard pre-scoped to that series.
+   - Standalone projects unchanged.
+   - Phone layout still stacks cleanly.
+
+**Verify checklist**
+- [ ] Series card shows name + book count.
+- [ ] Expand/collapse works on desktop and phone.
+- [ ] Add-book opens wizard with series preselected.
+- [ ] No console errors; no blank screen.
+
+---
+
+## 3. Phase 2 — Accept split ("Accept whole" / "Accept highlighted")
+
+**Goal:** Replace the single "Accept as is" action with two explicit buttons
+so writers can push an entire Manuscript or only their highlighted selection
+into the Main Novel. Add a one-line hint: "Move text to Main Novel before
+EPUB export."
+
+**Why:** Directly supports the EPUB workflow (Phase 5) and removes ambiguity
+about what gets accepted.
+
+**Files affected**
+
+| Repo | Path | Delivery |
+|---|---|---|
+| Weaver | `js/panels/manuscript.js` | FULL file (exports a new `acceptWhole()` alongside existing `acceptAsIs()` which becomes the highlighted path) |
+| Weaver | `js/views/workspace.js` | FULL file (footer now renders two buttons; pick()-resolution untouched) |
+| Weaver | `js/features/export.js` | FULL file (adds the hint line in the EPUB picker modal) |
+
+`manuscript.js` is load-bearing (block engine). I will re-deliver the ENTIRE
+file with only the accept logic added — paging, sticky-bottom, runway,
+selection bundling all preserved exactly.
+
+**Steps**
+1. I deliver full `js/panels/manuscript.js` adding `acceptWhole()` (pushes entire Manuscript text) and renaming intent of existing `acceptAsIs()` to highlighted-only (keep function name for back-compat; it already does selection).
+2. I deliver full `js/views/workspace.js` so the Manuscript footer renders two buttons: "Accept whole" and "Accept highlighted". The defensive `pick()` block and MISSING banner stay intact.
+3. I deliver full `js/features/export.js` adding a hint under the EPUB picker: "Tip: move text from Manuscript into Main Novel before exporting EPUB."
+4. You paste all three, hard-refresh, test:
+   - "Accept highlighted" with a selection → moves only that text, cuts from Manuscript (D1 freeze holds).
+   - "Accept whole" with no selection → moves entire Manuscript to Main Novel, clears Manuscript.
+   - Duplicate-guard still fires.
+   - EPUB picker shows the new hint.
+
+**Verify checklist**
+- [ ] Both buttons visible in Manuscript footer (desktop + phone).
+- [ ] Accept highlighted cuts selection only.
+- [ ] Accept whole moves everything.
+- [ ] Duplicate confirm still appears.
+- [ ] EPUB hint present.
+- [ ] No blank screen; paging/sticky-bottom still smooth.
+
+---
+
+## 4. Phase 3 — Supervisor role (support delegation)
+
+**Goal:** Create a lesser admin tier — "Supervisor" — that can handle support
+tickets and view the AI monitor, but CANNOT grant credits, delete/ban users,
+change announcements, manage AI keys, run backups, or see the owner's audit log.
+
+**Design**
+- New table `supervisors` (user_id uuid primary key, added_at timestamptz).
+  Only service_role can write it. Owner adds supervisors via a small SQL
+  insert or a future admin UI.
+- `support-admin` function: allow request if user is OWNER **or** present in `supervisors`.
+- `help` function's `/api/help-log` (AI monitor): same owner-or-supervisor gate.
+- `admin` function stays OWNER-ONLY (credits, users, announcements, backups, audit).
+- Frontend `admin/index.html`: on load, detect role. Supervisors see ONLY
+  "Messages" (Tickets + AI Monitor). Credits/Announcements/Audit tabs hidden.
+
+**Files affected**
+
+| Repo | Path | Delivery |
+|---|---|---|
+| weaver-server | `supabase/functions/support-admin/index.ts` | FULL file |
+| weaver-server | `supabase/functions/help/index.ts` | FULL file (gate the help-log endpoint) |
+| Weaver | `admin/index.html` | FULL file (role-aware tab rendering) |
+| Supabase | SQL (paste in SQL Editor) | Small script (I give exact SQL) |
+
+**Steps**
+1. I give you the SQL to create the `supervisors` table (you paste in Supabase → SQL Editor → Run).
+2. I deliver full `support-admin/index.ts` with the owner-or-supervisor check.
+3. I deliver full `help/index.ts` gating the AI-monitor endpoint.
+4. I deliver full `admin/index.html` that reads the viewer's role and hides owner-only tabs for supervisors.
+5. You push `weaver-server` (green tick), then paste `admin/index.html`.
+6. Test as owner (full access) and, if you have a second account, add it to `supervisors` and confirm it sees only Messages.
+
+**Manual adds**
+- Run the `supervisors` SQL in Supabase.
+- To grant someone supervisor: `insert into supervisors(user_id) values ('<their-uuid>');`
+
+**Verify checklist**
+- [ ] Owner still sees all tabs.
+- [ ] Supervisor sees only Tickets + AI Monitor.
+- [ ] Supervisor CANNOT reach credits/users/announcements/backups.
+- [ ] Ticket replies still email via Brevo.
+
+---
+
+## 5. Phase 4 — Ticket report CSV
+
+**Goal:** Let the admin (owner or supervisor) export all support tickets +
+replies + help-log as a CSV for offline review.
+
+**Approach:** Client-built CSV in `admin/index.html` from data already fetched
+by `support-admin` (tickets + replies) and `help` (help-log). No new backend
+endpoint needed.
+
+**Files affected**
+
+| Repo | Path | Delivery |
+|---|---|---|
+| Weaver | `admin/index.html` | FULL file (adds an "Export CSV" button in the Messages tab) |
+
+**Steps**
+1. I deliver full `admin/index.html` with an "Export CSV" button that assembles tickets + replies + help-log rows into a CSV and triggers a browser download.
+2. You paste, open admin → Messages → click Export CSV → confirm a file downloads with correct columns (ticket id, subject, user email, status, created, replies, help-log question/answer/resolved).
+
+**Verify checklist**
+- [ ] Button visible to owner and supervisor.
+- [ ] CSV opens cleanly in a spreadsheet.
+- [ ] Includes tickets, threaded replies, and help-log.
+
+---
+
+## 6. Phase 5 — Gumroad 3-product setup & relink
+
+**Goal:** Stand up three real Gumroad products and point every upgrade surface
+at the correct one. Then run a full purchase test.
+
+**Products to create in Gumroad (manual, you do this in the Gumroad dashboard)**
+
+| Name | Price | Permalink |
+|---|---|---|
+| Weaver Pro — Monthly | $8 / month | `weaver-monthly` |
+| Weaver Pro — Yearly | $60 / year | `weaver-yearly` |
+| Weaver Pro — Lifetime | $149 one-time | `weaver-lifetime` |
+
+Use seller `mbenson62`. Keep the existing `cqxxpt` product live until these
+are confirmed, then you can archive it.
+
+**Files affected (relink only)**
+
+| Repo | Path | Delivery |
+|---|---|---|
+| Weaver | `welcome/pricing.html` | FULL file (three buttons → three permalinks) |
+| Weaver | `js/features/scribe.js` | ≤3-line edit (update `UPGRADE_URL` constant) |
+| Weaver | `js/features/settings.js` | ≤3-line edit (update the upgrade `<a href>`) |
+
+Because the scribe.js and settings.js changes are a single URL constant each,
+those qualify as ≤3-line targeted edits. I will give you the exact line and
+the exact replacement. Everything else is full-file.
+
+**Steps**
+1. You create the three Gumroad products; send me the three live URLs.
+2. I deliver full `welcome/pricing.html` with the three real links and matching copy.
+3. I give you the ≤3-line edit for `scribe.js` (the `UPGRADE_URL` value) and the ≤3-line edit for `settings.js` (the upgrade anchor href).
+4. You paste pricing.html, apply the two tiny edits.
+5. **End-to-end purchase test** (critical):
+   - Sign up a FRESH Weaver account (not your owner account).
+   - Buy the monthly product on Gumroad using that account's email.
+   - As owner, open admin → Credits → grant Pro to that account.
+   - Sign in as the new account → confirm unlocks: cloud sync badge, Scribe input, temperature slider in Settings, EPUB export.
+
+**Verify checklist**
+- [ ] Pricing page buttons go to three distinct Gumroad products.
+- [ ] Scribe upgrade card + Settings upgrade button use the right link.
+- [ ] Fresh-account purchase → manual grant → all Pro features unlock.
+
+---
+
+## 7. Later (not in this phase, listed so we don't lose them)
+
+- Strict one-way cloud actions (push-only / pull-only) if users request — touches `features/cloud.js` internals.
+- Credits-exhausted CTA parity when the server denies a generation (currently only the client gate shows the upgrade card).
+
+## 8. Parked (explicitly deferred)
+
+Full PDF import (reject-with-guidance is final) · TTS/audiobook ·
+multi-platform Gumroad · Stripe/PayPal + Kenya research · EU-domain/GDPR pass ·
+trash / 30-day recovery · legacy env AI-secret cleanup.
+
+## 9. Scrapped (do not revive without new facts)
+
+Silent Puter auto-accounts · merged contextual "Cloud Sync" button ·
+free-user AI panel removal (kills the trial funnel; the CTA card replaces it) ·
+Stonecode/SwingMatrix company names.
+
+---
+
+## Suggested build order (dependencies)
+
+Phase 0 (verify) → Phase 1 (library) → Phase 2 (accept) → Phase 5 (Gumroad,
+so Phase 3/4 admins can be tested against a real paying flow) → Phase 3
+(supervisor) → Phase 4 (CSV).
+
+We do ONE phase at a time. You verify and report before the next.
+
+
+================================================================================
+File: Weaver-4.1.1/docs/V5_MARKETING_PLAN.md
+================================================================================
+# V5 Marketing Plan — Launch & Growth
+
+**Status:** Approved · Pre-launch planning complete
+**Timeline:** Begins immediately after V4 polish + owner 1-day writing test
+**Goal:** Convert Weaver from "built" to "known" — first 100 paying users in 90 days
+
+---
+
+## Executive Summary
+
+V5 is Weaver's commercial launch. V4 delivers a polished, feature-complete product; V5 makes it visible. This plan covers positioning, channels, content, pricing strategy, and growth mechanics for the first 6 months post-launch.
+
+**Core positioning:** "The privacy-first novel studio for serious writers."
+
+---
+
+## 1. Market Positioning
+
+### Target Audience
+- **Primary:** Indie novelists, self-published authors, NaNoWriMo participants (25–55)
+- **Secondary:** Hobbyist writers, fanfiction authors, screenwriters adapting to prose
+
+### Competitive Positioning
+
+| Competitor | Their Weakness | Weaver's Advantage |
+|---|---|---|
+| Scrivener ($49) | Steep learning curve, dated UI, no AI | Modern UX, integrated AI, lower barrier |
+| Dabble ($15–39/mo) | Expensive subscription, cloud-only | Lifetime option, local-first, privacy |
+| Sudowrite ($10–59/mo) | AI-heavy, trains on user data | Privacy-first, AI optional, no training |
+| Novelcrafter ($4–20/mo) | BYOK friction, complex setup | Curated AI, zero config, included in Pro |
+| Plottr ($199 lifetime) | Outlining only, no writing | Full pipeline: outline → draft → polish |
+| LivingWriter ($25–35/mo) | Subscription trap, limited export | Lifetime plan, unlimited exports |
+
+### Key Differentiators (use in ALL marketing copy)
+1. **"Your words stay yours"** — Local storage, no cloud dependency, no training
+2. **"Pay once, write forever"** — Lifetime plan at $149 vs competitors' $300–600/year
+3. **"Professional tools, no subscription trap"** — Full feature set without monthly fees
+4. **"AI that respects your work"** — Optional, privacy-first, no data harvesting
+
+---
+
+## 2. Launch Channels & Tactics
+
+### Phase 1: Pre-Launch (Weeks 1–4)
+- [ ] Record 60-second demo video (screen capture + voiceover)
+- [ ] Prepare 5–7 screenshots (workspace, config bible, AI output, mobile, cover gen)
+- [ ] Write maker comment (200 words: problem → solution → why we built this)
+- [ ] Line up 10–15 Product Hunt upvotes from network
+- [ ] Gather 3–5 beta testimonials from owner's 1-day test + early readers
+- [ ] Soft launch to email list / Discord (50 users), collect feedback
+
+### Phase 2: Launch Week (Week 5)
+- [ ] **Product Hunt** — Tuesday/Wednesday 12:01 AM PST; tagline: "The privacy-first novel studio for serious writers"
+- [ ] **Hacker News Show HN** — Tuesday 9–11 AM EST; angle: local-first + no-tracking + hand-rolled engine
+- [ ] **Reddit** — r/selfpublish, r/writing, r/nanowrimo, r/SideProject (value-first, link in comments)
+- [ ] **Twitter/X** — 7-day content calendar (#WritingCommunity #AmWriting #IndieAuthor)
+- [ ] **Facebook Groups** — Self-pub/romance writer groups; "I built this, would love feedback"
+- [ ] **Indie Hackers** — Milestone post + weekly progress updates
+
+### Phase 3: Post-Launch (Weeks 6–24)
+- [ ] Content marketing: 1 blog post/week for 8 weeks (see §4)
+- [ ] Podcast outreach: Self-Publishing Show, Write Now, The Creative Penn
+- [ ] YouTube collaborations with booktube/writing-tool reviewers
+- [ ] Referral program launch (Gumroad native affiliates, 30% commission)
+- [ ] Ambassador recruitment (10–20 power users)
+- [ ] Discord community: weekly office hours, monthly writing sprints, feature voting
+
+---
+
+## 3. Pricing Strategy
+
+### Current Pricing (confirmed)
+| Plan | Price | Notes |
+|---|---|---|
+| Free | $0 | Unlimited local use, no cloud/AI |
+| Pro Monthly | $8/month | Cancel any time |
+| Pro Yearly | $60/year | Best value — over 4 months free |
+| Pro Lifetime | $149 one-time | Pay once, write forever |
+
+### Launch Recommendation
+Maintain current pricing for first 60 days. Evaluate introductory discount only if conversion < 5%.
+
+### Pricing Page Optimization (pre-launch)
+- [ ] Add comparison table (Weaver vs Scrivener vs Dabble vs Sudowrite)
+- [ ] Include ROI calculator ("Save $X/year vs subscription tools")
+- [ ] Add FAQ: "What happens to my data if I cancel?" → "Everything stays on your device"
+- [ ] Money-back guarantee badge (30-day refund)
+
+---
+
+## 4. Content Marketing Calendar
+
+| Week | Topic | Target Keyword |
+|---|---|---|
+| 1 | Why I Built Weaver: The Privacy Problem with Modern Writing Tools | privacy-first writing app |
+| 2 | How to Use AI in Your Novel Without Losing Your Voice | AI writing tool for novels |
+| 3 | The Config Bible: Your Novel's Single Source of Truth | novel writing software |
+| 4 | Local-First vs Cloud: Why Your Words Should Stay Yours | local-first writing |
+| 5 | From Outline to Final Draft: The Weaver Workflow | scrivener alternative |
+| 6 | 5 Ways Weaver Beats Scrivener for Indie Authors | scrivener alternative |
+| 7 | NaNoWriMo Survival Guide: Using Weaver to Hit 50k Words | nanowrimo tools |
+| 8 | The Economics of Writing Tools: Why Subscriptions Are a Trap | writing software pricing |
+
+---
+
+## 5. Growth Mechanics
+
+### Gumroad Affiliate Program
+- Commission: 30% per product (set in Gumroad dashboard)
+- Target: 20 writing YouTubers/podcasters/newsletters who review Scrivener/Sudowrite
+- One-page affiliate kit: pitch + feature bullets + screenshots + links
+
+### SEO Targets
+- "novel writing software" (12k/mo)
+- "scrivener alternative" (8k/mo)
+- "AI writing tool for novels" (5k/mo)
+- "privacy-first writing app" (1k/mo, low competition)
+
+### Partnerships (Month 3+)
+- NaNoWriMo regional event sponsorship
+- Writing course bundles (revenue share)
+- Self-publishing service cross-promotion (editors, cover designers)
+
+---
+
+## 6. Metrics & Goals
+
+| Metric | Launch Week | Month 1 | Month 6 |
+|---|---|---|---|
+| Signups | 500 | 1,500 | 5,000 |
+| Paid users | 50 | 150 | 500 |
+| Revenue | $3–5K | $8–12K | $25–35K |
+| MRR | — | $800–1,200 | $2,500–3,500 |
+| Lifetime sales | 10 | 30 | 150 |
+| Churn | — | <5% | <5% |
+
+---
+
+## 7. Budget (First 3 Months)
+
+| Item | Cost |
+|---|---|
+| Demo video production | $200 |
+| Twitter/X promoted tweets | $300 |
+| Reddit ads (targeted) | $500 |
+| Email marketing (ConvertKit) | $150 |
+| Podcast sponsorships (2–3) | $1,000 |
+| Influencer collaborations | $500 |
+| **Total** | **$2,650** |
+
+Expected ROI: 3–10× depending on PH/HN traction.
+
+---
+
+## 8. Risks & Mitigations
+
+| Risk | Mitigation |
+|---|---|
+| Low PH traction | 20+ pre-lined upvotes; simultaneous multi-channel launch |
+| Pricing pushback | Emphasize lifetime value; 30-day money-back guarantee |
+| Technical issues at launch | Stress test pre-launch; rollback plan to V4 |
+| Competitor response | Don't engage in feature wars; emphasize philosophy + community |
+
+---
+
+## 9. Post-V5 Roadmap
+
+- **V6 (Q2 2026):** Collaboration, native mobile apps, advanced analytics, template marketplace
+- **V7 (Q3 2026):** Team plans, LMS integration, white-label, API access
+- **V8 (Q4 2026):** Multi-language support, localized marketing, currency expansion
+
+---
+
+*Last updated: 2026-11-04 · Owner: Michael Benson*
+
+
+================================================================================
+File: Weaver-4.1.1/index.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Weaver — a private novel-writing studio. Structure · Refine · Generate."/>
+  <title>Weaver</title>
+
+  <!-- Favicon: italic gold W on charcoal -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%230b0b0c'/%3E%3Ctext%20x='32'%20y='48'%20font-family='Georgia,serif'%20font-style='italic'%20font-size='46'%20font-weight='700'%20fill='%23f0c054'%20text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E"/>
+
+  <!-- Brand typeface for the W logo (freehand script) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/views.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body>
+  <div class="app-root">
+    <section id="view-auth" class="view"></section>
+    <section id="view-launch" class="view"></section>
+    <section id="view-workspace" class="view"></section>
+  </div>
+
+  <div class="splash">
+    <span class="weaver-logo logo-xl" aria-hidden="true">W</span>
+    <h1 class="splash-title">Weaver</h1>
+    <p class="splash-tag">Structure · Refine · Generate</p>
+    <p id="boot-status" class="splash-status">Booting…</p>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/manager.js
+================================================================================
+/* =========================================================
+Weaver — js/ai/manager.js
+Step 19 + V3.4b: 4-Tier Fallback Manager + Weaver AI Proxy.
+Pro users are served by the Weaver AI proxy (owner's keys, zero
+setup). Everyone else — or if the proxy is unavailable — falls
+back to user-configured provider keys.
+========================================================= */
+import groq from './providers/groq.js';
+import openrouter from './providers/openrouter.js';
+import gemini from './providers/gemini.js';
+import mistral from './providers/mistral.js';
+import { selectBestModel } from './model-router.js';
+import { getState } from '../core/state.js';
+import { isPro } from '../core/entitlements.js';
+import { getSupabaseClient } from '../core/supabase.js';
+import { forEachSSEData } from './providers/sse.js';
+
+const PROVIDER_MAP = { groq, openrouter, gemini, mistral };
+const PROXY_URL = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
+
+function getProviderConfigs() {
+  return getState().settings.ai.providers;
+}
+function getFallbackOrder() {
+  return getState().settings.ai.fallbackOrder || ['groq', 'openrouter', 'gemini', 'mistral'];
+}
+
+export async function getAvailableProviders() {
+  const configs = getProviderConfigs();
+  const order = getFallbackOrder();
+  return order
+    .map(id => PROVIDER_MAP[id])
+    .filter(p => p && configs[p.id]?.key && configs[p.id]?.enabled);
+}
+
+/* ---------- V3.4: Weaver AI proxy (owner's keys) ---------- */
+async function getProxyToken() {
+  try {
+    const client = await getSupabaseClient();
+    const { data } = await client.auth.getSession();
+    return (data && data.session) ? data.session.access_token : '';
+  } catch (e) { return ''; }
+}
+
+async function streamViaProxy({ messages, onToken, signal }) {
+  const token = await getProxyToken();
+  if (!token) throw new Error('You need to be signed in to use Weaver AI.');
+  const gen = getState().settings.ai;
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    signal,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({
+      messages,
+      temperature: gen.temperature ?? 0.85,
+      maxTokens: gen.maxTokens ?? 2048,
+    }),
+  });
+  if (!res.ok) {
+    let msg = 'Weaver AI request failed.';
+    try { const d = await res.json(); if (d && d.error) msg = d.error; } catch (e) {}
+    if (res.status === 402) msg = 'AI needs Weaver Pro. Upgrade in Settings.';
+    throw new Error(msg);
+  }
+  let full = '';
+  await forEachSSEData(res, (json) => {
+    const text = (json && json.choices && json.choices[0] && json.choices[0].delta)
+      ? json.choices[0].delta.content : null;
+    if (text) {
+      full += text;
+      if (onToken) onToken(text, full);
+    }
+  });
+  return full;
+}
+
+export async function streamChatWithFallback(opts) {
+  const { messages, onToken, onProviderSwitch, signal } = opts;
+
+  /* V3.4: Pro users go through the Weaver proxy first (owner's keys). */
+  if (isPro()) {
+    try {
+      if (onProviderSwitch) {
+        onProviderSwitch({ provider: 'weaver', providerLabel: 'Weaver AI', model: 'proxy' });
+      }
+      return await streamViaProxy({ messages, onToken, signal });
+    } catch (err) {
+      console.warn('[AI Manager] Weaver proxy failed:', err.message, '— trying your own keys if configured.');
+      /* fall through to user-configured providers */
+    }
+  }
+
+  const available = await getAvailableProviders();
+  if (!available.length) {
+    if (isPro()) {
+      throw new Error('Weaver AI is briefly unavailable. Please try again in a moment.');
+    }
+    throw new Error('No AI providers configured. Please add an API key in Settings.');
+  }
+
+  let lastError = null;
+  for (const provider of available) {
+    const apiKey = getProviderConfigs()[provider.id].key;
+    try {
+      const models = await provider.listModels(apiKey);
+      if (!models || !models.length) {
+        throw new Error(`No models available from ${provider.label}.`);
+      }
+      const bestModel = selectBestModel(models);
+      if (!bestModel) {
+        throw new Error(`Could not select a valid model for ${provider.label}.`);
+      }
+      if (onProviderSwitch) {
+        onProviderSwitch({ provider: provider.id, providerLabel: provider.label, model: bestModel.id });
+      }
+      const gen = getState().settings.ai;
+      const fullText = await provider.streamChat({
+        apiKey,
+        model: bestModel.id,
+        messages,
+        temperature: gen.temperature ?? 0.85,
+        maxTokens: gen.maxTokens ?? 2048,
+        signal,
+        onToken,
+      });
+      return fullText;
+    } catch (err) {
+      console.warn(`[AI Manager] ${provider.label} failed: ${err.message}. Trying next provider...`);
+      lastError = err;
+    }
+  }
+  throw new Error(`All AI providers failed. Last error: ${lastError?.message || 'Unknown error'}`);
+}
+
+export async function testAllProviders() {
+  const configs = getProviderConfigs();
+  const results = {};
+  for (const provider of Object.values(PROVIDER_MAP)) {
+    const key = configs[provider.id]?.key;
+    if (!key) {
+      results[provider.id] = { ok: false, message: 'No API key provided.' };
+      continue;
+    }
+    results[provider.id] = await provider.testKey(key);
+  }
+  return results;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/model-router.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/model-router.js
+   Step 18 + Patch: Dynamic model router.
+   - Blacklists models requiring TOS (orpheus) or deprecated (2.5).
+   - Boosts latest creative models (gemini-3, gemini-2.0, qwen).
+   ========================================================= */
+
+function scoreModel(model) {
+  let score = 0;
+  const id = (model.id || '').toLowerCase();
+  const name = (model.name || '').toLowerCase();
+  const combined = `${id} ${name}`;
+
+  // Creative / Instruct / Story keywords (high bonus)
+  const creativeKeywords = [
+    'instruct', 'chat', 'story', 'writer', 'creative', 'mytho', 'lumimaid',
+    'airoboros', 'midnight', 'miqu', 'noromaid', 'dolphin', 'openhermes',
+    'wizard', 'zephyr', 'nous', 'capricorn', 'mahou', 'psyfighter', 'hermes',
+    'roleplay', 'rp', 'fiction', 'novel', 'command-r', 
+    'gemini-3', 'gemini-2.0', '3.8', '2.0-flash', 'qwen', 'llama-3'
+  ];
+  for (const kw of creativeKeywords) {
+    if (combined.includes(kw)) score += 500;
+  }
+
+  // Penalize non-text, highly specialized, or API-problematic models
+  const penalizeKeywords = [
+    'orpheus', '2.5-flash', 'gemini-2.5', 'code', 'math', 'embed', 'vision', 
+    'audio', 'moderation', 'speech', 'tts', 'whisper', 'rerank', 'guard'
+  ];
+  for (const kw of penalizeKeywords) {
+    if (combined.includes(kw)) score -= 1000;
+  }
+
+  // Context length bonus (up to 200 points for 200k context)
+  if (model.contextLength) {
+    score += Math.min(model.contextLength / 1000, 200);
+  }
+
+  // Recency bonus
+  if (model.created) {
+    score += (model.created / 1e8); 
+  }
+
+  return score;
+}
+
+export function selectBestModel(models) {
+  if (!models || !models.length) return null;
+  let best = null;
+  let bestScore = -Infinity;
+  for (const m of models) {
+    const s = scoreModel(m);
+    if (s > bestScore) {
+      bestScore = s;
+      best = m;
+    }
+  }
+  return best;
+}
+
+export function sortModelsByFitness(models) {
+  if (!models) return [];
+  return [...models].sort((a, b) => scoreModel(b) - scoreModel(a));
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/providers/gemini.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/providers/gemini.js
+   Step 17: Google Gemini adapter.
+   Translates OpenAI-style messages to Gemini's contents format.
+   Contract: listModels / testKey / streamChat.
+   ========================================================= */
+
+import { forEachSSEData } from './sse.js';
+
+const BASE = 'https://generativelanguage.googleapis.com/v1beta';
+
+async function err(res) {
+  const e = await res.json().catch(() => null);
+  return new Error(e?.error?.message || `Gemini HTTP ${res.status}`);
+}
+
+const gemini = {
+  id: 'gemini',
+  label: 'Google Gemini',
+  keyUrl: 'https://aistudio.google.com/app/apikey',
+
+  /* Runtime discovery — filters for models supporting generateContent. */
+  async listModels(apiKey) {
+    const res = await fetch(`${BASE}/models?key=${apiKey}`);
+    if (!res.ok) throw await err(res);
+    const json = await res.json();
+    return (json.models || [])
+      .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m) => ({
+        id: m.name.replace('models/', ''),
+        name: m.displayName || m.name,
+        created: 0,
+        contextLength: m.inputTokenLimit || null,
+        free: true, // Standard API keys get generous free tiers
+        meta: m,
+      }));
+  },
+
+  async testKey(apiKey) {
+    try {
+      const res = await fetch(`${BASE}/models?key=${apiKey}`);
+      if (res.ok) return { ok: true, message: 'Connection successful.' };
+      const e = await res.json().catch(() => null);
+      return { ok: false, message: e?.error?.message || `HTTP ${res.status}` };
+    } catch (e) {
+      return { ok: false, message: e.message || 'Network error.' };
+    }
+  },
+
+  async streamChat({ apiKey, model, messages, temperature = 0.85, maxTokens = 2048, signal, onToken }) {
+    // Translate OpenAI messages -> Gemini contents
+    let systemInstruction = null;
+    const contents = [];
+    
+    for (const msg of messages) {
+      if (msg.role === 'system') {
+        systemInstruction = { parts: [{ text: msg.content }] };
+      } else {
+        contents.push({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }],
+        });
+      }
+    }
+
+    const body = {
+      contents,
+      generationConfig: { temperature, maxOutputTokens: maxTokens },
+    };
+    if (systemInstruction) body.systemInstruction = systemInstruction;
+
+    const res = await fetch(
+      `${BASE}/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+      {
+        method: 'POST',
+        signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) throw await err(res);
+
+    let full = '';
+    await forEachSSEData(res, (json) => {
+      const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        full += text;
+        if (onToken) onToken(text, full);
+      }
+    });
+    return full;
+  },
+};
+
+export default gemini;
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/providers/groq.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/providers/groq.js
+   Step 16: Groq adapter (OpenAI-compatible endpoints).
+   Contract: listModels / testKey / streamChat.
+   ========================================================= */
+
+import { forEachSSEData } from './sse.js';
+
+const BASE = 'https://api.groq.com/openai/v1';
+
+async function err(res) {
+  const e = await res.json().catch(() => null);
+  return new Error(e?.error?.message || `Groq HTTP ${res.status}`);
+}
+
+const groq = {
+  id: 'groq',
+  label: 'Groq',
+  keyUrl: 'https://console.groq.com/keys',
+
+  /* Runtime discovery — no hardcoded models. Groq inference
+     runs on free-tier quotas, so every listed model qualifies. */
+  async listModels(apiKey) {
+    const res = await fetch(`${BASE}/models`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw await err(res);
+    const json = await res.json();
+    return (json.data || [])
+      .filter((m) => !m.deprecated)
+      .map((m) => ({
+        id: m.id,
+        name: m.id,
+        created: m.created || 0,
+        contextLength: m.context_window || null,
+        free: true,
+        meta: m,
+      }));
+  },
+
+  async testKey(apiKey) {
+    try {
+      const res = await fetch(`${BASE}/models`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (res.ok) return { ok: true, message: 'Connection successful.' };
+      const e = await res.json().catch(() => null);
+      return { ok: false, message: e?.error?.message || `HTTP ${res.status}` };
+    } catch (e) {
+      return { ok: false, message: e.message || 'Network error.' };
+    }
+  },
+
+  async streamChat({ apiKey, model, messages, temperature = 0.85, maxTokens = 2048, signal, onToken }) {
+    const res = await fetch(`${BASE}/chat/completions`, {
+      method: 'POST',
+      signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ model, messages, stream: true, temperature, max_tokens: maxTokens }),
+    });
+    if (!res.ok) throw await err(res);
+
+    let full = '';
+    await forEachSSEData(res, (json) => {
+      const delta = json.choices?.[0]?.delta?.content;
+      if (delta) {
+        full += delta;
+        if (onToken) onToken(delta, full);
+      }
+    });
+    return full;
+  },
+};
+
+export default groq;
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/providers/mistral.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/providers/mistral.js
+   Step 17: Mistral AI adapter (OpenAI-compatible endpoints).
+   Contract: listModels / testKey / streamChat.
+   ========================================================= */
+
+import { forEachSSEData } from './sse.js';
+
+const BASE = 'https://api.mistral.ai/v1';
+
+async function err(res) {
+  const e = await res.json().catch(() => null);
+  return new Error(e?.message || e?.error?.message || `Mistral HTTP ${res.status}`);
+}
+
+const mistral = {
+  id: 'mistral',
+  label: 'Mistral AI',
+  keyUrl: 'https://console.mistral.ai/api-keys/',
+
+  /* Runtime discovery — lists all models available to the key. */
+  async listModels(apiKey) {
+    const res = await fetch(`${BASE}/models`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw await err(res);
+    const json = await res.json();
+    return (json.data || []).map((m) => ({
+      id: m.id,
+      name: m.name || m.id,
+      created: m.created || 0,
+      contextLength: null,
+      free: true, // Treat all as available (Mistral uses trial credits)
+      meta: m,
+    }));
+  },
+
+  async testKey(apiKey) {
+    try {
+      const res = await fetch(`${BASE}/models`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (res.ok) return { ok: true, message: 'Connection successful.' };
+      const e = await res.json().catch(() => null);
+      return { ok: false, message: e?.message || e?.error?.message || `HTTP ${res.status}` };
+    } catch (e) {
+      return { ok: false, message: e.message || 'Network error.' };
+    }
+  },
+
+  async streamChat({ apiKey, model, messages, temperature = 0.85, maxTokens = 2048, signal, onToken }) {
+    const res = await fetch(`${BASE}/chat/completions`, {
+      method: 'POST',
+      signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: true,
+        temperature,
+        max_tokens: maxTokens,
+      }),
+    });
+    if (!res.ok) throw await err(res);
+
+    let full = '';
+    await forEachSSEData(res, (json) => {
+      const delta = json.choices?.[0]?.delta?.content;
+      if (delta) {
+        full += delta;
+        if (onToken) onToken(delta, full);
+      }
+    });
+    return full;
+  },
+};
+
+export default mistral;
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/providers/openrouter.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/providers/openrouter.js
+   Step 16: OpenRouter adapter.
+   Contract: listModels / testKey / streamChat.
+   Free-tier filter: prompt & completion pricing both zero.
+   ========================================================= */
+
+import { forEachSSEData } from './sse.js';
+
+const BASE = 'https://openrouter.ai/api/v1';
+
+function extraHeaders() {
+  return {
+    'HTTP-Referer': location.origin,
+    'X-Title': 'Weaver',
+  };
+}
+
+async function err(res) {
+  const e = await res.json().catch(() => null);
+  return new Error(e?.error?.message || `OpenRouter HTTP ${res.status}`);
+}
+
+const openrouter = {
+  id: 'openrouter',
+  label: 'OpenRouter',
+  keyUrl: 'https://openrouter.ai/settings/keys',
+
+  /* Runtime discovery — free models only, zero hardcoding. */
+  async listModels(apiKey) {
+    const headers = { ...extraHeaders() };
+    if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+    const res = await fetch(`${BASE}/models`, { headers });
+    if (!res.ok) throw await err(res);
+    const json = await res.json();
+    return (json.data || [])
+      .filter((m) => {
+        const p = m.pricing || {};
+        return parseFloat(p.prompt || '0') === 0 && parseFloat(p.completion || '0') === 0;
+      })
+      .map((m) => ({
+        id: m.id,
+        name: m.name || m.id,
+        created: m.created || 0,
+        contextLength: m.context_length || null,
+        free: true,
+        meta: m,
+      }));
+  },
+
+  async testKey(apiKey) {
+    try {
+      const res = await fetch(`${BASE}/key`, {
+        headers: { Authorization: `Bearer ${apiKey}`, ...extraHeaders() },
+      });
+      if (res.ok) return { ok: true, message: 'Connection successful.' };
+      const e = await res.json().catch(() => null);
+      return { ok: false, message: e?.error?.message || `HTTP ${res.status}` };
+    } catch (e) {
+      return { ok: false, message: e.message || 'Network error.' };
+    }
+  },
+
+  async streamChat({ apiKey, model, messages, temperature = 0.85, maxTokens = 2048, signal, onToken }) {
+    const res = await fetch(`${BASE}/chat/completions`, {
+      method: 'POST',
+      signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        ...extraHeaders(),
+      },
+      body: JSON.stringify({ model, messages, stream: true, temperature, max_tokens: maxTokens }),
+    });
+    if (!res.ok) throw await err(res);
+
+    let full = '';
+    await forEachSSEData(res, (json) => {
+      const delta = json.choices?.[0]?.delta?.content;
+      if (delta) {
+        full += delta;
+        if (onToken) onToken(delta, full);
+      }
+    });
+    return full;
+  },
+};
+
+export default openrouter;
+
+
+================================================================================
+File: Weaver-4.1.1/js/ai/providers/sse.js
+================================================================================
+/* =========================================================
+   Weaver — js/ai/providers/sse.js
+   Step 16: shared Server-Sent-Events reader for OpenAI-style
+   streaming endpoints (Groq, OpenRouter, Mistral).
+   Calls onJSON(parsed) for every `data:` payload; stops at
+   `data: [DONE]` or stream end. Keep-alives are ignored.
+   ========================================================= */
+
+export async function forEachSSEData(response, onJSON) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+
+    let idx;
+    while ((idx = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, idx).trim();
+      buf = buf.slice(idx + 1);
+      if (!line.startsWith('data:')) continue;
+      const payload = line.slice(5).trim();
+      if (!payload) continue;
+      if (payload === '[DONE]') return;
+      try {
+        onJSON(JSON.parse(payload));
+      } catch {
+        /* ignore malformed keep-alive chunks */
+      }
+    }
+  }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/app.js
+================================================================================
+/* =========================================================
+   Weaver — js/app.js
+   v2 Stage 6.9.1: boot + Supabase auth gate + per-user namespace.
+   HARDENED: boot() can never leave the user trapped on the
+   splash. Exceptions surface on screen, and a watchdog reveals
+   a retry card if no view has activated within 15s.
+   Splash screen is explicitly hidden on view activation.
+   ========================================================= */
+import { getState, subscribe, openProject, reloadSettings } from './core/state.js';
+import {
+  getActiveProject, setUserNamespace,
+  hasLegacyData, namespaceIsEmpty, migrateLegacyData,
+} from './core/storage.js';
+import { el, clear, toast } from './utils/dom.js';
+import { icon } from './utils/icons.js';
+import {
+  initAuth, authConfigured, currentUserId, onAuthChange, renderAuthView,
+} from './auth/auth.js';
+import { initLaunch } from './views/launch.js';
+import { initWizard } from './views/wizard.js';
+import { initWorkspace } from './views/workspace.js';
+import { initScribe } from './features/scribe.js';
+import { initAiOutput } from './panels/ai-output.js';
+import { initSearch } from './features/search.js';
+import { initCapture } from './features/capture.js';
+import { initNotes } from './features/notes.js';
+import { initMobileDock } from './features/mobile-dock.js';
+import { loadBanner } from './features/banner.js';
+import { initSupport } from './features/support.js';
+import { renderManuscript } from './panels/manuscript.js';
+import { loadEntitlement } from './core/entitlements.js';
+import { renderMainNovel } from './panels/main-novel.js';
+
+const APP_VERSION = '2.0.0';
+const VIEWS = ['auth', 'launch', 'workspace'];
+const WATCHDOG_MS = 15000;
+
+let inApp = false;
+let watchdog = null;
+
+function setStatus(text) {
+  const status = document.getElementById('boot-status');
+  if (status) status.textContent = text;
+}
+
+function switchView(name) {
+  if (!VIEWS.includes(name)) return false;
+  // CRITICAL: Hide the static splash screen as soon as any view activates
+  const splash = document.querySelector('.splash');
+  if (splash) splash.style.display = 'none';
+  
+  for (const v of VIEWS) {
+    const node = document.getElementById(`view-${v}`);
+    if (node) node.classList.toggle('is-active', v === name);
+  }
+  return true;
+}
+
+function anyViewActive() {
+  return VIEWS.some((v) => {
+    const node = document.getElementById(`view-${v}`);
+    return node && node.classList.contains('is-active');
+  });
+}
+
+function showAuthView() {
+  switchView('auth');
+  const container = document.getElementById('view-auth');
+  if (container) renderAuthView(container);
+}
+
+/* Last resort: never leave the user staring at the splash. */
+function bootFailed(message) {
+  inApp = false;
+  setStatus('could not start');
+  // CRITICAL: Hide splash before showing error card
+  const splash = document.querySelector('.splash');
+  if (splash) splash.style.display = 'none';
+  
+  switchView('auth');
+  const container = document.getElementById('view-auth');
+  if (!container) return;
+  clear(container);
+  container.appendChild(el('div', { class: 'auth-wrap' }, [
+    el('div', { class: 'auth-card' }, [
+      el('div', { class: 'auth-head' }, [
+        el('div', { class: 'auth-logo' }, [icon('alert', 'icon-lg')]),
+        el('div', {}, [
+          el('div', { class: 'auth-title', text: 'Weaver could not start' }),
+          el('div', { class: 'auth-tag', text: 'Your work is safe' }),
+        ]),
+      ]),
+      el('div', { class: 'auth-error', text: message || 'An unexpected error occurred during startup.' }),
+      el('p', {
+        class: 'auth-hint',
+        text: 'Nothing has been lost — your projects are stored in this browser. Reload to try again; if it persists, check your connection (the sign-in service may be unreachable).',
+      }),
+      el('button', { class: 'btn btn-primary', text: 'Reload Weaver', onclick: () => location.reload() }),
+    ]),
+  ]));
+}
+
+function armWatchdog() {
+  clearTimeout(watchdog);
+  watchdog = setTimeout(() => {
+    if (!anyViewActive()) {
+      bootFailed('Startup timed out. The sign-in service may be unreachable.');
+    }
+  }, WATCHDOG_MS);
+}
+
+function disarmWatchdog() { clearTimeout(watchdog); watchdog = null; }
+
+function applyFontScale() {
+  const fs = getState().settings.general.fontScale ?? 1;
+  document.documentElement.style.setProperty('--font-scale', String(fs));
+}
+
+let settingsTimer = null;
+
+/* Runs exactly once per page load, after a session is confirmed. */
+async function enterApp() {
+  const userId = currentUserId();
+  if (!userId) return;
+  inApp = true;
+
+  /* All storage reads/writes from here on are user-scoped. */
+    setUserNamespace(userId);
+  reloadSettings();
+  loadEntitlement(userId);
+
+  /* Silent one-time adoption of pre-account (v1) data on this device. */
+  if (namespaceIsEmpty() && hasLegacyData()) {
+    migrateLegacyData();
+    reloadSettings();
+    loadEntitlement(userId);
+  }
+
+  subscribe((state, change) => {
+    if (change.view) switchView(state.view);
+    if (change.settings) {
+      applyFontScale();
+      clearTimeout(settingsTimer);
+      settingsTimer = setTimeout(() => {
+        if (getState().view === 'workspace' && getState().project) {
+          renderManuscript();
+          renderMainNovel();
+        }
+      }, 500);
+    }
+  });
+
+  initLaunch();
+  initWizard();
+  initWorkspace();
+  initScribe();
+  initAiOutput();
+  initSearch();
+  initCapture();
+  initNotes();
+  initMobileDock();
+  initSupport();
+  applyFontScale();
+
+  const activeId = getActiveProject();
+  if (activeId) {
+    if (!openProject(activeId)) switchView('launch');
+  } else {
+    switchView(getState().view === 'workspace' ? 'launch' : getState().view);
+  }
+}
+
+async function boot() {
+armWatchdog();
+loadBanner();
+try {
+    setStatus('contacting auth service…');
+
+    const result = await initAuth();
+
+    if (!authConfigured()) {
+      setStatus('auth setup required');
+      showAuthView();
+      disarmWatchdog();
+      return;
+    }
+
+    if (result.reason === 'load-failed') {
+      setStatus('auth service unreachable');
+      showAuthView();
+      disarmWatchdog();
+      toast('Could not reach the auth service. Check your connection and reload.', 'danger');
+      return;
+    }
+
+    if (result.signedIn) {
+      setStatus('session found · opening your library…');
+      await enterApp();
+      if (!inApp || !anyViewActive()) {
+        showAuthView();
+        disarmWatchdog();
+        return;
+      }
+      setStatus(`foundation online · v${APP_VERSION}`);
+    } else {
+      setStatus('awaiting sign-in');
+      showAuthView();
+    }
+
+    disarmWatchdog();
+
+    /* Session transitions = full reload (no double-init landmines). */
+    onAuthChange((payload) => {
+      const session = payload && payload.session;
+      if (session && !inApp) location.reload();
+      else if (!session && inApp) location.reload();
+    });
+
+    console.info(
+      `%cWeaver v${APP_VERSION}%c auth gate online`,
+      'color:#e0a83c;font-weight:bold', 'color:inherit'
+    );
+
+  /* V4: Focus mode keyboard shortcut */
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      import('./features/focus-mode.js').then((m) => m.toggleFocusMode());
+    }
+  });
+} catch (e) {
+    console.error('[Boot] failed:', e);
+    disarmWatchdog();
+    bootFailed(e && e.message ? e.message : String(e));
+  }
+}
+
+boot();
+
+
+================================================================================
+File: Weaver-4.1.1/js/auth/auth.js
+================================================================================
+/* =========================================================
+   Weaver — js/auth/auth.js
+   v2 Stage 6.11: Supabase auth + robust password reset on the
+   SHARED client (js/core/supabase.js). Auth card shows a
+   free-floating script W — no circular badge.
+   ========================================================= */
+import { el, clear, weaverLogo } from '../utils/dom.js';
+import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
+
+const RECOVERY_FLAG = 'weaver_pw_recovery';
+const AUTH_STYLE_ID = 'auth-style';
+
+const AUTH_CSS = `.auth-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,rgba(224,168,60,.06),transparent 60%),var(--bg);overflow-y:auto;} .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);padding:28px 28px 24px;display:flex;flex-direction:column;gap:20px;} .auth-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;} .auth-logo{display:flex;align-items:center;justify-content:center;} .auth-logo .weaver-logo{font-size:2.6rem;line-height:1;} .auth-title{font-size:1.3rem;font-weight:700;letter-spacing:.02em;line-height:1.2;} .auth-tag{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;} .auth-form{display:flex;flex-direction:column;gap:14px;} .auth-form .field{gap:6px;} .auth-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:4px;} .auth-tabs .btn{flex:1;justify-content:center;} .auth-tabs .btn.is-selected{border-color:rgba(224,168,60,.55);background:var(--accent-soft);color:var(--accent);} .auth-error{padding:10px 14px;border-radius:var(--radius-md);background:rgba(212,96,79,.1);border:1px solid rgba(212,96,79,.35);color:var(--danger);font-size:.82rem;line-height:1.5;} .auth-hint{font-size:.78rem;color:var(--muted);line-height:1.5;} .auth-notice{width:min(420px,100%);background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(AUTH_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = AUTH_STYLE_ID;
+    s.textContent = AUTH_CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let client = null;
+let cachedUserId = null;
+let cachedUserEmail = '';
+let recoveryTokens = null;
+
+async function ensureClient() {
+  client = client || (await getSupabaseClient());
+  return client;
+}
+
+export function authConfigured() { return supabaseConfigured(); }
+
+function detectRecovery() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    if (access_token && refresh_token) {
+      recoveryTokens = { access_token, refresh_token };
+      try { sessionStorage.setItem(RECOVERY_FLAG, JSON.stringify(recoveryTokens)); } catch {}
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      return true;
+    }
+  }
+  try {
+    const saved = sessionStorage.getItem(RECOVERY_FLAG);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.access_token && parsed.refresh_token) {
+        recoveryTokens = parsed;
+        return true;
+      }
+      sessionStorage.removeItem(RECOVERY_FLAG);
+    }
+  } catch {}
+  return false;
+}
+
+function clearRecovery() {
+  recoveryTokens = null;
+  try { sessionStorage.removeItem(RECOVERY_FLAG); } catch {}
+}
+
+export async function initAuth() {
+  if (!authConfigured()) return { signedIn: false, reason: 'not-configured' };
+  try {
+    const isRecovery = detectRecovery();
+    const c = await ensureClient();
+    if (isRecovery) return { signedIn: false, reason: 'recovery' };
+    const { data: { session } } = await c.auth.getSession();
+    if (session) {
+      cachedUserId = session.user.id;
+      cachedUserEmail = session.user.email || '';
+    }
+    return { signedIn: !!session, reason: 'ok' };
+  } catch (e) {
+    return { signedIn: false, reason: 'load-failed', error: e.message };
+  }
+}
+
+export function currentUserId() { return cachedUserId; }
+export function currentUserEmail() { return cachedUserEmail; }
+
+/* RECOVERY LOCK: suppress app reloads while a reset is in progress. */
+export function onAuthChange(cb) {
+  if (!client) return () => {};
+  const { data } = client.auth.onAuthStateChange((event, session) => {
+    cachedUserId = session?.user?.id || null;
+    cachedUserEmail = session?.user?.email || '';
+    if (recoveryTokens) return;
+    cb({ session, event });
+  });
+  return () => { if (data && data.subscription) data.subscription.unsubscribe(); };
+}
+
+export async function signOutUser() {
+  try {
+    const c = await ensureClient();
+    await c.auth.signOut();
+  } catch (e) {
+    console.warn('[Auth] signOut:', e);
+  }
+}
+
+/* ---------- shared card chrome ---------- */
+function authCard(children) {
+  ensureStyle();
+  return el('div', { class: 'auth-wrap' }, [
+    el('div', { class: 'auth-card' }, [
+      el('div', { class: 'auth-head' }, [
+        el('div', { class: 'auth-logo' }, [weaverLogo('md')]),
+        el('div', {}, [
+          el('div', { class: 'auth-title', text: 'Weaver' }),
+          el('div', { class: 'auth-tag', text: 'Structure · Refine · Generate' }),
+        ]),
+      ]),
+      ...children,
+    ]),
+  ]);
+}
+
+function errorBox() { return el('div', { class: 'auth-error', hidden: true }); }
+function showErr(box, msg) { box.textContent = msg; box.hidden = !msg; }
+
+/* ---------- entry ---------- */
+export function renderAuthView(container) {
+  ensureStyle();
+  clear(container);
+  if (!authConfigured()) { renderSetupNotice(container); return; }
+  if (recoveryTokens) { renderResetPassword(container); return; }
+  renderSignInSignUp(container);
+}
+
+/* ---------- sign in / create account ---------- */
+function renderSignInSignUp(container) {
+  let mode = 'signin';
+  const tabsEl = el('div', { class: 'auth-tabs' });
+  const formEl = el('form', { class: 'auth-form', onsubmit: (e) => e.preventDefault() });
+  const err = errorBox();
+
+  function renderTabs() {
+    clear(tabsEl);
+    for (const t of [{ key: 'signin', label: 'Sign in' }, { key: 'signup', label: 'Create account' }]) {
+      tabsEl.appendChild(el('button', {
+        class: 'btn' + (mode === t.key ? ' is-selected' : ''),
+        text: t.label,
+        onclick: () => { mode = t.key; showErr(err, ''); renderTabs(); renderForm(); },
+      }));
+    }
+  }
+
+  function renderForm() {
+    clear(formEl);
+    renderTabs();
+    const emailInput = el('input', { class: 'input', type: 'email', required: true, autocomplete: 'email', placeholder: 'you@example.com' });
+    const passInput = el('input', { class: 'input', type: 'password', required: true, autocomplete: mode === 'signin' ? 'current-password' : 'new-password', placeholder: mode === 'signin' ? 'Password' : 'Choose a password' });
+    const submit = el('button', { class: 'btn btn-primary', type: 'submit', text: mode === 'signin' ? 'Sign in to Weaver' : 'Create my account' });
+
+    formEl.append(
+      el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Email' }), emailInput]),
+      el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Password' }), passInput]),
+      submit,
+    );
+
+    if (mode === 'signin') {
+      formEl.appendChild(el('button', {
+        class: 'btn btn-ghost btn-sm', type: 'button',
+        text: 'Forgot password?',
+        onclick: () => renderForgotPassword(container),
+      }));
+    }
+
+    formEl.onsubmit = async (e) => {
+      e.preventDefault();
+      showErr(err, '');
+      submit.disabled = true; submit.textContent = 'One moment…';
+      try {
+        const c = await ensureClient();
+        const email = emailInput.value.trim();
+        const password = passInput.value;
+        if (mode === 'signin') {
+          const { error } = await c.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          location.reload();
+        } else {
+          const { data, error } = await c.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session) {
+            location.reload();
+          } else {
+            showErr(err, 'Account created. Check your email to confirm it, then sign in.');
+            submit.disabled = false; submit.textContent = 'Create my account';
+            return;
+          }
+        }
+      } catch (e2) {
+        showErr(err, e2.message || 'Authentication failed.');
+        submit.disabled = false; submit.textContent = mode === 'signin' ? 'Sign in to Weaver' : 'Create my account';
+      }
+    };
+    setTimeout(() => emailInput.focus(), 60);
+  }
+
+  container.appendChild(authCard([err, tabsEl, formEl]));
+  renderForm();
+}
+
+/* ---------- forgot password: request the email ---------- */
+function renderForgotPassword(container) {
+  clear(container);
+  const err = errorBox();
+  const emailInput = el('input', { class: 'input', type: 'email', required: true, placeholder: 'you@example.com' });
+  const sendBtn = el('button', { class: 'btn btn-primary', type: 'submit', text: 'Send reset link' });
+  const formEl = el('form', { class: 'auth-form', onsubmit: (e) => e.preventDefault() }, [
+    el('p', { class: 'auth-hint', text: 'Enter your account email. We will send you a link to reset your password.' }),
+    el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Account email' }), emailInput]),
+    sendBtn,
+    el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => renderSignInSignUp(container) }),
+  ]);
+
+  formEl.onsubmit = async (e) => {
+    e.preventDefault();
+    showErr(err, '');
+    sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
+    try {
+      const c = await ensureClient();
+      const email = emailInput.value.trim();
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await c.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      renderLinkSent(container, email);
+    } catch (e2) {
+      showErr(err, e2.message || 'Could not send the reset link.');
+      sendBtn.disabled = false; sendBtn.textContent = 'Send reset link';
+    }
+  };
+
+  container.appendChild(authCard([err, formEl]));
+  setTimeout(() => emailInput.focus(), 60);
+}
+
+/* ---------- "link sent" screen ---------- */
+function renderLinkSent(container, email) {
+  clear(container);
+  container.appendChild(authCard([
+    el('div', {
+      class: 'auth-error',
+      style: { color: 'var(--success)', borderColor: 'rgba(127,176,105,.35)', background: 'rgba(127,176,105,.1)' },
+      text: 'Reset link sent — check your email.',
+    }),
+    el('p', { class: 'auth-hint', text: `Open the message we sent to ${email} and click the link inside to set a new password.` }),
+    el('p', { class: 'auth-hint', text: 'Nothing there? Check your spam folder, then come back and send another.' }),
+    el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => renderSignInSignUp(container) }),
+  ]));
+}
+
+/* ---------- set new password (arrived via reset link) ---------- */
+function renderResetPassword(container) {
+  const err = errorBox();
+  const passInput = el('input', { class: 'input', type: 'password', placeholder: 'New password', autocomplete: 'new-password' });
+  const confirmInput = el('input', { class: 'input', type: 'password', placeholder: 'Confirm new password', autocomplete: 'new-password' });
+  const submit = el('button', { class: 'btn btn-primary', type: 'submit', text: 'Set new password' });
+  const formEl = el('form', { class: 'auth-form', onsubmit: (e) => e.preventDefault() }, [
+    el('p', { class: 'auth-hint', text: 'Enter a new password for your account.' }),
+    el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'New password' }), passInput]),
+    el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Confirm new password' }), confirmInput]),
+    submit,
+    el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '← Back to sign in', onclick: () => { clearRecovery(); renderSignInSignUp(container); } }),
+  ]);
+
+  formEl.onsubmit = async (e) => {
+    e.preventDefault();
+    showErr(err, '');
+    const pw = passInput.value;
+    if (pw.length < 6) { showErr(err, 'Password must be at least 6 characters.'); return; }
+    if (pw !== confirmInput.value) { showErr(err, 'Passwords do not match.'); return; }
+    submit.disabled = true; submit.textContent = 'Saving…';
+    try {
+      /* Shared client; the recovery lock above keeps app.js from
+         reloading mid-reset. */
+      const c = await ensureClient();
+      const { error: sessErr } = await c.auth.setSession({
+        access_token: recoveryTokens.access_token,
+        refresh_token: recoveryTokens.refresh_token,
+      });
+      if (sessErr) throw new Error('This reset link has expired or is invalid. Go back and request a new one.');
+      const { error } = await c.auth.updateUser({ password: pw });
+      if (error) throw error;
+      clearRecovery();
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      location.reload();
+    } catch (e2) {
+      showErr(err, e2.message || 'Could not reset the password.');
+      submit.disabled = false; submit.textContent = 'Set new password';
+    }
+  };
+
+  container.appendChild(authCard([err, formEl]));
+  setTimeout(() => passInput.focus(), 60);
+}
+
+/* ---------- setup notice ---------- */
+function renderSetupNotice(container) {
+  container.appendChild(el('div', { class: 'auth-wrap' }, [
+    el('div', { class: 'auth-notice' }, [
+      el('strong', { text: 'Authentication is not configured yet.' }),
+      el('p', { text: 'Paste your Supabase Project URL and anon key at the top of js/core/supabase.js.' }),
+    ]),
+  ]));
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/cloud/s3.js
+================================================================================
+/* =========================================================
+   Weaver — js/cloud/s3.js
+   v2.0 Stage 3: minimal S3-compatible object client built
+   on sigv4.js. Operations: list / get / put / delete / head,
+   plus an anonymous public-bucket probe.
+
+   Provider-agnostic (Backblaze B2, Cloudflare R2, AWS S3).
+   Uses path-style URLs: https://<endpoint>/<bucket>/<key>.
+
+   NOTE — object keys must be URL-safe. Weaver's keys
+   (weaver/index.json, weaver/projects/<uuid>.json,
+   weaver/series/<uuid>.json) always are.
+
+   CORS — the bucket MUST allow the GitHub Pages origin for
+   GET/PUT/DELETE/HEAD, or the browser blocks every request.
+   ========================================================= */
+
+import { signRequest } from './sigv4.js';
+
+export class S3Error extends Error {
+  constructor(status, code, message, method, key) {
+    super(message || `S3 ${method} "${key}" failed (${status} ${code})`);
+    this.name = 'S3Error';
+    this.status = status;
+    this.code = code;
+    this.method = method;
+    this.key = key;
+  }
+}
+
+/* Parse an S3/B2 XML error body into { code, message }. */
+function parseErrorXml(xml) {
+  try {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const code = doc.getElementsByTagNameNS('*', 'Code')[0]?.textContent || '';
+    const message = doc.getElementsByTagNameNS('*', 'Message')[0]?.textContent || '';
+    return { code: code.trim(), message: message.trim() };
+  } catch {
+    return { code: '', message: '' };
+  }
+}
+
+/* Derive the region from a Backblaze endpoint when possible. */
+function parseRegionFromEndpoint(endpoint) {
+  const m = String(endpoint).match(/s3\.([a-z0-9-]+)\.backblazeb2\.com/i);
+  return m ? m[1] : null;
+}
+
+/* Build a query string whose encoding matches SigV4 expectations. */
+function buildQuery(params) {
+  return Object.entries(params)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+}
+
+export class S3Client {
+  constructor({ endpoint, bucket, accessKeyId, secretAccessKey, region = null }) {
+    let ep = String(endpoint || '').trim().replace(/\/+$/, '');
+    if (ep && !/^https?:\/\//i.test(ep)) ep = 'https://' + ep;
+    this.endpoint = ep;
+    this.bucket = bucket;
+    this.accessKeyId = accessKeyId;
+    this.secretAccessKey = secretAccessKey;
+    this.region = region || parseRegionFromEndpoint(ep);
+
+    if (!this.endpoint || !this.bucket || !this.accessKeyId || !this.secretAccessKey) {
+      throw new Error('S3Client requires endpoint, bucket, accessKeyId, and secretAccessKey.');
+    }
+    if (!this.region) {
+      throw new Error('Could not determine the storage region from the endpoint. Provide "region" explicitly.');
+    }
+  }
+
+  /* path-style URL: endpoint/bucket[/key][?query] */
+  buildUrl(key, queryString = '') {
+    const path = key ? `/${this.bucket}/${key}` : `/${this.bucket}`;
+    const q = queryString ? `?${queryString}` : '';
+    return `${this.endpoint}${path}${q}`;
+  }
+
+  /* Signed request. Returns { status, body } with body as text. */
+  async request(method, key, queryString = '', body = null) {
+    const url = this.buildUrl(key, queryString);
+    const headers = {};
+    if (body != null) headers['content-type'] = 'application/json';
+
+    const signed = await signRequest({
+      method, url, headers, body,
+      region: this.region,
+      service: 's3',
+      accessKeyId: this.accessKeyId,
+      secretAccessKey: this.secretAccessKey,
+    });
+
+    let res;
+    try {
+      res = await fetch(url, {
+        method,
+        headers: signed,
+        body: body != null ? body : undefined,
+      });
+    } catch (e) {
+      throw new S3Error(0, 'NetworkError',
+        'Could not reach cloud storage. This is usually a missing CORS rule on the bucket, or no internet connection.',
+        method, key);
+    }
+
+    const text = await res.text().catch(() => '');
+    if (!res.ok) {
+      const { code, message } = parseErrorXml(text);
+      throw new S3Error(res.status, code || `HTTP${res.status}`, message, method, key);
+    }
+    return { status: res.status, body: text };
+  }
+
+  /* List object keys under a prefix (handles pagination). */
+  async list(prefix = '') {
+    const keys = [];
+    let continuationToken = null;
+    do {
+      const params = { 'list-type': '2', 'max-keys': '1000' };
+      if (prefix) params['prefix'] = prefix;
+      if (continuationToken) params['continuation-token'] = continuationToken;
+      const { body: xml } = await this.request('GET', '', buildQuery(params));
+
+      const doc = new DOMParser().parseFromString(xml, 'application/xml');
+      const contents = doc.getElementsByTagNameNS('*', 'Contents');
+      for (const c of contents) {
+        const keyEl = c.getElementsByTagNameNS('*', 'Key')[0];
+        if (keyEl && keyEl.textContent) keys.push(keyEl.textContent);
+      }
+      const isTruncated =
+        doc.getElementsByTagNameNS('*', 'IsTruncated')[0]?.textContent === 'true';
+      continuationToken = isTruncated
+        ? (doc.getElementsByTagNameNS('*', 'NextContinuationToken')[0]?.textContent || null)
+        : null;
+    } while (continuationToken);
+    return keys;
+  }
+
+  /* Get an object's body as text. Throws S3Error (status 404 if absent). */
+  async get(key) {
+    const { body } = await this.request('GET', key);
+    return body;
+  }
+
+  /* Get an object, or null if it does not exist. */
+  async getOrNull(key) {
+    try {
+      return await this.get(key);
+    } catch (e) {
+      if (e instanceof S3Error && e.status === 404) return null;
+      throw e;
+    }
+  }
+
+  /* Get an object parsed as JSON, or null if it does not exist. */
+  async getJsonOrNull(key) {
+    const raw = await this.getOrNull(key);
+    if (raw == null) return null;
+    return JSON.parse(raw);
+  }
+
+  /* Put (create/overwrite) an object from a JSON string. */
+  async put(key, jsonString) {
+    await this.request('PUT', key, '', jsonString);
+  }
+
+  /* Delete an object. Missing keys are treated as success (idempotent). */
+  async del(key) {
+    try {
+      await this.request('DELETE', key);
+    } catch (e) {
+      if (e instanceof S3Error && e.status === 404) return; // already gone
+      throw e;
+    }
+  }
+
+  /* Does the object exist? */
+  async head(key) {
+    try {
+      await this.request('HEAD', key);
+      return true;
+    } catch (e) {
+      if (e instanceof S3Error && e.status === 404) return false;
+      throw e;
+    }
+  }
+
+  /* Best-effort public-bucket probe (mirrors v1 "refuse public repos").
+     Makes an ANONYMOUS (unsigned) list request.
+     Returns true  = bucket is publicly readable (we refuse to use it),
+             false = bucket is private (good),
+             null  = could not determine (CORS/network). */
+  async isBucketPublic() {
+    try {
+      const url = this.buildUrl('', buildQuery({ 'list-type': '2', 'max-keys': '1' }));
+      const res = await fetch(url, { method: 'GET' }); // deliberately unsigned
+      if (res.ok) return true;
+      if (res.status === 403 || res.status === 401) return false;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/cloud/sigv4.js
+================================================================================
+/* =========================================================
+   Weaver — js/cloud/sigv4.js
+   v2.0 Stage 3: AWS Signature Version 4 request signing,
+   hand-rolled on WebCrypto (no SDK, no npm, no terminal).
+   Works with any S3-compatible provider: Backblaze B2,
+   Cloudflare R2, AWS S3, MinIO.
+
+   SECURITY: signing happens entirely in the browser. The
+   secret key is used only to derive HMAC signatures in
+   memory — it is never transmitted or persisted here.
+
+   Requires a secure context (HTTPS) for crypto.subtle.
+   GitHub Pages is HTTPS, so this is satisfied.
+   ========================================================= */
+
+/* ---------- low-level crypto helpers ---------- */
+
+function toHex(bytes) {
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) {
+    out += bytes[i].toString(16).padStart(2, '0');
+  }
+  return out;
+}
+
+function toBytes(data) {
+  if (typeof data === 'string') return new TextEncoder().encode(data);
+  if (data instanceof Uint8Array) return data;
+  if (data == null) return new Uint8Array(0);
+  return new TextEncoder().encode(String(data));
+}
+
+async function sha256Hex(data) {
+  const hash = await crypto.subtle.digest('SHA-256', toBytes(data));
+  return toHex(new Uint8Array(hash));
+}
+
+async function hmacSha256(keyBytes, message) {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    toBytes(keyBytes),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, toBytes(message));
+  return new Uint8Array(sig);
+}
+
+/* ---------- SigV4 URI encoding ----------
+   RFC 3986 strict encoding. Unreserved characters pass through.
+   encodeSlash=false preserves '/' (canonical URI of S3 paths).
+   encodeSlash=true  encodes '/'  (query-string names & values). */
+function uriEncode(str, encodeSlash) {
+  let result = '';
+  const bytes = toBytes(str);
+  for (const b of bytes) {
+    const isUnreserved =
+      (b >= 0x41 && b <= 0x5A) ||  // A-Z
+      (b >= 0x61 && b <= 0x7A) ||  // a-z
+      (b >= 0x30 && b <= 0x39) ||  // 0-9
+      b === 0x2D ||                // -
+      b === 0x2E ||                // .
+      b === 0x5F ||                // _
+      b === 0x7E;                  // ~
+    if (isUnreserved) {
+      result += String.fromCharCode(b);
+    } else if (b === 0x2F && !encodeSlash) {  // '/'
+      result += '/';
+    } else {
+      result += '%' + b.toString(16).toUpperCase().padStart(2, '0');
+    }
+  }
+  return result;
+}
+
+/* ---------- canonical query string ----------
+   Params sorted by encoded name, then encoded value. */
+function canonicalQueryString(searchParams) {
+  const entries = [];
+  for (const [k, v] of searchParams.entries()) entries.push([k, v]);
+  entries.sort((a, b) => {
+    const ka = uriEncode(a[0], true);
+    const kb = uriEncode(b[0], true);
+    if (ka !== kb) return ka < kb ? -1 : 1;
+    const va = uriEncode(a[1], true);
+    const vb = uriEncode(b[1], true);
+    return va < vb ? -1 : va > vb ? 1 : 0;
+  });
+  return entries
+    .map(([k, v]) => `${uriEncode(k, true)}=${uriEncode(v, true)}`)
+    .join('&');
+}
+
+/* ---------- main entry ----------
+   Signs an HTTP request and returns the headers to attach.
+   The returned set includes authorization, x-amz-date, and
+   x-amz-content-sha256 (plus any headers you passed in).
+   'host' is signed but NOT returned — the browser sets it. */
+export async function signRequest({
+  method,
+  url,
+  headers = {},
+  body = null,
+  region,
+  service = 's3',
+  accessKeyId,
+  secretAccessKey,
+}) {
+  const u = new URL(url);
+
+  // Timestamps -> 20240115T123456Z and 20240115
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const dateStamp = amzDate.slice(0, 8);
+
+  // Payload hash (empty-string hash when there is no body)
+  const payloadHash = await sha256Hex(body);
+
+  // Normalize headers to lowercase, add the required SigV4 set
+  const norm = {};
+  for (const [k, v] of Object.entries(headers || {})) {
+    norm[k.toLowerCase()] = String(v).trim().replace(/\s+/g, ' ');
+  }
+  norm['host'] = u.host;
+  norm['x-amz-date'] = amzDate;
+  norm['x-amz-content-sha256'] = payloadHash;
+
+  const sortedKeys = Object.keys(norm).sort();
+  const canonicalHeaders = sortedKeys.map((k) => `${k}:${norm[k]}\n`).join('');
+  const signedHeaders = sortedKeys.join(';');
+
+  // Canonical URI: the path, single-encoded, slashes preserved
+  const canonicalUri = uriEncode(u.pathname, false) || '/';
+  const canonicalQuery = canonicalQueryString(u.searchParams);
+
+  const canonicalRequest = [
+    method.toUpperCase(),
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    payloadHash,
+  ].join('\n');
+
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+
+  const stringToSign = [
+    'AWS4-HMAC-SHA256',
+    amzDate,
+    credentialScope,
+    await sha256Hex(canonicalRequest),
+  ].join('\n');
+
+  // Derive the signing key (4-step HMAC chain)
+  const kDate = await hmacSha256('AWS4' + secretAccessKey, dateStamp);
+  const kRegion = await hmacSha256(kDate, region);
+  const kService = await hmacSha256(kRegion, service);
+  const kSigning = await hmacSha256(kService, 'aws4_request');
+
+  const signature = toHex(await hmacSha256(kSigning, stringToSign));
+
+  const authorization =
+    `AWS4-HMAC-SHA256 ` +
+    `Credential=${accessKeyId}/${credentialScope}, ` +
+    `SignedHeaders=${signedHeaders}, ` +
+    `Signature=${signature}`;
+
+  const out = { ...norm, authorization };
+  delete out['host']; // forbidden header; the browser sets Host itself
+  return out;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/core/entitlements.js
+================================================================================
+/* =========================================================
+Weaver — js/core/entitlements.js
+V3.2a: paywall entitlement lookup.
+Reads the signed-in user's own row from public.entitlements
+(RLS: users may SELECT their own row only). Caches the result
+and exposes isPro() for the gates that arrive in V3.2b.
+Fail-safe: if the lookup errors we treat the user as FREE but
+never block local writing. Gates only enforce once loaded.
+========================================================= */
+import { getSupabaseClient, supabaseConfigured } from './supabase.js';
+
+let ent = null;      // cached entitlement row (or null)
+let loaded = false;
+const listeners = new Set();
+
+export function onEntitlementChange(cb) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+function emit() { for (const cb of listeners) { try { cb(ent); } catch {} } }
+
+/* Fetch + cache the caller's entitlement. Safe to call repeatedly. */
+export async function loadEntitlement(userId) {
+  if (!supabaseConfigured() || !userId) {
+    ent = null; loaded = true; emit(); return ent;
+  }
+  try {
+    const client = await getSupabaseClient();
+    const { data, error } = await client
+      .from('entitlements')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) throw error;
+    ent = data || null;
+  } catch (e) {
+    console.warn('[Entitlements] lookup failed:', e.message);
+    ent = null; // fail-safe: never crash the app over a paywall read
+  }
+  loaded = true;
+  emit();
+  return ent;
+}
+
+export function getEntitlement() { return ent; }
+export function entitlementLoaded() { return loaded; }
+
+/* Pro = permanent plan, or time-limited pro_until still in the future. */
+export function isPro() {
+  if (!ent) return false;
+  if (ent.plan === 'pro') return true;
+  if (ent.pro_until) {
+    const t = Date.parse(ent.pro_until);
+    if (Number.isFinite(t) && t > Date.now()) return true;
+  }
+  return false;
+}
+
+/* Gates should only BLOCK when we positively know the user is free.
+   While the lookup is in flight we allow, so nobody is locked out by latency. */
+export function isKnownFree() { return loaded && !isPro(); }
+
+export function proUntilLabel() {
+  if (!ent || !ent.pro_until) return '';
+  try { return new Date(ent.pro_until).toLocaleDateString(); } catch { return ''; }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/core/resizers.js
+================================================================================
+/* =========================================================
+   Weaver — js/core/resizers.js
+   Step 9: drag-to-resize engine for the three-panel workspace.
+   Pointer Events (mouse + touch), axis auto-detected from the
+   container's flex direction. Sizes persist as percentages in
+   settings.general.panelSizes. Double-click a border to reset.
+   ========================================================= */
+
+import { getState, updateSettings } from './state.js';
+
+const MIN_PCT = 10;
+const DEFAULT_SPLIT = [33.4, 33.3, 33.3];
+
+let ctx = null;          // { container, panels[3], resizers[2] }
+let windowBound = false;
+
+export function bindResizers(context) {
+  ctx = context;
+  ctx.resizers.forEach((r, idx) => {
+    if (r.dataset.bound) return;
+    r.dataset.bound = '1';
+    r.addEventListener('pointerdown', (e) => startDrag(e, idx));
+    r.addEventListener('dblclick', () => resetSizes());
+  });
+  if (!windowBound) {
+    windowBound = true;
+    window.addEventListener('resize', refreshLayout);
+  }
+  refreshLayout();
+}
+
+/* ---------- Geometry helpers ---------- */
+function axis() {
+  if (!ctx) return 'x';
+  const dir = getComputedStyle(ctx.container).flexDirection;
+  return dir.startsWith('column') ? 'y' : 'x';
+}
+
+function sizes() {
+  const s = getState().settings.general.panelSizes;
+  return Array.isArray(s) && s.length === 3 ? s.slice() : DEFAULT_SPLIT.slice();
+}
+
+function applyPct(pct) {
+  if (!ctx) return;
+  const a = axis();
+  const total = a === 'x' ? ctx.container.clientWidth : ctx.container.clientHeight;
+  const resizerTotal = ctx.resizers.reduce(
+    (sum, r) => sum + (a === 'x' ? r.offsetWidth : r.offsetHeight), 0
+  );
+  const available = Math.max(total - resizerTotal, 0);
+  ctx.panels.forEach((p, k) => {
+    p.style.flex = `0 0 ${(available * pct[k]) / 100}px`;
+  });
+}
+
+/* Called by workspace.js whenever expansion state changes. */
+export function refreshLayout() {
+  if (!ctx) return;
+  if (getState().ui.expandedPanel) {
+    for (const p of ctx.panels) p.style.flex = '';
+    return;
+  }
+  applyPct(sizes());
+}
+
+function commit(pct) {
+  updateSettings((s) => { s.general.panelSizes = pct; });
+}
+
+function resetSizes() {
+  commit(DEFAULT_SPLIT.slice());
+  refreshLayout();
+}
+
+/* ---------- Drag lifecycle ---------- */
+function startDrag(event, index) {
+  if (!ctx || getState().ui.expandedPanel) return;
+  event.preventDefault();
+
+  const a = axis();
+  const resizer = ctx.resizers[index];
+  const base = sizes();
+  const total = (a === 'x' ? ctx.container.clientWidth : ctx.container.clientHeight) || 1;
+  const startPos = a === 'x' ? event.clientX : event.clientY;
+  let latest = base;
+
+  resizer.classList.add('is-dragging');
+  document.body.style.userSelect = 'none';
+  document.body.style.cursor = a === 'x' ? 'col-resize' : 'row-resize';
+  resizer.setPointerCapture(event.pointerId);
+
+  const onMove = (e) => {
+    const pos = a === 'x' ? e.clientX : e.clientY;
+    let delta = ((pos - startPos) / total) * 100;
+    // Clamp so neither neighbour collapses below MIN_PCT
+    delta = Math.max(delta, MIN_PCT - base[index]);
+    delta = Math.min(delta, base[index + 1] - MIN_PCT);
+    latest = base.slice();
+    latest[index] += delta;
+    latest[index + 1] -= delta;
+    applyPct(latest); // inline-only during drag: no settings writes per frame
+  };
+
+  const onUp = () => {
+    resizer.removeEventListener('pointermove', onMove);
+    resizer.removeEventListener('pointerup', onUp);
+    resizer.removeEventListener('pointercancel', onUp);
+    resizer.classList.remove('is-dragging');
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+    commit(latest); // single persisted write at drag end
+  };
+
+  resizer.addEventListener('pointermove', onMove);
+  resizer.addEventListener('pointerup', onUp);
+  resizer.addEventListener('pointercancel', onUp);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/core/state.js
+================================================================================
+/* =========================================================
+   Weaver — js/core/state.js
+   v2.0 Stage 2: reactive application state store.
+   v1 unchanged + reloadSettings() so app.js can refresh
+   settings after the per-user namespace is set.
+   ========================================================= */
+import {
+  getProject, saveProject, setActiveProject,
+  getSettings, saveSettings,
+} from './storage.js';
+
+const state = {
+  view: 'launch',        // 'launch' | 'workspace'
+  project: null,         // full project object while workspace is open
+  settings: getSettings(),
+  ui: {
+    expandedPanel: null, // 'manuscript' | 'novel' | 'ai' | null
+    panelSizes: [34, 33, 33],
+    hierarchyOpen: false,
+  },
+};
+
+const listeners = new Set();
+
+export function getState() { return state; }
+
+export function subscribe(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function emit(change) {
+  for (const listener of listeners) listener(state, change);
+}
+
+/* ---------- View ---------- */
+
+export function setView(view) {
+  state.view = view;
+  emit({ view: true });
+}
+
+/* ---------- Project session ---------- */
+
+export function openProject(id) {
+  const project = getProject(id);
+  if (!project) return false;
+  flushSave(); // safety: persist any previous session first
+  state.project = project;
+  setActiveProject(id);
+  state.view = 'workspace';
+  emit({ project: true, view: true });
+  return true;
+}
+
+export function closeProject() {
+  flushSave();
+  state.project = null;
+  state.view = 'launch';
+  emit({ project: true, view: true });
+}
+
+/* Modules mutate state.project directly, then call touchProject()
+   to schedule autosave and notify subscribers. */
+export function touchProject(change = {}) {
+  markDirty();
+  emit({ project: true, ...change });
+}
+
+/* ---------- Autosave ---------- */
+
+let saveTimer = null;
+
+export function markDirty() {
+  if (!state.project) return;
+  const interval = state.settings.general.autosaveInterval ?? 3000;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSave, interval);
+}
+
+export function flushSave() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  if (state.project) saveProject(state.project);
+}
+
+/* ---------- Settings ----------
+   Usage: updateSettings(s => { s.general.fontScale = 1.1; }) */
+export function updateSettings(mutator) {
+  if (typeof mutator === 'function') mutator(state.settings);
+  saveSettings(state.settings);
+  emit({ settings: true });
+}
+
+/* v2.0: re-read settings after setUserNamespace() switches the storage scope. */
+export function reloadSettings() {
+  state.settings = getSettings();
+}
+
+/* ---------- Transient UI ---------- */
+
+export function setUI(patch) {
+  Object.assign(state.ui, patch);
+  emit({ ui: true });
+}
+
+/* ---------- Never lose work: persist on tab close / hide ---------- */
+
+window.addEventListener('beforeunload', flushSave);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushSave();
+});
+
+
+================================================================================
+File: Weaver-4.1.1/js/core/storage.js
+================================================================================
+/* =========================================================
+   Weaver — js/core/storage.js
+   v2.0 Stage 2: namespaced localStorage engine.
+   v1 core preserved + per-user namespace (Clerk userId),
+   one-time legacy-data migration helpers, cloud settings
+   block (secrets stripped from backups).
+   ========================================================= */
+
+let PREFIX = 'weaver_';
+const LEGACY_PREFIX = 'weaver_';
+
+/* ---------- Namespace (set by app.js after sign-in) ---------- */
+
+export function setUserNamespace(userId) {
+  PREFIX = userId ? `weaver_u_${userId}_` : LEGACY_PREFIX;
+}
+
+export function storageKey(name) { return PREFIX + name; }
+
+/* Namespaced raw access for modules that manage their own keys
+   (e.g. the cloud sync ledger in Stage 4). */
+export function readStore(key, fallback = null) { return read(key, fallback); }
+export function writeStore(key, value) { return write(key, value); }
+export function removeStore(key) { remove(key); }
+
+/* ---------- Helpers ---------- */
+
+function read(key, fallback = null) {
+  try {
+    const raw = localStorage.getItem(PREFIX + key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    console.warn(`[Storage] Failed to parse key: ${key}`, e);
+    return fallback;
+  }
+}
+
+function write(key, value) {
+  try {
+    localStorage.setItem(PREFIX + key, JSON.stringify(value));
+    return true;
+  } catch (e) {
+    console.error(`[Storage] Failed to write key: ${key}`, e);
+    return false;
+  }
+}
+
+function remove(key) {
+  localStorage.removeItem(PREFIX + key);
+}
+
+function readRawKey(fullKey, fallback = null) {
+  try {
+    const raw = localStorage.getItem(fullKey);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+
+function genId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+/* ---------- Legacy (v1, un-scoped) data ---------- */
+
+export function hasLegacyData() {
+  if (PREFIX === LEGACY_PREFIX) return false;
+  const ids = readRawKey(LEGACY_PREFIX + 'project_ids');
+  return Array.isArray(ids) && ids.length > 0;
+}
+
+export function namespaceIsEmpty() {
+  return read('project_ids', []).length === 0 && read('series_ids', []).length === 0;
+}
+
+/* Copies every `weaver_*` key into the user namespace, then deletes
+   the legacy keys (they must not linger where another signed-in user
+   could be offered them). Returns the number of keys moved. */
+export function migrateLegacyData() {
+  if (PREFIX === LEGACY_PREFIX) return 0;
+  const toMove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(LEGACY_PREFIX)) continue;
+    if (key.startsWith(PREFIX)) continue; // already namespaced
+    toMove.push(key);
+  }
+  for (const key of toMove) {
+    const val = localStorage.getItem(key);
+    localStorage.setItem(PREFIX + key.slice(LEGACY_PREFIX.length), val);
+  }
+  for (const key of toMove) localStorage.removeItem(key);
+  return toMove.length;
+}
+
+export function clearUserData() {
+  const toDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(PREFIX)) toDelete.push(key);
+  }
+  toDelete.forEach((k) => localStorage.removeItem(k));
+}
+
+/* ---------- Config bible schema (7 sections) ---------- */
+
+export function blankConfig() {
+  return {
+    characters: [],
+    settings: [],
+    plotArcs: [],
+    worldRules: [],
+    items: [],
+    generalProse: '',
+    generalAiInstructions: '',
+  };
+}
+
+export function configHasContent(cfg) {
+  if (!cfg) return false;
+  return Boolean(
+    (cfg.characters && cfg.characters.length) ||
+    (cfg.settings && cfg.settings.length) ||
+    (cfg.plotArcs && cfg.plotArcs.length) ||
+    (cfg.worldRules && cfg.worldRules.length) ||
+    (cfg.items && cfg.items.length) ||
+    (cfg.generalProse || '').trim() ||
+    (cfg.generalAiInstructions || '').trim()
+  );
+}
+
+/* ---------- Project schema ---------- */
+
+function createBlankProject({ name = 'Untitled Project', scope = 'standalone', source = 'scratch' } = {}) {
+  const now = Date.now();
+  return {
+    id: genId(),
+    name,
+    scope,        // 'standalone' | 'series'
+    source,       // 'scratch' | 'upload'
+    seriesId: null,
+    seriesName: null,
+    bookTitle: null,
+    bookNumber: null,
+    createdAt: now,
+    updatedAt: now,
+    manuscript: { text: '', viewIndex: 0, viewStart: 0 },
+    mainNovel: { text: '' },
+    configBible: blankConfig(), // used only when seriesId is null
+    configInitialized: false,
+    uploadedFileName: null,
+    scribeHistory: [],
+  };
+}
+
+/* ---------- Project CRUD ---------- */
+
+export function listProjects() {
+  const ids = read('project_ids', []);
+  const projects = [];
+  for (const id of ids) {
+    const meta = read(`project_meta_${id}`);
+    if (meta) projects.push(meta);
+  }
+  return projects.sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+export function getProject(id) {
+  return read(`project_data_${id}`);
+}
+
+export function saveProject(project) {
+  if (!project || !project.id) return false;
+  const now = Date.now();
+  project.updatedAt = now;
+  write(`project_data_${project.id}`, project);
+  const meta = {
+    id: project.id,
+    name: project.name,
+    scope: project.scope,
+    source: project.source,
+    seriesId: project.seriesId || null,
+    seriesName: project.seriesName || null,
+    bookNumber: project.bookNumber || null,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
+    wordCount: (project.mainNovel?.text || '').trim().split(/\s+/).filter(Boolean).length,
+  };
+  write(`project_meta_${project.id}`, meta);
+  const ids = read('project_ids', []);
+  if (!ids.includes(project.id)) {
+    ids.push(project.id);
+    write('project_ids', ids);
+  }
+  return true;
+}
+
+/* Orphan-safe deletion — removing the last book of a
+   series also removes the series registry entry and its bible. */
+export function deleteProject(id) {
+  remove(`project_data_${id}`);
+  remove(`project_meta_${id}`);
+  const ids = read('project_ids', []);
+  write('project_ids', ids.filter((x) => x !== id));
+  for (const sid of read('series_ids', [])) {
+    const meta = read(`series_meta_${sid}`);
+    if (meta && meta.bookIds.includes(id)) {
+      meta.bookIds = meta.bookIds.filter((b) => b !== id);
+      if (meta.bookIds.length === 0) {
+        remove(`series_meta_${sid}`);
+        remove(`series_config_${sid}`);
+        write('series_ids', read('series_ids', []).filter((x) => x !== sid));
+      } else {
+        write(`series_meta_${sid}`, meta);
+      }
+    }
+  }
+  if (getActiveProject() === id) setActiveProject(null);
+  return true;
+}
+
+export function createProject(opts) {
+  const project = createBlankProject(opts);
+  saveProject(project);
+  return project;
+}
+
+/* ---------- Series registry (config bible lives here) ---------- */
+
+export function listSeries() {
+  const ids = read('series_ids', []);
+  return ids
+    .map((id) => read(`series_meta_${id}`))
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function getSeries(id) {
+  return read(`series_meta_${id}`);
+}
+
+export function createSeries(name) {
+  const id = genId();
+  const meta = { id, name, createdAt: Date.now(), updatedAt: Date.now(), bookIds: [] };
+  write(`series_meta_${id}`, meta);
+  write(`series_config_${id}`, blankConfig());
+  const ids = read('series_ids', []);
+  ids.push(id);
+  write('series_ids', ids);
+  return meta;
+}
+
+export function addBookToSeries(seriesId, projectId) {
+  const meta = getSeries(seriesId);
+  if (!meta) return false;
+  if (!meta.bookIds.includes(projectId)) meta.bookIds.push(projectId);
+  meta.updatedAt = Date.now();
+  write(`series_meta_${seriesId}`, meta);
+  return true;
+}
+
+export function getSeriesConfig(seriesId) {
+  return read(`series_config_${seriesId}`, null) || blankConfig();
+}
+
+export function saveSeriesConfig(seriesId, config) {
+  return write(`series_config_${seriesId}`, config);
+}
+
+/* Config resolution: series books share the series bible;
+   standalone books use their own. */
+export function getEffectiveConfig(project) {
+  if (project && project.seriesId) return getSeriesConfig(project.seriesId);
+  return (project && project.configBible) || blankConfig();
+}
+
+export function saveEffectiveConfig(project, config) {
+  if (project && project.seriesId) return saveSeriesConfig(project.seriesId, config);
+  if (!project) return false;
+  project.configBible = config;
+  return saveProject(project);
+}
+
+/* ---------- Active project (resume state) ---------- */
+
+export function setActiveProject(id) {
+  if (id) write('active_project_id', id);
+  else remove('active_project_id');
+}
+
+export function getActiveProject() {
+  return read('active_project_id', null);
+}
+
+/* ---------- Settings ---------- */
+
+const DEFAULT_SETTINGS = {
+  general: {
+    theme: 'charcoal-gold',
+    fontScale: 1.0,
+    sentencesPerPage: 15,
+    autosaveInterval: 3000,
+    panelSizes: [33.4, 33.3, 33.3],
+    acceptMovesText: false,
+    quickPrompts: ['Improve prose', 'Continue the scene from here', 'Rewrite in third person, past tense'],
+  },
+  ai: {
+    providers: {
+      groq: { key: '', enabled: false },
+      openrouter: { key: '', enabled: false },
+      gemini: { key: '', enabled: false },
+      mistral: { key: '', enabled: false },
+    },
+    fallbackOrder: ['gemini', 'openrouter', 'groq', 'mistral'],
+    activeModel: null,
+    temperature: 0.85,
+    maxTokens: 2048,
+  },
+  /* v2.0 cloud storage (Backblaze B2, S3-compatible).
+     Secrets here never leave the browser — see sanitizedSettings. */
+  cloud: {
+    provider: 'b2',
+    endpoint: '',
+    bucket: '',
+    keyId: '',
+    appKey: '',
+    autoSync: true,
+  },
+};
+
+export function getSettings() {
+  const saved = read('settings', {});
+  return {
+    general: { ...DEFAULT_SETTINGS.general, ...(saved.general || {}) },
+    ai: {
+      ...DEFAULT_SETTINGS.ai,
+      ...(saved.ai || {}),
+      providers: { ...DEFAULT_SETTINGS.ai.providers, ...((saved.ai || {}).providers || {}) },
+    },
+    /* github kept until Stage 5 retires the old settings UI — do not remove early. */
+    github: saved.github || { token: '', repo: '', autoSync: true },
+    cloud: { ...DEFAULT_SETTINGS.cloud, ...(saved.cloud || {}) },
+  };
+}
+
+/* ---------- Backup / restore + series upsert ---------- */
+
+function sanitizedSettings() {
+  const s = JSON.parse(JSON.stringify(read('settings', {})));
+  if (s.ai && s.ai.providers) {
+    for (const k of Object.keys(s.ai.providers)) s.ai.providers[k].key = '';
+  }
+  delete s.github; // legacy v1 sync token — never leaves this browser
+  delete s.cloud;  // v2 cloud credentials — never leaves this browser
+  return s;
+}
+
+export function exportAllData() {
+  const projectIds = read('project_ids', []);
+  const seriesIds = read('series_ids', []);
+  return {
+    app: 'weaver', version: 1, exportedAt: Date.now(),
+    settings: sanitizedSettings(),
+    activeProjectId: read('active_project_id', null),
+    projects: projectIds
+      .map((id) => ({ id, data: read(`project_data_${id}`), meta: read(`project_meta_${id}`) }))
+      .filter((p) => p.data),
+    series: seriesIds
+      .map((id) => ({ id, meta: read(`series_meta_${id}`), config: read(`series_config_${id}`) }))
+      .filter((s) => s.meta),
+  };
+}
+
+export function importAllData(bundle) {
+  if (!bundle || bundle.app !== 'weaver' || bundle.version !== 1 || !Array.isArray(bundle.projects)) {
+    throw new Error('not a Weaver backup file');
+  }
+  const ids = read('project_ids', []);
+  for (const p of bundle.projects) {
+    write(`project_data_${p.id}`, p.data);
+    if (p.meta) write(`project_meta_${p.id}`, p.meta);
+    if (!ids.includes(p.id)) ids.push(p.id);
+  }
+  write('project_ids', ids);
+  const sids = read('series_ids', []);
+  for (const s of (bundle.series || [])) {
+    write(`series_meta_${s.id}`, s.meta);
+    if (s.config) write(`series_config_${s.id}`, s.config);
+    if (!sids.includes(s.id)) sids.push(s.id);
+  }
+  write('series_ids', sids);
+  if (bundle.settings) write('settings', bundle.settings);
+  if (bundle.activeProjectId) write('active_project_id', bundle.activeProjectId);
+  return bundle.projects.length;
+}
+
+export function upsertSeries(sid, meta, config) {
+  write(`series_meta_${sid}`, meta);
+  if (config) write(`series_config_${sid}`, config);
+  const ids = read('series_ids', []);
+  if (!ids.includes(sid)) { ids.push(sid); write('series_ids', ids); }
+  return true;
+}
+
+export function saveSettings(settings) {
+  return write('settings', settings);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/core/supabase.js
+================================================================================
+/* =========================================================
+   Weaver — js/core/supabase.js
+   v2 Stage 6.11: single shared Supabase client factory.
+   ONE client for auth + storage + password reset, which
+   eliminates the "Multiple GoTrueClient instances" warning.
+   detectSessionInUrl is OFF so recovery URLs are intercepted
+   manually by auth.js (see detectRecovery).
+   ========================================================= */
+
+/* ── PASTE YOUR SUPABASE CREDENTIALS HERE (single source of truth) ── */
+export const SUPABASE_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+/* ─────────────────────────────────────────────────────────────────── */
+
+let sb = null;
+let loadPromise = null;
+
+export function supabaseConfigured() {
+  return /^https:\/\//.test(SUPABASE_URL) && SUPABASE_ANON_KEY.length > 20;
+}
+
+function loadSupabaseScript() {
+  return new Promise((resolve, reject) => {
+    if (window.supabase) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load the Supabase script.'));
+    document.head.appendChild(s);
+  });
+}
+
+/* The ONE shared client. */
+export async function getSupabaseClient() {
+  if (sb) return sb;
+  if (!loadPromise) {
+    loadPromise = (async () => {
+      await loadSupabaseScript();
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { detectSessionInUrl: false },
+      });
+      return sb;
+    })();
+  }
+  return loadPromise;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/banner.js
+================================================================================
+/* =========================================================
+Weaver — js/features/banner.js
+V3.1g (rev 2): announcement / maintenance banner.
+
+PLACEMENT CHANGE: no longer a floating overlay. The strip is a
+push-down bar at the top of the viewport — #app is offset and
+shrunk by exactly the banner's measured height, so nothing is
+ever covered (topbar, logo, hero all stay fully visible and
+clickable). A ResizeObserver re-measures on wrap/rotation, so
+multi-line text on phones stays correct.
+
+Fetches the current banner from the open admin endpoint on boot.
+Users can dismiss it for the session (sessionStorage keyed on the
+message text, so a NEW announcement reappears even after dismiss).
+Silent on any error — a banner must never break the app.
+========================================================= */
+
+const API_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
+const BANNER_ID = 'weaver-app-banner';
+const STYLE_ID = 'weaver-banner-style';
+const DISMISS_KEY = 'weaver_banner_dismissed';
+const ON_CLASS = 'weaver-banner-on';
+
+const LEVEL_LABEL = {
+  info: 'Notice',
+  warning: 'Warning',
+  maintenance: 'Maintenance',
+};
+
+let loaded = false;
+let bannerEl = null;
+let resizeObs = null;
+
+function injectStyle() {
+  if (document.getElementById(STYLE_ID)) return;
+  const s = document.createElement('style');
+  s.id = STYLE_ID;
+  s.textContent = `
+    /* Push the whole app down by the banner's height. #app is
+       border-box + overflow:hidden, so shrinking its height keeps
+       the absolutely-positioned .view children perfectly fitted. */
+    html.${ON_CLASS} #app{
+      margin-top:var(--weaver-banner-h,0px);
+      height:calc(100vh - var(--weaver-banner-h,0px));
+    }
+    #${BANNER_ID}{
+      position:fixed;top:0;left:0;right:0;z-index:60;
+      display:flex;align-items:center;gap:10px;
+      padding:9px 12px 9px 11px;
+      background:var(--surface,#141416);
+      border-bottom:1px solid var(--border,#2b2b30);
+      border-left:3px solid var(--accent,#e0a83c);
+      font-family:var(--font-ui,'Inter',system-ui,-apple-system,sans-serif);
+      font-size:.82rem;line-height:1.45;
+      color:var(--text,#e8e5dd);
+      box-shadow:0 1px 0 rgba(0,0,0,.45);
+    }
+    #${BANNER_ID}.level-warning{border-left-color:var(--danger,#d4604f);}
+    #${BANNER_ID}.level-warning .bn-chip{
+      color:var(--danger,#d4604f);
+      border-color:rgba(212,96,79,.45);
+      background:rgba(212,96,79,.12);
+    }
+    #${BANNER_ID}.level-maintenance{border-left-color:var(--accent,#e0a83c);}
+    #${BANNER_ID}.level-maintenance .bn-text{font-weight:600;}
+    #${BANNER_ID} .bn-chip{
+      flex:none;
+      font-family:var(--font-mono,'JetBrains Mono',ui-monospace,monospace);
+      font-size:.6rem;font-weight:600;
+      letter-spacing:.14em;text-transform:uppercase;
+      color:var(--accent,#e0a83c);
+      border:1px solid rgba(224,168,60,.45);
+      background:rgba(224,168,60,.12);
+      border-radius:999px;
+      padding:3px 9px;
+      white-space:nowrap;
+    }
+    #${BANNER_ID} .bn-text{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;}
+    #${BANNER_ID} .bn-close{
+      flex:none;
+      width:26px;height:26px;
+      display:grid;place-items:center;
+      background:none;border:1px solid transparent;border-radius:8px;
+      color:var(--muted,#94918a);
+      font-size:1.15rem;line-height:1;cursor:pointer;
+      transition:color .15s ease,border-color .15s ease,background .15s ease;
+    }
+    #${BANNER_ID} .bn-close:hover{
+      color:var(--text,#e8e5dd);
+      border-color:var(--border-strong,#3a3a40);
+      background:var(--surface-2,#1c1c20);
+    }
+    @media (max-width:520px){
+      #${BANNER_ID}{font-size:.78rem;gap:8px;padding:8px 10px 8px 9px;}
+      #${BANNER_ID} .bn-chip{font-size:.56rem;padding:2px 7px;letter-spacing:.1em;}
+    }
+  `;
+  document.head.appendChild(s);
+}
+
+/* Keep the app offset exactly equal to the banner's real height. */
+function applyOffset() {
+  if (!bannerEl) return;
+  const h = Math.round(bannerEl.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--weaver-banner-h', h + 'px');
+}
+
+function observeHeight() {
+  if (!bannerEl) return;
+  if (resizeObs) { try { resizeObs.disconnect(); } catch (e) {} }
+  if (typeof ResizeObserver === 'function') {
+    resizeObs = new ResizeObserver(applyOffset);
+    resizeObs.observe(bannerEl);
+  }
+  // Fallbacks for the first paint and for rotation/zoom.
+  requestAnimationFrame(applyOffset);
+  window.addEventListener('resize', applyOffset);
+}
+
+function removeBanner() {
+  if (resizeObs) { try { resizeObs.disconnect(); } catch (e) {} resizeObs = null; }
+  window.removeEventListener('resize', applyOffset);
+  if (bannerEl) { bannerEl.remove(); bannerEl = null; }
+  document.documentElement.classList.remove(ON_CLASS);
+  document.documentElement.style.removeProperty('--weaver-banner-h');
+}
+
+function renderBanner({ text, level }) {
+  if (document.getElementById(BANNER_ID)) return;
+
+  // Session dismissal is keyed on the message: a NEW announcement
+  // still shows even if the reader dismissed an older one.
+  let dismissed = null;
+  try { dismissed = sessionStorage.getItem(DISMISS_KEY); } catch (e) {}
+  if (dismissed && dismissed === text) return;
+
+  const lvl = LEVEL_LABEL[level] ? level : 'info';
+
+  const el = document.createElement('div');
+  el.id = BANNER_ID;
+  el.className = 'level-' + lvl;
+  el.setAttribute('role', 'status');
+
+  const chip = document.createElement('span');
+  chip.className = 'bn-chip';
+  chip.textContent = LEVEL_LABEL[lvl];
+
+  const textEl = document.createElement('span');
+  textEl.className = 'bn-text';
+  textEl.textContent = text;
+
+  const close = document.createElement('button');
+  close.className = 'bn-close';
+  close.type = 'button';
+  close.setAttribute('aria-label', 'Dismiss announcement');
+  close.title = 'Dismiss for this session';
+  close.textContent = '×';
+  close.addEventListener('click', () => {
+    try { sessionStorage.setItem(DISMISS_KEY, text); } catch (e) {}
+    removeBanner();
+  });
+
+  el.appendChild(chip);
+  el.appendChild(textEl);
+  el.appendChild(close);
+
+  bannerEl = el;
+  document.body.insertBefore(el, document.body.firstChild);
+  document.documentElement.classList.add(ON_CLASS);
+  observeHeight();
+}
+
+/* Called once from app.js at the start of boot(). */
+export async function loadBanner() {
+  if (loaded) return;
+  loaded = true;
+  injectStyle();
+  try {
+    const res = await fetch(API_BASE + '/api/announcement/public', {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.text) return;
+    if (data.show_until) {
+      const t = Date.parse(data.show_until);
+      if (Number.isFinite(t) && t < Date.now()) return;
+    }
+    renderBanner(data);
+  } catch (e) {
+    /* non-critical — never surface an error for a banner */
+  }
+}
+
+/* Lets other modules drop the banner immediately if ever needed. */
+export function hideBanner() { removeBanner(); }
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/capture.js
+================================================================================
+/* =========================================================
+   Weaver — js/features/capture.js
+   Step 27.6 FINAL: highlight anywhere in the three panels ->
+   floating "+ Config" capture with AI description.
+   - Smart context: sentence-aligned ±600 chars, nearest
+     heading, bible roster (names only).
+   - "Retry wider" doubles the window; collapsed Context
+     disclosure allows peek/edit (closed by default).
+   - Output gate: preview -> Use this -> editable description.
+   - Saves via saveEffectiveConfig (series-aware).
+   ========================================================= */
+
+import { el, toast, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState } from '../core/state.js';
+import { getEffectiveConfig, saveEffectiveConfig } from '../core/storage.js';
+import { streamChatWithFallback } from '../ai/manager.js';
+
+const STYLE_ID = 'capture-style';
+const CSS = `
+.cap-fab{position:fixed;z-index:96;display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:999px;background:var(--accent);color:#17130a;
+  border:none;font-size:.7rem;font-weight:600;box-shadow:var(--shadow-2);cursor:pointer;}
+.cap-fab[hidden]{display:none;}
+.cap-preview{min-height:36px;padding:8px;border:1px dashed var(--border);
+  border-radius:var(--radius-sm);font-size:.78rem;color:var(--muted);
+  white-space:pre-wrap;background:var(--surface-2);}
+.cap-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.cap-ctx-toggle{font-size:.7rem;color:var(--faint);text-align:left;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+const SECTIONS = [
+  { key: 'characters', label: 'Characters' },
+  { key: 'settings', label: 'Settings & Places' },
+  { key: 'plotArcs', label: 'Plot Arcs' },
+  { key: 'worldRules', label: 'World Rules & Physics' },
+  { key: 'items', label: 'Item Catalog' },
+];
+
+let fab = null;
+let selText = '';
+let lastPanelKey = null;
+let lastBlockText = '';
+let tick = false;
+
+function entryId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'e_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function hideFab() { if (fab) fab.hidden = true; }
+
+/* ---------- Selection observer ---------- */
+function onSel() {
+  const sel = document.getSelection();
+  if (!sel || sel.isCollapsed || !sel.rangeCount) { hideFab(); return; }
+  const anchor = sel.anchorNode;
+  const node = anchor && (anchor.nodeType === 3 ? anchor.parentElement : anchor);
+  const body = node && node.closest ? node.closest('.panel-body') : null;
+  if (!body) { hideFab(); return; }
+
+  const panel = body.closest('.panel');
+  lastPanelKey = panel ? panel.dataset.panel : null;
+  selText = sel.toString().trim();
+  if (!selText) { hideFab(); return; }
+
+  if (lastPanelKey === 'ai') {
+    const blk = node.closest('.ai-block');
+    lastBlockText = blk ? blk.textContent : '';
+  }
+
+  const rect = sel.getRangeAt(0).getBoundingClientRect();
+  fab.style.top = Math.max(8, rect.top - 40) + 'px';
+  fab.style.left = Math.min(window.innerWidth - 110, Math.max(8, rect.left + rect.width / 2 - 45)) + 'px';
+  fab.hidden = false;
+}
+
+/* ---------- Smart context building ---------- */
+function findBack(source, pos, radius) {
+  const lo = Math.max(0, pos - radius);
+  let best = -1;
+  for (const sep of ['. ', '! ', '? ', '\n']) {
+    const i = source.lastIndexOf(sep, pos - 1);
+    if (i >= lo && i > best) best = i;
+  }
+  return best < 0 ? lo : best + 1;
+}
+
+function findFwd(source, pos, radius) {
+  const hi = Math.min(source.length, pos + radius);
+  let best = -1;
+  for (const sep of ['. ', '! ', '? ', '\n']) {
+    const i = source.indexOf(sep, pos);
+    if (i >= 0 && i < hi && i > best) best = i;
+  }
+  return best < 0 ? hi : best + 1;
+}
+
+function sourceText() {
+  const project = getState().project;
+  if (lastPanelKey === 'manuscript') return (project && project.manuscript.text) || '';
+  if (lastPanelKey === 'novel') return (project && project.mainNovel.text) || '';
+  return lastBlockText || selText;
+}
+
+function buildContext(radius) {
+  const source = sourceText();
+  const idx = source.indexOf(selText);
+  if (idx < 0) return { win: selText, heading: '' };
+
+  const s = findBack(source, idx, radius);
+  const e = findFwd(source, idx + selText.length, radius);
+  const win = source.slice(s, e).trim();
+
+  let heading = '';
+  const hIdx = source.lastIndexOf('\n#', idx);
+  if (hIdx >= 0) {
+    const nl = source.indexOf('\n', hIdx + 1);
+    heading = source.slice(hIdx + 1, nl < 0 ? source.length : nl).trim();
+  } else if (source.startsWith('#')) {
+    const nl = source.indexOf('\n');
+    heading = source.slice(0, nl < 0 ? source.length : nl).trim();
+  }
+  return { win, heading };
+}
+
+function rosterLine() {
+  const project = getState().project;
+  if (!project) return '';
+  const cfg = getEffectiveConfig(project);
+  const tags = { characters: 'CHAR', settings: 'PLACE', plotArcs: 'PLOT', worldRules: 'RULE', items: 'ITEM' };
+  const parts = [];
+  for (const k of Object.keys(tags)) {
+    for (const e of (cfg[k] || [])) if (e.name) parts.push(`${tags[k]}:${e.name}`);
+  }
+  return parts.slice(0, 40).join(', ');
+}
+
+/* ---------- Capture modal ---------- */
+function openCapture() {
+  hideFab();
+  const project = getState().project;
+  if (!project) return;
+
+  let radius = 600;
+  let heading = '';
+  let currentWin = '';
+  let ctxEdited = false;
+
+  const sectionSelect = el('select', { class: 'select' },
+    SECTIONS.map((s) => el('option', { value: s.key, text: s.label })));
+  const nameInput = el('input', {
+    class: 'input', value: selText.slice(0, 80), placeholder: 'Entry name…',
+  });
+  const descTa = el('textarea', {
+    class: 'textarea', rows: '4', placeholder: 'Description (or let Scribe draft it)…',
+  });
+  const preview = el('div', { class: 'cap-preview', text: 'AI description will appear here.' });
+  const ctxTa = el('textarea', { class: 'textarea', rows: '4', hidden: true });
+  const ctxToggle = el('button', { class: 'btn btn-ghost btn-sm cap-ctx-toggle' });
+  const useBtn = el('button', {
+    class: 'btn btn-sm', text: 'Use this', hidden: true,
+    onclick: () => { descTa.value = preview.textContent; },
+  });
+
+  function refreshContext() {
+    const c = buildContext(radius);
+    currentWin = c.win;
+    heading = c.heading;
+    if (!ctxEdited) ctxTa.value = currentWin;
+    ctxToggle.textContent =
+      `Context (auto${ctxEdited ? ', edited' : ''}, ±${radius}) — ${currentWin.slice(0, 60).replace(/\s+/g, ' ')}…`;
+  }
+  refreshContext();
+
+  ctxToggle.onclick = () => { ctxTa.hidden = !ctxTa.hidden; };
+  ctxTa.addEventListener('input', () => { ctxEdited = true; refreshContext(); });
+
+  async function runDescribe() {
+    describeBtn.disabled = true;
+    retryBtn.disabled = true;
+    useBtn.hidden = true;
+    preview.textContent = '';
+    const roster = rosterLine();
+    const ctxText = ctxEdited ? ctxTa.value : currentWin;
+    try {
+      await streamChatWithFallback({
+        messages: [
+          {
+            role: 'system',
+            content: "You are a concise reference writer for a novel's project bible. Reply with one or two sentences (max 45 words), definition-style, present tense. No preamble, no explanations.",
+          },
+          {
+            role: 'user',
+            content:
+              `Term: "${nameInput.value.trim() || selText}"` +
+              (heading ? `\nNearest section heading: ${heading}` : '') +
+              `\nContext it appears in:\n"""\n${ctxText}\n"""` +
+              (roster ? `\nKnown project entries (names only): ${roster}` : '') +
+              `\nWrite the concise bible entry for this term.`,
+          },
+        ],
+        onToken: (d, full) => { preview.textContent = full; },
+      });
+      useBtn.hidden = false;
+    } catch (e) {
+      preview.textContent = '⚠ ' + e.message;
+    }
+    describeBtn.disabled = false;
+    retryBtn.disabled = false;
+  }
+
+  const describeBtn = el('button', {
+    class: 'btn btn-sm', text: '✨ Describe with Scribe', onclick: runDescribe,
+  });
+  const retryBtn = el('button', {
+    class: 'btn btn-sm', text: 'Retry wider', title: 'Double the context window and re-run',
+    onclick: () => { radius = Math.min(radius * 2, 4000); ctxEdited = false; refreshContext(); runDescribe(); },
+  });
+
+  const m = modal({
+    title: 'Add to Config Bible',
+    body: [
+      el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Section' }), sectionSelect]),
+      el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Name' }), nameInput]),
+      el('div', { class: 'field' }, [el('span', { class: 'field-label', text: 'Description' }), descTa]),
+      el('div', { class: 'cap-row' }, [describeBtn, retryBtn, useBtn]),
+      preview,
+      ctxToggle,
+      ctxTa,
+    ],
+    footer: [
+      el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() }),
+      el('button', {
+        class: 'btn btn-primary', text: 'Save to Bible',
+        onclick: () => {
+          const name = nameInput.value.trim();
+          if (!name) { toast('Give the entry a name.', 'info'); return; }
+          const cfg = JSON.parse(JSON.stringify(getEffectiveConfig(project)));
+          const key = sectionSelect.value;
+          if (!Array.isArray(cfg[key])) cfg[key] = [];
+          cfg[key].push({ id: entryId(), name, body: descTa.value.trim() });
+          saveEffectiveConfig(project, cfg);
+          m.close();
+          const label = (SECTIONS.find((s) => s.key === key) || {}).label || key;
+          toast(`Added "${name}" to ${label}.`, 'success');
+        },
+      }),
+    ],
+  });
+}
+
+/* ---------- Init ---------- */
+export function initCapture() {
+  ensureStyle();
+  fab = el('button', {
+    class: 'cap-fab', hidden: true, title: 'Add selection to Config Bible',
+    onclick: openCapture,
+  }, [icon('plus', 'icon-sm'), 'Config']);
+  document.body.appendChild(fab);
+
+  document.addEventListener('selectionchange', () => {
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(() => { tick = false; onSel(); });
+  });
+  document.addEventListener('scroll', hideFab, true);
+  window.addEventListener('resize', hideFab);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/cloud.js
+================================================================================
+/* =========================================================
+   Weaver — js/features/cloud.js
+   v2 Stage 6.1-final: compressed, failover-aware cloud sync.
+   V3.2b: Added isKnownFree gate to scheduleCloudSave.
+   ========================================================= */
+import { el, clear, toast } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, subscribe } from '../core/state.js';
+import {
+  listProjects, getProject, saveProject,
+  listSeries, getSeries, getSeriesConfig, upsertSeries,
+  readStore, writeStore,
+} from '../core/storage.js';
+import { getSupabaseClient, supabaseConfigured } from '../core/supabase.js';
+import {
+  puterSignedIn, connectPuter, puterPut, puterGet, puterDel, puterList,
+} from './puter-mirror.js';
+import { isKnownFree } from '../core/entitlements.js';
+
+const BUCKET = 'weaver-vault';
+const LEDGER_KEY = 'weaver_sync_ledger';
+const AUTOSYNC_DELAY = 3000;
+
+let cachedUid = null;
+let syncing = false;
+let pushing = false;
+let autoTimer = null;
+
+function configured() { return supabaseConfigured(); }
+export function isCloudConfigured() { return configured(); }
+
+async function userId() {
+  if (cachedUid) return cachedUid;
+  const client = await getSupabaseClient();
+  const { data: { session } } = await client.auth.getSession();
+  cachedUid = session?.user?.id || null;
+  return cachedUid;
+}
+
+export async function getCloudUserEmail() {
+  if (!configured()) return '';
+  try {
+    const client = await getSupabaseClient();
+    const { data: { session } } = await client.auth.getSession();
+    return session?.user?.email || '';
+  } catch { return ''; }
+}
+
+async function path(rel) {
+  const uid = await userId();
+  if (!uid) throw new Error('You are not signed in.');
+  return `${uid}/weaver/${rel}`;
+}
+
+/* =========================================================
+   COMPRESSION ENVELOPE (v2 gzip / v1 raw JSON, self-detecting)
+   ========================================================= */
+function canCompress() {
+  return typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+}
+
+async function packObject(obj) {
+  const json = JSON.stringify(obj);
+  if (!canCompress()) return new Blob([json], { type: 'application/json' });
+  try {
+    const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+    const gz = await new Response(stream).blob();
+    return new Blob([gz], { type: 'application/x-weaver-gzip' });
+  } catch {
+    return new Blob([json], { type: 'application/json' });
+  }
+}
+
+async function unpackBlob(blob) {
+  if (!blob) return null;
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  try {
+    if (bytes.length > 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) {
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const text = await new Response(stream).text();
+      return JSON.parse(text);
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return null;
+  }
+}
+
+/* =========================================================
+   FAILOVER CLASSIFICATION
+   Quota + network => fall over. Auth/permission => surface.
+   ========================================================= */
+function isFailoverError(e) {
+  const msg = ((e && e.message) || '') + ' ' + String((e && e.statusCode) || (e && e.status) || '');
+  return /quota|exceeded|insufficient storage|507|failed to fetch|network|load failed|timeout|abort/i.test(msg);
+}
+
+/* ---------- Supabase primitives ---------- */
+async function supabaseUpload(rel, blob) {
+  const client = await getSupabaseClient();
+  const full = await path(rel);
+  const { error } = await client.storage.from(BUCKET).upload(full, blob, {
+    upsert: true,
+    contentType: blob.type || 'application/octet-stream',
+  });
+  if (error) throw new Error(error.message || 'upload failed');
+}
+
+async function supabaseDownload(rel) {
+  const client = await getSupabaseClient();
+  const full = await path(rel);
+  const { data, error } = await client.storage.from(BUCKET).download(full);
+  if (error) {
+    if (/not found/i.test(error.message || '')) return null;
+    throw new Error(error.message || 'download failed');
+  }
+  return data;
+}
+
+async function supabaseRemove(rel) {
+  const client = await getSupabaseClient();
+  const full = await path(rel);
+  const { error } = await client.storage.from(BUCKET).remove([full]);
+  if (error && !/not found/i.test(error.message || '')) {
+    throw new Error(error.message || 'delete failed');
+  }
+}
+
+/* ---------- orchestrated blob ops ---------- */
+async function putBlob(rel, obj) {
+  const blob = await packObject(obj);
+  if (configured()) {
+    try {
+      await supabaseUpload(rel, blob);
+      /* Primary healthy: retire any stale overflow copy (quiet). */
+      if (puterSignedIn()) puterDel(rel);
+      return 'cloud';
+    } catch (e) {
+      if (!isFailoverError(e)) throw e;
+    }
+  }
+  await connectPuter(); /* popup only if overflow is genuinely needed */
+  await puterPut(rel, blob);
+  return 'overflow';
+}
+
+async function getBlob(rel) {
+  if (configured()) {
+    try {
+      const blob = await supabaseDownload(rel);
+      if (blob) return unpackBlob(blob);
+    } catch (e) {
+      if (!isFailoverError(e)) throw e;
+      /* unreachable: fall through to overflow */
+    }
+  }
+  if (puterSignedIn()) {
+    const blob = await puterGet(rel);
+    if (blob) return unpackBlob(blob);
+  }
+  return null;
+}
+
+async function removeBlob(rel) {
+  /* Deletions are ledger-driven and best-effort everywhere. */
+  if (configured()) {
+    try { await supabaseRemove(rel); } catch (e) { console.warn('[Cloud] primary delete:', e); }
+  }
+  if (puterSignedIn()) await puterDel(rel);
+}
+
+/* ---------- ledger ---------- */
+function readLedger() {
+  const l = readStore(LEDGER_KEY, null);
+  return (l && Array.isArray(l.projects)) ? l : { projects: [], series: [] };
+}
+function writeLedger(l) { writeStore(LEDGER_KEY, l); }
+
+export async function connectCloud() {
+  if (!configured()) throw new Error('Cloud sync is not configured (paste your Supabase URL + anon key into js/core/supabase.js).');
+  const uid = await userId();
+  if (!uid) throw new Error('You are not signed in.');
+  return { userId: uid };
+}
+
+/* =========================================================
+   CLOUD-SAVE BADGE — Main Novel panel header
+   ========================================================= */
+const BADGE_STYLE_ID = 'cloud-badge-style';
+const BADGE_CSS = `.cloud-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--faint);font-size:.66rem;font-family:var(--font-mono);white-space:nowrap;pointer-events:none;flex:none;transition:color .3s ease,border-color .3s ease;} .cloud-badge.is-ok{color:var(--success);border-color:rgba(127,176,105,.45);} .cloud-badge.is-overflow{color:var(--accent);border-color:rgba(224,168,60,.5);} .cloud-badge.is-error{color:var(--danger);border-color:rgba(212,96,79,.45);} .cloud-badge .icon{width:11px;height:11px;} .cloud-badge[hidden]{display:none;}`;
+
+let lastStamp = null;
+let lastDest = 'cloud';
+let lastError = false;
+
+function ensureBadgeStyle() {
+  if (!document.getElementById(BADGE_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = BADGE_STYLE_ID;
+    s.textContent = BADGE_CSS;
+    document.head.appendChild(s);
+  }
+}
+
+function renderBadgeInto(host) {
+  let b = host.querySelector('.cloud-badge');
+  if (!lastStamp && !lastError) {
+    if (b) b.hidden = true;
+    return;
+  }
+  if (!b) {
+    b = el('span', { class: 'cloud-badge' });
+    host.insertBefore(b, host.firstChild);
+  }
+  b.hidden = false;
+  clear(b);
+  if (lastError) {
+    b.classList.add('is-error');
+    b.classList.remove('is-ok', 'is-overflow');
+    b.append(icon('alert', 'icon-sm'), el('span', { text: 'cloud save failed' }));
+  } else if (lastDest === 'overflow') {
+    b.classList.add('is-overflow');
+    b.classList.remove('is-ok', 'is-error');
+    b.append(icon('check', 'icon-sm'), el('span', { text: `saved via Puter · ${lastStamp}` }));
+  } else {
+    b.classList.add('is-ok');
+    b.classList.remove('is-error', 'is-overflow');
+    b.append(icon('check', 'icon-sm'), el('span', { text: `saved  · ${lastStamp}` }));
+  }
+}
+
+function refreshBadge() {
+  if (getState().view !== 'workspace') return;
+  ensureBadgeStyle();
+  const host = document.querySelector('.panel[data-panel="novel"] .panel-actions');
+  if (host) renderBadgeInto(host);
+}
+
+function stampBadge(dest) {
+  lastStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  lastDest = dest || 'cloud';
+  lastError = false;
+  refreshBadge();
+}
+
+function failBadge() {
+  lastError = true;
+  refreshBadge();
+}
+
+/* =========================================================
+   CONTINUOUS AUTOSYNC
+   ========================================================= */
+export function scheduleCloudSave() {
+  if (!configured() && !puterSignedIn()) return;
+  if (isKnownFree()) return; // V3.2b: Free users are local-only
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => pushActiveProject({ quiet: true }), AUTOSYNC_DELAY);
+}
+
+function buildIndex() {
+  const finalIndex = { projects: {}, series: {}, updatedAt: Date.now() };
+  for (const m of listProjects()) finalIndex.projects[m.id] = { updatedAt: m.updatedAt, name: m.name };
+  for (const s of listSeries()) finalIndex.series[s.id] = { updatedAt: s.updatedAt, name: s.name };
+  return finalIndex;
+}
+
+async function pushActiveProject({ quiet = true } = {}) {
+  if (pushing || syncing) return;
+  const project = getState().project;
+  if (!project || !project.id) return;
+  pushing = true;
+  let dest = 'cloud';
+  try {
+    const uid = await userId();
+    if (!uid) return;
+
+    const meta = {
+      id: project.id,
+      name: project.name,
+      scope: project.scope,
+      source: project.source,
+      seriesId: project.seriesId || null,
+      seriesName: project.seriesName || null,
+      bookNumber: project.bookNumber || null,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+      wordCount: (project.mainNovel?.text || '').trim().split(/\s+/).filter(Boolean).length,
+    };
+    dest = await putBlob(`projects/${project.id}.json`, { id: project.id, data: project, meta });
+
+    if (project.seriesId) {
+      const sm = getSeries(project.seriesId);
+      if (sm) {
+        dest = await putBlob(`series/${project.seriesId}.json`, {
+          id: project.seriesId, meta: sm, config: getSeriesConfig(project.seriesId),
+        });
+      }
+    }
+
+    const idx = (await getBlob('index.json')) || { projects: {}, series: {} };
+    idx.projects = idx.projects || {};
+    idx.series = idx.series || {};
+    idx.projects[project.id] = { updatedAt: project.updatedAt, name: project.name };
+    if (project.seriesId) {
+      const sm = getSeries(project.seriesId);
+      if (sm) idx.series[project.seriesId] = { updatedAt: sm.updatedAt, name: sm.name };
+    }
+    idx.updatedAt = Date.now();
+    dest = await putBlob('index.json', idx);
+
+    const ledger = readLedger();
+    if (!ledger.projects.includes(project.id)) ledger.projects.push(project.id);
+    if (project.seriesId && !ledger.series.includes(project.seriesId)) ledger.series.push(project.seriesId);
+    writeLedger(ledger);
+
+    stampBadge(dest);
+  } catch (e) {
+    failBadge();
+    if (!quiet) toast('Cloud save failed: ' + e.message, 'danger');
+  } finally {
+    pushing = false;
+  }
+}
+
+subscribe((state, change) => {
+  if (change.project) scheduleCloudSave();
+  if (change.project || change.view) requestAnimationFrame(refreshBadge);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && (configured() || puterSignedIn())) {
+    clearTimeout(autoTimer);
+    pushActiveProject({ quiet: true });
+  }
+});
+
+/* =========================================================
+   FULL TWO-WAY SYNC (Backup to cloud / Restore)
+   ========================================================= */
+export async function syncNow({ quiet = false } = {}) {
+  if (syncing) {
+    if (!quiet) toast('A sync is already running — give it a moment.', 'info');
+    return false;
+  }
+  if (!configured() && !puterSignedIn()) {
+    if (!quiet) toast('Cloud sync is not configured yet.', 'info');
+    return false;
+  }
+  syncing = true;
+  let dest = 'cloud';
+  try {
+    if (configured()) await connectCloud();
+
+    let remoteIndex = { projects: {}, series: {} };
+    const idx = await getBlob('index.json');
+    if (idx && typeof idx === 'object') remoteIndex = idx;
+
+    const ledger = readLedger();
+    const localIds = new Set(listProjects().map((pr) => pr.id));
+    const localSeriesIds = new Set(listSeries().map((s) => s.id));
+    const deletedProjects = ledger.projects.filter((id) => !localIds.has(id));
+    const deletedSeries = ledger.series.filter((id) => !localSeriesIds.has(id));
+
+    let pulled = 0;
+    for (const [id, info] of Object.entries(remoteIndex.projects || {})) {
+      if (deletedProjects.includes(id)) continue;
+      const lm = listProjects().find((pr) => pr.id === id);
+      if (!lm || lm.updatedAt < info.updatedAt) {
+        const obj = await getBlob(`projects/${id}.json`);
+        if (obj && obj.data) { saveProject(obj.data); pulled++; }
+      }
+    }
+    for (const [id, info] of Object.entries(remoteIndex.series || {})) {
+      if (deletedSeries.includes(id)) continue;
+      const ls = listSeries().find((s) => s.id === id);
+      if (!ls || ls.updatedAt < info.updatedAt) {
+        const obj = await getBlob(`series/${id}.json`);
+        if (obj && obj.meta) { upsertSeries(obj.id, obj.meta, obj.config); pulled++; }
+      }
+    }
+
+    let pushed = 0;
+    for (const m of listProjects()) {
+      const ri = (remoteIndex.projects || {})[m.id];
+      if (!ri || ri.updatedAt < m.updatedAt) {
+        dest = await putBlob(`projects/${m.id}.json`, { id: m.id, data: getProject(m.id), meta: m });
+        pushed++;
+      }
+    }
+    for (const s of listSeries()) {
+      const ri = (remoteIndex.series || {})[s.id];
+      if (!ri || ri.updatedAt < s.updatedAt) {
+        dest = await putBlob(`series/${s.id}.json`, { id: s.id, meta: s, config: getSeriesConfig(s.id) });
+        pushed++;
+      }
+    }
+
+    let deletedCount = 0;
+    for (const id of deletedProjects) {
+      if ((remoteIndex.projects || {})[id]) { await removeBlob(`projects/${id}.json`); deletedCount++; }
+    }
+    for (const id of deletedSeries) {
+      if ((remoteIndex.series || {})[id]) { await removeBlob(`series/${id}.json`); deletedCount++; }
+    }
+
+    dest = await putBlob('index.json', buildIndex());
+
+    writeLedger({
+      projects: listProjects().map((pr) => pr.id),
+      series: listSeries().map((s) => s.id),
+    });
+
+    stampBadge(dest);
+
+    if (!quiet) {
+      const parts = [];
+      if (pushed > 0) parts.push(`${pushed} pushed`);
+      if (pulled > 0) parts.push(`${pulled} pulled`);
+      if (deletedCount > 0) parts.push(`${deletedCount} removed`);
+      const where = dest === 'overflow' ? ' (Puter overflow)' : '';
+      toast(parts.length ? `Synced${where}: ${parts.join(', ')}.` : `Sync complete${where} — already up to date.`, 'success');
+    }
+    return true;
+  } catch (e) {
+    failBadge();
+    if (!quiet) toast('Cloud sync failed: ' + e.message, 'danger');
+    return false;
+  } finally {
+    syncing = false;
+  }
+}
+
+export function autoSync() {
+  if (!configured() && !puterSignedIn()) return;
+  syncNow({ quiet: true });
+}
+
+/* =========================================================
+   MANUAL OVERFLOW TOOLS (Settings ▸ Data & Storage)
+   ========================================================= */
+export async function copyAllToPuter() {
+  await connectPuter();
+  let n = 0;
+  for (const m of listProjects()) {
+    await puterPut(`projects/${m.id}.json`, await packObject({ id: m.id, data: getProject(m.id), meta: m }));
+    n++;
+  }
+  for (const s of listSeries()) {
+    await puterPut(`series/${s.id}.json`, await packObject({ id: s.id, meta: s, config: getSeriesConfig(s.id) }));
+  }
+  await puterPut('index.json', await packObject(buildIndex()));
+  return n;
+}
+
+export async function restoreFromPuter() {
+  await connectPuter();
+  let pulled = 0;
+  for (const name of await puterList('projects')) {
+    const obj = await unpackBlob(await puterGet(`projects/${name}`));
+    if (obj && obj.data) { saveProject(obj.data); pulled++; }
+  }
+  for (const name of await puterList('series')) {
+    const obj = await unpackBlob(await puterGet(`series/${name}`));
+    if (obj && obj.meta) upsertSeries(obj.id, obj.meta, obj.config);
+  }
+  return pulled;
+}
+
+export async function signOutAndReload() {
+  try {
+    const client = await getSupabaseClient();
+    await client.auth.signOut();
+  } catch (e) {
+    console.warn('[Cloud] signOut:', e);
+  }
+  location.reload();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/config-bible.js
+================================================================================
+/* =========================================================
+   Weaver — js/features/config-bible.js
+   Step 15 + patches + Step 23.5: Config (Project Bible) editor.
+   - Seven sections; series-aware shared bible.
+   - Collapsible entries (one-line rows; expand to edit).
+   - IMPORT: ingest an exported *_config_bible.txt with
+     Replace / Merge choice.
+   - Debounced autosave + flush on close. Self-styled module.
+   ========================================================= */
+
+import { el, clear, modal, confirmDialog } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState } from '../core/state.js';
+import { getEffectiveConfig, saveEffectiveConfig } from '../core/storage.js';
+import { scheduleCloudSave } from './cloud.js';
+
+const STYLE_ID = 'config-bible-style';
+const CSS = `
+.cb-wrap{display:flex;gap:16px;min-height:380px;}
+.cb-rail{flex:none;width:196px;display:flex;flex-direction:column;gap:4px;
+  border-right:1px solid var(--border);padding-right:12px;}
+.cb-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;
+  border-radius:var(--radius-sm);background:transparent;color:var(--muted);
+  font-size:.82rem;text-align:left;cursor:pointer;}
+.cb-rail-btn:hover{background:var(--surface-2);color:var(--text);}
+.cb-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.cb-rail-btn .icon{flex:none;}
+.cb-rail-btn .count{margin-left:auto;font-family:var(--font-mono);font-size:.68rem;color:var(--faint);}
+.cb-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+.cb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cb-head h3{font-size:.95rem;font-weight:650;}
+.cb-row{display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--surface-2);cursor:pointer;}
+.cb-row:hover{border-color:var(--border-strong);}
+.cb-row-name{font-weight:600;font-size:.86rem;white-space:nowrap;flex:none;max-width:40%;
+  overflow:hidden;text-overflow:ellipsis;}
+.cb-row-preview{flex:1;min-width:0;color:var(--faint);font-size:.78rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cb-row-actions{display:flex;gap:4px;flex:none;}
+.cb-card{display:flex;flex-direction:column;gap:8px;padding:12px;
+  border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);}
+.cb-card-head{display:flex;gap:8px;align-items:center;}
+.cb-card-head .input{flex:1;}
+.cb-card-done{align-self:flex-end;}
+.cb-scope-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cb-hint{font-size:.74rem;color:var(--faint);}
+@media (max-width:640px){
+  .cb-wrap{flex-direction:column;}
+  .cb-rail{width:100%;flex-direction:row;flex-wrap:wrap;
+    border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;}
+}
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+const SECTIONS = [
+  { key: 'characters', label: 'Characters', icon: 'pen', kind: 'list', item: 'character' },
+  { key: 'settings', label: 'Settings & Places', icon: 'folder', kind: 'list', item: 'setting' },
+  { key: 'plotArcs', label: 'Plot Arcs', icon: 'tree', kind: 'list', item: 'arc' },
+  { key: 'worldRules', label: 'World Rules & Physics', icon: 'info', kind: 'list', item: 'rule' },
+  { key: 'items', label: 'Item Catalog', icon: 'key', kind: 'list', item: 'item' },
+  {
+    key: 'generalProse', label: 'General Prose', icon: 'type', kind: 'text',
+    hint: 'House style, voice, tense, rhythm — guidance applied to all generated prose.',
+    placeholder: 'e.g. Third-person limited, lean sentences, dry wit. Prefer sensory detail over abstraction…',
+  },
+  {
+    key: 'generalAiInstructions', label: 'AI Instructions', icon: 'sparkles', kind: 'text',
+    hint: 'Standing directives automatically bundled with EVERY Scribe prompt.',
+    placeholder: 'e.g. Never break established world rules. Keep character voices consistent with their profiles…',
+  },
+];
+
+const LIST_KEYS = ['characters', 'settings', 'plotArcs', 'worldRules', 'items'];
+const TEXT_KEYS = ['generalProse', 'generalAiInstructions'];
+
+/* Exported-header label -> internal key (case-insensitive) */
+const SECTION_LABELS = {
+  'characters': 'characters',
+  'settings & places': 'settings',
+  'plot arcs': 'plotArcs',
+  'world rules & physics': 'worldRules',
+  'item catalog': 'items',
+  'general prose': 'generalProse',
+  'general ai instructions': 'generalAiInstructions',
+};
+
+let projectRef = null;
+let cfg = null;
+let activeSection = 'characters';
+let railEl = null;
+let contentEl = null;
+let savedBadge = null;
+let saveTimer = null;
+let m = null;
+let expanded = new Set();
+
+function entryId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'e_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function normalize(cfgObj) {
+  for (const sec of SECTIONS) {
+    if (sec.kind === 'list' && !Array.isArray(cfgObj[sec.key])) cfgObj[sec.key] = [];
+    if (sec.kind === 'text' && typeof cfgObj[sec.key] !== 'string') cfgObj[sec.key] = '';
+  }
+  return cfgObj;
+}
+
+function oneLine(str, max = 140) {
+  const flat = (str || '').replace(/\s+/g, ' ').trim();
+  return flat ? flat.slice(0, max) : '— empty —';
+}
+
+/* ---------- Saving ---------- */
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 600);
+}
+
+function saveNow() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  if (!projectRef || !cfg) return;
+  saveEffectiveConfig(projectRef, cfg);
+     scheduleCloudSave();
+  if (savedBadge) {
+    savedBadge.hidden = false;
+    setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
+  }
+}
+
+/* ---------- Import: parser ---------- */
+function isListKey(key) { return LIST_KEYS.includes(key); }
+
+export function parseBibleText(text) {
+  const out = {
+    characters: [], settings: [], plotArcs: [], worldRules: [], items: [],
+    generalProse: '', generalAiInstructions: '',
+  };
+  const lines = String(text).replace(/\r\n?/g, '\n').split('\n');
+  let section = null;
+  let current = null;
+  let textBuf = [];
+
+  const flushEntry = () => {
+    if (current && section && isListKey(section)) {
+      current.body = current.body.replace(/\s+$/, '');
+      out[section].push(current);
+    }
+    current = null;
+  };
+  const flushText = () => {
+    if (section && !isListKey(section)) {
+      const joined = textBuf.join('\n').trim();
+      out[section] = joined === '(Empty)' ? '' : joined;
+    }
+    textBuf = [];
+  };
+
+  for (const line of lines) {
+    if (line.startsWith('### ')) {
+      flushEntry();
+      if (section && isListKey(section)) {
+        current = { id: entryId(), name: line.slice(4).trim(), body: '' };
+      }
+      continue;
+    }
+    if (line.startsWith('## ')) {
+      flushEntry();
+      flushText();
+      section = SECTION_LABELS[line.slice(3).trim().toLowerCase()] || null;
+      continue;
+    }
+    if (line.startsWith('# ')) continue;             // title line
+    if (/^(Series|Exported):/i.test(line)) continue; // metadata lines
+    if (!section) continue;
+    if (isListKey(section)) {
+      if (current) current.body += (current.body ? '\n' : '') + line;
+      // stray lines with no open entry (e.g. "(No entries)") are ignored
+    } else {
+      textBuf.push(line);
+    }
+  }
+  flushEntry();
+  flushText();
+  return out;
+}
+
+function importSummary(parsed) {
+  const parts = LIST_KEYS
+    .filter((k) => parsed[k].length)
+    .map((k) => `${parsed[k].length} ${k}`);
+  for (const t of TEXT_KEYS) if (parsed[t].trim()) parts.push(t === 'generalProse' ? 'prose style' : 'AI instructions');
+  return parts.length ? parts.join(', ') : 'no content found';
+}
+
+function askImportMode(parsed) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const mm = modal({
+      title: 'Import config bible',
+      body: el('p', {
+        text: `File contains: ${importSummary(parsed)}. Replace the current bible, or merge (append) into it?`,
+        style: { color: 'var(--muted)', 'font-size': '.88rem', 'line-height': '1.6' },
+      }),
+      footer: [
+        el('button', { class: 'btn', text: 'Cancel', onclick: () => { settled = true; mm.close(); resolve(null); } }),
+        el('button', { class: 'btn', text: 'Merge (append)', onclick: () => { settled = true; mm.close(); resolve('merge'); } }),
+        el('button', { class: 'btn btn-primary', text: 'Replace', onclick: () => { settled = true; mm.close(); resolve('replace'); } }),
+      ],
+      onClose: () => { if (!settled) resolve(null); },
+    });
+  });
+}
+
+function applyImport(mode, parsed) {
+  if (mode === 'replace') {
+    cfg = normalize(parsed);
+  } else {
+    for (const k of LIST_KEYS) cfg[k] = (cfg[k] || []).concat(parsed[k]);
+    for (const t of TEXT_KEYS) {
+      if (parsed[t].trim()) {
+        cfg[t] = cfg[t].trim() ? cfg[t].trim() + '\n\n' + parsed[t].trim() : parsed[t];
+      }
+    }
+  }
+  expanded = new Set();
+  scheduleSave();
+  renderRail();
+  renderContent();
+  toast(`Bible imported (${mode}).`, 'success');
+}
+
+async function handleImportFile(file) {
+  const text = await file.text();
+  if (!/^#\s*Project Bible/im.test(text.slice(0, 300))) {
+    toast('That file does not look like an exported Weaver config bible.', 'danger');
+    return;
+  }
+  const parsed = parseBibleText(text);
+  const mode = await askImportMode(parsed);
+  if (!mode) return;
+  applyImport(mode, parsed);
+}
+
+/* ---------- Render: rail ---------- */
+function renderRail() {
+  clear(railEl);
+  for (const sec of SECTIONS) {
+    const count = sec.kind === 'list' ? String(cfg[sec.key].length) : (cfg[sec.key].trim() ? '•' : '');
+    railEl.appendChild(el('button', {
+      class: 'cb-rail-btn' + (activeSection === sec.key ? ' is-selected' : ''),
+      onclick: () => { activeSection = sec.key; renderRail(); renderContent(); },
+    }, [
+      icon(sec.icon, 'icon-sm'),
+      el('span', { text: sec.label }),
+      el('span', { class: 'count', text: count }),
+    ]));
+  }
+}
+
+/* ---------- Render: content ---------- */
+function renderContent() {
+  clear(contentEl);
+  const sec = SECTIONS.find((s) => s.key === activeSection);
+  if (!sec) return;
+
+  if (sec.kind === 'text') {
+    renderTextSection(sec);
+    return;
+  }
+
+  contentEl.append(
+    el('div', { class: 'cb-head' }, [
+      el('h3', { text: sec.label }),
+      el('button', {
+        class: 'btn btn-sm btn-primary',
+        onclick: () => {
+          const entry = { id: entryId(), name: '', body: '' };
+          cfg[sec.key].push(entry);
+          expanded.add(entry.id);
+          scheduleSave();
+          renderRail();
+          renderContent();
+          const node = contentEl.querySelector(`[data-card="${entry.id}"] .textarea`);
+          if (node) node.focus();
+        },
+      }, [icon('plus', 'icon-sm'), `Add ${sec.item}`]),
+    ])
+  );
+
+  if (!cfg[sec.key].length) {
+    contentEl.appendChild(el('div', { class: 'empty-state' }, [
+      icon(sec.icon, 'icon-lg'),
+      el('p', { text: `No ${sec.item}s yet.` }),
+      el('p', { class: 'cb-hint', text: 'Entries here are bundled into Scribe prompts and exported with your project.' }),
+    ]));
+    return;
+  }
+
+  cfg[sec.key].forEach((entry, idx) => {
+    contentEl.appendChild(
+      expanded.has(entry.id) ? expandedCard(sec, entry, idx) : collapsedRow(sec, entry, idx)
+    );
+  });
+}
+
+function collapsedRow(sec, entry, idx) {
+  return el('div', {
+    class: 'cb-row',
+    onclick: () => expandEntry(entry.id),
+  }, [
+    el('span', { class: 'cb-row-name', text: entry.name || '(unnamed)' }),
+    el('span', { class: 'cb-row-preview', text: oneLine(entry.body) }),
+    el('div', { class: 'cb-row-actions' }, [
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        'aria-label': `Edit ${entry.name || sec.item}`,
+        onclick: (e) => { e.stopPropagation(); expandEntry(entry.id); },
+      }, [icon('pen', 'icon-sm')]),
+      deleteBtn(sec, entry, idx),
+    ]),
+  ]);
+}
+
+function expandedCard(sec, entry, idx) {
+  return el('div', { class: 'cb-card', dataset: { card: entry.id } }, [
+    el('div', { class: 'cb-card-head' }, [
+      el('input', {
+        class: 'input',
+        placeholder: `${sec.item} name…`,
+        value: entry.name || '',
+        oninput: (e) => { entry.name = e.target.value; scheduleSave(); },
+      }),
+      deleteBtn(sec, entry, idx),
+    ]),
+    el('textarea', {
+      class: 'textarea',
+      rows: '6',
+      placeholder: 'Description, traits, history, rules…',
+      text: entry.body || '',
+      oninput: (e) => { entry.body = e.target.value; scheduleSave(); },
+    }),
+    el('button', {
+      class: 'btn btn-sm cb-card-done',
+      text: 'Done',
+      onclick: () => { expanded.delete(entry.id); renderContent(); },
+    }),
+  ]);
+}
+
+function renderTextSection(sec) {
+  contentEl.append(
+    el('div', { class: 'cb-head' }, [el('h3', { text: sec.label })]),
+    el('p', { class: 'cb-hint', text: sec.hint })
+  );
+
+  if (!expanded.has(sec.key)) {
+    contentEl.appendChild(el('div', {
+      class: 'cb-row',
+      onclick: () => expandEntry(sec.key),
+    }, [
+      el('span', { class: 'cb-row-preview', text: oneLine(cfg[sec.key], 220) }),
+      el('div', { class: 'cb-row-actions' }, [
+        el('button', {
+          class: 'btn btn-ghost btn-icon btn-sm',
+          'aria-label': `Edit ${sec.label}`,
+          onclick: (e) => { e.stopPropagation(); expandEntry(sec.key); },
+        }, [icon('pen', 'icon-sm')]),
+      ]),
+    ]));
+    return;
+  }
+
+  contentEl.appendChild(el('div', { class: 'cb-card', dataset: { card: sec.key } }, [
+    el('textarea', {
+      class: 'textarea',
+      rows: '10',
+      placeholder: sec.placeholder,
+      text: cfg[sec.key],
+      oninput: (e) => { cfg[sec.key] = e.target.value; scheduleSave(); },
+    }),
+    el('button', {
+      class: 'btn btn-sm cb-card-done',
+      text: 'Done',
+      onclick: () => { expanded.delete(sec.key); renderContent(); },
+    }),
+  ]));
+  const node = contentEl.querySelector(`[data-card="${sec.key}"] .textarea`);
+  if (node) node.focus();
+}
+
+function expandEntry(id) {
+  expanded.add(id);
+  renderContent();
+  const node = contentEl.querySelector(`[data-card="${id}"] .textarea`);
+  if (node) node.focus();
+}
+
+function deleteBtn(sec, entry, idx) {
+  return el('button', {
+    class: 'btn btn-ghost btn-icon btn-sm',
+    'aria-label': `Delete ${entry.name || sec.item}`,
+    onclick: async (e) => {
+      e.stopPropagation();
+      const ok = await confirmDialog({
+        title: `Delete ${sec.item}`,
+        message: entry.name ? `"${entry.name}" will be removed from the bible.` : 'This empty entry will be removed.',
+        confirmLabel: 'Delete',
+        danger: true,
+      });
+      if (!ok) return;
+      cfg[sec.key].splice(idx, 1);
+      expanded.delete(entry.id);
+      scheduleSave();
+      renderRail();
+      renderContent();
+    },
+  }, [icon('trash', 'icon-sm')]);
+}
+
+/* ---------- Entry point ---------- */
+export function openConfigBible() {
+  const project = getState().project;
+  if (!project) return;
+  ensureStyle();
+
+  projectRef = project;
+  cfg = normalize(JSON.parse(JSON.stringify(getEffectiveConfig(project))));
+  activeSection = 'characters';
+  expanded = new Set();
+
+  savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
+
+  const fileInput = el('input', {
+    type: 'file', accept: '.txt,text/plain', hidden: true,
+    onchange: (e) => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (f) handleImportFile(f);
+    },
+  });
+  const importBtn = el('button', {
+    class: 'btn btn-sm',
+    title: 'Import an exported config bible (.txt)',
+    onclick: () => fileInput.click(),
+  }, [icon('upload', 'icon-sm'), 'Import']);
+
+  m = modal({
+    title: 'Project Bible',
+    size: 'lg',
+    body: [],
+    footer: [
+      el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() }),
+    ],
+    onClose: () => { saveNow(); },
+  });
+
+  railEl = el('div', { class: 'cb-rail' });
+  contentEl = el('div', { class: 'cb-content' });
+
+  m.body.append(
+    el('div', { class: 'cb-scope-row' }, [
+      el('span', {
+        class: 'badge' + (project.seriesId ? ' badge-accent' : ''),
+        text: project.seriesId
+          ? `shared series bible · ${project.seriesName || 'series'}`
+          : 'standalone project bible',
+      }),
+      savedBadge,
+      el('span', {
+        class: 'cb-hint',
+        text: project.seriesId
+          ? 'Edits persist across every book in this series.'
+          : 'Edits apply to this project only.',
+      }),
+      importBtn,
+      fileInput,
+    ]),
+    el('div', { class: 'cb-wrap' }, [railEl, contentEl])
+  );
+
+  renderRail();
+  renderContent();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/cover-gen.js
+================================================================================
+/* =========================================================
+Weaver — js/features/cover-gen.js
+V4: Cover Studio — AI prompt generator + cover image upload.
+PRE-GENERATION FIELDS: author name + author-name position
+(top/middle/bottom center + four corners). Both are compiled
+into the AI context, and the system prompt forces every image
+prompt to carry the title and the author line exactly as
+specified. No vendor names anywhere ("your favorite image
+generator") — deliberate.
+UPLOAD: the finished cover is compressed client-side (max
+1600×2560, JPEG q0.85) and stored on project.cover.image, so
+it rides autosave, backup bundles and the cloud vault for
+free, and features/export.js embeds it into EPUB exports.
+Gates: generation = Pro (client toast + server ai-proxy
+check); upload/download = everyone.
+========================================================= */
+import { el, clear, toast, modal, confirmDialog } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, touchProject } from '../core/state.js';
+import { getEffectiveConfig } from '../core/storage.js';
+import { streamChatWithFallback } from '../ai/manager.js';
+import { isKnownFree } from '../core/entitlements.js';
+
+const STYLE_ID = 'cover-gen-style';
+const CSS = `
+.cg-wrap{display:flex;flex-direction:column;gap:14px;}
+.cg-form{display:flex;gap:10px;flex-wrap:wrap;}
+.cg-form .field{flex:1 1 200px;}
+.cg-prompt-box{padding:12px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);font-family:var(--font-mono);font-size:.78rem;line-height:1.6;color:var(--muted);white-space:pre-wrap;max-height:180px;overflow-y:auto;}
+.cg-output{display:flex;flex-direction:column;gap:12px;}
+.cg-card{padding:14px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);}
+.cg-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;margin-bottom:6px;}
+.cg-card-body{font-size:.85rem;line-height:1.65;color:var(--text);white-space:pre-wrap;}
+.cg-card-actions{display:flex;gap:6px;margin-top:8px;}
+.cg-hint{font-size:.72rem;color:var(--faint);line-height:1.5;}
+.cg-divider{border-top:1px solid var(--border);margin:4px 0;}
+.cg-cover-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+.cg-cover-preview{width:120px;flex:none;border:1px solid var(--border-strong);border-radius:var(--radius-md);overflow:hidden;background:var(--surface-2);}
+.cg-cover-preview img{display:block;width:100%;height:auto;}
+.cg-cover-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-start;min-width:0;}
+.cg-cover-actions .row{display:flex;gap:8px;flex-wrap:wrap;}
+.cg-streaming::after{content:'▍';color:var(--accent);animation:cg-blink 1s steps(2) infinite;}
+@keyframes cg-blink{50%{opacity:0;}}
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+/* ---------- Author-name positions ---------- */
+const POSITIONS = [
+  'bottom center',
+  'top center',
+  'middle center',
+  'top left',
+  'top right',
+  'bottom left',
+  'bottom right',
+];
+const DEFAULT_POS = 'bottom center';
+
+/* ---------- Client-side cover compression ---------- */
+const MAX_W = 1600;
+const MAX_H = 2560;
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Could not read that image file.'));
+    img.src = src;
+  });
+}
+
+async function compressCover(file) {
+  if (!file || !file.type || !file.type.startsWith('image/')) {
+    throw new Error('That file is not an image. Use a .jpg, .png or .webp file.');
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error('That image is larger than 25 MB — please use a smaller file.');
+  }
+  const rawUrl = await new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = () => reject(new Error('Could not read that file.'));
+    fr.readAsDataURL(file);
+  });
+  const img = await loadImage(rawUrl);
+  let w = img.naturalWidth || img.width;
+  let h = img.naturalHeight || img.height;
+  if (!w || !h) throw new Error('Could not measure that image.');
+  const scale = Math.min(1, MAX_W / w, MAX_H / h);
+  w = Math.max(1, Math.round(w * scale));
+  h = Math.max(1, Math.round(h * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';              /* flatten transparency for JPEG */
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0, w, h);
+  const out = canvas.toDataURL('image/jpeg', 0.85);
+  if (!out || out.length > 3000000) {
+    throw new Error('That image is still too large after compression — try a smaller or simpler file.');
+  }
+  return out;
+}
+
+/* ---------- Prompt compiler ---------- */
+function compileCoverPrompt(project, author, authorPos) {
+  const cfg = getEffectiveConfig(project);
+  const plot = project.plot || {};
+  const parts = [];
+
+  parts.push(`BOOK TITLE: "${project.bookTitle || project.name || 'Untitled'}"`);
+  if (project.seriesName) parts.push(`SERIES: ${project.seriesName}`);
+  if (author) {
+    parts.push(`AUTHOR NAME: "${author}"`);
+    parts.push(`AUTHOR NAME POSITION: ${authorPos} — the cover must display the author name at this position.`);
+  } else {
+    parts.push('AUTHOR NAME: none — the cover must not include any author text.');
+  }
+
+  if (plot.premise && plot.premise.trim()) {
+    parts.push(`\nPREMISE:\n${plot.premise.trim().slice(0, 600)}`);
+  }
+
+  const chars = (cfg.characters || []).slice(0, 5);
+  if (chars.length) {
+    parts.push('\nKEY CHARACTERS:');
+    for (const c of chars) parts.push(`- ${c.name}: ${(c.body || '').slice(0, 120)}`);
+  }
+
+  const settings = (cfg.settings || []).slice(0, 3);
+  if (settings.length) {
+    parts.push('\nKEY SETTINGS:');
+    for (const s of settings) parts.push(`- ${s.name}: ${(s.body || '').slice(0, 100)}`);
+  }
+
+  if (cfg.generalProse && cfg.generalProse.trim()) {
+    parts.push(`\nPROSE STYLE: ${cfg.generalProse.trim().slice(0, 200)}`);
+  }
+
+  return parts.join('\n');
+}
+
+const SYSTEM_PROMPT = `You are a professional book cover designer and art director. Given a novel's details, generate THREE distinct cover concepts. For each concept provide:
+1. CONCEPT TITLE (2-3 words)
+2. VISUAL DESCRIPTION (what the viewer sees — composition, colors, mood, lighting, typography treatment)
+3. IMAGE PROMPT (one detailed prompt, ready to paste into an image generator)
+4. STYLE TAGS (3-5 keywords, e.g. "dark fantasy, oil painting, moody")
+
+Cover text rules — every IMAGE PROMPT must:
+- Set the book title as cover text, positioned for maximum impact.
+- Include the author name EXACTLY as given, at the exact stated position. If no author name is given, specify no author text on the cover.
+- Specify clean, legible typography and: no other text, no watermarks, no borders.
+- Specify standard ebook cover proportions (2:3 portrait).
+
+Be specific about color palettes, composition and mood. Avoid generic descriptions. Output ONLY the three numbered concepts, no preamble.`;
+
+/* ---------- Persistence helpers ---------- */
+function coverOf(project) {
+  if (!project.cover || typeof project.cover !== 'object') project.cover = {};
+  return project.cover;
+}
+
+function downloadCover(project) {
+  const img = project.cover && project.cover.image;
+  if (!img) return;
+  const a = document.createElement('a');
+  a.href = img;
+  a.download = (project.name || 'cover').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_cover.jpg';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ---------- Generation ---------- */
+async function runGeneration(compiled, host, btn) {
+  clear(host);
+  btn.disabled = true;
+  const label = btn.querySelector('span');
+  if (label) label.textContent = 'Generating…';
+
+  const streamingCard = el('div', { class: 'cg-card cg-streaming' }, [
+    el('div', { class: 'cg-card-head', text: 'AI response' }),
+    el('div', { class: 'cg-card-body', text: '' }),
+  ]);
+  host.appendChild(streamingCard);
+  const bodyEl = streamingCard.querySelector('.cg-card-body');
+
+  let full = '';
+  try {
+    await streamChatWithFallback({
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: compiled },
+      ],
+      onToken: (_delta, accumulated) => {
+        full = accumulated;
+        bodyEl.textContent = full;
+      },
+    });
+  } catch (e) {
+    bodyEl.textContent = '\u26A0 ' + (e.message || 'Generation failed.');
+    toast('Cover generation failed: ' + (e.message || 'unknown error'), 'danger');
+  } finally {
+    streamingCard.classList.remove('cg-streaming');
+    btn.disabled = false;
+    if (label) label.textContent = 'Generate again';
+    if (full.trim()) {
+      streamingCard.appendChild(el('div', { class: 'cg-card-actions' }, [
+        el('button', {
+          class: 'btn btn-sm',
+          text: 'Copy all',
+          onclick: () => {
+            navigator.clipboard.writeText(full).then(
+              () => toast('All concepts copied.', 'success'),
+              () => toast('Could not copy — select the text manually.', 'danger')
+            );
+          },
+        }),
+      ]));
+    }
+  }
+}
+
+/* ---------- Modal ---------- */
+export function openCoverGenerator() {
+  ensureStyle();
+  const project = getState().project;
+  if (!project) { toast('Open a project first.', 'info'); return; }
+  const cover = coverOf(project);
+
+  /* --- prefill fields --- */
+  const authorInput = el('input', {
+    class: 'input', type: 'text', maxlength: '80',
+    placeholder: 'e.g. Michael Benson',
+    value: cover.author || '',
+  });
+  const posSelect = el('select', { class: 'select' },
+    POSITIONS.map((p) => el('option', {
+      value: p,
+      text: p.charAt(0).toUpperCase() + p.slice(1),
+    })));
+  posSelect.value = POSITIONS.includes(cover.authorPos) ? cover.authorPos : DEFAULT_POS;
+
+  const promptBox = el('div', { class: 'cg-prompt-box', text: '' });
+
+  function persistMeta() {
+    cover.author = authorInput.value.trim();
+    cover.authorPos = posSelect.value;
+    promptBox.textContent = compileCoverPrompt(project, cover.author, cover.authorPos);
+    touchProject();
+  }
+  authorInput.addEventListener('change', persistMeta);
+  posSelect.addEventListener('change', persistMeta);
+  promptBox.textContent = compileCoverPrompt(project, cover.author || '', cover.authorPos || DEFAULT_POS);
+
+  /* --- generate --- */
+  const outputHost = el('div', { class: 'cg-output' });
+  const generateBtn = el('button', {
+    class: 'btn btn-primary',
+    onclick: () => {
+      if (isKnownFree()) {
+        toast('Cover prompt generation is a Pro feature. Upgrade in Settings.', 'info');
+        return;
+      }
+      persistMeta();
+      runGeneration(promptBox.textContent, outputHost, generateBtn);
+    },
+  }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Generate Cover Concepts' })]);
+
+  /* --- uploaded cover section --- */
+  const coverHost = el('div', {});
+  function renderCoverSection() {
+    clear(coverHost);
+    const fileInput = el('input', {
+      type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: true,
+      onchange: async (e) => {
+        const f = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!f) return;
+        try {
+          const dataUrl = await compressCover(f);
+          cover.image = dataUrl;
+          cover.updatedAt = Date.now();
+          touchProject();
+          toast('Cover saved with this project — it will be embedded in EPUB exports.', 'success');
+          renderCoverSection();
+        } catch (err) {
+          toast(err.message || 'Could not use that image.', 'danger');
+        }
+      },
+    });
+    const uploadBtn = el('button', {
+      class: 'btn btn-sm',
+      onclick: () => fileInput.click(),
+    }, [icon('upload', 'icon-sm'), cover.image ? 'Replace image' : 'Upload cover image']);
+
+    const row = el('div', { class: 'cg-cover-row' });
+    if (cover.image) {
+      row.appendChild(el('div', { class: 'cg-cover-preview' }, [
+        el('img', { src: cover.image, alt: 'Book cover' }),
+      ]));
+      const dlBtn = el('button', {
+        class: 'btn btn-sm',
+        onclick: () => downloadCover(project),
+      }, [icon('download', 'icon-sm'), 'Download']);
+      const rmBtn = el('button', {
+        class: 'btn btn-sm btn-danger',
+        onclick: async () => {
+          const ok = await confirmDialog({
+            title: 'Remove cover',
+            message: 'The uploaded cover image will be removed from this project. EPUB exports will no longer embed it. Continue?',
+            confirmLabel: 'Remove',
+            danger: true,
+          });
+          if (!ok) return;
+          delete cover.image;
+          touchProject();
+          renderCoverSection();
+        },
+      }, [icon('trash', 'icon-sm'), 'Remove']);
+      row.appendChild(el('div', { class: 'cg-cover-actions' }, [
+        el('span', { class: 'cg-hint', text: 'Saved with this project · synced to your vault · embedded in EPUB exports.' }),
+        el('div', { class: 'row' }, [uploadBtn, dlBtn, rmBtn]),
+      ]));
+    } else {
+      row.appendChild(el('div', { class: 'cg-cover-actions' }, [
+        el('span', {
+          class: 'cg-hint',
+          text: 'Create the cover with your favorite image generator, save the result, then upload it here. It is stored with this project, synced to your vault, and embedded as the cover of your EPUB exports.',
+        }),
+        el('div', { class: 'row' }, [uploadBtn]),
+      ]));
+    }
+    coverHost.append(fileInput, row);
+  }
+  renderCoverSection();
+
+  const bodyKids = [
+    el('div', { class: 'cg-wrap' }, [
+      el('p', {
+        class: 'cg-hint',
+        text: 'Set the author line, generate concepts from your Config Bible and Plot Builder, then paste a prompt into your favorite image generator. Upload the finished cover below.',
+      }),
+      el('div', { class: 'cg-form' }, [
+        el('div', { class: 'field' }, [
+          el('span', { class: 'field-label', text: 'Author name' }),
+          authorInput,
+          el('span', { class: 'field-hint', text: 'Included in every generated cover prompt exactly as typed. Leave blank for no author text.' }),
+        ]),
+        el('div', { class: 'field' }, [
+          el('span', { class: 'field-label', text: 'Author name position' }),
+          posSelect,
+        ]),
+      ]),
+      el('div', { class: 'field' }, [
+        el('span', { class: 'field-label', text: 'Story context sent to AI' }),
+        promptBox,
+      ]),
+      generateBtn,
+      outputHost,
+      el('div', { class: 'cg-divider' }),
+      el('div', { class: 'field' }, [
+        el('span', { class: 'field-label', text: 'Your cover image' }),
+      ]),
+      coverHost,
+    ]),
+  ];
+  if (isKnownFree()) {
+    bodyKids[0].insertBefore(
+      el('p', { class: 'cg-hint', text: 'Concept generation is a Pro feature. Uploading and exporting your own cover works on any plan.' }),
+      bodyKids[0].children[1]
+    );
+  }
+
+  const m = modal({
+    title: 'Cover Studio',
+    size: 'lg',
+    body: bodyKids,
+    footer: [el('button', {
+      class: 'btn btn-primary', text: 'Done',
+      onclick: () => { persistMeta(); m.close(); },
+    })],
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/export.js
+================================================================================
+/* =========================================================
+Weaver — js/features/export.js
+v2 Stage 6.7 + V3.9 + V4: Export ALWAYS produces BOTH files.
+Main Novel -> real .docx (blank doc if the novel is empty).
+Config Bible -> readable .txt.
+V3.9: EPUB export (Pro) — market-ready .epub built entirely
+client-side: title page, chapters, nav + NCX, book CSS.
+V4: uploaded cover (project.cover.image) is embedded as the
+EPUB cover — cover.xhtml first in the spine + cover-image
+property; EPUB author = project.cover.author when set, else
+'Anonymous'. EPUB reads the Main Novel layer only.
+========================================================= */
+import { getState } from '../core/state.js';
+import { getEffectiveConfig, listProjects, getProject } from '../core/storage.js';
+import { buildBlockIndex, headingPrefix } from '../utils/text.js';
+import { buildDocx } from '../utils/docx.js';
+import { buildZip } from '../utils/zip.js';
+import { el, toast, modal } from '../utils/dom.js';
+import { isPro } from '../core/entitlements.js';
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  triggerDownload(filename, blob);
+}
+
+function downloadBlob(filename, data, mime) {
+  const blob = new Blob([data], { type: mime });
+  triggerDownload(filename, blob);
+}
+
+function triggerDownload(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function exportProject(projectOverride) {
+  const project = projectOverride || getState().project;
+  if (!project) {
+    toast('No active project to export.', 'danger');
+    return;
+  }
+  const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+  /* ----- Main Novel as DOCX (always built) ----- */
+  const novelText = (project.mainNovel && project.mainNovel.text) || '';
+  const idx = buildBlockIndex(novelText);
+  const blocks = idx.map((b) => {
+    const raw = novelText.slice(b.s, b.e).replace(/\n$/, '');
+    return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
+  });
+  const docx = buildDocx(blocks.length ? blocks : [{ level: 0, text: '' }]);
+
+  /* ----- Config Bible as TXT (always built) ----- */
+  const cfg = getEffectiveConfig(project);
+  let bibleText = `# Project Bible: ${project.name}\n`;
+  if (project.seriesName) bibleText += `Series: ${project.seriesName}\n`;
+  bibleText += `Exported: ${new Date().toLocaleString()}\n\n`;
+  const sections = [
+    { key: 'characters', label: 'Characters' },
+    { key: 'settings', label: 'Settings & Places' },
+    { key: 'plotArcs', label: 'Plot Arcs' },
+    { key: 'worldRules', label: 'World Rules & Physics' },
+    { key: 'items', label: 'Item Catalog' },
+  ];
+  for (const sec of sections) {
+    bibleText += `## ${sec.label}\n\n`;
+    const entries = cfg[sec.key] || [];
+    if (!entries.length) bibleText += `(No entries)\n\n`;
+    else for (const e of entries) bibleText += `### ${e.name || '(Unnamed)'}\n${e.body || ''}\n\n`;
+  }
+  bibleText += `## General Prose\n\n${cfg.generalProse || '(Empty)'}\n\n`;
+  bibleText += `## General AI Instructions\n\n${cfg.generalAiInstructions || '(Empty)'}\n\n`;
+
+  /* ----- Downloads: BOTH files, always ----- */
+  downloadBlob(
+    `${safeName}_main_novel.docx`,
+    docx,
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  );
+  setTimeout(() => downloadFile(`${safeName}_config_bible.txt`, bibleText), 600);
+  toast(
+    novelText.trim()
+      ? 'Exporting Main Novel (.docx) and Config Bible (.txt)…'
+      : 'Main Novel is empty — exported it blank, plus the Config Bible.',
+    'success'
+  );
+}
+
+/* =========================================================
+   EPUB (Pro) — Main Novel layer only + V4 cover embed
+   ========================================================= */
+function escXml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* dataURL -> raw bytes + mime (covers are stored as dataURLs). */
+function dataUrlToBytes(dataUrl) {
+  const comma = String(dataUrl).indexOf(',');
+  if (comma < 0) throw new Error('malformed data URL');
+  const mime = String(dataUrl).slice(5, comma).split(';')[0] || 'image/jpeg';
+  const bin = atob(String(dataUrl).slice(comma + 1));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return { bytes, mime };
+}
+
+function novelBlocks(project) {
+  const novelText = (project && project.mainNovel && project.mainNovel.text) || '';
+  const idx = buildBlockIndex(novelText);
+  return idx.map((b) => {
+    const raw = novelText.slice(b.s, b.e).replace(/\n$/, '');
+    return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
+  });
+}
+
+/* Chapters = level-1 headings. If the book has none, level-2
+   headings become chapters. If it has neither, one whole book. */
+function chaptersFrom(blocks, fallbackTitle) {
+  const make = (title) => ({ title: title || fallbackTitle, html: [] });
+  let chapters = [];
+  let cur = null;
+  const pushBody = (b) => {
+    if (b.level === 2) { cur.html.push(`<h2>${escXml(b.text)}</h2>`); return; }
+    if (b.level >= 3) { cur.html.push(`<h3>${escXml(b.text)}</h3>`); return; }
+    const t = (b.text || '').trim();
+    if (!t) return;
+    if (/^(\*{3,}|-{3,}|\* \* \*)$/.test(t)) cur.html.push('<p class="scene">* * *</p>');
+    else cur.html.push(`<p>${escXml(t)}</p>`);
+  };
+  for (const b of blocks) {
+    if (b.level === 1) { cur = make((b.text || '').trim() || `Chapter ${chapters.length + 1}`); chapters.push(cur); continue; }
+    if (!cur) { cur = make(fallbackTitle); chapters.push(cur); }
+    pushBody(b);
+  }
+  const noH1 = chapters.length === 1 && chapters[0].title === fallbackTitle;
+  if (noH1 && blocks.some((b) => b.level === 2)) {
+    chapters = []; cur = null;
+    for (const b of blocks) {
+      if (b.level === 2) { cur = make((b.text || '').trim() || `Chapter ${chapters.length + 1}`); chapters.push(cur); continue; }
+      if (!cur) { cur = make(fallbackTitle); chapters.push(cur); }
+      if (b.level === 1) { cur.html.push(`<h1>${escXml(b.text)}</h1>`); continue; }
+      pushBody(b);
+    }
+  }
+  if (!chapters.length) chapters = [make(fallbackTitle)];
+  return chapters;
+}
+
+const XHTML_HEAD = (title) =>
+  `<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">\n<head><title>${escXml(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>\n<body>\n`;
+
+export function exportEpub(projectOverride) {
+  const project = projectOverride || getState().project;
+  if (!project) { toast('No active project to export.', 'danger'); return; }
+  if (!isPro()) {
+    toast('EPUB export is a Pro feature. Upgrade from Settings → Account, or use Export for .docx + .txt.', 'info');
+    return;
+  }
+  const blocks = novelBlocks(project);
+  if (!blocks.some((b) => (b.text || '').trim())) {
+    toast('Main Novel is empty for this book — finalize chapters into the Main Novel before exporting EPUB.', 'info');
+    return;
+  }
+
+  /* V4: author from the Cover Studio form (fallback: Anonymous). */
+  const cover = project.cover || {};
+  const author = String(cover.author || '').trim() || 'Anonymous';
+  const bookTitle = project.bookTitle || project.name || 'Untitled';
+  const series = project.seriesName || '';
+  const uid = 'urn:uuid:' + (project.id || 'weaver-book');
+  const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const chapters = chaptersFrom(blocks, bookTitle);
+  const enc = new TextEncoder();
+  const files = [];
+
+  files.push({ name: 'mimetype', bytes: enc.encode('application/epub+zip') });
+  files.push({ name: 'META-INF/container.xml', bytes: enc.encode(
+    `<?xml version="1.0" encoding="utf-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n<rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles>\n</container>\n`) });
+
+  const css = `body{font-family:Georgia,'Times New Roman',serif;line-height:1.5;margin:1em;}\nh1{page-break-before:always;text-align:center;font-size:1.4em;margin:2em 0 1em;}\nh2{font-size:1.15em;margin:1.5em 0 .5em;}\nh3{font-size:1em;margin:1.2em 0 .4em;}\np{margin:0 0 .7em;}\np.scene{text-align:center;letter-spacing:.5em;margin:1.2em 0;}\n.titlepage{text-align:center;margin-top:3em;}\n.titlepage h1{page-break-before:none;margin-top:0;font-size:1.8em;}\n.titlepage .series{font-style:italic;}\n.titlepage .author{margin-top:2em;}\n.coverpage{margin:0;padding:0;text-align:center;}\n.coverpage img{width:100%;}\n`;
+  files.push({ name: 'OEBPS/style.css', bytes: enc.encode(css) });
+
+  /* ----- V4: embedded cover (when the project has one) ----- */
+  let coverHref = null;
+  let coverMime = 'image/jpeg';
+  const coverData = typeof cover.image === 'string' && cover.image.startsWith('data:image/') ? cover.image : null;
+  if (coverData) {
+    try {
+      const parsed = dataUrlToBytes(coverData);
+      coverMime = parsed.mime;
+      coverHref = parsed.mime === 'image/png' ? 'cover.png' : 'cover.jpg';
+      files.push({ name: 'OEBPS/' + coverHref, bytes: parsed.bytes });
+      const coverPage = XHTML_HEAD('Cover') +
+        `<div class="coverpage"><img src="${coverHref}" alt="Cover"/></div>\n</body>\n</html>\n`;
+      files.push({ name: 'OEBPS/cover.xhtml', bytes: enc.encode(coverPage) });
+    } catch (e) {
+      coverHref = null;   /* a broken cover must never sink the export */
+    }
+  }
+
+  const titlePage = XHTML_HEAD(bookTitle) +
+    `<div class="titlepage">\n<h1>${escXml(bookTitle)}</h1>\n` +
+    (series ? `<p class="series">${escXml(series)}</p>\n` : '') +
+    `<p class="author">${escXml(author)}</p>\n</div>\n</body>\n</html>\n`;
+  files.push({ name: 'OEBPS/title.xhtml', bytes: enc.encode(titlePage) });
+
+  const manifest = [
+    `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`,
+    `<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>`,
+    `<item id="css" href="style.css" media-type="text/css"/>`,
+    `<item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>`,
+  ];
+  const spine = [];
+  const navItems = [];
+  const ncxPoints = [];
+  let playOrder = 1;
+
+  if (coverHref) {
+    manifest.push(`<item id="cover-image" href="${coverHref}" media-type="${coverMime}" properties="cover-image"/>`);
+    manifest.push(`<item id="cover-page" href="cover.xhtml" media-type="application/xhtml+xml"/>`);
+    spine.push(`<itemref idref="cover-page"/>`);
+    navItems.push(`<li><a href="cover.xhtml">Cover</a></li>`);
+    ncxPoints.push(`<navPoint id="npCover" playOrder="${playOrder++}"><navLabel><text>Cover</text></navLabel><content src="cover.xhtml"/></navPoint>`);
+  }
+  spine.push(`<itemref idref="title"/>`);
+  navItems.push(`<li><a href="title.xhtml">Title page</a></li>`);
+  ncxPoints.push(`<navPoint id="np0" playOrder="${playOrder++}"><navLabel><text>Title page</text></navLabel><content src="title.xhtml"/></navPoint>`);
+
+  chapters.forEach((ch, i) => {
+    const href = `chapter${i + 1}.xhtml`;
+    const id = `c${i + 1}`;
+    const xhtml = XHTML_HEAD(ch.title) + `<h1>${escXml(ch.title)}</h1>\n${ch.html.join('\n')}\n</body>\n</html>\n`;
+    files.push({ name: 'OEBPS/' + href, bytes: enc.encode(xhtml) });
+    manifest.push(`<item id="${id}" href="${href}" media-type="application/xhtml+xml"/>`);
+    spine.push(`<itemref idref="${id}"/>`);
+    navItems.push(`<li><a href="${href}">${escXml(ch.title)}</a></li>`);
+    ncxPoints.push(`<navPoint id="np${i + 1}" playOrder="${playOrder++}"><navLabel><text>${escXml(ch.title)}</text></navLabel><content src="${href}"/></navPoint>`);
+  });
+
+  const nav = XHTML_HEAD('Contents') +
+    `<nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc">\n<ol>\n${navItems.join('\n')}\n</ol>\n</nav>\n</body>\n</html>\n`;
+  files.push({ name: 'OEBPS/nav.xhtml', bytes: enc.encode(nav) });
+
+  const ncx = `<?xml version="1.0" encoding="utf-8"?>\n<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">\n<head>\n<meta name="dtb:uid" content="${escXml(uid)}"/>\n<meta name="dtb:depth" content="1"/>\n<meta name="dtb:totalPageCount" content="0"/>\n<meta name="dtb:maxPageNumber" content="0"/>\n</head>\n<docTitle><text>${escXml(bookTitle)}</text></docTitle>\n<navMap>\n${ncxPoints.join('\n')}\n</navMap>\n</ncx>\n`;
+  files.push({ name: 'OEBPS/toc.ncx', bytes: enc.encode(ncx) });
+
+  const opf = `<?xml version="1.0" encoding="utf-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="en">\n<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n<dc:identifier id="bookid">${escXml(uid)}</dc:identifier>\n<dc:title>${escXml(bookTitle)}</dc:title>\n` +
+    (series ? `<dc:subject>${escXml(series)}</dc:subject>\n` : '') +
+    `<dc:language>en</dc:language>\n<dc:creator>${escXml(author)}</dc:creator>\n` +
+    (coverHref ? `<meta name="cover" content="cover-image"/>\n` : '') +
+    `<meta property="dcterms:modified">${modified}</meta>\n</metadata>\n<manifest>\n${manifest.join('\n')}\n</manifest>\n<spine toc="ncx">\n${spine.join('\n')}\n</spine>\n</package>\n`;
+  files.push({ name: 'OEBPS/content.opf', bytes: enc.encode(opf) });
+
+  const zip = buildZip(files);
+  const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  downloadBlob(`${safeName}.epub`, zip, 'application/epub+zip');
+  toast(`EPUB exported: ${chapters.length} chapter${chapters.length === 1 ? '' : 's'}${coverHref ? ', cover embedded' : ''}.`, 'success');
+}
+
+/* =========================================================
+   EPUB export list — Settings. Shows library summaries; loads
+   the full book on tap. One book at a time; series books
+   listed individually.
+   ========================================================= */
+export function openEpubExportList() {
+  const projects = listProjects() || [];
+  if (!projects.length) { toast('No projects to export yet.', 'info'); return; }
+  const list = el('div', {});
+  list.style.display = 'flex';
+  list.style.flexDirection = 'column';
+  list.style.gap = '8px';
+  let m = null;
+  for (const p of projects) {
+    const label = p.seriesName ? `${p.seriesName} · ${p.name}` : (p.name || 'Untitled');
+    const btn = el('button', {
+      class: 'btn',
+      onclick: () => {
+        if (m) m.close();
+        const full = getProject(p.id);
+        if (!full) { toast('Could not load that book\u2019s data from this browser.', 'danger'); return; }
+        exportEpub(full);
+      },
+    }, [el('span', { text: `${label} — ${(p.wordCount || 0).toLocaleString()} words` })]);
+    btn.style.justifyContent = 'flex-start';
+    btn.style.textAlign = 'left';
+    btn.style.whiteSpace = 'normal';
+    btn.style.width = '100%';
+    list.appendChild(btn);
+  }
+  m = modal({
+    title: 'Export EPUB — choose a book',
+    body: [
+      el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel — EPUB never reads the Manuscript draft. Use "Accept highlighted" or "Accept whole" to move text into the Main Novel first. Series books are listed individually.' }),
+      list,
+    ],
+    footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/focus-mode.js
+================================================================================
+/* =========================================================
+Weaver — js/features/focus-mode.js
+V4: Distraction-free fullscreen writing mode.
+Hides topbar, pills, other panels, resizers, FABs.
+Shows ONLY the Manuscript panel expanded to fill the viewport.
+Exit: Escape key or floating × button.
+Self-styled. No state persistence (session-only).
+========================================================= */
+import { el } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+
+const STYLE_ID = 'focus-mode-style';
+const CSS = `
+html.weaver-focus-mode #app > *:not(#view-workspace),
+html.weaver-focus-mode .topbar,
+html.weaver-focus-mode .panel-pills,
+html.weaver-focus-mode .panel-resizer,
+html.weaver-focus-mode .scribe-fab,
+html.weaver-focus-mode .notes-fab,
+html.weaver-focus-mode .tb-more-sheet,
+html.weaver-focus-mode .modal-backdrop,
+html.weaver-focus-mode #weaver-app-banner { display: none !important; }
+html.weaver-focus-mode #view-workspace { display: flex !important; }
+html.weaver-focus-mode .workspace-panels {
+  position: fixed !important; inset: 0 !important;
+  display: flex !important; flex-direction: column !important;
+  z-index: 200 !important; background: var(--bg) !important;
+}
+html.weaver-focus-mode .workspace-panels > .panel:not([data-panel="manuscript"]) { display: none !important; }
+html.weaver-focus-mode .workspace-panels > .panel[data-panel="manuscript"] {
+  display: flex !important; flex: 1 1 100% !important; width: 100% !important;
+}
+html.weaver-focus-mode .panel-header { opacity: 0.3; transition: opacity .2s ease; }
+html.weaver-focus-mode .panel-header:hover { opacity: 1; }
+html.weaver-focus-mode .panel-footer { justify-content: center; }
+.fm-exit {
+  position: fixed; top: 12px; right: 12px; z-index: 300;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  color: var(--muted); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0.4; transition: opacity .2s ease, background .15s ease;
+}
+.fm-exit:hover { opacity: 1; background: var(--surface-3); color: var(--text); }
+`;
+
+let active = false;
+let exitBtn = null;
+let previousExpanded = null;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+export function toggleFocusMode() {
+  if (active) exitFocusMode();
+  else enterFocusMode();
+}
+
+export function isInFocusMode() { return active; }
+
+function enterFocusMode() {
+  if (active) return;
+  ensureStyle();
+
+  /* Remember current expanded panel so we can restore it */
+  try {
+    const { getState } = await_import_state();
+    previousExpanded = getState().ui.expandedPanel;
+  } catch (_) { previousExpanded = null; }
+
+  document.documentElement.classList.add('weaver-focus-mode');
+
+  /* Floating exit button */
+  exitBtn = el('button', {
+    class: 'fm-exit',
+    title: 'Exit focus mode (Esc)',
+    'aria-label': 'Exit focus mode',
+    onclick: exitFocusMode,
+  }, [icon('x', 'icon-sm')]);
+  document.body.appendChild(exitBtn);
+
+  /* Enter browser fullscreen if allowed */
+  try {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  } catch (_) {}
+
+  active = true;
+
+  /* Bind Escape */
+  document.addEventListener('keydown', onEscape);
+}
+
+function exitFocusMode() {
+  if (!active) return;
+  document.documentElement.classList.remove('weaver-focus-mode');
+
+  if (exitBtn) { exitBtn.remove(); exitBtn = null; }
+
+  /* Exit browser fullscreen */
+  try {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  } catch (_) {}
+
+  document.removeEventListener('keydown', onEscape);
+  active = false;
+  previousExpanded = null;
+}
+
+function onEscape(e) {
+  if (e.key === 'Escape') { e.preventDefault(); exitFocusMode(); }
+}
+
+/* Lazy state import to avoid circular deps */
+function await_import_state() {
+  /* Synchronous require-like access — state.js is always loaded before us */
+  return window.__weaver_state_module || {};
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/guide.js
+================================================================================
+/* =========================================================
+Weaver — js/features/guide.js
+V3.9: Guide powered by docs/HELP.md (learning only).
+Browse topics via the rail or instant search. Support lookup
+now lives in the dedicated Support window.
+========================================================= */
+import { el, clear, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { openSupport } from './support.js';
+
+const STYLE_ID = 'guide-style';
+const DOC_V = '2026-11-05a';
+const CSS = `.gd-wrap{display:flex;gap:16px;min-height:420px;} .gd-rail{flex:none;width:200px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:10px;overflow-y:auto;} .gd-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .gd-rail-btn:hover{background:var(--surface-2);color:var(--text);} .gd-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .gd-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;} .gd-searchrow{display:flex;gap:8px;align-items:center;} .gd-searchrow .input{flex:1;} .gd-content{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px;} .gd-h3{font-size:.9rem;font-weight:650;color:var(--accent);margin-top:6px;} .gd-p{font-size:.85rem;line-height:1.65;color:var(--text);} .gd-li{font-size:.85rem;line-height:1.6;padding-left:14px;position:relative;} .gd-li:before{content:'•';position:absolute;left:2px;color:var(--accent);} .gd-quote{font-size:.82rem;line-height:1.6;color:var(--muted);border-left:3px solid var(--accent);padding:6px 10px;background:var(--surface-2);border-radius:0 8px 8px 0;} .gd-table{width:100%;border-collapse:collapse;font-size:.8rem;} .gd-table td,.gd-table th{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top;} .gd-table th{background:var(--surface-2);color:var(--muted);font-weight:650;} .gd-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .gd-topic-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:8px;} @media (max-width:640px){ .gd-wrap{flex-direction:column;min-height:0;} .gd-rail{width:100%;flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;max-height:110px;} }`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function inline(s) {
+  let out = esc(s);
+  out = out.replace(/`([^`]+)`/g, '<span class="gd-code">$1</span>');
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  out = out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--accent)">$1</a>');
+  return out;
+}
+function rich(cls, htmlStr) {
+  const d = document.createElement('div');
+  d.className = cls;
+  d.innerHTML = htmlStr;
+  return d;
+}
+
+/* ---------- markdown-lite ---------- */
+function renderLines(lines, host) {
+  let listBuf = [];
+  let tableBuf = [];
+  const flushList = () => { for (const t of listBuf) host.appendChild(rich('gd-li', inline(t))); listBuf = []; };
+  const flushTable = () => {
+    const rows = tableBuf.filter((r) => !/^\|?[\s:|-]+\|?$/.test(r));
+    tableBuf = [];
+    if (!rows.length) return;
+    const table = document.createElement('table');
+    table.className = 'gd-table';
+    rows.forEach((r, idx) => {
+      const cells = r.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+      const tr = document.createElement('tr');
+      for (const c of cells) {
+        const cell = document.createElement(idx === 0 ? 'th' : 'td');
+        cell.innerHTML = inline(c);
+        tr.appendChild(cell);
+      }
+      table.appendChild(tr);
+    });
+    host.appendChild(table);
+  };
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) { flushList(); flushTable(); continue; }
+    if (t.startsWith('|')) { flushList(); tableBuf.push(t); continue; }
+    if (tableBuf.length) flushTable();
+    if (t === '---') { flushList(); continue; }
+    if (t.startsWith('- ') || t.startsWith('* ')) { listBuf.push(t.slice(2)); continue; }
+    if (/^\d+\.\s/.test(t)) { listBuf.push(t.replace(/^\d+\.\s/, '')); continue; }
+    flushList();
+    if (t.startsWith('> ')) { host.appendChild(rich('gd-quote', inline(t.slice(2)))); continue; }
+    host.appendChild(rich('gd-p', inline(t)));
+  }
+  flushList();
+  flushTable();
+}
+
+/* ---------- parser + fetch ---------- */
+function parseDoc(text) {
+  const topics = [];
+  let cur = null;
+  let sub = null;
+  for (const raw of String(text).replace(/\r\n?/g, '\n').split('\n')) {
+    const line = raw.trimEnd();
+    if (line.startsWith('## ')) { cur = { title: line.slice(3).trim(), intro: [], subs: [] }; topics.push(cur); sub = null; continue; }
+    if (line.startsWith('### ')) {
+      if (!cur) { cur = { title: 'General', intro: [], subs: [] }; topics.push(cur); }
+      sub = { title: line.slice(4).trim(), lines: [] };
+      cur.subs.push(sub); continue;
+    }
+    if (line.startsWith('# ') || !cur) continue;
+    if (sub) sub.lines.push(line); else cur.intro.push(line);
+  }
+  return topics;
+}
+let DOC = null;
+let DOC_LOADING = false;
+let waiters = [];
+function loadDoc() {
+  if (DOC) return Promise.resolve(DOC);
+  if (DOC_LOADING) return new Promise((r) => waiters.push(r));
+  DOC_LOADING = true;
+  const url = new URL('docs/HELP.md', document.baseURI).href + '?v=' + DOC_V;
+  return fetch(url, { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then((text) => { DOC = parseDoc(text); DOC_LOADING = false; waiters.splice(0).forEach((f) => f(DOC)); return DOC; })
+    .catch(() => { DOC_LOADING = false; waiters.splice(0).forEach((f) => f(null)); return null; });
+}
+
+/* ---------- UI state ---------- */
+let m = null;
+let railEl = null;
+let contentEl = null;
+let searchEl = null;
+let topics = [];
+let active = 0;
+
+function renderRail() {
+  clear(railEl);
+  topics.forEach((t, i) => {
+    railEl.appendChild(el('button', {
+      class: 'gd-rail-btn' + (i === active ? ' is-selected' : ''),
+      onclick: () => { active = i; if (searchEl) searchEl.value = ''; renderRail(); renderMain(); },
+    }, [el('span', { text: t.title })]));
+  });
+}
+function renderSearch(q) {
+  let shown = 0;
+  for (const t of topics) {
+    const introHit = t.intro.some((l) => l.toLowerCase().includes(q));
+    const subs = t.subs.filter((s) => s.title.toLowerCase().includes(q) || s.lines.some((l) => l.toLowerCase().includes(q)));
+    if (!introHit && !subs.length) continue;
+    contentEl.appendChild(rich('gd-topic-label', esc(t.title)));
+    if (introHit) renderLines(t.intro, contentEl);
+    for (const s of subs) {
+      contentEl.appendChild(rich('gd-h3', esc(s.title)));
+      renderLines(s.lines, contentEl);
+      shown++;
+      if (shown > 30) return;
+    }
+  }
+  if (!shown) contentEl.appendChild(rich('gd-p', 'No matches. Try another phrase, or open the Support window for a direct answer.'));
+}
+function renderMain() {
+  if (!contentEl) return;
+  clear(contentEl);
+  if (!topics.length) { renderError(); return; }
+  const q = (searchEl && searchEl.value || '').trim().toLowerCase();
+  if (q) { renderSearch(q); return; }
+  const t = topics[active] || topics[0];
+  if (t.intro.length) renderLines(t.intro, contentEl);
+  for (const s of t.subs) {
+    contentEl.appendChild(rich('gd-h3', esc(s.title)));
+    renderLines(s.lines, contentEl);
+  }
+}
+function renderError() {
+  clear(contentEl);
+  contentEl.appendChild(rich('gd-p', 'The help document could not be loaded (offline, or docs/HELP.md is missing from the site).'));
+  const retry = el('button', { class: 'btn btn-sm', text: 'Retry' });
+  retry.onclick = () => {
+    DOC = null;
+    clear(contentEl);
+    contentEl.appendChild(rich('gd-p', 'Loading help…'));
+    loadDoc().then((doc) => { if (doc) { topics = doc; renderRail(); renderMain(); } else renderError(); });
+  };
+  contentEl.appendChild(retry);
+}
+
+/* ---------- Entry ---------- */
+export function openGuide() {
+  ensureStyle();
+  topics = [];
+  active = 0;
+  m = modal({
+    title: 'Weaver Guide',
+    size: 'lg',
+    body: [],
+    footer: [
+      el('button', { class: 'btn', onclick: () => { m.close(); openSupport(); } }, [icon('send', 'icon-sm'), 'Contact support']),
+      el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() }),
+    ],
+  });
+  searchEl = el('input', { class: 'input', type: 'search', placeholder: 'Search the guide…' });
+  searchEl.addEventListener('input', () => renderMain());
+  railEl = el('div', { class: 'gd-rail' });
+  contentEl = el('div', { class: 'gd-content' });
+  m.body.append(
+    el('div', { class: 'gd-wrap' }, [
+      railEl,
+      el('div', { class: 'gd-main' }, [
+        el('div', { class: 'gd-searchrow' }, [icon('book', 'icon-sm'), searchEl]),
+        contentEl,
+      ]),
+    ])
+  );
+  contentEl.appendChild(rich('gd-p', 'Loading help…'));
+  loadDoc().then((doc) => {
+    if (!contentEl) return;
+    if (!doc) { renderError(); return; }
+    topics = doc;
+    renderRail();
+    renderMain();
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/hierarchy.js
+================================================================================
+/* =========================================================
+   Weaver — js/features/hierarchy.js
+   Step 14 (v2): Hierarchy drawer — lag-free chapter/section
+   tree for Manuscript and Main Novel with instant jumps.
+   v2: carries its own styles so no CSS append is required.
+   ========================================================= */
+
+import { el, clear } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, subscribe } from '../core/state.js';
+import { buildBlockIndex, extractHeadings } from '../utils/text.js';
+import { jumpManuscriptToBlock } from '../panels/manuscript.js';
+import { jumpNovelToBlock } from '../panels/main-novel.js';
+
+const STYLE_ID = 'hier-drawer-style';
+const CSS = `
+.hier-drawer{position:fixed;top:0;left:0;bottom:0;width:min(340px,86vw);
+  background:var(--surface);border-right:1px solid var(--border-strong);
+  box-shadow:var(--shadow-2);transform:translateX(-102%);
+  transition:transform .22s ease;z-index:90;display:flex;flex-direction:column;}
+.hier-drawer.is-open{transform:translateX(0);}
+.hier-header{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;border-bottom:1px solid var(--border);}
+.hier-title{display:flex;align-items:center;gap:8px;font-size:.85rem;
+  font-weight:650;letter-spacing:.1em;text-transform:uppercase;}
+.hier-title .icon{color:var(--accent);}
+.hier-seg{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.hier-seg .btn{flex:1;}
+.hier-seg .btn.is-selected{border-color:rgba(224,168,60,.55);
+  background:var(--accent-soft);color:var(--accent);}
+.hier-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:2px;}
+.hier-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:none;
+  border-radius:var(--radius-sm);background:transparent;color:var(--text);
+  font-size:.84rem;text-align:left;cursor:pointer;}
+.hier-item:hover{background:var(--surface-2);}
+.hier-item .icon{color:var(--faint);flex:none;}
+.hier-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hier-l1{font-weight:650;color:var(--accent);}
+.hier-l2{padding-left:24px;}
+.hier-l3{padding-left:40px;color:var(--muted);}
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let drawer = null;
+let listEl = null;
+let segBtns = {};
+let target = 'manuscript';
+
+function segButton(key, label) {
+  const b = el('button', {
+    class: 'btn btn-sm',
+    text: label,
+    onclick: () => { target = key; refreshList(); },
+  });
+  segBtns[key] = b;
+  return b;
+}
+
+function ensureDrawer() {
+  if (drawer) return;
+  listEl = el('div', { class: 'hier-list' });
+  drawer = el('aside', { class: 'hier-drawer' }, [
+    el('div', { class: 'hier-header' }, [
+      el('h2', { class: 'hier-title' }, [icon('tree'), 'Hierarchy']),
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        'aria-label': 'Close hierarchy',
+        onclick: () => closeDrawer(),
+      }, [icon('x')]),
+    ]),
+    el('div', { class: 'hier-seg' }, [
+      segButton('manuscript', 'Manuscript'),
+      segButton('novel', 'Main Novel'),
+    ]),
+    listEl,
+  ]);
+  document.body.appendChild(drawer);
+
+  subscribe((state, change) => {
+    if (change.view || (change.project && !change.silent)) closeDrawer();
+  });
+}
+
+function closeDrawer() {
+  if (drawer) drawer.classList.remove('is-open');
+}
+
+export function toggleHierarchyDrawer() {
+  ensureStyle();
+  ensureDrawer();
+  const open = drawer.classList.toggle('is-open');
+  if (open) refreshList();
+}
+
+function refreshList() {
+  if (!listEl) return;
+  clear(listEl);
+  for (const [key, btn] of Object.entries(segBtns)) {
+    btn.classList.toggle('is-selected', key === target);
+  }
+
+  const project = getState().project;
+  if (!project) return;
+  const text = target === 'manuscript'
+    ? (project.manuscript.text || '')
+    : (project.mainNovel.text || '');
+
+  const blocks = buildBlockIndex(text);
+  const heads = extractHeadings(text, blocks);
+
+  if (!heads.length) {
+    listEl.appendChild(el('div', { class: 'empty-state' }, [
+      icon('tree', 'icon-lg'),
+      el('p', { text: 'No headings yet.' }),
+      el('p', {
+        class: 'launch-empty-hint',
+        text: 'Start a line with #, ## or ### to create chapters and sections.',
+      }),
+    ]));
+    return;
+  }
+
+  for (const h of heads) {
+    listEl.appendChild(el('button', {
+      class: `hier-item hier-l${h.level}`,
+      title: h.title,
+      onclick: () => jump(h.index),
+    }, [
+      icon(h.level === 1 ? 'book' : 'file-text', 'icon-sm'),
+      el('span', { text: h.title }),
+    ]));
+  }
+}
+
+function jump(blockIndex) {
+  if (target === 'manuscript') jumpManuscriptToBlock(blockIndex);
+  else jumpNovelToBlock(blockIndex);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/mobile-dock.js
+================================================================================
+/* =========================================================
+Weaver — js/features/mobile-dock.js
+V3.9: Mobile dock overhaul. Owns the phone layout entirely
+with inline styles so no stylesheet chain can break it:
+pins .workspace-panels to the viewport under the pill bar,
+stretches the active panel, scrolls its body, and docks its
+footer at the screen bottom above the floating buttons.
+Self-healing: re-applies on resize, rotation, breakpoint
+crossing and any DOM/style mutation (pill taps, re-renders,
+banners). Desktop is never touched (styles are released).
+========================================================= */
+import { getState, subscribe } from '../core/state.js';
+
+window.WEAVER_DOCK_VER = '1.0';
+
+const MQ = '(max-width:860px)';
+let registry = [];   /* { el, props:[...] } — inline styles we own */
+let mqObj = null;
+let observer = null;
+let queued = false;
+
+function isMobile() { return window.matchMedia(MQ).matches; }
+function inWorkspace() {
+  const st = getState();
+  return st.view === 'workspace' && !!st.project;
+}
+
+/* Only write when the value actually changes (prevents
+   observer feedback loops). */
+function setProp(el, prop, value) {
+  if (el.style[prop] === value) return;
+  let rec = registry.find((r) => r.el === el);
+  if (!rec) { rec = { el, props: [] }; registry.push(rec); }
+  if (!rec.props.includes(prop)) rec.props.push(prop);
+  el.style[prop] = value;
+}
+
+function clearAll() {
+  for (const rec of registry) {
+    for (const p of rec.props) rec.el.style[p] = '';
+    if (rec.el.dataset && rec.el.dataset.dockHide) {
+      rec.el.style.display = '';
+      delete rec.el.dataset.dockHide;
+    }
+  }
+  registry = [];
+}
+
+function applyDock() {
+  const panelsEl = document.querySelector('.workspace-panels');
+  if (!panelsEl) return;
+  if (!isMobile() || !inWorkspace()) { clearAll(); return; }
+
+  /* Pin the panel stack to the viewport, flush under the pills. */
+  const anchor = document.querySelector('.panel-pills') || document.querySelector('.topbar');
+  const topPx = anchor ? Math.round(anchor.getBoundingClientRect().bottom) : 104;
+  setProp(panelsEl, 'position', 'fixed');
+  setProp(panelsEl, 'left', '0');
+  setProp(panelsEl, 'right', '0');
+  setProp(panelsEl, 'bottom', '0');
+  setProp(panelsEl, 'top', topPx + 'px');
+  setProp(panelsEl, 'display', 'flex');
+  setProp(panelsEl, 'flexDirection', 'column');
+  setProp(panelsEl, 'minHeight', '0');
+  setProp(panelsEl, 'zIndex', '1');
+
+  /* Stretch the visible panel; hide stragglers if an older
+     workspace build left more than one showing. */
+  const panels = Array.from(panelsEl.querySelectorAll(':scope > .panel'));
+  let visible = panels.filter((p) => p.style.display !== 'none');
+  if (visible.length > 1) {
+    for (const p of visible.slice(1)) {
+      p.style.display = 'none';
+      p.dataset.dockHide = '1';
+      if (!registry.find((r) => r.el === p)) registry.push({ el: p, props: [] });
+    }
+    visible = [visible[0]];
+  }
+  const active = visible[0] || panels[0];
+  if (!active) return;
+  setProp(active, 'display', 'flex');
+  setProp(active, 'flexDirection', 'column');
+  setProp(active, 'flex', '1 1 0');
+  setProp(active, 'minHeight', '0');
+  setProp(active, 'width', '100%');
+
+  const body = active.querySelector('.panel-body');
+  if (body) {
+    setProp(body, 'flex', '1 1 auto');
+    setProp(body, 'minHeight', '0');
+    setProp(body, 'overflowY', 'auto');
+  }
+  const footer = active.querySelector('.panel-footer');
+  if (footer) {
+    setProp(footer, 'flex', 'none');
+    setProp(footer, 'justifyContent', 'center');
+    setProp(footer, 'padding', '6px 64px calc(6px + env(safe-area-inset-bottom, 0px))');
+  }
+  panelsEl.querySelectorAll('.panel-resizer').forEach((r) => setProp(r, 'display', 'none'));
+}
+
+function queueDock() {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => { queued = false; applyDock(); });
+}
+
+export function initMobileDock() {
+  mqObj = window.matchMedia(MQ);
+  if (mqObj.addEventListener) mqObj.addEventListener('change', queueDock);
+  else if (mqObj.addListener) mqObj.addListener(queueDock);
+  window.addEventListener('resize', queueDock);
+  window.addEventListener('orientationchange', queueDock);
+  if (typeof MutationObserver !== 'undefined') {
+    observer = new MutationObserver(() => queueDock());
+    observer.observe(document.body, {
+      childList: true, subtree: true,
+      attributes: true, attributeFilter: ['style', 'class', 'hidden'],
+    });
+  }
+  subscribe(() => queueDock());
+  queueDock();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/notes.js
+================================================================================
+/* =========================================================
+Weaver — js/features/notes.js
+V3.8: Notes — a floating capture sheet for stray ideas.
+FAB sits bottom-left (clear of the Scribe FAB on mobile).
+Tap (or Ctrl/Cmd+Alt+N) to slide up a quick sheet: jot, press
+Enter, done. Notes live on project.notes and sync with the
+project. The FAB auto-hides while you type in the editors and
+reappears when you pause.
+========================================================= */
+import { el, clear } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, subscribe } from '../core/state.js';
+import { saveProject } from '../core/storage.js';
+import { scheduleCloudSave } from './cloud.js';
+
+const STYLE_ID = 'notes-style';
+const CSS = `.notes-fab{position:fixed;left:16px;bottom:16px;z-index:80;width:52px;height:52px;border-radius:50%;background:var(--surface-2);color:var(--accent);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:opacity .25s ease,transform .25s ease;} .notes-fab:hover{border-color:rgba(224,168,60,.55);} .notes-fab.is-idle{opacity:0;pointer-events:none;transform:translateY(8px);} .notes-fab[hidden]{display:none;} .notes-sheet{position:fixed;left:16px;bottom:80px;z-index:81;width:min(360px,calc(100vw - 32px));max-height:min(480px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);transform:translateY(12px);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease;} .notes-sheet.is-open{transform:translateY(0);opacity:1;pointer-events:auto;} .notes-close{position:absolute;top:6px;right:6px;opacity:.5;} .notes-close:hover{opacity:1;} .notes-input-row{display:flex;gap:8px;padding:12px 12px 6px;flex:none;align-items:flex-end;} .notes-input-row .textarea{flex:1;min-height:44px;max-height:120px;resize:none;background:transparent;border:none;box-shadow:none;font-size:.85rem;} .notes-input-row .textarea:focus{outline:none;} .notes-list{overflow-y:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:0;} .notes-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--border);} .notes-item-text{flex:1;min-width:0;font-size:.8rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .notes-item-date{display:block;color:var(--faint);font-size:.66rem;font-family:var(--font-mono);margin-top:4px;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let fab = null;
+let sheet = null;
+let listEl = null;
+let countEl = null;
+let inputEl = null;
+let saveTimer = null;
+let idleTimer = null;
+
+function entryId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'n_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function notesOf(project) {
+  if (!project) return [];
+  if (!Array.isArray(project.notes)) project.notes = [];
+  return project.notes;
+}
+
+/* ---------- saving ---------- */
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 400);
+}
+function saveNow() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  const project = getState().project;
+  if (!project) return;
+  try { saveProject(project); } catch (e) { console.warn('[Notes] save failed:', e); }
+  scheduleCloudSave();
+}
+
+/* ---------- sheet ---------- */
+function sheetOpen() { return sheet && sheet.classList.contains('is-open'); }
+
+function renderList() {
+  if (!listEl) return;
+  clear(listEl);
+    const notes = notesOf(getState().project);
+  if (!notes.length) return;
+  notes.slice().reverse().forEach((n) => {
+    let date = '';
+    try { date = new Date(n.createdAt).toLocaleString(); } catch (e) { date = ''; }
+    listEl.appendChild(el('div', { class: 'notes-item' }, [
+      el('div', { class: 'notes-item-text' }, [
+        el('span', { text: n.text }),
+        el('span', { class: 'notes-item-date', text: date }),
+      ]),
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        title: 'Delete note',
+        onclick: () => {
+          const arr = notesOf(getState().project);
+          const i = arr.findIndex((x) => x.id === n.id);
+          if (i >= 0) arr.splice(i, 1);
+          scheduleSave();
+          renderList();
+        },
+      }, [icon('trash', 'icon-sm')]),
+    ]));
+  });
+}
+
+function addNote(text) {
+  const t = (text || '').trim();
+  if (!t) return false;
+  const project = getState().project;
+  if (!project) return false;
+  notesOf(project).push({ id: entryId(), text: t, createdAt: Date.now() });
+  scheduleSave();
+  renderList();
+  return true;
+}
+
+function openSheet() {
+  if (!getState().project) return;
+  ensureUi();
+  sheet.classList.add('is-open');
+  setTimeout(() => { if (inputEl) inputEl.focus(); }, 60);
+}
+function closeSheet() {
+  if (sheet) sheet.classList.remove('is-open');
+}
+function toggleSheet() {
+  if (sheetOpen()) closeSheet(); else openSheet();
+}
+
+/* ---------- build once ---------- */
+function ensureUi() {
+  ensureStyle();
+  if (fab) return;
+  fab = el('button', {
+    class: 'notes-fab',
+    title: 'Notes (Ctrl/Cmd+Alt+N)',
+    'aria-label': 'Open notes',
+    onclick: () => toggleSheet(),
+  }, [icon('pen', 'icon-lg')]);
+    inputEl = el('textarea', {
+    class: 'textarea',
+    rows: '2',
+    placeholder: 'Your quick scratchpad for sudden ideas.',
+  });
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (addNote(inputEl.value)) inputEl.value = '';
+    }
+    if (e.key === 'Escape') closeSheet();
+  });
+  const saveBtn = el('button', {
+    class: 'btn btn-sm btn-primary',
+    title: 'Save note',
+    onclick: () => { if (addNote(inputEl.value)) inputEl.value = ''; inputEl.focus(); },
+  }, [icon('plus', 'icon-sm')]);
+  listEl = el('div', { class: 'notes-list' });
+  sheet = el('div', { class: 'notes-sheet' }, [
+    el('button', {
+      class: 'btn btn-ghost btn-icon btn-sm notes-close',
+      title: 'Close notes',
+      'aria-label': 'Close notes',
+      onclick: () => closeSheet(),
+    }, [icon('x', 'icon-sm')]),
+    el('div', { class: 'notes-input-row' }, [inputEl, saveBtn]),
+    listEl,
+  ]);
+  document.body.appendChild(fab);
+  document.body.appendChild(sheet);
+  renderList();
+  refreshVisibility();
+}
+
+/* ---------- visibility & auto-hide ---------- */
+function refreshVisibility() {
+  if (!fab) return;
+  const st = getState();
+  const show = st.view === 'workspace' && !!st.project;
+  fab.hidden = !show;
+  if (!show) closeSheet();
+}
+
+function armGlobalKeys() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sheetOpen()) { closeSheet(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key === 'n' || e.key === 'N')) {
+      const st = getState();
+      if (st.view === 'workspace' && st.project) {
+        e.preventDefault();
+        toggleSheet();
+      }
+      return;
+    }
+    if (!fab || fab.hidden) return;
+    const t = e.target;
+    const inEditor = t && t.closest && t.closest('.panel-body');
+    const inSheet = t && t.closest && t.closest('.notes-sheet');
+    if (inEditor && !inSheet && !sheetOpen()) {
+      fab.classList.add('is-idle');
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { fab.classList.remove('is-idle'); }, 1400);
+    }
+  });
+}
+
+/* ---------- entry ---------- */
+export function initNotes() {
+  ensureUi();
+  armGlobalKeys();
+  subscribe((state, change) => {
+    if (change.view || change.project) refreshVisibility();
+    if (change.project) renderList();
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/plot-builder.js
+================================================================================
+/* =========================================================
+Weaver — js/features/plot-builder.js
+V3.3b: Plot Builder + AI Assistance (Pro gated).
+Manual scaffolding + AI actions (Draft Outline, Expand Beat,
+Suggest Twist) routed through the Weaver proxy.
+========================================================= */
+import { el, clear, modal, confirmDialog, toast } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState } from '../core/state.js';
+import { saveProject } from '../core/storage.js';
+import { scheduleCloudSave } from './cloud.js';
+import { isPro } from '../core/entitlements.js';
+import { streamChatWithFallback } from '../ai/manager.js';
+
+const STYLE_ID = 'plot-builder-style';
+const CSS = `.pb-content{display:flex;flex-direction:column;gap:14px;} .pb-section{display:flex;flex-direction:column;gap:8px;} .pb-h{font-size:.8rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);} .pb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;} .pb-head .pb-h{margin:0;} .pb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);cursor:pointer;} .pb-row:hover{border-color:var(--border-strong);} .pb-row-name{font-weight:600;font-size:.86rem;white-space:nowrap;flex:none;max-width:50%;overflow:hidden;text-overflow:ellipsis;} .pb-row-meta{flex:1;min-width:0;color:var(--faint);font-size:.76rem;font-family:var(--font-mono);} .pb-row-actions{display:flex;gap:4px;flex:none;} .pb-card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);} .pb-card-head{display:flex;gap:8px;align-items:center;} .pb-card-head .input{flex:1;} .pb-beats{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px dashed var(--border);border-radius:var(--radius-md);} .pb-beats-head{display:flex;align-items:center;justify-content:space-between;gap:8px;} .pb-beats-label{font-size:.74rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);} .pb-beat{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);} .pb-beat-head{display:flex;gap:6px;align-items:center;} .pb-beat-title{flex:1;} .pb-done{align-self:flex-end;} .pb-hint{font-size:.74rem;color:var(--faint);} .pb-scope-row{display:flex;align-items:center;justify-content:space-between;gap:8px;} .pb-ai-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;} .pb-ai-row .btn{font-size:.74rem;padding:4px 10px;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let projectRef = null;
+let plot = null;
+let contentEl = null;
+let savedBadge = null;
+let saveTimer = null;
+let m = null;
+let expandedActs = new Set();
+
+function entryId() {
+  return (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function normalizePlot(p) {
+  if (!p || typeof p !== 'object') p = {};
+  if (typeof p.premise !== 'string') p.premise = '';
+  if (!Array.isArray(p.acts)) p.acts = [];
+  for (const act of p.acts) {
+    if (typeof act.title !== 'string') act.title = '';
+    if (typeof act.summary !== 'string') act.summary = '';
+    if (!Array.isArray(act.beats)) act.beats = [];
+    for (const b of act.beats) {
+      if (typeof b.title !== 'string') b.title = '';
+      if (typeof b.text !== 'string') b.text = '';
+    }
+  }
+  return p;
+}
+
+/* ---------- AI Helpers ---------- */
+async function runAI(messages) {
+  let full = '';
+  await streamChatWithFallback({
+    messages,
+    onToken: (delta, current) => { full = current; }
+  });
+  return full;
+}
+
+function extractJSON(text) {
+  // Try markdown block first
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (match) return match[1].trim();
+  // Fallback: find first { and last }
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start !== -1 && end !== -1) return text.slice(start, end + 1);
+  // Fallback: array
+  const startArr = text.indexOf('[');
+  const endArr = text.lastIndexOf(']');
+  if (startArr !== -1 && endArr !== -1) return text.slice(startArr, endArr + 1);
+  return text;
+}
+
+/* ---------- Saving ---------- */
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 600);
+}
+function saveNow() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  if (!projectRef || !plot) return;
+  projectRef.plot = plot;
+  try { saveProject(projectRef); } catch (e) { console.warn('[Plot] local save failed:', e); }
+  scheduleCloudSave();
+    if (savedBadge) {
+    savedBadge.hidden = false;
+    setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
+  }
+  document.dispatchEvent(new CustomEvent('plot-updated'));
+}
+
+/* ---------- Render ---------- */
+function render() {
+  clear(contentEl);
+  contentEl.appendChild(premiseSection());
+  contentEl.appendChild(actsHeader());
+  if (!plot.acts.length) {
+    contentEl.appendChild(el('div', { class: 'empty-state' }, [
+      icon('tree', 'icon-lg'),
+      el('p', { text: 'No acts yet.' }),
+      el('p', { class: 'pb-hint', text: 'Sketch your story\u2019s skeleton: break it into acts, then beats.' }),
+    ]));
+    return;
+  }
+  plot.acts.forEach((act, idx) => {
+    contentEl.appendChild(expandedActs.has(act.id) ? actCard(act, idx) : actRow(act, idx));
+  });
+}
+
+function premiseSection() {
+  const section = el('div', { class: 'pb-section' }, [
+    el('h3', { class: 'pb-h', text: 'Premise' }),
+    el('textarea', {
+      class: 'textarea', rows: '3',
+      placeholder: 'One paragraph: whose story, what they want, what stands in the way\u2026',
+      text: plot.premise,
+      oninput: (e) => { plot.premise = e.target.value; scheduleSave(); },
+    }),
+  ]);
+
+  if (isPro()) {
+    const draftBtn = el('button', {
+      class: 'btn btn-sm',
+      onclick: async () => {
+        if (!plot.premise.trim()) { toast('Write a premise first.', 'info'); return; }
+        draftBtn.disabled = true; draftBtn.textContent = 'Drafting outline…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are an expert story architect. Output ONLY valid JSON, no conversational filler.' },
+            { role: 'user', content: `Premise: ${plot.premise}\n\nGenerate a 3-act structure. JSON format: {"acts": [{"title": "...", "summary": "...", "beats": [{"title": "...", "text": "..."}]}]}` }
+          ];
+          const raw = await runAI(msgs);
+          const parsed = JSON.parse(extractJSON(raw));
+          if (parsed.acts && Array.isArray(parsed.acts)) {
+            plot.acts = parsed.acts.map(a => ({
+              id: entryId(),
+              title: a.title || 'Untitled Act',
+              summary: a.summary || '',
+              beats: (a.beats || []).map(b => ({ id: entryId(), title: b.title || '', text: b.text || '' }))
+            }));
+            scheduleSave();
+            render();
+            toast('Outline drafted.', 'success');
+          } else { throw new Error('Invalid structure'); }
+        } catch (e) {
+          toast('AI could not draft an outline. Try again.', 'danger');
+        } finally {
+          draftBtn.disabled = false; draftBtn.textContent = 'Draft outline from premise';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Draft outline from premise']);
+    
+    section.appendChild(el('div', { class: 'pb-ai-row' }, [draftBtn]));
+  }
+  return section;
+}
+
+function actsHeader() {
+  return el('div', { class: 'pb-head' }, [
+    el('h3', { class: 'pb-h', text: 'Acts' }),
+    el('button', {
+      class: 'btn btn-sm btn-primary',
+      onclick: () => {
+        const act = { id: entryId(), title: `Act ${plot.acts.length + 1}`, summary: '', beats: [] };
+        plot.acts.push(act);
+        expandedActs.add(act.id);
+        scheduleSave();
+        render();
+      },
+    }, [icon('plus', 'icon-sm'), 'Add act']),
+  ]);
+}
+
+function actRow(act, idx) {
+  return el('div', {
+    class: 'pb-row',
+    onclick: () => { expandedActs.add(act.id); render(); },
+  }, [
+    el('span', { class: 'pb-row-name', text: act.title || '(untitled act)' }),
+    el('span', { class: 'pb-row-meta', text: `${act.beats.length} beat${act.beats.length === 1 ? '' : 's'}` }),
+    el('div', { class: 'pb-row-actions' }, [
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm', 'aria-label': 'Edit act',
+        onclick: (e) => { e.stopPropagation(); expandedActs.add(act.id); render(); },
+      }, [icon('pen', 'icon-sm')]),
+      deleteActBtn(act, idx),
+    ]),
+  ]);
+}
+
+function actCard(act, idx) {
+  const card = el('div', { class: 'pb-card' }, [
+    el('div', { class: 'pb-card-head' }, [
+      el('input', {
+        class: 'input', placeholder: 'Act title\u2026',
+        value: act.title,
+        oninput: (e) => { act.title = e.target.value; scheduleSave(); },
+      }),
+      deleteActBtn(act, idx),
+    ]),
+    el('textarea', {
+      class: 'textarea', rows: '2',
+      placeholder: 'Act summary \u2014 what changes in this act\u2026',
+      text: act.summary,
+      oninput: (e) => { act.summary = e.target.value; scheduleSave(); },
+    }),
+    beatsBlock(act),
+    el('button', {
+      class: 'btn btn-sm pb-done', text: 'Done',
+      onclick: () => { expandedActs.delete(act.id); render(); },
+    }),
+  ]);
+
+  if (isPro()) {
+    const twistBtn = el('button', {
+      class: 'btn btn-sm',
+      onclick: async () => {
+        twistBtn.disabled = true; twistBtn.textContent = 'Suggesting…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are a creative writing coach. Output ONLY valid JSON.' },
+            { role: 'user', content: `Act: ${act.title} - ${act.summary}\n\nSuggest a plot twist or complication. JSON: {"title": "...", "text": "..."}` }
+          ];
+          const raw = await runAI(msgs);
+          const parsed = JSON.parse(extractJSON(raw));
+          if (parsed.title && parsed.text) {
+            act.beats.push({ id: entryId(), title: parsed.title, text: parsed.text });
+            scheduleSave();
+            render();
+            toast('Twist added.', 'success');
+          } else { throw new Error('Invalid beat'); }
+        } catch (e) {
+          toast('AI could not suggest a twist.', 'danger');
+        } finally {
+          twistBtn.disabled = false; twistBtn.textContent = 'Suggest twist';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Suggest twist']);
+    card.insertBefore(el('div', { class: 'pb-ai-row' }, [twistBtn]), card.querySelector('.pb-done'));
+  }
+
+  return card;
+}
+
+function beatsBlock(act) {
+  const wrap = el('div', { class: 'pb-beats' }, [
+    el('div', { class: 'pb-beats-head' }, [
+      el('span', { class: 'pb-beats-label', text: 'Beats' }),
+      el('button', {
+        class: 'btn btn-sm',
+        onclick: () => { act.beats.push({ id: entryId(), title: '', text: '' }); scheduleSave(); render(); },
+      }, [icon('plus', 'icon-sm'), 'Add beat']),
+    ]),
+  ]);
+  if (!act.beats.length) {
+    wrap.appendChild(el('p', { class: 'pb-hint', text: 'No beats yet. Beats are the scenes or moments that make up this act.' }));
+  } else {
+    act.beats.forEach((beat, bidx) => wrap.appendChild(beatCard(act, beat, bidx)));
+  }
+  return wrap;
+}
+
+function beatCard(act, beat, bidx) {
+  const card = el('div', { class: 'pb-beat' }, [
+    el('div', { class: 'pb-beat-head' }, [
+      el('input', {
+        class: 'input pb-beat-title', placeholder: 'Beat title\u2026',
+        value: beat.title,
+        oninput: (e) => { beat.title = e.target.value; scheduleSave(); },
+      }),
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm', 'aria-label': 'Delete beat',
+        onclick: async () => {
+          const ok = await confirmDialog({
+            title: 'Delete beat',
+            message: beat.title ? `\u201C${beat.title}\u201D will be removed.` : 'This beat will be removed.',
+            confirmLabel: 'Delete', danger: true,
+          });
+          if (!ok) return;
+          act.beats.splice(bidx, 1);
+          scheduleSave();
+          render();
+        },
+      }, [icon('trash', 'icon-sm')]),
+    ]),
+    el('textarea', {
+      class: 'textarea', rows: '2',
+      placeholder: 'What happens in this beat\u2026',
+      text: beat.text,
+      oninput: (e) => { beat.text = e.target.value; scheduleSave(); },
+    }),
+  ]);
+
+  if (isPro() && beat.text.trim()) {
+    const expandBtn = el('button', {
+      class: 'btn btn-sm', style: { alignSelf: 'flex-end' },
+      onclick: async () => {
+        expandBtn.disabled = true; expandBtn.textContent = 'Expanding…';
+        try {
+          const msgs = [
+            { role: 'system', content: 'You are a novelist. Expand this beat into a 2-3 paragraph scene summary. Output plain text only.' },
+            { role: 'user', content: `Beat: ${beat.title}\nCurrent text: ${beat.text}` }
+          ];
+          const expanded = await runAI(msgs);
+          beat.text = expanded.trim();
+          scheduleSave();
+          render();
+        } catch (e) {
+          toast('AI could not expand the beat.', 'danger');
+        } finally {
+          expandBtn.disabled = false; expandBtn.textContent = 'Expand beat';
+        }
+      }
+    }, [icon('sparkles', 'icon-sm'), 'Expand beat']);
+    card.appendChild(expandBtn);
+  }
+
+  return card;
+}
+
+function deleteActBtn(act, idx) {
+  return el('button', {
+    class: 'btn btn-ghost btn-icon btn-sm', 'aria-label': 'Delete act',
+    onclick: async (e) => {
+      e.stopPropagation();
+      const ok = await confirmDialog({
+        title: 'Delete act',
+        message: act.title
+          ? `\u201C${act.title}\u201D and its ${act.beats.length} beat(s) will be removed.`
+          : 'This act will be removed.',
+        confirmLabel: 'Delete', danger: true,
+      });
+      if (!ok) return;
+      plot.acts.splice(idx, 1);
+      expandedActs.delete(act.id);
+      scheduleSave();
+      render();
+    },
+  }, [icon('trash', 'icon-sm')]);
+}
+
+/* ---------- Entry point ---------- */
+export function openPlotBuilder() {
+  const project = getState().project;
+  if (!project) return;
+  ensureStyle();
+  projectRef = project;
+  plot = normalizePlot(JSON.parse(JSON.stringify(project.plot || {})));
+  expandedActs = new Set();
+  savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
+  m = modal({
+    title: 'Plot Builder',
+    size: 'lg',
+    body: [],
+    footer: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() })],
+    onClose: () => { saveNow(); },
+  });
+  contentEl = el('div', { class: 'pb-content' });
+  m.body.append(
+    el('div', { class: 'pb-scope-row' }, [
+      el('span', { class: 'pb-hint', text: 'Outline this book\u2019s structure. Saved with your project and synced to your vault.' }),
+      savedBadge,
+    ]),
+    contentEl
+  );
+  render();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/plot-reference.js
+================================================================================
+/* =========================================================
+Weaver — js/features/plot-reference.js
+V3.9: Plot Reference panel.
+A collapsible right-side panel showing the plot outline (acts
+and beats) while writing. Toggled via the Plot topbar button.
+Read-only; editing happens in the Plot Builder modal.
+Listens for 'plot-updated' events to stay in sync.
+V3.9 fix: on phones the panel opens as a full-screen sheet
+instead of being hidden (the old media rule made the Plot
+button appear dead on mobile).
+========================================================= */
+import { el, clear } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState } from '../core/state.js';
+import { openPlotBuilder } from './plot-builder.js';
+
+const STYLE_ID = 'plot-reference-style';
+const CSS = `.plot-ref-panel{position:fixed;top:52px;right:0;bottom:0;width:280px;background:var(--surface);border-left:1px solid var(--border);z-index:40;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s ease;box-shadow:-2px 0 8px rgba(0,0,0,.15);} .plot-ref-panel.is-open{transform:translateX(0);} .plot-ref-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex:none;} .plot-ref-title{font-size:.85rem;font-weight:650;color:var(--text);} .plot-ref-actions{display:flex;gap:6px;align-items:center;} .plot-ref-body{flex:1;overflow-y:auto;padding:12px 14px;} .plot-ref-empty{color:var(--faint);font-size:.82rem;line-height:1.5;} .plot-ref-premise{margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed var(--border);} .plot-ref-premise h4{font-size:.72rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;} .plot-ref-premise p{font-size:.82rem;color:var(--text);line-height:1.5;white-space:pre-wrap;} .plot-ref-act{margin-bottom:14px;} .plot-ref-act h4{font-size:.82rem;font-weight:650;color:var(--accent);margin-bottom:4px;} .plot-ref-summary{font-size:.78rem;color:var(--muted);line-height:1.4;margin-bottom:6px;white-space:pre-wrap;} .plot-ref-beats{display:flex;flex-direction:column;gap:6px;padding-left:10px;border-left:2px solid var(--border);} .plot-ref-beat{font-size:.78rem;color:var(--text);line-height:1.4;} .plot-ref-beat-title{font-weight:600;color:var(--text);} .plot-ref-beat-text{color:var(--muted);margin-top:2px;white-space:pre-wrap;} @media (max-width:860px){.plot-ref-panel{top:0;left:0;right:0;bottom:0;width:100%;border-left:none;z-index:85;box-shadow:none;}}`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let panel = null;
+let bodyEl = null;
+
+function ensurePanel() {
+  if (panel) return;
+  ensureStyle();
+  const header = el('div', { class: 'plot-ref-header' }, [
+    el('span', { class: 'plot-ref-title', text: 'Plot Reference' }),
+    el('div', { class: 'plot-ref-actions' }, [
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Open the Plot Builder to edit the outline',
+        onclick: () => openPlotBuilder(),
+      }, [icon('pen', 'icon-sm'), 'Edit']),
+      el('button', {
+        class: 'btn btn-ghost btn-icon btn-sm',
+        title: 'Close Plot Reference',
+        onclick: () => togglePlotReference(),
+      }, [icon('x', 'icon-sm')]),
+    ]),
+  ]);
+  bodyEl = el('div', { class: 'plot-ref-body' });
+  panel = el('div', { class: 'plot-ref-panel' }, [header, bodyEl]);
+  document.body.appendChild(panel);
+  document.addEventListener('plot-updated', () => {
+    if (panel && panel.classList.contains('is-open')) {
+      renderPlotReference();
+    }
+  });
+}
+
+function renderPlotReference() {
+  if (!bodyEl) return;
+  clear(bodyEl);
+  const project = getState().project;
+  const plot = project && project.plot;
+  if (!plot || !plot.acts || !plot.acts.length) {
+    bodyEl.appendChild(el('p', {
+      class: 'plot-ref-empty',
+      text: 'No plot outline yet. Click "Edit" to open the Plot Builder and sketch your story\u2019s structure.',
+    }));
+    return;
+  }
+  if (plot.premise && plot.premise.trim()) {
+    bodyEl.appendChild(el('div', { class: 'plot-ref-premise' }, [
+      el('h4', { text: 'Premise' }),
+      el('p', { text: plot.premise }),
+    ]));
+  }
+  for (const act of plot.acts) {
+    const actEl = el('div', { class: 'plot-ref-act' });
+    actEl.appendChild(el('h4', { text: act.title || '(untitled act)' }));
+    if (act.summary && act.summary.trim()) {
+      actEl.appendChild(el('p', { class: 'plot-ref-summary', text: act.summary }));
+    }
+    if (act.beats && act.beats.length) {
+      const beatsEl = el('div', { class: 'plot-ref-beats' });
+      for (const beat of act.beats) {
+        const beatEl = el('div', { class: 'plot-ref-beat' });
+        beatEl.appendChild(el('span', { class: 'plot-ref-beat-title', text: beat.title || '(untitled)' }));
+        if (beat.text && beat.text.trim()) {
+          beatEl.appendChild(el('p', { class: 'plot-ref-beat-text', text: beat.text }));
+        }
+        beatsEl.appendChild(beatEl);
+      }
+      actEl.appendChild(beatsEl);
+    }
+    bodyEl.appendChild(actEl);
+  }
+}
+
+export function togglePlotReference() {
+  ensurePanel();
+  const isOpen = panel.classList.toggle('is-open');
+  if (isOpen) {
+    renderPlotReference();
+  }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/puter-mirror.js
+================================================================================
+/* =========================================================
+   Weaver — js/features/puter-mirror.js
+   v2 Stage 6.1-final: Puter as OVERFLOW transport only.
+   Pure auth + file transport; all orchestration (compression,
+   failover decisions, library enumeration) lives in cloud.js.
+   - No API keys, no CORS, no payment (User-Pays model).
+   - Sign-in popup is triggered only when overflow is needed
+     or the owner presses Connect/Copy in Settings.
+   ========================================================= */
+
+const PUTER_SRC = 'https://js.puter.com/v2/';
+const MIRROR_ROOT = 'WeaverMirror';
+
+let loadPromise = null;
+
+function puter() { return window.puter; }
+
+function loadPuter() {
+  return new Promise((resolve, reject) => {
+    if (window.puter) return resolve();
+    const s = document.createElement('script');
+    s.src = PUTER_SRC;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load the Puter script.'));
+    document.head.appendChild(s);
+  });
+}
+
+export function puterSignedIn() {
+  try { return Boolean(window.puter && puter().auth && puter().auth.isSignedIn()); }
+  catch { return false; }
+}
+
+async function ensureRoot() {
+  try { await puter().fs.mkdir(MIRROR_ROOT, { createMissingPaths: true }); } catch {}
+  try { await puter().fs.mkdir(`${MIRROR_ROOT}/projects`, { createMissingPaths: true }); } catch {}
+  try { await puter().fs.mkdir(`${MIRROR_ROOT}/series`, { createMissingPaths: true }); } catch {}
+}
+
+/* Sign in (popup) if needed and guarantee the folder tree. */
+export async function connectPuter() {
+  await loadPuter();
+  if (!puter().auth.isSignedIn()) await puter().auth.signIn();
+  await ensureRoot();
+  return true;
+}
+
+export async function disconnectPuter() {
+  try { if (window.puter) await puter().auth.signOut(); } catch {}
+}
+
+/* ---------- transport (Blob in, Blob out) ---------- */
+export async function puterPut(rel, blob) {
+  await loadPuter();
+  await puter().fs.write(`${MIRROR_ROOT}/${rel}`, blob, {
+    overwrite: true,
+    createMissingPaths: true,
+  });
+}
+
+export async function puterGet(rel) {
+  try {
+    await loadPuter();
+    return await puter().fs.read(`${MIRROR_ROOT}/${rel}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function puterDel(rel) {
+  try {
+    await loadPuter();
+    await puter().fs.delete(`${MIRROR_ROOT}/${rel}`);
+  } catch { /* already gone */ }
+}
+
+export async function puterList(subdir) {
+  try {
+    await loadPuter();
+    const items = await puter().fs.readdir(`${MIRROR_ROOT}/${subdir}`);
+    return (items || []).map((i) => i.name).filter((n) => /\.json$/i.test(n));
+  } catch {
+    return [];
+  }
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/scribe.js
+================================================================================
+/* =========================================================
+Weaver — js/features/scribe.js
+Step 21 + patches (v9) + V3.1a UX Pivot + pill polish:
+V3.2b: Added isKnownFree gate to runScribePrompt.
+V3.9: Pro upgrade notice — free users get a gold upgrade
+card in the AI Output panel at the moment of denial.
+========================================================= */
+import { el, clear, toast, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, subscribe } from '../core/state.js';
+import { getEffectiveConfig } from '../core/storage.js';
+import {
+  getManuscriptSelection,
+  clearManuscriptSelection,
+} from '../panels/manuscript.js';
+import { streamChatWithFallback } from '../ai/manager.js';
+import { isKnownFree } from '../core/entitlements.js';
+
+const STYLE_ID = 'scribe-style';
+const CSS = `
+/* ---------- Mobile FAB ---------- */
+.scribe-fab{
+position:fixed;right:16px;bottom:16px;z-index:80;display:none;
+width:52px;height:52px;border-radius:50%;background:var(--accent);color:#17130a;
+border:none;align-items:center;justify-content:center;
+box-shadow:var(--shadow-2);cursor:pointer;
+}
+@media (max-width:860px){ .scribe-fab{display:flex;} }
+/* ---------- AI Output blocks ---------- */
+.panel[data-panel="ai"] .panel-body{
+padding:12px;display:flex;flex-direction:column;gap:10px;
+}
+.ai-block{
+display:flex;flex-direction:column;gap:8px;padding:12px;
+border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);
+}
+.ai-block-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ai-block-body{
+font-family:var(--font-prose);
+font-size:calc(.95rem * var(--font-scale,1));line-height:1.7;
+white-space:pre-wrap;overflow-wrap:break-word;
+}
+.ai-block.is-streaming .ai-block-body::after{
+content:'▍';color:var(--accent);animation:scribe-blink 1s steps(2) infinite;
+}
+@keyframes scribe-blink{50%{opacity:0;}}
+.ai-block.is-error{border-color:var(--danger);}
+/* ---------- Context chip ---------- */
+.scribe-chip{
+display:inline-flex;align-items:center;gap:5px;padding:5px 10px;
+border:1px solid rgba(224,168,60,.5);background:var(--accent-soft);color:var(--accent);
+border-radius:999px;font-size:.72rem;font-family:var(--font-mono);cursor:pointer;flex:none;
+}
+.scribe-chip[hidden]{display:none;}
+.ms-block.is-bundled{
+background:rgba(224,168,60,.12);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px;
+}
+/* ---------- AI Panel Command Deck (fully transparent) ---------- */
+.scribe-zone{
+flex:none;display:flex;flex-direction:column;gap:10px;
+padding:14px 16px;
+background:transparent;
+border-bottom:1px solid var(--border);
+}
+.scribe-zone .scribe-row{
+display:flex;gap:8px;align-items:center;width:100%;
+}
+.scribe-zone .scribe-input{
+flex:1;min-width:0;border-radius:999px;padding:10px 18px;
+background:var(--surface-2);border:1px solid var(--border-strong);
+font-size:.88rem;color:var(--text);
+}
+.scribe-zone .scribe-input:focus{
+outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+}
+.scribe-zone .scribe-input::placeholder{color:var(--faint);}
+/* ---------- Quick prompts: ONE row, transparent pearls ---------- */
+.scribe-qp-row{
+display:flex;flex-wrap:nowrap;gap:8px;width:100%;min-width:0;
+}
+.scribe-qp-row .btn{
+flex:1 1 0;min-width:0;max-width:none;
+display:flex;align-items:center;justify-content:center;
+border-radius:999px;
+font-size:.74rem;font-weight:500;letter-spacing:.01em;line-height:1.4;
+padding:6px 12px;
+background:transparent !important;
+border:1px solid var(--border-strong);
+color:var(--muted);
+overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.scribe-qp-row .btn > span{
+display:block;min-width:0;max-width:100%;
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.scribe-qp-row .btn:hover{
+border-color:rgba(224,168,60,.55);
+color:var(--accent);
+background:transparent !important;
+}
+/* ---------- Mobile sheet ---------- */
+.scribe-sheet-hint{font-size:.74rem;color:var(--faint);}
+/* Hide the command deck on mobile (FAB takes over) */
+@media (max-width:860px){ .scribe-zone{display:none;} }
+/* ---------- Pro upgrade notice ---------- */
+.upgrade-notice{
+display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+padding:22px 18px;border:1px solid rgba(224,168,60,.5);
+background:var(--accent-soft);border-radius:var(--radius-md);
+}
+.upgrade-notice h4{font-size:.95rem;font-weight:650;color:var(--accent);margin:0;}
+.upgrade-notice p{font-size:.8rem;color:var(--muted);line-height:1.55;margin:0;max-width:340px;}
+.upgrade-hint{font-size:.7rem !important;color:var(--faint) !important;}
+`;
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+const BIBLE_BUDGET = 6000;
+const CONTEXT_CAP = 8000;
+const STOP_WORDS = new Set(['the','a','an','and','or','but','of','to','in','on','at','by','for','with','from','as','is','was','were','be','been','being','his','her','its','their','your','our','my','it','he','she','they','you','we','that','this','these','those','there','here','when','then','than','so','if','else','not','no','yes','into','over','under','after','before','about','through','during','without','within','upon','will','would','shall','should','can','could','may','might','must','do','does','did','done','has','have','had','one','two','three']);
+const SECTION_TAGS = {
+  characters: 'CHAR', settings: 'PLACE', plotArcs: 'PLOT',
+  worldRules: 'RULE', items: 'ITEM',
+};
+
+let fab = null;
+let chip = null;
+let chipText = null;
+let chipBound = false;
+let qpRowEl = null;
+const blocks = [];
+export function getAiBlocks() { return blocks; }
+
+function cap(s, n) { return s.length > n ? s.slice(0, Math.max(0, n - 1)) + '…' : s; }
+function flat(s) { return (s || '').replace(/\s+/g, ' ').trim(); }
+function quickPrompts() {
+  return (getState().settings.general.quickPrompts || []).filter((p) => (p || '').trim());
+}
+
+/* ---------- Token-efficient bible compiler ---------- */
+export function compileBible(cfg, contextText, budget = BIBLE_BUDGET) {
+  const ctx = (contextText || '').toLowerCase();
+  const wordSet = new Set(ctx.split(/[^a-z0-9']+/).filter((w) => w.length > 2));
+  const out = [];
+  let used = 0;
+  const push = (line) => {
+    if (!line || used + line.length > budget) return;
+    out.push(line);
+    used += line.length + 1;
+  };
+  const directives = flat(cfg.generalAiInstructions);
+  if (directives) push('[DIRECTIVES] ' + cap(directives, 1200));
+  const style = flat(cfg.generalProse);
+  if (style) push('[STYLE] ' + cap(style, 600));
+  const roster = [];
+  for (const key of Object.keys(SECTION_TAGS)) {
+    const matched = [];
+    for (const e of (cfg[key] || [])) {
+      const name = (e.name || '').trim();
+      const nameLc = name.toLowerCase();
+      const hit = nameLc && (
+        (nameLc.length > 3 && ctx.includes(nameLc)) ||
+        nameLc.split(/\s+/).some((w) => w.length > 3 && !STOP_WORDS.has(w) && wordSet.has(w))
+      );
+      if (hit) matched.push(e);
+      else if (name) roster.push(`${SECTION_TAGS[key]}:${name}`);
+    }
+    for (const e of matched) {
+      push(`[${SECTION_TAGS[key]}] ${e.name}: ${cap(flat(e.body), 250)}`);
+    }
+  }
+  if (roster.length) push(cap('[ROSTER] ' + roster.join(', '), Math.max(0, budget - used)));
+  return out.join('\n');
+}
+
+/* ---------- Simplified, robust prompt ---------- */
+function buildMessages(compiled, context, prompt) {
+  let system =
+    'You are Scribe, a professional ghostwriter for a novel.\n' +
+    'RULES:\n' +
+    '1. Do exactly what the TASK INSTRUCTION asks, nothing more.\n' +
+    '2. If SOURCE TEXT is provided, rewrite/transform ONLY that text.\n' +
+    '3. If no SOURCE TEXT is provided, write NEW content per the instruction; use the PROJECT BIBLE only for names/facts/style consistency — never quote or retell it.\n' +
+    '4. If the instruction needs source text but none is provided, ask ONE short clarifying question.\n' +
+    '5. Start your answer directly with prose. Never open with a greeting, interjection, sound effect, or standalone exclamation (e.g. "Ah!", "Hwæt!", "Yes!").\n' +
+    '6. Output only the prose (or the one clarifying question). No preamble, no explanations.';
+  if (compiled) system += `\nPROJECT BIBLE (compact reference):\n${compiled}`;
+  const parts = [`TASK INSTRUCTION:\n${prompt}`];
+  if (context) {
+    parts.push(`SOURCE TEXT (verbatim):\n"""\n${cap(context, CONTEXT_CAP)}\n"""`);
+    parts.push('Apply the TASK INSTRUCTION to the SOURCE TEXT above.');
+  } else {
+    parts.push('No SOURCE TEXT is provided with this request.');
+  }
+  return [
+    { role: 'system', content: system },
+    { role: 'user', content: parts.join('\n') },
+  ];
+}
+
+/* ---------- Context chip ---------- */
+function updateChip() {
+  if (!chip) return;
+  const sel = getManuscriptSelection();
+  const t = sel ? sel.text : '';
+  chip.hidden = !t;
+  if (t) chipText.textContent = `${t.length.toLocaleString()} ch`;
+}
+
+/* ---------- FAB visibility (inline, cascade-proof) ---------- */
+function positionFab() {
+  if (!fab) return;
+  fab.style.display = window.matchMedia('(max-width: 860px)').matches ? 'flex' : 'none';
+  fab.style.zIndex = '120';
+}
+
+/* ---------- Quick prompts (one transparent pill row) ---------- */
+function renderQuickRow() {
+  if (!qpRowEl) return;
+  clear(qpRowEl);
+  for (const p of quickPrompts()) {
+    qpRowEl.appendChild(el('button', {
+      class: 'btn btn-ghost', title: p,
+      onclick: () => runScribePrompt(p),
+    }, [el('span', { text: p })]));
+  }
+}
+
+/* ---------- AI Output blocks ---------- */
+function createBlock(prompt, context) {
+  const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
+  if (!body) return null;
+  const empty = body.querySelector('.empty-state');
+  if (empty) empty.remove();
+  const notice = body.querySelector('.upgrade-notice');
+  if (notice) notice.remove();
+  const badge = el('span', { class: 'badge badge-accent', text: 'connecting…' });
+  const stopBtn = el('button', {
+    class: 'btn btn-ghost btn-icon btn-sm', title: 'Stop generation',
+  }, [icon('x', 'icon-sm')]);
+  const head = el('div', { class: 'ai-block-head' }, [badge, stopBtn]);
+  const textEl = el('div', { class: 'ai-block-body' });
+  const blockEl = el('div', { class: 'ai-block is-streaming' }, [head, textEl]);
+  body.appendChild(blockEl);
+  body.scrollTop = body.scrollHeight;
+  const block = {
+    id: 'b' + Date.now() + Math.random().toString(36).slice(2, 6),
+    el: blockEl, badge, textEl, stopBtn,
+    prompt, context,
+    provider: null, full: '', controller: null, done: false,
+  };
+  stopBtn.onclick = () => { if (block.controller) block.controller.abort(); };
+  blocks.push(block);
+  return block;
+}
+
+function streamInto(block) {
+  const project = getState().project;
+  if (!project) return;
+  const cfg = getEffectiveConfig(project);
+  const compiled = compileBible(cfg, `${block.context} ${block.prompt}`);
+  const messages = buildMessages(compiled, block.context, block.prompt);
+  block.controller = new AbortController();
+  block.done = false;
+  block.full = '';
+  block.el.classList.add('is-streaming');
+  block.el.classList.remove('is-error');
+  clear(block.textEl);
+  block.badge.textContent = 'connecting…';
+  block.stopBtn.hidden = false;
+  streamChatWithFallback({
+    messages,
+    signal: block.controller.signal,
+    onProviderSwitch: (info) => {
+      block.provider = info;
+      block.badge.textContent = `${info.providerLabel} · ${info.model}`;
+    },
+    onToken: (delta, full) => {
+      block.full = full;
+      block.textEl.textContent = full;
+      const body = block.el.parentElement;
+      if (body) body.scrollTop = body.scrollHeight;
+    },
+  }).then(() => {
+    block.done = true;
+    block.el.classList.remove('is-streaming');
+    block.stopBtn.hidden = true;
+    if ((block.full || '').trim().length < 12) {
+      toast('Very short output — try Rewrite or a clearer instruction.', 'info');
+    }
+  }).catch((err) => {
+    block.done = true;
+    block.el.classList.remove('is-streaming');
+    block.stopBtn.hidden = true;
+    if (err.name === 'AbortError') {
+      block.badge.textContent = (block.provider ? `${block.provider.providerLabel} · ` : '') + 'stopped';
+    } else {
+      block.el.classList.add('is-error');
+      block.badge.textContent = 'error';
+      block.textEl.textContent = '⚠ ' + err.message;
+      toast('Scribe generation failed: ' + err.message, 'danger');
+    }
+  });
+}
+
+/* ---------- Pro upgrade notice (free users) ---------- */
+const UPGRADE_URL = 'https://legendalive.github.io/Weaver/welcome/pricing.html';
+function showUpgradeNotice() {
+  const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
+  if (!body || body.querySelector('.upgrade-notice')) return;
+  const empty = body.querySelector('.empty-state');
+  if (empty) empty.remove();
+  const card = el('div', { class: 'upgrade-notice' }, [
+    icon('sparkles', 'icon-lg'),
+    el('h4', { text: 'Scribe is a Pro feature' }),
+    el('p', { text: 'Your free desk includes the manuscript, bible, plot tools and exports. Pro adds canon-aware AI drafting, the cloud vault, and market-ready EPUB export.' }),
+    el('a', {
+      class: 'btn btn-primary',
+      href: UPGRADE_URL, target: '_blank', rel: 'noopener',
+    }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]),
+    el('p', { class: 'upgrade-hint', text: 'Already upgraded? Your plan refreshes on next reload or sign-in.' }),
+  ]);
+  body.prepend(card);
+}
+
+/* ---------- Send: consume the bundle ---------- */
+export function runScribePrompt(prompt) {
+  if (isKnownFree()) {
+    showUpgradeNotice();
+    toast('Scribe (AI) is a Pro feature — upgrade options are in the AI Output panel.', 'info');
+    return;
+  }
+  const p = (prompt || '').trim();
+  if (!p) { toast('Type an instruction for Scribe first.', 'info'); return; }
+  if (!getState().project) return;
+  const sel = getManuscriptSelection();
+  const context = sel ? sel.text : '';
+  const block = createBlock(p, context);
+  if (!block) return;
+  clearManuscriptSelection();
+  updateChip();
+  streamInto(block);
+}
+
+export function rerunBlock(block) { streamInto(block); }
+
+/* ---------- Build the Command Deck ---------- */
+function buildBar() {
+  chipText = el('span', { text: '' });
+  chip = el('button', {
+    class: 'scribe-chip', hidden: true,
+    title: 'Highlighted text bundled with your next prompt — click to clear',
+    onclick: () => { clearManuscriptSelection(); updateChip(); },
+  }, [icon('file-text', 'icon-sm'), chipText, icon('x', 'icon-sm')]);
+
+  const input = el('input', {
+    class: 'scribe-input', type: 'text',
+    placeholder: 'Instruct Scribe (e.g., rewrite, continue, describe)…',
+  });
+  const send = el('button', {
+    class: 'btn btn-ghost btn-icon', title: 'Send to Scribe',
+  }, [icon('send')]);
+
+  const row = el('div', { class: 'scribe-row' }, [chip, input, send]);
+
+  qpRowEl = el('div', { class: 'scribe-qp-row' });
+  renderQuickRow();
+
+  const zone = el('div', { class: 'scribe-zone', dataset: { scribeBound: '1' } }, [row, qpRowEl]);
+
+  const fire = () => { runScribePrompt(input.value); input.value = ''; };
+  send.addEventListener('click', fire);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fire(); });
+
+  updateChip();
+  return zone;
+}
+
+/* ---------- Inject into AI Panel ---------- */
+function bindPanel() {
+  const aiPanel = document.querySelector('.panel[data-panel="ai"]');
+  if (!aiPanel) return;
+
+  let zone = aiPanel.querySelector('.scribe-zone');
+  if (!zone) {
+    zone = buildBar();
+    const header = aiPanel.querySelector('.panel-header');
+    if (header && header.nextSibling) {
+      aiPanel.insertBefore(zone, header.nextSibling);
+    } else {
+      aiPanel.appendChild(zone);
+    }
+  } else if (!zone.dataset.scribeBound) {
+    const newZone = buildBar();
+    zone.replaceWith(newZone);
+  }
+}
+
+function openPromptSheet() {
+  const selAtOpen = getManuscriptSelection();
+  const ta = el('textarea', {
+    class: 'textarea', rows: '4',
+    placeholder: 'e.g. Rewrite the highlighted passage in third person, past tense…',
+  });
+  const hint = el('p', {
+    class: 'scribe-sheet-hint',
+    text: selAtOpen
+      ? `Bundling ${selAtOpen.text.length.toLocaleString()} characters of highlighted Manuscript text with this prompt.`
+      : 'No text highlighted — Scribe will follow the instruction using the project bible only.',
+  });
+  const clearBtn = el('button', {
+    class: 'btn btn-sm', text: 'Clear context', hidden: !selAtOpen,
+    onclick: () => {
+      clearManuscriptSelection();
+      updateChip();
+      hint.textContent = 'No text highlighted — Scribe will follow the instruction using the project bible only.';
+      clearBtn.hidden = true;
+    },
+  });
+  const qpRow = el('div', { class: 'scribe-qp-row' });
+  for (const p of quickPrompts()) {
+    qpRow.appendChild(el('button', {
+      class: 'btn btn-ghost', title: p,
+      onclick: () => { m.close(); runScribePrompt(p); },
+    }, [el('span', { text: p })]));
+  }
+  const m = modal({
+    title: 'Scribe',
+    body: quickPrompts().length ? [hint, qpRow, ta] : [hint, ta],
+    footer: [
+      el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() }),
+      clearBtn,
+      el('button', {
+        class: 'btn btn-primary', text: 'Generate',
+        onclick: () => { const v = ta.value; m.close(); runScribePrompt(v); },
+      }),
+    ],
+  });
+  setTimeout(() => ta.focus(), 60);
+}
+
+export function initScribe() {
+  ensureStyle();
+  if (!fab) {
+    fab = el('button', {
+      class: 'scribe-fab', title: 'Scribe', 'aria-label': 'Open Scribe',
+      onclick: openPromptSheet,
+    }, [icon('feather', 'icon-lg')]);
+    document.body.appendChild(fab);
+    window.addEventListener('resize', positionFab);
+  }
+  positionFab();
+  if (!chipBound) {
+    chipBound = true;
+    let tick = false;
+    document.addEventListener('selectionchange', () => {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(() => { tick = false; updateChip(); });
+    });
+  }
+  bindPanel();
+  subscribe((state, change) => {
+    if (change.settings) { renderQuickRow(); return; }
+    if (state.view !== 'workspace') return;
+    if (change.view || (change.project && !change.silent)) bindPanel();
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/search.js
+================================================================================
+/* =========================================================
+Weaver — js/features/search.js
+V3.3a: collapsing search. At rest = a single magnifying-glass
+icon button; on click it expands to overlay the topbar; when
+emptied (clear / Escape / blur-with-no-text) it collapses back
+to the icon. Search logic (match, ‹ › nav, mark, jump) is
+unchanged. Magnifier is inline SVG so it never depends on the
+icon set.
+========================================================= */
+import { el, clear } from '../utils/dom.js';
+import { getState, subscribe } from '../core/state.js';
+import { buildBlockIndex, blockAtOffset } from '../utils/text.js';
+import { jumpManuscriptToBlock } from '../panels/manuscript.js';
+import { jumpNovelToBlock } from '../panels/main-novel.js';
+
+const STYLE_ID = 'search-style';
+const CSS = `.topbar{position:relative;} .ws-bar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;box-sizing:border-box;background:transparent;border:1px solid transparent;border-radius:var(--radius-md);cursor:pointer;flex:none;color:var(--muted);} .ws-bar:hover{color:var(--text);background:var(--surface-2);} .ws-bar .input,.ws-bar .ws-badge,.ws-bar .btn{display:none;} .ws-bar .icon{flex:none;} .ws-bar.is-open{position:absolute;left:6px;right:6px;top:50%;transform:translateY(-50%);z-index:60;width:auto;height:40px;display:flex;align-items:center;justify-content:flex-start;gap:4px;padding:0 8px;cursor:default;background:var(--surface-2);border:1px solid var(--border);color:var(--text);} .ws-bar.is-open .input{display:block;flex:1;min-width:0;border:none;background:transparent;box-shadow:none;padding:0 6px;height:100%;font-size:.85rem;color:var(--text);} .ws-bar.is-open .input:focus{outline:none;} .ws-bar.is-open .ws-badge{display:inline;} .ws-bar.is-open .btn{display:inline-flex;} .ws-badge{font-family:var(--font-mono);font-size:.66rem;color:var(--faint);flex:none;} .ws-badge.is-novel{color:var(--accent);} .ws-bar .btn{padding:2px 6px;font-size:.8rem;line-height:1;height:28px;flex:none;} .topbar-center{min-width:0;} .topbar-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .topbar-sub{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} mark.ws-hit{background:rgba(224,168,60,.35);color:inherit;border-radius:2px;} @media (max-width:860px){ .ws-bar{display:none;} }`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+const MAX_MATCHES = 2000;
+
+let bar = null;
+let input = null;
+let badge = null;
+let query = '';
+let msHits = [];
+let nvHits = [];
+let pos = -1;
+let debounce = null;
+
+function total() { return msHits.length + nvHits.length; }
+
+/* Magnifying glass as inline SVG (independent of the icon set). */
+function magnifier(cls) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  if (cls) svg.setAttribute('class', cls);
+  const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  c.setAttribute('cx', '11'); c.setAttribute('cy', '11'); c.setAttribute('r', '8');
+  const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  l.setAttribute('x1', '21'); l.setAttribute('y1', '21');
+  l.setAttribute('x2', '16.65'); l.setAttribute('y2', '16.65');
+  svg.appendChild(c); svg.appendChild(l);
+  return svg;
+}
+
+/* ---------- Match computation ---------- */
+function findHits(text, q) {
+  const hits = [];
+  if (!q || !text) return hits;
+  const lower = text.toLowerCase();
+  const ql = q.toLowerCase();
+  let i = lower.indexOf(ql);
+  while (i >= 0 && hits.length < MAX_MATCHES) {
+    hits.push(i);
+    i = lower.indexOf(ql, i + ql.length);
+  }
+  return hits;
+}
+
+function recompute() {
+  const project = getState().project;
+  if (!project) { msHits = []; nvHits = []; return; }
+  msHits = findHits(project.manuscript.text || '', query);
+  nvHits = findHits(project.mainNovel.text || '', query);
+  pos = total() ? 0 : -1;
+}
+
+/* ---------- Marking (sync-transparent) ---------- */
+function clearMarks() {
+  document.querySelectorAll('mark.ws-hit').forEach((m) => {
+    m.replaceWith(document.createTextNode(m.textContent));
+  });
+}
+
+function markFirstIn(panelSel, q) {
+  const panel = document.querySelector(panelSel);
+  if (!panel) return null;
+  const body = panel.querySelector('.panel-body');
+  if (!body) return null;
+  const ql = q.toLowerCase();
+  const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const idx = node.data.toLowerCase().indexOf(ql);
+    if (idx < 0) continue;
+    const startNode = node.splitText(idx);
+    const endNode = startNode.splitText(ql.length);
+    const mark = document.createElement('mark');
+    mark.className = 'ws-hit';
+    startNode.parentNode.insertBefore(mark, startNode);
+    mark.appendChild(startNode);
+    void endNode;
+    return mark;
+  }
+  return null;
+}
+
+/* ---------- Navigation ---------- */
+function updateBadge() {
+  if (!badge) return;
+  if (!query || pos < 0) { badge.textContent = ''; badge.classList.remove('is-novel'); return; }
+  const inNovel = pos >= msHits.length;
+  badge.textContent = `${pos + 1}/${total()}`;
+  badge.classList.toggle('is-novel', inNovel);
+  badge.title = inNovel ? 'Current hit in Main Novel' : 'Current hit in Manuscript';
+}
+
+function goto(k) {
+  const t = total();
+  if (!query || !t) return;
+  pos = ((k % t) + t) % t;
+  const inNovel = pos >= msHits.length;
+  const off = inNovel ? nvHits[pos - msHits.length] : msHits[pos];
+  const project = getState().project;
+  const text = inNovel ? (project.mainNovel.text || '') : (project.manuscript.text || '');
+  const blocks = buildBlockIndex(text);
+  const bi = blockAtOffset(blocks, off);
+  clearMarks();
+  if (inNovel) jumpNovelToBlock(bi);
+  else jumpManuscriptToBlock(bi);
+  const mark = markFirstIn(
+    inNovel ? '.panel[data-panel="novel"]' : '.panel[data-panel="manuscript"]',
+    query
+  );
+  if (mark) mark.scrollIntoView({ block: 'center' });
+  updateBadge();
+}
+
+/* ---------- Open / collapse ---------- */
+function setOpen(open) {
+  if (bar) bar.classList.toggle('is-open', open);
+}
+function openSearch() {
+  setOpen(true);
+  setTimeout(() => { if (input) input.focus(); }, 30);
+}
+
+/* ---------- UI ---------- */
+function buildBar() {
+  input = el('input', { class: 'input', type: 'text', placeholder: 'Search…' });
+  badge = el('span', { class: 'ws-badge' });
+  const prev = el('button', { class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '\u2039', onclick: () => goto(pos - 1) });
+  const next = el('button', { class: 'btn btn-ghost', title: 'Next match (Enter)', text: '\u203A', onclick: () => goto(pos + 1) });
+  const clr = el('button', {
+    class: 'btn btn-ghost', title: 'Clear search', text: '\u00D7',
+    onclick: () => { input.value = ''; onInput(); },
+  });
+
+  input.addEventListener('input', onInput);
+  input.addEventListener('focus', () => setOpen(true));
+  input.addEventListener('blur', () => { if (!(input.value || '').trim()) setOpen(false); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); goto(e.shiftKey ? pos - 1 : pos + 1); }
+    if (e.key === 'Escape') { input.value = ''; onInput(); input.blur(); setOpen(false); }
+  });
+
+  bar = el('div', { class: 'ws-bar', dataset: { wsBound: '1' }, title: 'Search' }, [
+    magnifier('icon'), input, badge, prev, next, clr,
+  ]);
+  bar.addEventListener('click', () => {
+    if (!bar.classList.contains('is-open')) openSearch();
+  });
+  return bar;
+}
+
+function onInput() {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => {
+    query = (input.value || '').trim();
+    setOpen(Boolean(query));
+    clearMarks();
+    if (!query) { msHits = []; nvHits = []; pos = -1; updateBadge(); return; }
+    recompute();
+    updateBadge();
+    if (total()) goto(0);
+  }, 250);
+}
+
+function bind() {
+  const host = document.querySelector('.topbar-left');
+  if (!host) return;
+  const old = host.querySelector('.ws-bar');
+  if (old && old.dataset.wsBound) return;
+  if (old) old.remove();
+  host.appendChild(buildBar());
+}
+
+export function initSearch() {
+  ensureStyle();
+  bind();
+  subscribe((state, change) => {
+    if (state.view !== 'workspace') return;
+    if (change.view || (change.project && !change.silent)) {
+      query = ''; msHits = []; nvHits = []; pos = -1;
+      bind();
+      updateBadge();
+    }
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/settings.js
+================================================================================
+/* =========================================================
+Weaver — js/features/settings.js
+v2 Stage 6.1-final: Settings Modal — 2 tabs.
+V3.2b: Pro/Free badge + Upgrade button.
+V3.4b: AI Providers tab removed (keys live in the admin console).
+V3.8: Pro temperature slider restored beside Quick Prompts;
+accept-as-is toggle removed (behavior freeze lands separately);
+settings tremble fixed (saved-badge row keeps its height).
+========================================================= */
+import { el, clear, modal, toast, confirmDialog } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, updateSettings } from '../core/state.js';
+import {
+  syncNow, getCloudUserEmail, signOutAndReload,
+  copyAllToPuter, restoreFromPuter,
+} from './cloud.js';
+import { puterSignedIn, connectPuter, disconnectPuter } from './puter-mirror.js';
+import { exportProject, openEpubExportList } from './export.js';
+import { isPro, onEntitlementChange } from '../core/entitlements.js';
+
+const STYLE_ID = 'settings-style';
+const CSS = `.set-wrap{display:flex;gap:16px;min-height:380px;} .set-rail{flex:none;width:190px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border);padding-right:12px;} .set-rail-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:.82rem;text-align:left;cursor:pointer;} .set-rail-btn:hover{background:var(--surface-2);color:var(--text);} .set-rail-btn.is-selected{background:var(--accent-soft);color:var(--accent);font-weight:600;} .set-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto;padding-right:8px;} .set-section{display:flex;flex-direction:column;gap:10px;} .set-section h4{font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;} .set-card{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-2);} .set-card-head{display:flex;align-items:center;justify-content:space-between;} .set-card-head h4{font-size:.95rem;font-weight:600;color:var(--text);margin:0;text-transform:none;letter-spacing:0;} .set-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .set-row .input{flex:1;min-width:150px;} .set-field{display:flex;flex-direction:column;gap:6px;} .set-field label{font-size:.78rem;color:var(--muted);} .set-field .input, .set-field .select{max-width:220px;} .set-toggle{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;user-select:none;} .set-order{display:flex;gap:6px;flex-wrap:wrap;} .set-hint{font-size:.74rem;color:var(--faint);margin-top:-4px;} .set-scope-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:-8px;min-height:22px;} .set-range-row{display:flex;align-items:center;gap:10px;} .set-range-row input[type="range"]{flex:1;max-width:220px;accent-color:var(--accent);} @media (max-width:640px){ .set-wrap{flex-direction:column;} .set-rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);padding:0 0 10px;} }`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let savedBadge = null;
+function saveAndFlash(mutator) {
+  updateSettings(mutator);
+  if (savedBadge) {
+    savedBadge.hidden = false;
+    setTimeout(() => { if (savedBadge) savedBadge.hidden = true; }, 1200);
+  }
+}
+
+/* ---------- Account ---------- */
+function accountSection() {
+  const emailBadge = el('span', { class: 'badge', text: 'checking…' });
+  getCloudUserEmail().then((email) => {
+    emailBadge.textContent = email || 'signed in';
+    emailBadge.className = 'badge badge-success';
+  });
+  const proBadge = el('span', {
+    class: 'badge ' + (isPro() ? 'badge-accent' : ''),
+    text: isPro() ? 'Pro' : 'Free'
+  });
+  const upgradeBtn = el('a', {
+    class: 'btn btn-sm btn-primary',
+    href: 'https://legendalive.github.io/Weaver/welcome/pricing.html',
+    target: '_blank',
+    hidden: isPro()
+  }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]);
+  onEntitlementChange(() => {
+    proBadge.className = 'badge ' + (isPro() ? 'badge-accent' : '');
+    proBadge.textContent = isPro() ? 'Pro' : 'Free';
+    upgradeBtn.hidden = isPro();
+  });
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Account' }),
+    el('div', { class: 'set-card' }, [
+      el('div', { class: 'set-row' }, [
+        emailBadge,
+        proBadge,
+        upgradeBtn,
+        el('button', {
+          class: 'btn btn-sm btn-danger',
+          onclick: async () => {
+            const ok = await confirmDialog({
+              title: 'Sign out',
+              message: 'You will be signed out of Weaver. Your projects stay safe in this browser and in your private cloud vault.',
+              confirmLabel: 'Sign out',
+              danger: true,
+            });
+            if (!ok) return;
+            await signOutAndReload();
+          },
+        }, [icon('x', 'icon-sm'), el('span', { text: 'Sign out' })]),
+      ]),
+    ]),
+  ]);
+}
+
+/* ---------- Backup & Restore ---------- */
+function backupRestoreSection() {
+  return el('div', { class: 'set-section' }, [
+        el('h4', { text: 'Cloud Sync & Export' }),
+    el('p', { class: 'set-hint', text: 'Your work saves to your private cloud automatically as you write (compressed, ~3–5× more room). Upload pushes this browser\u2019s copy now; Download pulls the vault copy here. Both run the same safe two-way sync — nothing is erased.' }),
+    el('div', { class: 'set-row' }, [
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Sync now — pushes this browser\u2019s changes to your vault (and fetches anything newer)',
+        text: 'Upload to cloud',
+        onclick: () => syncNow(),
+      }),
+      el('button', { class: 'btn btn-sm', text: 'Export', onclick: () => exportProject() }),
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Pro — market-ready EPUB of your Main Novel',
+        text: 'Export EPUB',
+        onclick: () => openEpubExportList(),
+      }),
+      el('button', {
+        class: 'btn btn-sm',
+        title: 'Sync now — pulls the vault copy into this browser (and uploads anything newer)',
+        text: 'Download from cloud',
+        onclick: () => syncNow(),
+      }),
+    ]),
+  ]);
+}
+
+/* ---------- Optional Puter overflow ---------- */
+function overflowSection(rerender) {
+  const status = el('span', {
+    class: 'badge' + (puterSignedIn() ? ' badge-success' : ''),
+    text: puterSignedIn() ? 'connected' : 'not connected',
+  });
+  const connectBtn = el('button', {
+    class: 'btn btn-sm',
+    text: puterSignedIn() ? 'Disconnect' : 'Connect Puter',
+    onclick: async () => {
+      connectBtn.disabled = true;
+      try {
+        if (puterSignedIn()) {
+          await disconnectPuter();
+          toast('Overflow storage disconnected.', 'success');
+        } else {
+          await connectPuter();
+          toast('Overflow storage connected.', 'success');
+        }
+      } catch (e) {
+        toast('Could not reach Puter: ' + e.message, 'danger');
+      }
+      connectBtn.disabled = false;
+      rerender();
+    },
+  });
+  return el('div', { class: 'set-section' }, [
+    el('h4', { text: 'Overflow Storage (Puter) — optional' }),
+    el('p', { class: 'set-hint', text: 'Optional — Weaver works fully without it. Puter is used automatically only if the primary vault is full or unreachable; each user\'s own free Puter account holds their overflow at no additional cost.' }),
+    el('div', { class: 'set-card' }, [
+      el('div', { class: 'set-row' }, [status, connectBtn]),
+      el('div', { class: 'set-row' }, [
+        el('button', {
+          class: 'btn btn-sm', text: 'Copy all to Puter',
+          onclick: async () => {
+            try {
+              const n = await copyAllToPuter();
+              toast(`Copied ${n} project(s) to Puter overflow.`, 'success');
+            } catch (e) {
+              toast('Copy failed: ' + e.message, 'danger');
+            }
+          },
+        }),
+        el('button', {
+          class: 'btn btn-sm', text: 'Restore from Puter',
+          onclick: async () => {
+            const ok = await confirmDialog({
+              title: 'Restore from Puter',
+              message: 'This pulls every project stored in your Puter overflow into this browser, overwriting local copies with the same ID. Continue?',
+              confirmLabel: 'Restore',
+              danger: true,
+            });
+            if (!ok) return;
+            try {
+              const n = await restoreFromPuter();
+              toast(`Restored ${n} project(s) from Puter. Reloading…`, 'success');
+              setTimeout(() => location.reload(), 900);
+            } catch (e) {
+              toast('Restore failed: ' + e.message, 'danger');
+            }
+          },
+        }),
+      ]),
+    ]),
+  ]);
+}
+
+/* ---------- Data & Storage tab ---------- */
+function renderDataTab(contentEl, rerender) {
+  clear(contentEl);
+  contentEl.append(accountSection(), backupRestoreSection(), overflowSection(rerender));
+}
+
+/* ---------- Pro temperature slider ---------- */
+function temperatureField(settings) {
+  const tempVal = el('span', { class: 'badge', text: String(settings.ai.temperature ?? 0.85) });
+  return el('div', { class: 'set-field' }, [
+    el('label', { text: 'Temperature (Pro) — 0 precise · 1 inventive' }),
+    el('div', { class: 'set-range-row' }, [
+      el('input', {
+        type: 'range', min: '0', max: '1', step: '0.05',
+        value: String(settings.ai.temperature ?? 0.85),
+        oninput: (e) => {
+          tempVal.textContent = e.target.value;
+          saveAndFlash(s => { s.ai.temperature = parseFloat(e.target.value); });
+        },
+      }),
+      tempVal,
+    ]),
+    el('p', { class: 'set-hint', text: 'Lower = faithful and exact. Higher = bolder and more inventive. Applies to Scribe and Plot AI.' }),
+  ]);
+}
+
+/* ---------- General tab ---------- */
+function renderGeneralTab(contentEl, settings) {
+  clear(contentEl);
+  const g = settings.general;
+
+  const quickChildren = [
+    el('h4', { text: 'Quick Prompts (Scribe shortcuts)' }),
+    el('p', { class: 'set-hint', text: 'Up to three one-tap prompts shown with the Scribe input. Leave blank to hide.' }),
+    ...[0, 1, 2].map((i) => el('input', {
+      class: 'input', placeholder: `Quick prompt ${i + 1}…`,
+      value: (g.quickPrompts && g.quickPrompts[i]) || '',
+      oninput: (e) => saveAndFlash((s) => {
+        if (!Array.isArray(s.general.quickPrompts)) s.general.quickPrompts = ['', '', ''];
+        s.general.quickPrompts[i] = e.target.value;
+      }),
+    })),
+  ];
+  if (isPro()) quickChildren.push(temperatureField(settings));
+
+  contentEl.append(
+    el('div', { class: 'set-section' }, [
+      el('h4', { text: 'Editor Behavior' }),
+      el('div', { class: 'set-field' }, [
+        el('label', { text: 'Sentences per page (Manuscript window)' }),
+        el('input', {
+          type: 'number', class: 'input', min: '5', max: '50', value: String(g.sentencesPerPage),
+          oninput: (e) => saveAndFlash(s => { s.general.sentencesPerPage = Math.max(5, parseInt(e.target.value) || 15); }),
+        }),
+      ]),
+      el('div', { class: 'set-field' }, [
+        el('label', { text: 'Autosave delay (milliseconds)' }),
+        el('input', {
+          type: 'number', class: 'input', min: '500', max: '5000', step: '500', value: String(g.autosaveInterval),
+          oninput: (e) => saveAndFlash(s => { s.general.autosaveInterval = Math.max(500, parseInt(e.target.value) || 3000); }),
+        }),
+      ]),
+    ]),
+    el('div', { class: 'set-section' }, quickChildren),
+    el('div', { class: 'set-section' }, [
+      el('h4', { text: 'Aesthetics' }),
+      el('div', { class: 'set-field' }, [
+        el('label', { text: 'Font Scale' }),
+        el('select', {
+          class: 'select',
+          onchange: (e) => { saveAndFlash(s => { s.general.fontScale = parseFloat(e.target.value); }); document.documentElement.style.setProperty('--font-scale', e.target.value); },
+        }, [
+          el('option', { value: '0.9', text: 'Small (0.9x)', selected: g.fontScale === 0.9 }),
+          el('option', { value: '1.0', text: 'Default (1.0x)', selected: g.fontScale === 1.0 || !g.fontScale }),
+          el('option', { value: '1.1', text: 'Large (1.1x)', selected: g.fontScale === 1.1 }),
+          el('option', { value: '1.2', text: 'Extra Large (1.2x)', selected: g.fontScale === 1.2 }),
+        ]),
+      ]),
+    ]),
+  );
+}
+
+/* ---------- Entry Point (2 tabs) ---------- */
+export function openSettings() {
+  ensureStyle();
+  const state = getState();
+  let activeTab = 'data';
+  const railEl = el('div', { class: 'set-rail' });
+  const contentEl = el('div', { class: 'set-content' });
+  savedBadge = el('span', { class: 'badge badge-success', text: 'saved', hidden: true });
+
+  function renderRail() {
+    clear(railEl);
+    const tabs = [
+      { id: 'data', label: 'Data & Storage', icon: 'folder' },
+      { id: 'general', label: 'General', icon: 'gear' },
+    ];
+    for (const tab of tabs) {
+      railEl.appendChild(el('button', {
+        class: 'set-rail-btn' + (activeTab === tab.id ? ' is-selected' : ''),
+        onclick: () => { activeTab = tab.id; renderRail(); renderContent(); },
+      }, [icon(tab.icon, 'icon-sm'), el('span', { text: tab.label })]));
+    }
+  }
+  function renderContent() {
+    if (activeTab === 'data') renderDataTab(contentEl, renderContent);
+    else renderGeneralTab(contentEl, state.settings);
+  }
+  const m = modal({
+    title: 'Settings',
+    size: 'lg',
+    body: [
+      el('div', { class: 'set-scope-row' }, [savedBadge]),
+      el('div', { class: 'set-wrap' }, [railEl, contentEl]),
+    ],
+    footer: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: () => m.close() })],
+  });
+  renderRail();
+  renderContent();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/features/support.js
+================================================================================
+/* =========================================================
+Weaver — js/features/support.js
+V3.9: Support Center — instant lookup (answer directly below
+the question), compact human contact form, and "Your requests"
+as a stacked chat list (newest first, unread badges, tap to
+expand). Backend handles quota, escalation, support voice.
+========================================================= */
+import { el, toast, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, subscribe } from '../core/state.js';
+import { getSupabaseClient } from '../core/supabase.js';
+
+const HELP_BASE = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/help';
+const API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/support';
+const BTN_ID = 'weaver-support-btn';
+const STYLE_ID = 'support-style';
+
+const CSS = `.sup-section{display:flex;flex-direction:column;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);} .sup-section:last-child{border-bottom:none;padding-bottom:0;} .sup-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;} .sup-lookup-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-lookup-row .input{flex:1;min-width:180px;} .sup-card{border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;} .sup-card-head{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650;} .sup-feedback{display:flex;gap:8px;align-items:center;flex-wrap:wrap;} .sup-feedback span{font-size:.78rem;color:var(--muted);} .sup-p{font-size:.85rem;line-height:1.65;color:var(--text);} .sup-code{font-family:var(--font-mono);font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;} .sup-hint{font-size:.72rem;color:var(--faint);line-height:1.5;} .sup-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);cursor:pointer;flex-wrap:nowrap;width:100%;} .sup-row:hover{border-color:var(--border-strong);} .sup-row-badge{flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#17130a;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);} .sup-row-spacer{flex:none;width:18px;} .sup-row-subj{flex:none;max-width:42%;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row.is-unread .sup-row-subj{font-weight:700;} .sup-row-prev{flex:1;min-width:0;font-size:.76rem;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sup-row-time{flex:none;font-size:.66rem;color:var(--faint);font-family:var(--font-mono);} .sup-thread{margin-top:6px;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);} .sup-msg{padding:7px 9px;border-radius:8px;font-size:.82rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;} .sup-msg.team{background:var(--accent-soft);border:1px solid rgba(224,168,60,.35);} .sup-msg.me{background:var(--surface-2);border:1px solid var(--border);} .sup-msg-head{font-size:.64rem;color:var(--faint);font-family:var(--font-mono);margin-bottom:3px;}`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function inline(s) {
+  let out = esc(s);
+  out = out.replace(/`([^`]+)`/g, '<span class="sup-code">$1</span>');
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  return out;
+}
+function richP(htmlStr) {
+  const d = document.createElement('p');
+  d.className = 'sup-p';
+  d.innerHTML = htmlStr;
+  return d;
+}
+
+/* ---------- topbar button ---------- */
+function injectButton() {
+  if (getState().view !== 'workspace') return;
+  if (document.getElementById(BTN_ID)) return;
+  const topbarBtns = Array.from(document.querySelectorAll('.topbar button, .topbar a'));
+  const settingsBtn = topbarBtns.find((b) => {
+    const label = (
+      (b.textContent || '') + ' ' +
+      (b.title || '') + ' ' +
+      (b.getAttribute('aria-label') || '')
+    ).toLowerCase();
+    return label.includes('settings');
+  });
+  const content = [icon('send', 'icon-sm'), el('span', { text: 'Support' })];
+  if (settingsBtn) {
+    const btn = el('button', {
+      id: BTN_ID, type: 'button',
+      class: settingsBtn.className,
+      title: 'Contact Weaver support',
+      onclick: openSupport,
+    }, content);
+    settingsBtn.insertAdjacentElement('afterend', btn);
+  } else {
+    const bar = document.querySelector('.topbar');
+    if (!bar) return;
+    const btn = el('button', {
+      id: BTN_ID, type: 'button',
+      class: 'btn btn-ghost btn-sm',
+      title: 'Contact Weaver support',
+      onclick: openSupport,
+    }, content);
+    bar.appendChild(btn);
+  }
+  const injected = document.getElementById(BTN_ID);
+  if (injected) injected.classList.add('tb-support');
+}
+
+async function sessionToken() {
+  try {
+    const client = await getSupabaseClient();
+    const { data } = await client.auth.getSession();
+    return data && data.session ? data.session.access_token : '';
+  } catch { return ''; }
+}
+
+async function helpApi(path, body) {
+  const token = await sessionToken();
+  if (!token) throw new Error('Please sign in to Weaver first.');
+  const res = await fetch(HELP_BASE + path, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}),
+  });
+  if (res.status === 429) { const d = await res.json().catch(() => ({})); return { capped: true, code: d.code }; }
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(d.error || ('HTTP ' + res.status));
+  return d;
+}
+
+/* ---------- lookup UI ---------- */
+function cardShell(headText) {
+  const card = el('div', { class: 'sup-card' });
+  card.appendChild(el('div', { class: 'sup-card-head', text: headText }));
+  return card;
+}
+function showInfoCard(host, headText, bodyText, onBack) {
+  host.innerHTML = '';
+  const card = cardShell(headText);
+  card.appendChild(el('p', { class: 'sup-p', text: bodyText }));
+  host.appendChild(card);
+  if (onBack) host.appendChild(el('button', { class: 'btn btn-sm', text: 'Try another question', onclick: onBack }));
+}
+function showReplyCard(host, answer, logId, question, onBack) {
+  host.innerHTML = '';
+  const card = cardShell('Support answer');
+  for (const para of String(answer).split(/\n\n+/)) {
+    if (!para.trim()) continue;
+    const p = document.createElement('p');
+    p.className = 'sup-p';
+    p.innerHTML = inline(para.trim());
+    card.appendChild(p);
+  }
+  const fb = el('div', { class: 'sup-feedback' }, [el('span', { text: 'Did this solve your issue?' })]);
+  const yes = el('button', { class: 'btn btn-sm', text: 'Yes — solved' });
+  const no = el('button', { class: 'btn btn-sm', text: 'No — send to our team' });
+  yes.onclick = async () => {
+    yes.disabled = true; no.disabled = true;
+    try { await helpApi('/api/resolve', { logId }); } catch (e) { /* quiet */ }
+    fb.innerHTML = '';
+    fb.appendChild(el('span', { text: 'Thanks — glad that helped.' }));
+  };
+  no.onclick = async () => {
+    yes.disabled = true; no.disabled = true;
+    let ok = false;
+    try { const d = await helpApi('/api/escalate', { logId, question, answer }); ok = !!d.filed; } catch (e) { ok = false; }
+    fb.innerHTML = '';
+    fb.appendChild(el('span', {
+      text: ok
+        ? 'Forwarded to the Weaver team. We\u2019ll get back to you as soon as we can.'
+        : 'Could not forward automatically — please use the message form below.',
+    }));
+  };
+  fb.appendChild(yes); fb.appendChild(no);
+  card.appendChild(fb);
+  host.appendChild(card);
+  if (onBack) host.appendChild(el('button', { class: 'btn btn-sm', text: 'Try another question', onclick: onBack }));
+}
+async function runLookup(lookupInput, lookupBtn, replyHost, resetFn) {
+  const question = (lookupInput.value || '').trim();
+  if (!question) { toast('Describe your issue first.', 'info'); return; }
+  lookupInput.disabled = true;
+  lookupBtn.disabled = true;
+  lookupBtn.textContent = 'Looking into it…';
+  replyHost.innerHTML = '';
+  try {
+    const d = await helpApi('/api/answer', { question });
+    if (d.capped) {
+      const msg = d.code === 'cap_day'
+        ? 'Support lookup limit reached (5 per hour, 12 per day on Free). Try again later, or send your request to the team below.'
+        : 'Too many lookups in a short window. Try again in a few minutes, or send your request to the team below.';
+      showInfoCard(replyHost, 'Support lookup', msg, resetFn);
+      return;
+    }
+    if (d.escalated) {
+      showInfoCard(replyHost, 'Support request', 'Forwarded to the Weaver team. We\u2019ll get back to you as soon as we can.', resetFn);
+      return;
+    }
+    showReplyCard(replyHost, d.answer, d.logId, question, resetFn);
+  } catch (e) {
+    showInfoCard(replyHost, 'Support lookup', 'The lookup service is unreachable right now. Your request can still reach the team via the message form below.', resetFn);
+  } finally {
+    lookupInput.disabled = false;
+    lookupBtn.disabled = false;
+    lookupBtn.textContent = 'Find my answer';
+  }
+}
+
+/* ---------- Your requests: stacked chat list, newest first ---------- */
+const READ_KEY = 'weaver_support_read';
+function readMap() {
+  try { return JSON.parse(localStorage.getItem(READ_KEY) || '{}') || {}; } catch (e) { return {}; }
+}
+function markRead(id) {
+  const map = readMap();
+  map[id] = new Date().toISOString();
+  try { localStorage.setItem(READ_KEY, JSON.stringify(map)); } catch (e) { /* private mode */ }
+}
+function unreadCount(t, map) {
+  const since = map[t.id] || '';
+  return (t.replies || []).filter((r) => r.author === 'team' && (!since || r.created_at > since)).length;
+}
+function shortTime(iso) {
+  try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch (e) { return ''; }
+}
+function msgBlock(who, text, cls, iso) {
+  const b = el('div', { class: 'sup-msg ' + cls });
+  b.appendChild(el('div', { class: 'sup-msg-head', text: who + ' · ' + new Date(iso).toLocaleString() }));
+  b.appendChild(document.createTextNode(text));
+  return b;
+}
+async function loadMyTickets(host) {
+  host.innerHTML = '';
+  /* Imperative layout: guarantees a vertical stack no matter what
+     the modal or section CSS does. */
+  host.style.display = 'flex';
+  host.style.flexDirection = 'column';
+  host.style.gap = '8px';
+  host.style.width = '100%';
+  host.style.maxHeight = '240px';
+  host.style.overflowY = 'auto';
+  try {
+    const token = await sessionToken();
+    if (!token) { host.appendChild(el('p', { class: 'sup-p', text: 'Sign in to see your requests.' })); return; }
+    const res = await fetch(HELP_BASE + '/api/tickets', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    const tickets = d.tickets || [];
+    if (!tickets.length) {
+      host.appendChild(el('p', { class: 'sup-p', text: 'No requests yet. Your support requests and our replies will appear here.' }));
+      return;
+    }
+    const map = readMap();
+    for (const t of tickets) {
+      const unread = unreadCount(t, map);
+      const last = (t.replies && t.replies.length) ? t.replies[t.replies.length - 1] : null;
+      const preview = last ? (last.author === 'team' ? 'Weaver: ' : 'You: ') + (last.body || '') : (t.body || '');
+      const wrap = el('div', {});
+      wrap.style.width = '100%';
+      wrap.style.flex = 'none';
+      const row = el('div', { class: 'sup-row' + (unread ? ' is-unread' : '') });
+      row.appendChild(unread
+        ? el('span', { class: 'sup-row-badge', text: String(unread) })
+        : el('span', { class: 'sup-row-spacer' }));
+      row.appendChild(el('span', { class: 'sup-row-subj', text: t.subject || '(no subject)' }));
+      row.appendChild(el('span', { class: 'sup-row-prev', text: String(preview).replace(/\s+/g, ' ') }));
+      row.appendChild(el('span', { class: 'sup-row-time', text: shortTime(last ? last.created_at : t.created_at) }));
+      row.addEventListener('click', () => {
+        const existing = wrap.querySelector('.sup-thread');
+        if (existing) { existing.remove(); return; }
+        const thread = el('div', { class: 'sup-thread' });
+        thread.appendChild(msgBlock('You', t.body || '', 'me', t.created_at));
+        for (const r of (t.replies || [])) {
+          thread.appendChild(msgBlock(r.author === 'team' ? 'Weaver team' : 'You', r.body || '', r.author === 'team' ? 'team' : 'me', r.created_at));
+        }
+        wrap.appendChild(thread);
+        markRead(t.id);
+        row.classList.remove('is-unread');
+        const badge = row.querySelector('.sup-row-badge');
+        if (badge) badge.replaceWith(el('span', { class: 'sup-row-spacer' }));
+      });
+      wrap.appendChild(row);
+      host.appendChild(wrap);
+    }
+  } catch (e) {
+    host.appendChild(el('p', { class: 'sup-p', text: 'Could not load your requests right now.' }));
+  }
+}
+
+/* ---------- Support Center modal ---------- */
+export function openSupport() {
+  ensureStyle();
+  const lookupInput = el('input', {
+    class: 'input', type: 'text',
+    placeholder: 'Describe your issue — e.g. \u201Csync badge says failed\u201D',
+  });
+  const lookupBtn = el('button', { class: 'btn btn-sm btn-primary', text: 'Find my answer' });
+  const replyHost = el('div', {});
+  const ticketsHost = el('div', {});
+  function resetLookup() {
+    lookupInput.value = '';
+    replyHost.innerHTML = '';
+    lookupInput.focus();
+  }
+  lookupBtn.onclick = () => runLookup(lookupInput, lookupBtn, replyHost, resetLookup);
+  lookupInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') runLookup(lookupInput, lookupBtn, replyHost, resetLookup);
+  });
+
+  const subject = el('input', {
+    class: 'input', type: 'text', maxlength: '120',
+    placeholder: 'e.g. Cloud sync question',
+  });
+  const body = el('textarea', {
+    class: 'textarea', rows: '3', maxlength: '4000',
+    placeholder: 'Tell me what happened. Please do not include passwords or API keys.',
+  });
+  const hint = el('p', {
+    class: 'sup-hint',
+    text: 'Sent securely from your signed-in Weaver account. Replies appear under \u201CYour requests\u201D in this window. No manuscripts or files are attached.',
+  });
+  const send = el('button', { class: 'btn btn-primary', text: 'Send message' });
+  send.addEventListener('click', async () => {
+    const text = body.value.trim();
+    if (!text) { toast('Please write a message first.', 'info'); return; }
+    send.disabled = true;
+    send.textContent = 'Sending…';
+    try {
+      const token = await sessionToken();
+      if (!token) throw new Error('Please sign in to Weaver first.');
+      const res = await fetch(API + '/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ subject: subject.value.trim(), body: text }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not send. Please try again.');
+      subject.value = '';
+      body.value = '';
+      writeBody.style.display = 'none';
+      writeToggle.textContent = '+ Write to the team';
+      toast('Message sent. Thank you — I usually reply within one business day.', 'success');
+      loadMyTickets(ticketsHost);
+    } catch (e) {
+      toast(e.message || 'Could not send.', 'danger');
+            send.disabled = false;
+      send.textContent = 'Send message';
+    }
+  });
+
+  const writeBody = el('div', {});
+  writeBody.style.display = 'none';
+  writeBody.style.flexDirection = 'column';
+  writeBody.style.gap = '8px';
+  writeBody.append(hint, subject, body, send);
+  const writeToggle = el('button', { class: 'btn btn-sm', text: '+ Write to the team' });
+  writeToggle.addEventListener('click', () => {
+    const open = writeBody.style.display !== 'none';
+    writeBody.style.display = open ? 'none' : 'flex';
+    writeToggle.textContent = open ? '+ Write to the team' : '\u2212 Write to the team';
+  });
+
+  const m = modal({
+    title: 'Support',
+    size: 'lg',
+    body: [
+      el('div', { class: 'sup-section' }, [
+        el('div', { class: 'sup-label', text: 'Instant lookup' }),
+        el('div', { class: 'sup-lookup-row' }, [lookupInput, lookupBtn]),
+        replyHost,
+      ]),
+            el('div', { class: 'sup-section' }, [
+        writeToggle,
+        writeBody,
+      ]),
+      el('div', { class: 'sup-section' }, [
+        el('div', { class: 'sup-label', text: 'Your requests' }),
+        ticketsHost,
+      ]),
+    ],
+    footer: [el('button', { class: 'btn', text: 'Close', onclick: () => m.close() })],
+  });
+  if (m && m.body && m.body.style) {
+    m.body.style.maxHeight = '75vh';
+    m.body.style.overflowY = 'auto';
+  }
+  loadMyTickets(ticketsHost);
+  lookupInput.focus();
+}
+
+export function initSupport() {
+  injectButton();
+  subscribe((state) => {
+    if (state.view === 'workspace') injectButton();
+    else {
+      const btn = document.getElementById(BTN_ID);
+      if (btn) btn.remove();
+    }
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/panels/ai-output.js
+================================================================================
+/* =========================================================
+   Weaver — js/panels/ai-output.js
+   Step 22: AI Output actions — Accept / Rewrite / Discard.
+   - Acts on the ACTIVE block (click to select) or the newest.
+   - Accept: block text -> Main Novel (once per block).
+   - Rewrite: resend identical prompt + context.
+   - Discard: abort if streaming, remove block.
+   ========================================================= */
+
+import { el, toast } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { getState, touchProject } from '../core/state.js';
+import { getAiBlocks, rerunBlock } from '../features/scribe.js';
+
+const STYLE_ID = 'ai-output-style';
+const CSS = `
+.ai-block{cursor:pointer;}
+.ai-block.is-active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.ai-block.is-accepted{opacity:.72;}
+`;
+
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let bound = false;
+
+export function initAiOutput() {
+  ensureStyle();
+  if (bound) return;
+  bound = true;
+
+  /* Click any block to make it the active target */
+  document.addEventListener('click', (e) => {
+    const body = e.target.closest('.panel[data-panel="ai"] .panel-body');
+    if (!body) return;
+    const blockEl = e.target.closest('.ai-block');
+    if (!blockEl) return;
+    if (e.target.closest('button')) return; // ignore stop-button clicks
+    setActive(blockEl);
+  });
+}
+
+function setActive(blockEl) {
+  document.querySelectorAll('.ai-block.is-active').forEach((n) => {
+    if (n !== blockEl) n.classList.remove('is-active');
+  });
+  blockEl.classList.add('is-active');
+}
+
+function targetBlock() {
+  const blocks = getAiBlocks().filter((b) => b.el.isConnected);
+  if (!blocks.length) return null;
+  return blocks.find((b) => b.el.classList.contains('is-active')) || blocks[blocks.length - 1];
+}
+
+/* ---------- Accept ---------- */
+export function acceptAiBlock() {
+  const block = targetBlock();
+  if (!block) { toast('No AI output to accept yet.', 'info'); return; }
+  if (!block.done) { toast('Wait for generation to finish (or stop it) first.', 'info'); return; }
+  if (block.accepted) { toast('This block was already accepted.', 'info'); return; }
+
+  const project = getState().project;
+  if (!project) return;
+  const text = (block.full || '').trim();
+  if (!text) { toast('Nothing to accept in this block.', 'info'); return; }
+
+  const novel = project.mainNovel.text || '';
+  project.mainNovel.text = novel ? novel + '\n\n' + text : text;
+  block.accepted = true;
+  block.el.classList.add('is-accepted');
+  block.badge.textContent = (block.provider ? `${block.provider.providerLabel} · ` : '') + 'accepted';
+  touchProject({ novel: true });
+  toast('Generation accepted into Main Novel.', 'success');
+}
+
+/* ---------- Rewrite ---------- */
+export function rewriteAiBlock() {
+  const block = targetBlock();
+  if (!block) { toast('No AI output to rewrite yet.', 'info'); return; }
+  block.accepted = false;
+  block.el.classList.remove('is-accepted');
+  setActive(block.el);
+  rerunBlock(block);
+  toast('Resending prompt + context to Scribe…', 'info');
+}
+
+/* ---------- Discard ---------- */
+export function discardAiBlock() {
+  const block = targetBlock();
+  if (!block) { toast('No AI output to discard.', 'info'); return; }
+  if (block.controller && !block.done) block.controller.abort();
+
+  const registry = getAiBlocks();
+  const idx = registry.indexOf(block);
+  if (idx >= 0) registry.splice(idx, 1);
+  block.el.remove();
+
+  const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
+  if (body && !registry.length) {
+    body.appendChild(el('div', { class: 'empty-state' }, [
+      icon('sparkles', 'icon-lg'),
+      el('p', { text: 'AI generations will appear here.' }),
+    ]));
+  }
+  toast('Block discarded.', 'success');
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/panels/main-novel.js
+================================================================================
+/* =========================================================
+Weaver — js/panels/main-novel.js
+Step 13 + Step 14: Main Novel panel.
+Read-only AND virtualized (same spacer technique as the
+Manuscript) so massive canon text stays instant.
+Live word count badge in the header.
+Recheck: cut selected text back into the Manuscript.
+jumpNovelToBlock for Hierarchy navigation.
+V4: Recheck now captures a return "seam" (project.recheckSlot)
+so an Accept can slot the rewrite back where it came from.
+Listens for 'weaver-novel-jump' to scroll to a landing spot.
+========================================================= */
+import { el, clear, toast, confirmDialog } from '../utils/dom.js';
+import { getState, touchProject, subscribe } from '../core/state.js';
+import {
+  wordCount, buildBlockIndex, windowBounds, headingPrefix, blockAtOffset,
+} from '../utils/text.js';
+import { renderManuscript, flushManuscriptSync } from './manuscript.js';
+
+const MAX_MOUNTED = 300;
+const SCROLL_THRESHOLD = 300;
+const SEAM_CTX = 120;
+let panelEl = null;
+let bodyEl = null;
+let wrapEl = null;
+let wordCountEl = null;
+let novelBound = false;
+let nIndex = [];
+let nMounted = { from: 0, to: 0 };
+let lastNovelText = null;
+let lastNovelProjectId = null;
+let topSpacer = null;
+let bottomSpacer = null;
+let pendingJumpOffset = null;
+
+/* A slot-return can ask the panel to reveal the landing spot. */
+if (typeof document !== 'undefined') {
+  document.addEventListener('weaver-novel-jump', (e) => {
+    pendingJumpOffset = (e && e.detail && typeof e.detail.offset === 'number')
+      ? e.detail.offset
+      : null;
+  });
+}
+
+export function mountMainNovel(panel) {
+  panelEl = panel;
+  bodyEl = panel.querySelector('.panel-body');
+  clear(bodyEl);
+  wrapEl = el('div', { class: 'mn-scroll' });
+  topSpacer = el('div', { class: 'ms-spacer' });
+  bottomSpacer = el('div', { class: 'ms-spacer' });
+  wrapEl.append(topSpacer, bottomSpacer);
+  bodyEl.appendChild(wrapEl);
+  const header = panel.querySelector('.panel-header');
+  const actions = panel.querySelector('.panel-actions');
+  wordCountEl = el('span', { class: 'badge badge-accent mn-word-count', style: { whiteSpace: 'nowrap', flex: 'none' }, text: '0 words' });
+  header.insertBefore(wordCountEl, actions);
+  bodyEl.addEventListener('scroll', onScroll);
+  if (!novelBound) {
+    novelBound = true;
+    subscribe((state, change) => {
+      if (change.novel && state.view === 'workspace') renderMainNovel();
+    });
+  }
+  renderMainNovel();
+}
+
+/* ---------- Render (windowed, read-only) ---------- */
+export function renderMainNovel(startBlock = null) {
+  if (!wrapEl) return;
+  const prevText = lastNovelText;
+  const prevScroll = bodyEl.scrollTop;
+  const prevFrom = nMounted.from;
+  clearNodes();
+  topSpacer.style.height = '0px';
+  bottomSpacer.style.height = '0px';
+  const project = getState().project;
+  if (!project) { lastNovelText = null; lastNovelProjectId = null; return; }
+  // A different project means a fresh document: forget prior state.
+  if (project.id !== lastNovelProjectId) {
+    lastNovelProjectId = project.id;
+    lastNovelText = null;
+  }
+  const text = project.mainNovel.text || '';
+  if (wordCountEl) wordCountEl.textContent = `${wordCount(text).toLocaleString()} words`;
+  nIndex = buildBlockIndex(text);
+  if (!text.trim()) {
+    topSpacer.after(el('div', { class: 'empty-state' }, [
+      el('p', { text: 'Your finalized manuscript will appear here.' }),
+      el('p', {
+        class: 'launch-empty-hint',
+        text: 'Use "Accept highlighted" or "Accept whole" in the Manuscript panel to push text here.',
+      }),
+    ]));
+    nMounted = { from: 0, to: 0 };
+    lastNovelText = text;
+    pendingJumpOffset = null;
+    bodyEl.scrollTop = 0;
+    return;
+  }
+  const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+  let start;
+  let scrollMode;
+  if (pendingJumpOffset != null) {
+    // A slot-return just landed: reveal the insertion point.
+    start = Math.max(0, Math.min(blockAtOffset(nIndex, pendingJumpOffset), nIndex.length - 1));
+    scrollMode = 'top';
+    pendingJumpOffset = null;
+  } else if (startBlock != null) {
+    // Explicit jump (Hierarchy): go there, from the top of the window.
+    start = Math.max(0, Math.min(startBlock, nIndex.length - 1));
+    scrollMode = 'top';
+  } else if (lastNovelText === null) {
+    // First render of this project.
+    start = 0;
+    scrollMode = 'top';
+  } else if (text !== prevText && text.startsWith(prevText)) {
+    // APPEND detected (Accept / AI Accept): show the newly added tail.
+    const appendedFrom = Math.min(buildBlockIndex(prevText).length, nIndex.length - 1);
+    let s = appendedFrom;
+    let budget = 0;
+    while (s > 0 && budget < maxSent) { s--; budget += nIndex[s].sentences; }
+    start = s;
+    scrollMode = 'bottom';
+  } else {
+    // Removal or other edit (Recheck): keep the reader in place.
+    start = Math.min(prevFrom, nIndex.length - 1);
+    scrollMode = 'preserve';
+  }
+  const { end } = windowBounds(nIndex, start, maxSent);
+  const to = Math.max(end, start + 1);
+  const { frag } = buildFragment(start, to, text);
+  bottomSpacer.before(frag);
+  nMounted = { from: start, to };
+  lastNovelText = text;
+  if (scrollMode === 'bottom') bodyEl.scrollTop = bodyEl.scrollHeight;
+  else if (scrollMode === 'preserve') bodyEl.scrollTop = Math.min(prevScroll, bodyEl.scrollHeight);
+  else bodyEl.scrollTop = 0;
+}
+
+export function jumpNovelToBlock(blockIndex) {
+  renderMainNovel(blockIndex);
+}
+
+function clearNodes() {
+  Array.from(wrapEl.children).forEach((n) => {
+    if (n !== topSpacer && n !== bottomSpacer) n.remove();
+  });
+}
+
+function getNodes() {
+  return Array.from(wrapEl.children).filter((n) => n !== topSpacer && n !== bottomSpacer);
+}
+
+/* Groups mounted blocks into paragraph/heading nodes. Each node
+records how many blocks it consumed (dataset.bcount) so pruning
+keeps the block-window math exact. */
+function buildFragment(from, to, text) {
+  const frag = document.createDocumentFragment();
+  const nodes = [];
+  let para = null;
+  let paraCount = 0;
+  const flush = () => {
+    if (para) { para.dataset.bcount = String(paraCount); nodes.push(para); }
+    para = null;
+    paraCount = 0;
+  };
+  for (let i = from; i < to; i++) {
+    const b = nIndex[i];
+    const raw = text.slice(b.s, b.e).replace(/\n$/, '');
+    if (b.level) {
+      flush();
+      const node = el('div', {
+        class: `mn-block mn-h${b.level}`,
+        dataset: { bcount: '1' },
+        text: raw.slice(headingPrefix(b.level).length),
+      });
+      frag.appendChild(node);
+      nodes.push(node);
+    } else if (!raw.trim()) {
+      flush();
+    } else {
+      if (!para) {
+        para = el('div', { class: 'mn-block' });
+        frag.appendChild(para);
+        paraCount = 1;
+      } else {
+        para.appendChild(document.createElement('br'));
+        paraCount += 1;
+      }
+      para.appendChild(document.createTextNode(raw));
+    }
+  }
+  flush();
+  return { frag, nodes };
+}
+
+/* ---------- Virtualized scroll (scroll-height-delta math) ---------- */
+function onScroll() {
+  if (!bodyEl || !nIndex.length) return;
+  const { scrollTop, scrollHeight, clientHeight } = bodyEl;
+  const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+  const nearTop = scrollTop <= SCROLL_THRESHOLD;
+  if (nearBottom && nMounted.to < nIndex.length) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    const { end } = windowBounds(nIndex, nMounted.to, maxSent);
+    if (end > nMounted.to) {
+      const text = getState().project.mainNovel.text || '';
+      const { frag } = buildFragment(nMounted.to, end, text);
+      bottomSpacer.before(frag);
+      nMounted.to = end;
+      pruneTop();
+    }
+  }
+  if (nearTop && nMounted.from > 0) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    let start = nMounted.from;
+    let budget = 0;
+    while (start > 0 && budget < maxSent) {
+      start--;
+      budget += nIndex[start].sentences;
+    }
+    if (start < nMounted.from) {
+      const text = getState().project.mainNovel.text || '';
+      const oldHeight = bodyEl.scrollHeight;
+      const oldTop = bodyEl.scrollTop;
+      const { frag } = buildFragment(start, nMounted.from, text);
+      topSpacer.after(frag);
+      bodyEl.scrollTop = oldTop + (bodyEl.scrollHeight - oldHeight);
+      nMounted.from = start;
+      pruneBottom();
+    }
+  }
+}
+
+function pruneTop() {
+  const nodes = getNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  const oldTop = bodyEl.scrollTop;
+  let blocksRemoved = 0;
+  for (let i = 0; i < removeCount; i++) {
+    blocksRemoved += Number(nodes[i].dataset.bcount || 1);
+    nodes[i].remove();
+  }
+  topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  bodyEl.scrollTop = oldTop;
+  nMounted.from += blocksRemoved;
+}
+
+function pruneBottom() {
+  const nodes = getNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  let blocksRemoved = 0;
+  for (let i = 0; i < removeCount; i++) {
+    const node = nodes[nodes.length - 1 - i];
+    blocksRemoved += Number(node.dataset.bcount || 1);
+    node.remove();
+  }
+  bottomSpacer.style.height = (parseFloat(bottomSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  nMounted.to -= blocksRemoved;
+}
+
+/* ---------- Recheck ----------
+Cuts the selected Main Novel text back into the Manuscript and
+remembers WHERE it came from (project.recheckSlot) so the next
+"Accept highlighted" can offer to return it to this exact spot. */
+export async function recheck() {
+  flushManuscriptSync();
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) {
+    toast('Select some text in the Main Novel to recheck.', 'info');
+    return;
+  }
+  const selectedText = sel.toString();
+  if (!selectedText.trim()) return;
+  const project = getState().project;
+  if (!project) return;
+  const novelText = project.mainNovel.text || '';
+  const idx = novelText.indexOf(selectedText);
+  if (idx === -1) {
+    toast('Could not find selected text.', 'danger');
+    return;
+  }
+  /* Only one pending return address at a time. */
+  if (project.recheckSlot) {
+    const ok = await confirmDialog({
+      title: 'Replace pending return slot?',
+      message: 'A previous Recheck is still waiting to be accepted back. Rechecking now replaces its return address — that earlier text will stay where it is. Continue?',
+      confirmLabel: 'Replace',
+      danger: false,
+    });
+    if (!ok) return;
+  }
+  /* Capture the seam BEFORE cutting so we can find it again later. */
+  const before = novelText.slice(Math.max(0, idx - SEAM_CTX), idx);
+  const after = novelText.slice(idx + selectedText.length, idx + selectedText.length + SEAM_CTX);
+  const snippet = selectedText.trim().replace(/\s+/g, ' ').slice(0, 60);
+  let newNovel = novelText.slice(0, idx) + novelText.slice(idx + selectedText.length);
+  newNovel = newNovel.replace(/\n{3,}/g, '\n\n').trim();
+  project.mainNovel.text = newNovel;
+  project.recheckSlot = { before, after, snippet, takenAt: Date.now() };
+  const msText = project.manuscript.text || '';
+  project.manuscript.text = msText ? msText + '\n\n' + selectedText : selectedText;
+  touchProject({ novel: true });
+  toast('Moved to Manuscript — it will return to its place when you accept.', 'success');
+  renderMainNovel();
+  renderManuscript();
+  sel.removeAllRanges();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/panels/manuscript.js
+================================================================================
+/* =========================================================
+Weaver — js/panels/manuscript.js
+CONSOLIDATED FINAL: editor + paging engine.
+Single continuous document-style editing & selection.
+Sticky-bottom scroll, hardened: sync pin after appends,
+sticky-aware prune, rAF confirm, debounced runway recompute.
+One-page bottom runway; resume via viewStart.
+Selection-based Accept-as-is with duplicate guard.
+D1 freeze: Accept-as-is ALWAYS cuts accepted text out of Manuscript.
+Faded continuity hint appears ONCE while whole manuscript is empty.
+V4 Phase 2: Accept split — acceptWhole() ("Accept whole");
+acceptAsIs() is the highlighted-selection path.
+V4 Return slot: if a Recheck is pending, "Accept highlighted"
+offers to slot the rewrite back where it came from (seam match),
+or append to the bottom instead.
+========================================================= */
+import { el, clear, toast, confirmDialog, modal } from '../utils/dom.js';
+import { getState, touchProject, flushSave } from '../core/state.js';
+import {
+  buildBlockIndex, windowBounds, spliceBlocks, headingPrefix,
+} from '../utils/text.js';
+
+const SYNC_DELAY = 800;
+const MAX_MOUNTED = 300;
+const SCROLL_THRESHOLD = 300;
+
+const CE_MODE = (() => {
+  const d = document.createElement('div');
+  d.setAttribute('contenteditable', 'plaintext-only');
+  return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
+})();
+
+/* ---------- Continuity + Empty Hint Style ---------- */
+const MS_STYLE_ID = 'manuscript-continuity-style';
+const MS_CSS = `.ms-scroll { display: block !important; gap: 0 !important; outline: none !important; user-select: text !important; -webkit-user-select: text !important; } .ms-block { margin: 0 0 .85em !important; padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; outline: none !important; min-height: 1.2em; user-select: text !important; -webkit-user-select: text !important; } .ms-block:focus { outline: none !important; background: transparent !important; box-shadow: none !important; } .ms-h1 { margin: 1.4em 0 .6em !important; font-size: 1.6em; font-weight: bold; } .ms-h2 { margin: 1.2em 0 .5em !important; font-size: 1.3em; font-weight: bold; } .ms-h3 { margin: 1em 0 .4em !important; font-size: 1.1em; font-weight: bold; } .ms-spacer { pointer-events: none !important; user-select: none !important; -webkit-user-select: none !important; } /* Silence every per-block placeholder on empty blocks */ .ms-block:empty::before, .ms-block:empty::after { content: none !important; } /* Single empty document hint */ .ms-empty-hint { position: absolute; left: 0; right: 0; top: 10px; padding: 0 2px; color: var(--faint); font-style: italic; font-size: .9rem; pointer-events: none; user-select: none; } .ms-empty-hint[hidden] { display: none; }`;
+function ensureManuscriptStyle() {
+  if (!document.getElementById(MS_STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = MS_STYLE_ID;
+    s.textContent = MS_CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let emptyHint = null;
+function refreshEmptyHint() {
+  if (!emptyHint || !blocksWrap) return;
+  const nodes = getBlockNodes();
+  emptyHint.hidden = nodes.some((n) => bodyString(n).trim().length > 0);
+}
+
+let panelEl = null;
+let bodyEl = null;
+let blocksWrap = null;
+let toolbarBtns = {};
+let index = [];
+let mounted = { from: 0, to: 0 };
+let syncTimer = null;
+let syncProjectId = null;
+let selectionInfo = null;
+let docBound = false;
+let selTick = false;
+let isStickyBottom = true;
+let runwayTimer = null;
+let topSpacer = null;
+let bottomSpacer = null;
+
+export function getManuscriptSelection() { return selectionInfo; }
+
+/* ---------- Mount ---------- */
+export function mountManuscript(panel) {
+  ensureManuscriptStyle();
+  panelEl = panel;
+  bodyEl = panel.querySelector('.panel-body');
+  clear(bodyEl);
+  blocksWrap = el('div', {
+    class: 'ms-scroll',
+    contenteditable: CE_MODE,
+    spellcheck: 'true',
+  });
+  bodyEl.appendChild(blocksWrap);
+  bodyEl.style.position = 'relative';
+  emptyHint = el('div', { class: 'ms-empty-hint', text: 'Type here or upload a manuscript' });
+  bodyEl.appendChild(emptyHint);
+  topSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
+  bottomSpacer = el('div', { class: 'ms-spacer', contenteditable: 'false' });
+  blocksWrap.append(topSpacer, bottomSpacer);
+  const actions = panel.querySelector('.panel-actions');
+  const expandBtn = actions.querySelector('button');
+  const tb = el('div', { class: 'ms-toolbar' });
+  toolbarBtns = {};
+  for (const [label, level] of [['H1', 1], ['H2', 2], ['H3', 3], ['¶', 0]]) {
+    const b = el('button', {
+      class: 'btn btn-ghost btn-sm ms-tb-btn',
+      title: level ? `Heading ${level}` : 'Body text',
+      dataset: { level: String(level) },
+      text: label,
+      onclick: () => applyHeading(level),
+    });
+    toolbarBtns[level] = b;
+    tb.appendChild(b);
+  }
+  actions.insertBefore(tb, expandBtn);
+  blocksWrap.addEventListener('input', () => {
+    selectionInfo = null;
+    clearBundledBlocks();
+    scheduleSync();
+  });
+  blocksWrap.addEventListener('keydown', onKeydown);
+  blocksWrap.addEventListener('paste', onPaste);
+  bodyEl.addEventListener('scroll', onScroll);
+  if (!docBound) {
+    docBound = true;
+    document.addEventListener('selectionchange', () => {
+      if (selTick) return;
+      selTick = true;
+      requestAnimationFrame(() => { selTick = false; onSelectionChange(); });
+    });
+    const persist = () => { flushManuscriptSync(); flushSave(); };
+    window.addEventListener('beforeunload', persist);
+    window.addEventListener('resize', updateRunwaySoon);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') persist();
+    });
+  }
+  renderManuscript();
+}
+
+/* ---------- Render (windowed, resume-aware) ---------- */
+export function renderManuscript(startBlock = null) {
+  if (!blocksWrap) return;
+  clearTimeout(syncTimer);
+  syncTimer = null;
+  selectionInfo = null;
+  clearBundledBlocks();
+  clearBlocksOnly();
+  topSpacer.style.height = '0px';
+  bottomSpacer.style.height = '0px';
+  const project = getState().project;
+  if (!project) return;
+  syncProjectId = project.id;
+  const text = project.manuscript.text || '';
+  index = buildBlockIndex(text);
+  if (!index.length) {
+    mountRange(0, 0, text);
+    refreshEmptyHint();
+    updateRunway();
+    bodyEl.scrollTop = 0;
+    return;
+  }
+  const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+  const resume = startBlock == null ? (project.manuscript.viewStart || 0) : startBlock;
+  const start = Math.max(0, Math.min(resume, index.length - 1));
+  const { end } = windowBounds(index, start, maxSent);
+  mountRange(start, Math.max(end, start + 1), text);
+  refreshEmptyHint();
+  updateRunway();
+  bodyEl.scrollTop = 0;
+}
+
+/* ---------- Hierarchy jump ---------- */
+export function jumpManuscriptToBlock(blockIndex) {
+  flushManuscriptSync();
+  renderManuscript(blockIndex);
+}
+
+function clearBlocksOnly() {
+  Array.from(blocksWrap.children).forEach((n) => {
+    if (n !== topSpacer && n !== bottomSpacer) n.remove();
+  });
+}
+
+function mountRange(from, to, text) {
+  mounted = { from, to };
+  const frag = document.createDocumentFragment();
+  if (to <= from || !index.length) {
+    frag.appendChild(blockNode(null, ''));
+  } else {
+    for (let i = from; i < to; i++) {
+      if (index[i]) frag.appendChild(blockNode(index[i], text));
+    }
+  }
+  clearBlocksOnly();
+  topSpacer.after(frag);
+}
+
+function blockNode(block, text) {
+  if (!block) {
+    const node = el('div', {
+      class: 'ms-block',
+      dataset: { level: '0' },
+      spellcheck: 'true',
+    });
+    setBody(node, '');
+    return node;
+  }
+  const raw = text.slice(block.s, block.e).replace(/\n$/, '');
+  const level = block.level;
+  const bodyText = level ? raw.slice(headingPrefix(level).length) : raw;
+  const node = el('div', {
+    class: 'ms-block' + (level ? ` ms-h${level}` : ''),
+    dataset: { level: String(level) },
+    spellcheck: 'true',
+  });
+  setBody(node, bodyText);
+  return node;
+}
+
+/* ---------- Body <-> node helpers ---------- */
+function setBody(node, str) {
+  clear(node);
+  const lines = str.split('\n');
+  lines.forEach((line, i) => {
+    if (i) node.appendChild(document.createElement('br'));
+    if (line) node.appendChild(document.createTextNode(line));
+  });
+}
+
+function bodyString(node) {
+  if (!node) return '';
+  let out = '';
+  const walk = (n) => {
+    for (const c of n.childNodes) {
+      if (c.nodeType === 3) out += c.data;
+      else if (c.nodeName === 'BR') out += '\n';
+      else walk(c);
+    }
+  };
+  walk(node);
+  if (out === '\n' && node.childNodes.length === 1 && node.firstChild.nodeName === 'BR') {
+    return '';
+  }
+  return out;
+}
+
+function nodeToString(node) {
+  if (node.nodeType === 3) return node.data;
+  const lv = Number(node.dataset ? (node.dataset.level || 0) : 0);
+  return (lv ? headingPrefix(lv) : '') + bodyString(node);
+}
+
+function getBlockNodes() {
+  if (!blocksWrap) return [];
+  return Array.from(blocksWrap.children).filter((n) => n !== topSpacer && n !== bottomSpacer);
+}
+
+function blockOf(node) {
+  if (!node) return null;
+  if (node === blocksWrap) return null;
+  const elem = node.nodeType === 3 ? node.parentElement : node;
+  return elem ? elem.closest('.ms-block') : null;
+}
+
+/* ---------- Caret math ---------- */
+function lenOf(c) {
+  if (c.nodeType === 3) return c.data.length;
+  if (c.nodeName === 'BR') return 1;
+  let s = 0;
+  for (const g of c.childNodes) s += lenOf(g);
+  return s;
+}
+
+function textOffsetIn(node, anchorNode, anchorOffset) {
+  if (anchorNode === node) {
+    let acc = 0;
+    for (let i = 0; i < Math.min(anchorOffset, node.childNodes.length); i++) acc += lenOf(node.childNodes[i]);
+    return acc;
+  }
+  let acc = 0;
+  const walk = (n) => {
+    for (const c of n.childNodes) {
+      if (c === anchorNode) {
+        if (c.nodeType === 3) return acc + anchorOffset;
+        let a = acc;
+        for (let i = 0; i < Math.min(anchorOffset, c.childNodes.length); i++) a += lenOf(c.childNodes[i]);
+        return a;
+      }
+      if (c.nodeType === 3) acc += c.data.length;
+      else if (c.nodeName === 'BR') acc += 1;
+      else { const r = walk(c); if (r != null) return r; }
+    }
+    return null;
+  };
+  const r = walk(node);
+  return r == null ? 0 : r;
+}
+
+function placeCaretAtOffset(node, off) {
+  node.focus();
+  let acc = 0;
+  let target = null;
+  let targetOff = 0;
+  const walk = (n) => {
+    for (let i = 0; i < n.childNodes.length; i++) {
+      const c = n.childNodes[i];
+      if (target) return;
+      if (c.nodeType === 3) {
+        if (acc + c.data.length >= off) { target = c; targetOff = off - acc; return; }
+        acc += c.data.length;
+      } else if (c.nodeName === 'BR') {
+        if (acc === off) { target = n; targetOff = i; return; }
+        acc += 1;
+      } else { walk(c); }
+    }
+  };
+  walk(node);
+  if (!target) { target = node; targetOff = node.childNodes.length; }
+  const range = document.createRange();
+  try {
+    range.setStart(target, targetOff);
+    range.collapse(true);
+    const sel = document.getSelection();
+    if (sel) {
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  } catch (_) {}
+}
+
+/* ---------- Editing operations ---------- */
+function onKeydown(e) {
+  const sel = document.getSelection();
+  const node = blockOf(sel ? sel.anchorNode : null) || e.target.closest('.ms-block');
+  if (!node) return;
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    splitBlock(node);
+  } else if (e.key === 'Backspace') {
+    if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === 0) {
+      let prev = node.previousElementSibling;
+      while (prev && prev === topSpacer) prev = prev.previousElementSibling;
+      if (!prev || !prev.classList.contains('ms-block')) { e.preventDefault(); return; }
+      e.preventDefault();
+      mergeInto(prev, node);
+    }
+  } else if (e.key === 'Delete') {
+    if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === bodyString(node).length) {
+      let next = node.nextElementSibling;
+      while (next && next === bottomSpacer) next = next.nextElementSibling;
+      if (next && next.classList.contains('ms-block')) {
+        e.preventDefault();
+        mergeInto(node, next);
+      }
+    }
+  }
+}
+
+function splitBlock(node) {
+  const sel = document.getSelection();
+  if (sel && !sel.isCollapsed) {
+    try { sel.deleteFromDocument(); } catch (_) {}
+  }
+  const activeNode = blockOf(sel ? sel.anchorNode : null) || node;
+  const off = sel ? textOffsetIn(activeNode, sel.anchorNode, sel.anchorOffset) : 0;
+  const full = bodyString(activeNode);
+  setBody(activeNode, full.slice(0, off));
+  const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
+  setBody(nn, full.slice(off));
+  activeNode.after(nn);
+  placeCaretAtOffset(nn, 0);
+  scheduleSync();
+}
+
+function mergeInto(prev, node) {
+  const prevBody = bodyString(prev);
+  const caret = prevBody.length;
+  setBody(prev, prevBody + bodyString(node));
+  node.remove();
+  placeCaretAtOffset(prev, caret);
+  scheduleSync();
+}
+
+function onPaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  if (!text) return;
+  const sel = document.getSelection();
+  if (sel && !sel.isCollapsed) {
+    try { sel.deleteFromDocument(); } catch (_) {}
+  }
+  const node = blockOf(sel ? sel.anchorNode : null);
+  if (!node) return;
+  let off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
+  let body = bodyString(node);
+  const before = body.slice(0, off);
+  const after = body.slice(off);
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
+  if (lines.length === 1) {
+    setBody(node, before + lines[0] + after);
+    placeCaretAtOffset(node, (before + lines[0]).length);
+  } else {
+    setBody(node, before + lines[0]);
+    let cursor = node;
+    for (let i = 1; i < lines.length - 1; i++) {
+      const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
+      setBody(nn, lines[i]);
+      cursor.after(nn);
+      cursor = nn;
+    }
+    const lastBody = lines[lines.length - 1] + after;
+    const nn = el('div', { class: 'ms-block', dataset: { level: '0' } });
+    setBody(nn, lastBody);
+    cursor.after(nn);
+    placeCaretAtOffset(nn, lines[lines.length - 1].length);
+  }
+  scheduleSync();
+}
+
+/* ---------- Heading toolbar ---------- */
+function applyHeading(level) {
+  const sel = document.getSelection();
+  const node = blockOf(sel ? sel.anchorNode : null);
+  if (!node || !blocksWrap || !blocksWrap.contains(node)) return;
+  node.dataset.level = String(level);
+  node.classList.remove('ms-h1', 'ms-h2', 'ms-h3');
+  if (level) node.classList.add(`ms-h${level}`);
+  refreshToolbar(node);
+  scheduleSync();
+}
+
+function refreshToolbar(activeNode) {
+  const lv = activeNode ? Number(activeNode.dataset.level || 0) : -1;
+  for (const [level, btn] of Object.entries(toolbarBtns)) {
+    btn.classList.toggle('is-selected', Number(level) === lv);
+  }
+}
+
+/* ---------- Selection capture ---------- */
+function clearBundledBlocks() {
+  document.querySelectorAll('.ms-block.is-bundled').forEach((n) => n.classList.remove('is-bundled'));
+}
+
+function onSelectionChange() {
+  if (!blocksWrap) return;
+  const sel = document.getSelection();
+  const project = getState().project;
+  if (!sel || !project) return;
+  const inManuscript = blocksWrap.contains(sel.anchorNode) && blocksWrap.contains(sel.focusNode);
+  const activeBlock = blockOf(sel.anchorNode);
+  if (activeBlock && blocksWrap.contains(activeBlock)) refreshToolbar(activeBlock);
+  if (sel.isCollapsed || !inManuscript) {
+    if (!inManuscript) selectionInfo = null;
+    return;
+  }
+  const text = sel.toString();
+  selectionInfo = text ? { text } : null;
+}
+
+/* ---------- Sync ---------- */
+function scheduleSync() {
+  refreshEmptyHint();
+  clearTimeout(syncTimer);
+  const delay = getState().settings.general.autosaveInterval ?? SYNC_DELAY;
+  syncTimer = setTimeout(flushManuscriptSync, delay);
+}
+
+export function flushManuscriptSync() {
+  clearTimeout(syncTimer);
+  syncTimer = null;
+  const project = getState().project;
+  if (!project || !blocksWrap || project.id !== syncProjectId) return;
+  let nodes = getBlockNodes();
+  if (!nodes.length) {
+    const emptyBlock = el('div', { class: 'ms-block', dataset: { level: '0' } });
+    topSpacer.after(emptyBlock);
+    nodes = [emptyBlock];
+  }
+  const strings = nodes.map(nodeToString);
+  const oldText = project.manuscript.text || '';
+  project.manuscript.viewStart = mounted.from;
+  const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, Math.max(mounted.from + 1, index.length)), strings);
+  if (newText === oldText) return;
+  project.manuscript.text = newText;
+  index = buildBlockIndex(newText);
+  mounted.to = mounted.from + nodes.length;
+  touchProject({ silent: true });
+}
+
+/* ---------- Paging Engine: hardened sticky-bottom ---------- */
+function onScroll() {
+  if (!bodyEl || !index.length) return;
+  const { scrollTop, scrollHeight, clientHeight } = bodyEl;
+  isStickyBottom = (scrollTop + clientHeight >= scrollHeight - 30);
+  const nearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+  const nearTop = scrollTop <= SCROLL_THRESHOLD;
+  if (nearBottom && mounted.to < index.length) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    const { end } = windowBounds(index, mounted.to, maxSent);
+    if (end > mounted.to) {
+      appendBlocks(mounted.to, end);
+      pruneTop();
+      if (isStickyBottom) bodyEl.scrollTop = bodyEl.scrollHeight;
+    }
+  }
+  if (nearTop && mounted.from > 0) {
+    const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+    let start = mounted.from;
+    let budget = 0;
+    while (start > 0 && budget < maxSent) {
+      start--;
+      budget += index[start].sentences;
+    }
+    if (start < mounted.from) {
+      prependBlocks(start, mounted.from);
+      pruneBottom();
+    }
+  }
+  if (isStickyBottom) {
+    requestAnimationFrame(() => { bodyEl.scrollTop = bodyEl.scrollHeight; });
+  }
+}
+
+function appendBlocks(from, to) {
+  const text = getState().project.manuscript.text || '';
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to; i++) {
+    if (index[i]) frag.appendChild(blockNode(index[i], text));
+  }
+  bottomSpacer.before(frag);
+  mounted.to = to;
+}
+
+function prependBlocks(from, to) {
+  const text = getState().project.manuscript.text || '';
+  const oldHeight = bodyEl.scrollHeight;
+  const oldTop = bodyEl.scrollTop;
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to; i++) {
+    if (index[i]) frag.appendChild(blockNode(index[i], text));
+  }
+  topSpacer.after(frag);
+  bodyEl.scrollTop = oldTop + (bodyEl.scrollHeight - oldHeight);
+  mounted.from = from;
+}
+
+function pruneTop() {
+  const nodes = getBlockNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  const oldTop = bodyEl.scrollTop;
+  for (let i = 0; i < removeCount; i++) nodes[i].remove();
+  topSpacer.style.height = (parseFloat(topSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  if (!isStickyBottom) bodyEl.scrollTop = oldTop;
+  mounted.from += removeCount;
+}
+
+function pruneBottom() {
+  const nodes = getBlockNodes();
+  if (nodes.length <= MAX_MOUNTED) return;
+  const removeCount = nodes.length - MAX_MOUNTED;
+  const oldHeight = bodyEl.scrollHeight;
+  for (let i = 0; i < removeCount; i++) nodes[nodes.length - 1 - i].remove();
+  bottomSpacer.style.height = (parseFloat(bottomSpacer.style.height || 0) + (oldHeight - bodyEl.scrollHeight)) + 'px';
+  mounted.to -= removeCount;
+}
+
+/* ---------- Runway: one empty page below the last text ---------- */
+function updateRunway() {
+  if (blocksWrap && bodyEl) blocksWrap.style.paddingBottom = bodyEl.clientHeight + 'px';
+}
+
+function updateRunwaySoon() {
+  clearTimeout(runwayTimer);
+  runwayTimer = setTimeout(() => {
+    updateRunway();
+    if (isStickyBottom && bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+  }, 150);
+}
+
+/* =========================================================
+   V4 RETURN-SLOT HELPERS (seam matching)
+   A Recheck stores ~120 chars of context on each side of the
+   cut (project.recheckSlot.before/after). To put text back we
+   find where those two contexts still sit in the Main Novel and
+   re-insert between them. Matching is whitespace-tolerant so the
+   \n{3,}→\n\n normalisation never breaks the lookup.
+   ========================================================= */
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+/* Escape specials; every whitespace run becomes \s+ so collapsed
+   or expanded spacing in the novel still matches the context. */
+function flexPattern(s) { return escRe(s).replace(/\s+/g, '\\s+'); }
+
+/* Returns { gapStart, gapEnd, sepBefore, sepAfter } or null.
+   gapStart/gapEnd bound the CURRENT whitespace between the two
+   contexts; sepBefore/sepAfter are the ORIGINAL separators that
+   surrounded the cut text, restored on insert. */
+function findSeam(text, before, after) {
+  const bRaw = before || '';
+  const aRaw = after || '';
+  const bCore = bRaw.replace(/\s+$/, '');
+  const aCore = aRaw.replace(/^\s+/, '');
+  const sepBefore = bRaw.slice(bCore.length);
+  const sepAfter = aRaw.slice(0, aRaw.length - aCore.length);
+  const hasB = bCore.length > 0;
+  const hasA = aCore.length > 0;
+  if (!hasB && !hasA) {
+    /* The whole novel was rechecked — the seam is the entire doc. */
+    return { gapStart: 0, gapEnd: text.length, sepBefore: '', sepAfter: '' };
+  }
+  let pattern;
+  if (hasB && hasA) {
+    pattern = '(' + flexPattern(bCore) + ')(\\s*)(' + flexPattern(aCore) + ')';
+  } else if (hasB) {
+    pattern = '(' + flexPattern(bCore) + ')(\\s*)()';
+  } else {
+    pattern = '()(\\s*)(' + flexPattern(aCore) + ')';
+  }
+  let m;
+  try { m = new RegExp(pattern).exec(text); }
+  catch (e) { return null; }
+  if (!m) return null;
+  const gapStart = m.index + m[1].length;
+  const gapEnd = gapStart + m[2].length;
+  return { gapStart, gapEnd, sepBefore, sepAfter };
+}
+
+/* 3-way choice shown whenever a slot is pending. */
+function chooseSlotAction(slot) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = (v) => { settled = true; resolve(v); };
+    const snippet = slot.snippet ? `\u201C${slot.snippet}\u201D` : 'the passage you rechecked';
+    const m = modal({
+      title: 'Return this to its place?',
+      body: el('p', {
+        text: `A Recheck is pending (${snippet}). Put the highlighted text back where it came from in the Main Novel, or append it to the bottom instead?`,
+        style: { color: 'var(--muted)', 'font-size': '.88rem', 'line-height': '1.6' },
+      }),
+      footer: [
+        el('button', { class: 'btn', text: 'Cancel', onclick: () => { settle('cancel'); m.close(); } }),
+        el('button', { class: 'btn', text: 'Append to bottom', onclick: () => { settle('append'); m.close(); } }),
+        el('button', { class: 'btn btn-primary', text: 'Return to its place', onclick: () => { settle('return'); m.close(); } }),
+      ],
+      onClose: () => { if (!settled) resolve('cancel'); },
+    });
+  });
+}
+
+/* Insert at the seam. Returns true on success, false if the seam
+   could not be found (caller falls back to append). */
+function returnToSlot(project, slot, textToPush) {
+  const novelText = project.mainNovel.text || '';
+  const seam = findSeam(novelText, slot.before, slot.after);
+  if (!seam) return false;
+  const newText = novelText.slice(0, seam.gapStart)
+    + seam.sepBefore + textToPush + seam.sepAfter
+    + novelText.slice(seam.gapEnd);
+  project.mainNovel.text = newText;
+  /* Ask the Main Novel panel to reveal the landing spot. */
+  const insertOffset = seam.gapStart + seam.sepBefore.length;
+  try {
+    document.dispatchEvent(new CustomEvent('weaver-novel-jump', { detail: { offset: insertOffset } }));
+  } catch (e) {}
+  return true;
+}
+
+/* D1 freeze: accepted text is always CUT out of the Manuscript. */
+function cutFromManuscript(project, textToPush) {
+  let idx = project.manuscript.text.indexOf(textToPush);
+  let matchedLength = textToPush.length;
+  if (idx < 0) {
+    const normPush = textToPush.replace(/\r\n/g, '\n');
+    const escaped = normPush.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\n+/g, '\\s*\\n+\\s*');
+    const m = new RegExp(escaped).exec(project.manuscript.text);
+    if (m) {
+      idx = m.index;
+      matchedLength = m[0].length;
+    }
+  }
+  if (idx >= 0) {
+    const cut = (project.manuscript.text.slice(0, idx) + project.manuscript.text.slice(idx + matchedLength))
+      .replace(/\n{3,}/g, '\n\n').trim();
+    project.manuscript.text = cut;
+    clearManuscriptSelection();
+    renderManuscript();
+  } else {
+    toast('Selection no longer matches manuscript text — accepted as copy.', 'info');
+  }
+}
+
+/* ---------- Accept highlighted (selection + duplicate guard + slot) ---------- */
+export async function acceptAsIs() {
+  flushManuscriptSync();
+  const project = getState().project;
+  if (!project) return;
+  const sel = selectionInfo;
+  let textToPush = sel && sel.text ? sel.text.trim() : '';
+  if (!textToPush) {
+    toast('Select the text you want to accept first.', 'info');
+    return;
+  }
+  const slot = project.recheckSlot;
+  if (slot) {
+    const choice = await chooseSlotAction(slot);
+    if (choice === 'cancel') return;
+    if (choice === 'return') {
+      if (returnToSlot(project, slot, textToPush)) {
+        cutFromManuscript(project, textToPush);
+        delete project.recheckSlot;
+        touchProject({ novel: true });
+        toast('Returned to its original place in the Main Novel.', 'success');
+        return;
+      }
+      /* Seam vanished — offer the honest fallback. */
+      const fb = await confirmDialog({
+        title: 'Original spot changed',
+        message: 'The place this text came from could not be found (the surrounding text may have changed). Append it to the bottom of the Main Novel instead?',
+        confirmLabel: 'Append to bottom',
+        danger: false,
+      });
+      if (!fb) return;
+    }
+    /* 'append' choice, or fallback confirmed — fall through. */
+  }
+  const currentNovel = project.mainNovel.text || '';
+  if (currentNovel.includes(textToPush)) {
+    const ok = await confirmDialog({
+      title: 'Duplicate text detected',
+      message: 'This exact text is already in the Main Novel. Add it again anyway?',
+      confirmLabel: 'Add anyway',
+      danger: false,
+    });
+    if (!ok) return;
+  }
+  project.mainNovel.text = currentNovel ? currentNovel + '\n' + textToPush : textToPush;
+  if (slot) delete project.recheckSlot;
+  cutFromManuscript(project, textToPush);
+  touchProject({ novel: true });
+  toast('Accepted to Main Novel (cut from Manuscript).', 'success');
+}
+
+/* ---------- Accept Whole (V4 Phase 2) ----------
+Moves the ENTIRE Manuscript into the Main Novel and clears the
+Manuscript. Confirmation first — it is a bulk move. Same D1 rule:
+text is CUT, never copied. Always appends; ignores any slot. */
+export async function acceptWhole() {
+  flushManuscriptSync();
+  const project = getState().project;
+  if (!project) return;
+  const fullText = (project.manuscript.text || '').trim();
+  if (!fullText) {
+    toast('The Manuscript is empty — nothing to accept.', 'info');
+    return;
+  }
+  const words = fullText.split(/\s+/).filter(Boolean).length;
+  const ok = await confirmDialog({
+    title: 'Accept whole Manuscript',
+    message: `The entire Manuscript (${words.toLocaleString()} words) will be moved into the Main Novel, and the Manuscript will be cleared. Continue?`,
+    confirmLabel: 'Accept whole',
+    danger: false,
+  });
+  if (!ok) return;
+  const currentNovel = project.mainNovel.text || '';
+  if (currentNovel.includes(fullText)) {
+    const okDup = await confirmDialog({
+      title: 'Duplicate text detected',
+      message: 'This exact text is already in the Main Novel. Add it again anyway?',
+      confirmLabel: 'Add anyway',
+      danger: false,
+    });
+    if (!okDup) return;
+  }
+  project.mainNovel.text = currentNovel ? currentNovel + '\n\n' + fullText : fullText;
+  project.manuscript.text = '';
+  project.manuscript.viewStart = 0;
+  clearManuscriptSelection();
+  renderManuscript();
+  touchProject({ novel: true });
+  toast('Whole Manuscript accepted into Main Novel.', 'success');
+}
+
+/* ---------- Bundle lifecycle ---------- */
+export function consumeManuscriptSelection() {
+  selectionInfo = null;
+}
+
+export function clearManuscriptSelection() {
+  selectionInfo = null;
+  clearBundledBlocks();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/docx.js
+================================================================================
+/* =========================================================
+   Weaver — js/utils/docx.js
+   Step 26: dependency-free DOCX ingest + export.
+   - readDocx(): unzips word/document.xml (native
+     DecompressionStream), maps paragraphs + Heading styles
+     to '#'-prefixed plain text.
+   - buildDocx(): writes a minimal valid .docx (stored ZIP,
+     CRC32) with real Word Heading1-3 styles.
+   ========================================================= */
+
+/* ---------- ZIP reading ---------- */
+async function inflateRaw(bytes) {
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('This browser cannot decompress DOCX files.');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const stream = new Blob([bytes]).stream().pipeThrough(ds);
+  const buf = await new Response(stream).arrayBuffer();
+  return new Uint8Array(buf);
+}
+
+function decodeUtf8(bytes) { return new TextDecoder().decode(bytes); }
+
+export async function readDocx(arrayBuffer) {
+  const view = new DataView(arrayBuffer);
+  const bytes = new Uint8Array(arrayBuffer);
+
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= 0; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('Not a valid .docx (ZIP) file.');
+
+  const count = view.getUint16(eocd + 10, true);
+  let ptr = view.getUint32(eocd + 16, true);
+  let documentXml = null;
+
+  for (let n = 0; n < count; n++) {
+    if (view.getUint32(ptr, true) !== 0x02014b50) break;
+    const method = view.getUint16(ptr + 10, true);
+    const compSize = view.getUint32(ptr + 20, true);
+    const nameLen = view.getUint16(ptr + 28, true);
+    const extraLen = view.getUint16(ptr + 30, true);
+    const commentLen = view.getUint16(ptr + 32, true);
+    const localOffset = view.getUint32(ptr + 42, true);
+    const name = decodeUtf8(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+
+    if (name === 'word/document.xml') {
+      const lNameLen = view.getUint16(localOffset + 26, true);
+      const lExtraLen = view.getUint16(localOffset + 28, true);
+      const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+      const comp = bytes.subarray(dataStart, dataStart + compSize);
+      const raw = method === 0 ? comp : await inflateRaw(comp);
+      documentXml = decodeUtf8(raw);
+      break;
+    }
+    ptr += 46 + nameLen + extraLen + commentLen;
+  }
+
+  if (!documentXml) throw new Error('No word/document.xml found — not a Word document.');
+  return { text: documentXmlToText(documentXml) };
+}
+
+function unescapeXml(s) {
+  return s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&');
+}
+
+function documentXmlToText(xml) {
+  const paras = xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || [];
+  const lines = [];
+  for (const p of paras) {
+    const styleMatch = p.match(/<w:pStyle[^>]*w:val="([^"]+)"/);
+    let level = 0;
+    if (styleMatch) {
+      const v = styleMatch[1].toLowerCase();
+      if (v === 'title') level = 1;
+      else {
+        const m = v.match(/heading\s*([1-3])/);
+        if (m) level = Number(m[1]);
+      }
+    }
+    let text = '';
+    const pieces = p.match(/<w:t[^>]*>[\s\S]*?<\/w:t>|<w:br\s*\/>|<w:tab\s*\/>/g) || [];
+    for (const piece of pieces) {
+      if (piece.startsWith('<w:br')) text += '\n';
+      else if (piece.startsWith('<w:tab')) text += ' ';
+      else {
+        const inner = piece.replace(/^<w:t[^>]*>/, '').replace(/<\/w:t>$/, '');
+        text += unescapeXml(inner);
+      }
+    }
+    text = text.replace(/\s+$/, '');
+    if (!text.trim() && !level) { lines.push(''); continue; }
+    lines.push(level ? '#'.repeat(level) + ' ' + text.trim() : text);
+  }
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/* ---------- CRC32 + ZIP writing (stored entries) ---------- */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function zipStore(files) {
+  const enc = new TextEncoder();
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+
+  for (const f of files) {
+    const nameB = enc.encode(f.name);
+    const crc = crc32(f.data);
+
+    const local = new Uint8Array(30 + nameB.length);
+    const lv = new DataView(local.buffer);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint16(8, 0, true);           // stored
+    lv.setUint32(14, crc, true);
+    lv.setUint32(18, f.data.length, true);
+    lv.setUint32(22, f.data.length, true);
+    lv.setUint16(26, nameB.length, true);
+    local.set(nameB, 30);
+    chunks.push(local, f.data);
+
+    const cen = new Uint8Array(46 + nameB.length);
+    const cv = new DataView(cen.buffer);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, f.data.length, true);
+    cv.setUint32(24, f.data.length, true);
+    cv.setUint16(28, nameB.length, true);
+    cv.setUint32(42, offset, true);
+    cen.set(nameB, 46);
+    central.push(cen);
+
+    offset += local.length + f.data.length;
+  }
+
+  const centralSize = central.reduce((s, c) => s + c.length, 0);
+  const eocd = new Uint8Array(22);
+  const ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, files.length, true);
+  ev.setUint16(10, files.length, true);
+  ev.setUint32(12, centralSize, true);
+  ev.setUint32(16, offset, true);
+
+  const all = new Uint8Array(offset + centralSize + 22);
+  let p = 0;
+  for (const c of chunks) { all.set(c, p); p += c.length; }
+  for (const c of central) { all.set(c, p); p += c.length; }
+  all.set(eocd, p);
+  return all;
+}
+
+/* ---------- DOCX building ---------- */
+function esc(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function buildDocx(blocks) {
+  const paras = [];
+  for (const b of blocks) {
+    const style = b.level
+      ? `<w:pPr><w:pStyle w:val="Heading${Math.min(b.level, 3)}"/></w:pPr>`
+      : '';
+    const lines = (b.text || '').split('\n');
+    let runs = '';
+    lines.forEach((ln, i) => {
+      if (i) runs += '<w:br/>';
+      runs += `<w:r><w:t xml:space="preserve">${esc(ln)}</w:t></w:r>`;
+    });
+    paras.push(`<w:p>${style}${runs}</w:p>`);
+  }
+
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${paras.join('')}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>`;
+
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:pPr><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:pPr><w:outlineLvl w:val="2"/></w:pPr><w:rPr><w:b/><w:sz w:val="28"/></w:rPr></w:style>
+</w:styles>`;
+
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const enc = new TextEncoder();
+  return zipStore([
+    { name: '[Content_Types].xml', data: enc.encode(contentTypes) },
+    { name: '_rels/.rels', data: enc.encode(rels) },
+    { name: 'word/document.xml', data: enc.encode(documentXml) },
+    { name: 'word/styles.xml', data: enc.encode(stylesXml) },
+    { name: 'word/_rels/document.xml.rels', data: enc.encode(docRels) },
+  ]);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/dom.js
+================================================================================
+/* =========================================================
+   Weaver — js/utils/dom.js
+   DOM construction & UI primitives used by every module.
+   v2: + weaverLogo() brand mark helper.
+   Exports: el, clear, qs, qsa, delegate, escapeHtml,
+   weaverLogo, toast, modal, confirmDialog
+   ========================================================= */
+import { icon } from './icons.js';
+
+/* ---------- Element factory ----------
+   el('button', { class: 'btn btn-primary', text: 'Save', onclick: fn }, [child, ...])
+   Special attr keys: class, text, html, dataset{}, style{}, on* handlers.
+   Anything else becomes a plain attribute; `true` sets a bare attribute. */
+export function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs || {})) {
+    if (value == null || value === false) continue;
+    if (key === 'class') {
+      String(value).split(/\s+/).filter(Boolean).forEach((c) => node.classList.add(c));
+    } else if (key === 'text') {
+      node.textContent = value;
+    } else if (key === 'html') {
+      node.innerHTML = value;
+    } else if (key === 'dataset') {
+      Object.assign(node.dataset, value);
+    } else if (key === 'style') {
+      for (const [prop, val] of Object.entries(value)) node.style.setProperty(prop, val);
+    } else if (key.startsWith('on') && typeof value === 'function') {
+      node.addEventListener(key.slice(2).toLowerCase(), value);
+    } else if (value === true) {
+      node.setAttribute(key, '');
+    } else {
+      node.setAttribute(key, value);
+    }
+  }
+  appendChildren(node, children);
+  return node;
+}
+
+function appendChildren(node, children) {
+  const list = Array.isArray(children) ? children : [children];
+  for (const child of list) {
+    if (child == null || child === false) continue;
+    if (Array.isArray(child)) { appendChildren(node, child); continue; }
+    node.appendChild(child instanceof Node ? child : document.createTextNode(String(child)));
+  }
+}
+
+export function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+  return node;
+}
+
+export function qs(selector, root = document) { return root.querySelector(selector); }
+export function qsa(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
+
+/* Event delegation — handler(event, matchedTarget) */
+export function delegate(root, type, selector, handler) {
+  root.addEventListener(type, (event) => {
+    const match = event.target.closest(selector);
+    if (match && root.contains(match)) handler(event, match);
+  });
+}
+
+export function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[c]));
+}
+
+/* ---------- Weaver brand mark ----------
+   The bold golden 'W'. Sizes: sm (topbar), md (cards),
+   lg / xl (hero, splash). Styled by .weaver-logo in css/base.css. */
+export function weaverLogo(size = 'md') {
+  const span = document.createElement('span');
+  span.className = `weaver-logo logo-${size}`;
+  span.textContent = 'W';
+  span.setAttribute('aria-hidden', 'true');
+  return span;
+}
+
+/* ---------- Toasts ---------- */
+const TOAST_ICONS = { success: 'check', danger: 'alert', info: 'info' };
+let toastContainer = null;
+
+export function toast(message, type = 'info', timeout = 3200) {
+  if (!toastContainer) {
+    toastContainer = el('div', { class: 'toast-container' });
+    document.body.appendChild(toastContainer);
+  }
+  const node = el('div', { class: `toast toast-${type}` }, [
+    icon(TOAST_ICONS[type] || 'info'),
+    el('span', { text: message }),
+  ]);
+  toastContainer.appendChild(node);
+  setTimeout(() => node.remove(), timeout);
+  return node;
+}
+
+/* ---------- Modal ----------
+   Returns { root, body, footer, backdrop, close } */
+export function modal(options = {}) {
+  const {
+    title = '', body = null, footer = null,
+    size = '', closeOnBackdrop = true, onClose = null,
+  } = options;
+
+  const backdrop = el('div', { class: 'modal-backdrop' });
+  const box = el('div', { class: size === 'lg' ? 'modal modal-lg' : 'modal' });
+
+  const bodyNode = el('div', { class: 'modal-body' });
+  if (body) appendChildren(bodyNode, body);
+
+  const footerNode = el('div', { class: 'modal-footer' });
+  if (footer) appendChildren(footerNode, footer);
+
+  function onKey(event) { if (event.key === 'Escape') close(); }
+
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.remove();
+    if (typeof onClose === 'function') onClose();
+  }
+
+  const header = el('div', { class: 'modal-header' }, [
+    el('h2', { class: 'modal-title', text: title }),
+    el('button', {
+      class: 'btn btn-ghost btn-icon btn-sm',
+      'aria-label': 'Close',
+      onclick: () => close(),
+    }, [icon('x')]),
+  ]);
+
+  box.append(header, bodyNode);
+  if (footer) box.append(footerNode);
+  backdrop.appendChild(box);
+
+  backdrop.addEventListener('mousedown', (event) => {
+    if (closeOnBackdrop && event.target === backdrop) close();
+  });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(backdrop);
+
+  return { root: box, body: bodyNode, footer: footerNode, backdrop, close };
+}
+
+/* Promise-based confirm — resolves true on confirm, false on cancel/Esc/backdrop */
+export function confirmDialog(options = {}) {
+  const {
+    title = 'Are you sure?', message = '',
+    confirmLabel = 'Confirm', danger = false,
+  } = options;
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = (value) => { settled = true; resolve(value); };
+
+    const m = modal({
+      title,
+      body: el('p', {
+        text: message,
+        style: { color: 'var(--muted)', 'font-size': '.88rem', 'line-height': '1.6' },
+      }),
+      footer: [
+        el('button', { class: 'btn', text: 'Cancel', onclick: () => { settle(false); m.close(); } }),
+        el('button', {
+          class: danger ? 'btn btn-danger' : 'btn btn-primary',
+          text: confirmLabel,
+          onclick: () => { settle(true); m.close(); },
+        }),
+      ],
+      onClose: () => { if (!settled) resolve(false); },
+    });
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/icons.js
+================================================================================
+/* =========================================================
+   Weaver — js/utils/icons.js
+   Step 3: central inline-SVG icon registry (stroke style,
+   inherits currentColor). Usage: icon('check', 'icon-sm')
+   ========================================================= */
+
+const ICONS = {
+  sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+  gear: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+  feather: '<path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/>',
+  tree: '<path d="M21 12h-8"/><path d="M21 6H8"/><path d="M21 18h-8"/><path d="M3 6v4c0 1.1.9 2 2 2h3"/><path d="M3 10v6c0 1.1.9 2 2 2h3"/>',
+  'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
+  'book-open': '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  sparkles: '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  refresh: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  expand: '<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>',
+  collapse: '<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
+  'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
+  alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  key: '<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+  type: '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>',
+  bold: '<path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>',
+  italic: '<line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/>',
+};
+
+/* Returns an <svg> element for the named icon. Unknown names fall back to info. */
+export function icon(name, className = '') {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.classList.add('icon');
+  String(className).split(/\s+/).filter(Boolean).forEach((c) => svg.classList.add(c));
+  svg.innerHTML = ICONS[name] || ICONS.info;
+  svg.dataset.icon = name;
+  return svg;
+}
+
+export function hasIcon(name) { return Object.prototype.hasOwnProperty.call(ICONS, name); }
+export const iconNames = Object.keys(ICONS);
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/js/panels/manuscript.js
+================================================================================
+/* =========================================================
+   Weaver — js/panels/manuscript.js
+   Step 11: Manuscript editor core.
+   - Windowed block rendering (first sentence-window only;
+     scroll-loading + pruning arrive in Step 12)
+   - contenteditable blocks: Enter splits, Backspace merges,
+     plain-text paste split into blocks
+   - Heading toolbar (H1/H2/H3/body) on the caret's block
+   - Selection capture with document offsets (for Scribe, Step 21)
+   - Debounced one-way sync: mounted window -> state string
+   ========================================================= */
+
+import { el, clear } from '../utils/dom.js';
+import { getState, touchProject, flushSave } from '../core/state.js';
+import {
+  buildBlockIndex, windowBounds, spliceBlocks, headingPrefix,
+} from '../utils/text.js';
+
+const SYNC_DELAY = 800;
+
+/* plaintext-only where supported (Chrome/Edge/Safari/new FF) */
+const CE_MODE = (() => {
+  const d = document.createElement('div');
+  d.setAttribute('contenteditable', 'plaintext-only');
+  return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
+})();
+
+let panelEl = null;
+let bodyEl = null;
+let blocksWrap = null;
+let toolbarBtns = {};
+let index = [];
+let mounted = { from: 0, to: 0 };
+let syncTimer = null;
+let syncProjectId = null;
+let selectionInfo = null;
+let docBound = false;
+let selTick = false;
+
+export function getManuscriptSelection() { return selectionInfo; }
+
+/* ---------- Mount ---------- */
+export function mountManuscript(panel) {
+  panelEl = panel;
+  bodyEl = panel.querySelector('.panel-body');
+  clear(bodyEl);
+  blocksWrap = el('div', { class: 'ms-scroll' });
+  bodyEl.appendChild(blocksWrap);
+
+  const actions = panel.querySelector('.panel-actions');
+  const expandBtn = actions.querySelector('button');
+  const tb = el('div', { class: 'ms-toolbar' });
+  toolbarBtns = {};
+  for (const [label, level] of [['H1', 1], ['H2', 2], ['H3', 3], ['¶', 0]]) {
+    const b = el('button', {
+      class: 'btn btn-ghost btn-sm ms-tb-btn',
+      title: level ? `Heading ${level}` : 'Body text',
+      dataset: { level: String(level) },
+      text: label,
+      onclick: () => applyHeading(level),
+    });
+    toolbarBtns[level] = b;
+    tb.appendChild(b);
+  }
+  actions.insertBefore(tb, expandBtn);
+
+  blocksWrap.addEventListener('input', () => scheduleSync());
+  blocksWrap.addEventListener('keydown', onKeydown);
+  blocksWrap.addEventListener('paste', onPaste);
+
+  if (!docBound) {
+    docBound = true;
+    document.addEventListener('selectionchange', () => {
+      if (selTick) return;
+      selTick = true;
+      requestAnimationFrame(() => { selTick = false; onSelectionChange(); });
+    });
+    const persist = () => { flushManuscriptSync(); flushSave(); };
+    window.addEventListener('beforeunload', persist);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') persist();
+    });
+  }
+
+  renderManuscript();
+}
+
+/* ---------- Render (windowed) ---------- */
+export function renderManuscript() {
+  if (!blocksWrap) return;
+  clearTimeout(syncTimer);
+  syncTimer = null;
+  selectionInfo = null;
+  clear(blocksWrap);
+
+  const project = getState().project;
+  if (!project) return;
+  syncProjectId = project.id;
+
+  const text = project.manuscript.text || '';
+  index = buildBlockIndex(text);
+  const maxSent = getState().settings.general.sentencesPerPage ?? 15;
+  const { end } = windowBounds(index, 0, maxSent);
+  mountRange(0, Math.max(end, 1), text);
+}
+
+function mountRange(from, to, text) {
+  mounted = { from, to };
+  const frag = document.createDocumentFragment();
+  for (let i = from; i < to; i++) frag.appendChild(blockNode(index[i], text));
+  blocksWrap.appendChild(frag);
+}
+
+function blockNode(block, text) {
+  const raw = text.slice(block.s, block.e).replace(/\n$/, '');
+  const level = block.level;
+  const bodyText = level ? raw.slice(headingPrefix(level).length) : raw;
+  const node = el('div', {
+    class: 'ms-block' + (level ? ` ms-h${level}` : ''),
+    contenteditable: CE_MODE,
+    dataset: { level: String(level) },
+    spellcheck: 'true',
+  });
+  setBody(node, bodyText);
+  return node;
+}
+
+/* ---------- Body <-> node helpers ---------- */
+function setBody(node, str) {
+  clear(node);
+  const lines = str.split('\n');
+  lines.forEach((line, i) => {
+    if (i) node.appendChild(document.createElement('br'));
+    if (line) node.appendChild(document.createTextNode(line));
+  });
+}
+
+function bodyString(node) {
+  let out = '';
+  const walk = (n) => {
+    for (const c of n.childNodes) {
+      if (c.nodeType === 3) out += c.data;
+      else if (c.nodeName === 'BR') out += '\n';
+      else walk(c);
+    }
+  };
+  walk(node);
+  return out;
+}
+
+function nodeToString(node) {
+  const lv = Number(node.dataset.level || 0);
+  return (lv ? headingPrefix(lv) : '') + bodyString(node);
+}
+
+function mountedNodes() { return Array.from(blocksWrap.children); }
+
+function blockOf(node) {
+  if (!node) return null;
+  const elem = node.nodeType === 3 ? node.parentElement : node;
+  return elem ? elem.closest('.ms-block') : null;
+}
+
+/* ---------- Caret math (offsets count \n/BR as 1 char) ---------- */
+function lenOf(c) {
+  if (c.nodeType === 3) return c.data.length;
+  if (c.nodeName === 'BR') return 1;
+  let s = 0;
+  for (const g of c.childNodes) s += lenOf(g);
+  return s;
+}
+
+function textOffsetIn(node, anchorNode, anchorOffset) {
+  if (anchorNode === node) {
+    let acc = 0;
+    for (let i = 0; i < Math.min(anchorOffset, node.childNodes.length); i++) acc += lenOf(node.childNodes[i]);
+    return acc;
+  }
+  let acc = 0;
+  const walk = (n) => {
+    for (const c of n.childNodes) {
+      if (c === anchorNode) {
+        if (c.nodeType === 3) return acc + anchorOffset;
+        let a = acc;
+        for (let i = 0; i < Math.min(anchorOffset, c.childNodes.length); i++) a += lenOf(c.childNodes[i]);
+        return a;
+      }
+      if (c.nodeType === 3) acc += c.data.length;
+      else if (c.nodeName === 'BR') acc += 1;
+      else { const r = walk(c); if (r != null) return r; }
+    }
+    return null;
+  };
+  const r = walk(node);
+  return r == null ? 0 : r;
+}
+
+function placeCaretAtOffset(node, off) {
+  node.focus();
+  let acc = 0;
+  let target = null;
+  let targetOff = 0;
+  const walk = (n) => {
+    for (let i = 0; i < n.childNodes.length; i++) {
+      const c = n.childNodes[i];
+      if (target) return;
+      if (c.nodeType === 3) {
+        if (acc + c.data.length >= off) { target = c; targetOff = off - acc; return; }
+        acc += c.data.length;
+      } else if (c.nodeName === 'BR') {
+        if (acc === off) { target = n; targetOff = i; return; }
+        acc += 1;
+      } else { walk(c); }
+    }
+  };
+  walk(node);
+  if (!target) { target = node; targetOff = node.childNodes.length; }
+  const range = document.createRange();
+  range.setStart(target, targetOff);
+  range.collapse(true);
+  const sel = document.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+/* ---------- Editing operations ---------- */
+function onKeydown(e) {
+  const node = e.target.closest('.ms-block');
+  if (!node) return;
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    splitBlock(node);
+  } else if (e.key === 'Backspace') {
+    const sel = document.getSelection();
+    if (sel && sel.isCollapsed && textOffsetIn(node, sel.anchorNode, sel.anchorOffset) === 0) {
+      const prev = node.previousElementSibling;
+      if (!prev) { e.preventDefault(); return; } // protect unmounted prefix (Step 12)
+      e.preventDefault();
+      mergeInto(prev, node);
+    }
+  }
+}
+
+function splitBlock(node) {
+  const sel = document.getSelection();
+  const off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
+  const full = bodyString(node);
+  setBody(node, full.slice(0, off));
+  const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+  setBody(nn, full.slice(off));
+  node.after(nn);
+  placeCaretAtOffset(nn, 0);
+  scheduleSync();
+}
+
+function mergeInto(prev, node) {
+  const prevBody = bodyString(prev);
+  const caret = prevBody.length;
+  setBody(prev, prevBody + bodyString(node));
+  node.remove();
+  placeCaretAtOffset(prev, caret);
+  scheduleSync();
+}
+
+function onPaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  if (!text) return;
+  const sel = document.getSelection();
+  const node = blockOf(sel ? sel.anchorNode : null);
+  if (!node) return;
+
+  let off = sel ? textOffsetIn(node, sel.anchorNode, sel.anchorOffset) : 0;
+  let body = bodyString(node);
+  if (sel && !sel.isCollapsed) {
+    const endNode = blockOf(sel.focusNode);
+    if (endNode === node) {
+      const endOff = textOffsetIn(node, sel.focusNode, sel.focusOffset);
+      const [a, b] = off <= endOff ? [off, endOff] : [endOff, off];
+      body = body.slice(0, a) + body.slice(b);
+      off = a;
+    }
+  }
+
+  const before = body.slice(0, off);
+  const after = body.slice(off);
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
+
+  if (lines.length === 1) {
+    setBody(node, before + lines[0] + after);
+    placeCaretAtOffset(node, (before + lines[0]).length);
+  } else {
+    setBody(node, before + lines[0]);
+    let cursor = node;
+    for (let i = 1; i < lines.length - 1; i++) {
+      const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+      setBody(nn, lines[i]);
+      cursor.after(nn);
+      cursor = nn;
+    }
+    const lastBody = lines[lines.length - 1] + after;
+    const nn = el('div', { class: 'ms-block', contenteditable: CE_MODE, dataset: { level: '0' } });
+    setBody(nn, lastBody);
+    cursor.after(nn);
+    placeCaretAtOffset(nn, lines[lines.length - 1].length);
+  }
+  scheduleSync();
+}
+
+/* ---------- Heading toolbar ---------- */
+function applyHeading(level) {
+  const sel = document.getSelection();
+  const node = blockOf(sel ? sel.anchorNode : null);
+  if (!node || !blocksWrap || !blocksWrap.contains(node)) return;
+  node.dataset.level = String(level);
+  node.classList.remove('ms-h1', 'ms-h2', 'ms-h3');
+  if (level) node.classList.add(`ms-h${level}`);
+  refreshToolbar(node);
+  scheduleSync();
+}
+
+function refreshToolbar(activeNode) {
+  const lv = activeNode ? Number(activeNode.dataset.level || 0) : -1;
+  for (const [level, btn] of Object.entries(toolbarBtns)) {
+    btn.classList.toggle('is-selected', Number(level) === lv);
+  }
+}
+
+/* ---------- Selection capture (for Scribe) ---------- */
+function onSelectionChange() {
+  if (!blocksWrap) return;
+  const sel = document.getSelection();
+  const project = getState().project;
+  if (!sel || !project) { selectionInfo = null; refreshToolbar(null); return; }
+
+  const a = blockOf(sel.anchorNode);
+  const focusBlock = blockOf(sel.focusNode);
+  if (!a || !blocksWrap.contains(a)) { selectionInfo = null; refreshToolbar(null); return; }
+  refreshToolbar(sel.isCollapsed ? a : focusBlock);
+
+  if (sel.isCollapsed || !focusBlock || !blocksWrap.contains(focusBlock)) {
+    selectionInfo = null;
+    return;
+  }
+
+  const nodes = mountedNodes();
+  const ia = nodes.indexOf(a);
+  const ib = nodes.indexOf(focusBlock);
+  let first, last, firstOff, lastOff;
+  if (ia <= ib) {
+    first = a; last = focusBlock;
+    firstOff = textOffsetIn(a, sel.anchorNode, sel.anchorOffset);
+    lastOff = textOffsetIn(focusBlock, sel.focusNode, sel.focusOffset);
+  } else {
+    first = focusBlock; last = a;
+    firstOff = textOffsetIn(focusBlock, sel.focusNode, sel.focusOffset);
+    lastOff = textOffsetIn(a, sel.anchorNode, sel.anchorOffset);
+  }
+  const fi = mounted.from + nodes.indexOf(first);
+  const li = mounted.from + nodes.indexOf(last);
+  if (fi >= index.length || li >= index.length) { selectionInfo = null; return; }
+
+  const pre = (i) => (index[i].level ? headingPrefix(index[i].level).length : 0);
+  const start = index[fi].s + pre(fi) + firstOff;
+  const end = index[li].s + pre(li) + lastOff;
+  const text = (project.manuscript.text || '').slice(start, end);
+  selectionInfo = text ? { text, start, end } : null;
+}
+
+/* ---------- One-way sync: mounted window -> state ---------- */
+function scheduleSync() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(flushManuscriptSync, SYNC_DELAY);
+}
+
+export function flushManuscriptSync() {
+  clearTimeout(syncTimer);
+  syncTimer = null;
+  const project = getState().project;
+  if (!project || !blocksWrap || project.id !== syncProjectId) return;
+  const nodes = mountedNodes();
+  if (!nodes.length) return;
+
+  const strings = nodes.map(nodeToString);
+  const oldText = project.manuscript.text || '';
+  const newText = spliceBlocks(oldText, index, mounted.from, Math.min(mounted.to, index.length), strings);
+  if (newText === oldText) return;
+
+  project.manuscript.text = newText;
+  index = buildBlockIndex(newText);
+  mounted.to = mounted.from + nodes.length;
+  touchProject({ silent: true });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/text.js
+================================================================================
+/* =========================================================
+   Weaver — js/utils/text.js
+   Step 10: lag-free text engine primitives.
+   - Block index: ONE O(n) pass over the raw string producing
+     block offsets (numbers, not copied substrings), heading
+     levels, and per-block sentence counts.
+   - Paging math: accumulate whole blocks until the sentence
+     budget is met — never truncates mid-sentence.
+   - Splice: replace a mounted block range with edited strings
+     without touching the rest of the document.
+   - Headings + binary-search offset lookup for Hierarchy/Scribe.
+   ========================================================= */
+
+const HEADING_RE = /^(#{1,3})\s+/;
+
+/* Terminal-punctuation count; a non-empty block with no terminal
+   punctuation counts as one sentence. Empty blocks count zero. */
+export function countSentences(str) {
+  if (!str || !str.trim()) return 0;
+  const marks = str.match(/[.!?…](?=\s|$)/g);
+  return marks ? marks.length : 1;
+}
+
+/* Single-pass block indexer.
+   Returns array of { s, e, level, sentences } where [s,e) is the
+   block's slice of the ORIGINAL string including its trailing
+   newline. level: 0 = body, 1-3 = heading ('# ', '## ', '### '). */
+export function buildBlockIndex(text) {
+  const blocks = [];
+  const n = text.length;
+  let start = 0;
+  while (start <= n) {
+    const nl = text.indexOf('\n', start);
+    const end = nl === -1 ? n : nl + 1;
+    const raw = text.slice(start, end);
+    const body = nl === -1 ? raw : raw.slice(0, -1);
+    const hm = body.match(HEADING_RE);
+    blocks.push({
+      s: start,
+      e: end,
+      level: hm ? hm[1].length : 0,
+      sentences: hm ? 0 : countSentences(body),
+    });
+    if (nl === -1) break;
+    start = end;
+  }
+  return blocks;
+}
+
+/* Paging: from block `from`, include whole blocks until the
+   sentence budget is filled (always at least one block).
+   Returns { end, sentences } — the mounted window [from, end). */
+export function windowBounds(blocks, from, maxSentences) {
+  let budget = 0;
+  let i = from;
+  while (i < blocks.length) {
+    budget += blocks[i].sentences;
+    i++;
+    if (budget >= maxSentences) break;
+  }
+  return { end: i, sentences: budget };
+}
+
+/* Raw text of a block range (used by sync, export, Recheck). */
+export function blocksToText(text, blocks, from, to) {
+  if (to <= from) return '';
+  return text.slice(blocks[from].s, blocks[to - 1].e);
+}
+
+/* Replace blocks [from,to) with new block strings. Each new block
+   receives a trailing newline except the final block when the
+   range reaches the document end. Returns the new FULL text. */
+export function spliceBlocks(text, blocks, from, to, newBlockStrings) {
+  const before = from > 0 ? text.slice(0, blocks[from].s) : '';
+  const after = to < blocks.length ? text.slice(blocks[to - 1].e) : '';
+  const isDocEnd = to >= blocks.length;
+  const mid = newBlockStrings
+    .map((s, i) => (isDocEnd && i === newBlockStrings.length - 1 ? s : s + '\n'))
+    .join('');
+  return before + mid + after;
+}
+
+/* Headings for the Hierarchy tree (Step 14). */
+export function extractHeadings(text, blocks) {
+  const out = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (!b.level) continue;
+    let title = text.slice(b.s, b.e).replace(/\n$/, '').replace(HEADING_RE, '');
+    if (!title.trim()) title = '(untitled)';
+    out.push({ index: i, level: b.level, title });
+  }
+  return out;
+}
+
+/* Binary search: index of the block containing character offset.
+   Used by Hierarchy jumps and Scribe highlight bundling. */
+export function blockAtOffset(blocks, offset) {
+  let lo = 0;
+  let hi = blocks.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (blocks[mid].s <= offset) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo;
+}
+
+export function normalizeNewlines(text) {
+  return String(text).replace(/\r\n?/g, '\n');
+}
+
+export function wordCount(str) {
+  const m = str.match(/\S+/g);
+  return m ? m.length : 0;
+}
+
+/* Toolbar helper (Steps 11-12): the raw prefix for a heading level. */
+export function headingPrefix(level) {
+  return '#'.repeat(level) + ' ';
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/utils/zip.js
+================================================================================
+/* =========================================================
+Weaver — js/utils/zip.js
+V3.9: Minimal ZIP writer (STORE method, no compression).
+Used by the EPUB exporter. EPUB requires the mimetype entry
+first and uncompressed — an all-STORE zip satisfies both.
+========================================================= */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(bytes) {
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+/* files: [{ name: 'path/in/zip', bytes: Uint8Array }] — order matters. */
+export function buildZip(files) {
+  const enc = new TextEncoder();
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+  for (const f of files) {
+    const nameB = enc.encode(f.name);
+    const crc = crc32(f.bytes);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true);
+    lh.setUint16(4, 20, true);
+    lh.setUint16(6, 0, true);
+    lh.setUint16(8, 0, true);
+    lh.setUint16(10, 0, true);
+    lh.setUint16(12, 0x0021, true);
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, f.bytes.length, true);
+    lh.setUint32(22, f.bytes.length, true);
+    lh.setUint16(26, nameB.length, true);
+    lh.setUint16(28, 0, true);
+    chunks.push(new Uint8Array(lh.buffer), nameB, f.bytes);
+    central.push({ nameB, crc, size: f.bytes.length, offset });
+    offset += 30 + nameB.length + f.bytes.length;
+  }
+  const cdStart = offset;
+  let cdSize = 0;
+  for (const c of central) {
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true);
+    ch.setUint16(4, 20, true);
+    ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0, true);
+    ch.setUint16(10, 0, true);
+    ch.setUint16(12, 0, true);
+    ch.setUint16(14, 0x0021, true);
+    ch.setUint32(16, c.crc, true);
+    ch.setUint32(20, c.size, true);
+    ch.setUint32(24, c.size, true);
+    ch.setUint16(28, c.nameB.length, true);
+    ch.setUint16(30, 0, true);
+    ch.setUint16(32, 0, true);
+    ch.setUint16(34, 0, true);
+    ch.setUint16(36, 0, true);
+    ch.setUint32(38, 0, true);
+    ch.setUint32(42, c.offset, true);
+    chunks.push(new Uint8Array(ch.buffer), c.nameB);
+    cdSize += 46 + c.nameB.length;
+  }
+  const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 0x06054b50, true);
+  eocd.setUint16(4, 0, true);
+  eocd.setUint16(6, 0, true);
+  eocd.setUint16(8, central.length, true);
+  eocd.setUint16(10, central.length, true);
+  eocd.setUint32(12, cdSize, true);
+  eocd.setUint32(16, cdStart, true);
+  eocd.setUint16(20, 0, true);
+  chunks.push(new Uint8Array(eocd.buffer));
+  let total = 0;
+  for (const c of chunks) total += c.length;
+  const out = new Uint8Array(total);
+  let p = 0;
+  for (const c of chunks) { out.set(c, p); p += c.length; }
+  return out;
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/views/launch.js
+================================================================================
+/* =========================================================
+Weaver — js/views/launch.js
+Library dashboard.
+V4 Phase 1 + book tag: series grouping (collapsed by default,
+single line per entry) + optional "Book N" tag on each book.
+Ordering is unchanged: latest-edited stays on top (series and
+standalone sorted by most recent activity; books inside a
+series arrive newest-first from listProjects()).
+Self-styled: series/list styles injected here (STYLE_ID
+'launch-series-style'), so css/views.css is NOT touched.
+========================================================= */
+import { el, clear, toast, confirmDialog, weaverLogo } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import { listProjects, deleteProject, getActiveProject } from '../core/storage.js';
+import { openProject, subscribe } from '../core/state.js';
+import { openGuide } from '../features/guide.js';
+import { openSettings } from '../features/settings.js';
+
+/* ---------- injected styles (series grouping + book tag) ---------- */
+const STYLE_ID = 'launch-series-style';
+const CSS = `
+.launch-list{display:flex;flex-direction:column;gap:6px;width:min(960px,100%);}
+.launch-row{
+  display:flex;align-items:center;gap:10px;
+  min-width:0;height:44px;padding:0 12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+}
+.launch-row:hover{border-color:var(--border-strong);background:var(--surface-2);}
+.launch-row.is-active{border-color:rgba(224,168,60,.55);}
+.launch-chev{flex:none;color:var(--faint);}
+.launch-row.is-open .launch-chev{color:var(--accent);}
+.launch-series-name{
+  flex:0 1 auto;min-width:0;font-weight:600;font-size:.92rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.launch-books{display:flex;flex-direction:column;gap:6px;margin:2px 0 2px 30px;}
+.launch-book{height:42px;}
+.launch-book-icon{flex:none;color:var(--faint);}
+.launch-book-name{
+  flex:0 1 auto;min-width:0;font-size:.88rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.launch-booknum{
+  flex:none;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.04em;
+  color:var(--accent);border:1px solid rgba(224,168,60,.4);
+  background:rgba(224,168,60,.1);border-radius:999px;padding:2px 8px;
+  white-space:nowrap;
+}
+.launch-grow{flex:1 1 auto;min-width:0;}
+.launch-meta{
+  display:flex;align-items:center;gap:14px;flex:none;
+  font-family:var(--font-mono);font-size:.68rem;color:var(--faint);
+  white-space:nowrap;
+}
+.launch-meta .words{color:var(--muted);}
+.launch-row .btn-icon{flex:none;}
+@media (max-width:640px){
+  .launch-meta{gap:10px;}
+  .launch-meta .time{display:none;}
+  .launch-books{margin-left:18px;}
+}
+`;
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let root = null;
+let openWizardFn = null;
+const expandedSeries = new Set();   // collapsed by default
+
+export function setOpenWizard(fn) { openWizardFn = fn; }
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
+}
+
+async function askDelete(project) {
+  const words = project.wordCount || 0;
+  const seriesNote = project.seriesName
+    ? `It belongs to the series "${project.seriesName}" — if this is the last book in it, the shared series bible will also be removed.`
+    : '';
+  const ok = await confirmDialog({
+    title: 'Delete project',
+    message: `"${project.name}" (${words.toLocaleString()} words in Main Novel) will be permanently removed, including its manuscript and config bible.${seriesNote} Tip: use Export first if you want a local copy.`,
+    confirmLabel: 'Delete',
+    danger: true,
+  });
+  if (!ok) return;
+  deleteProject(project.id);
+  toast('Project deleted.', 'success');
+  renderLaunch();
+}
+
+/* ---------- grouping ---------- */
+function buildLibraryItems(projects) {
+  const seriesMap = new Map();
+  const items = [];
+  for (const p of projects) {
+    if (p.seriesId) {
+      let g = seriesMap.get(p.seriesId);
+      if (!g) {
+        g = { type: 'series', seriesId: p.seriesId, seriesName: p.seriesName || 'Series', books: [], latest: 0 };
+        seriesMap.set(p.seriesId, g);
+        items.push(g);
+      }
+      g.books.push(p);
+      if (p.updatedAt > g.latest) g.latest = p.updatedAt;
+    } else {
+      items.push({ type: 'project', project: p, latest: p.updatedAt });
+    }
+  }
+  items.sort((a, b) => b.latest - a.latest);
+  return items;
+}
+
+function toggleSeries(seriesId) {
+  if (expandedSeries.has(seriesId)) expandedSeries.delete(seriesId);
+  else expandedSeries.add(seriesId);
+  renderLaunch();
+}
+
+/* ---------- row builders ---------- */
+function seriesRow(group) {
+  const isOpen = expandedSeries.has(group.seriesId);
+  return el('div', {
+    class: 'launch-row launch-series' + (isOpen ? ' is-open' : ''),
+    title: isOpen ? 'Collapse series' : 'Expand series',
+    onclick: () => toggleSeries(group.seriesId),
+  }, [
+    icon(isOpen ? 'chevron-down' : 'chevron-right', 'icon-sm launch-chev'),
+    el('span', { class: 'launch-series-name', text: group.seriesName }),
+    el('span', { class: 'badge badge-accent', text: `${group.books.length} book${group.books.length === 1 ? '' : 's'}` }),
+    el('span', { class: 'launch-grow' }),
+    el('button', {
+      class: 'btn btn-ghost btn-icon btn-sm',
+      title: `Add another book to "${group.seriesName}"`,
+      'aria-label': `Add another book to ${group.seriesName}`,
+      onclick: (e) => { e.stopPropagation(); if (openWizardFn) openWizardFn({ seriesId: group.seriesId, seriesName: group.seriesName }); },
+    }, [icon('plus', 'icon-sm')]),
+  ]);
+}
+
+function bookNumberBadge(p) {
+    return p.seriesId && p.bookNumber
+    ? el('span', { class: 'launch-booknum', text: `Book ${p.bookNumber}` })
+    : null;
+}
+
+function metaSpans(p) {
+  return el('span', { class: 'launch-meta' }, [
+    el('span', { class: 'words', text: `${(p.wordCount || 0).toLocaleString()} words` }),
+    el('span', { class: 'time', text: `edited ${timeAgo(p.updatedAt)}` }),
+  ]);
+}
+
+function deleteBtn(p) {
+  return el('button', {
+    class: 'btn btn-ghost btn-icon btn-sm',
+    title: 'Delete',
+    'aria-label': `Delete ${p.name}`,
+    onclick: (e) => { e.stopPropagation(); askDelete(p); },
+  }, [icon('trash', 'icon-sm')]);
+}
+
+function bookRow(p) {
+  const active = getActiveProject() === p.id;
+  const kids = [icon('book', 'icon-sm launch-book-icon')];
+  const tag = bookNumberBadge(p);
+  if (tag) kids.push(tag);
+  kids.push(
+    el('span', { class: 'launch-book-name', text: p.name }),
+    el('span', { class: 'launch-grow' }),
+    metaSpans(p),
+    deleteBtn(p),
+  );
+  return el('div', {
+    class: 'launch-row launch-book' + (active ? ' is-active' : ''),
+    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
+  }, kids);
+}
+
+function projectRow(p) {
+  const active = getActiveProject() === p.id;
+  const kids = [icon('book', 'icon-sm launch-book-icon')];
+  const tag = bookNumberBadge(p);
+  if (tag) kids.push(tag);
+  kids.push(
+    el('span', { class: 'launch-book-name', text: p.name }),
+    el('span', { class: 'launch-grow' }),
+    metaSpans(p),
+    deleteBtn(p),
+  );
+  return el('div', {
+    class: 'launch-row launch-standalone' + (active ? ' is-active' : ''),
+    onclick: () => { if (!openProject(p.id)) toast('Could not open project.', 'danger'); },
+  }, kids);
+}
+
+function renderLibraryItem(item) {
+  if (item.type === 'series') {
+    const isOpen = expandedSeries.has(item.seriesId);
+    const kids = [seriesRow(item)];
+    if (isOpen) kids.push(el('div', { class: 'launch-books' }, item.books.map(bookRow)));
+    return el('div', { class: 'launch-group' }, kids);
+  }
+  return projectRow(item.project);
+}
+
+/* ---------- Hero: script W + wordmark + CTA ---------- */
+function hero(compact) {
+  const cta = el('button', {
+    class: 'btn btn-primary launch-cta',
+    title: 'Create a new project',
+    onclick: () => { if (openWizardFn) openWizardFn(); },
+  }, [icon('plus'), el('span', { text: 'New Project' })]);
+  const secondary = el('div', { class: 'launch-hero-sub' }, [
+    el('button', {
+      class: 'btn btn-ghost',
+      title: 'Read the quick-start guide',
+      onclick: () => openGuide(),
+    }, [icon('book'), el('span', { text: 'Getting Started' })]),
+    el('button', {
+      class: 'btn btn-ghost btn-icon',
+      title: 'Settings (account, backup, restore, cloud sync)',
+      'aria-label': 'Settings',
+      onclick: () => openSettings(),
+    }, [icon('gear')]),
+  ]);
+  const kids = [
+    el('div', { class: 'launch-hero-logo' }, [weaverLogo(compact ? 'md' : 'xl')]),
+    el('h1', { class: 'launch-hero-title', text: 'Weaver' }),
+    el('p', { class: 'launch-hero-tag', text: 'A private novel-writing studio. Your words stay yours.' }),
+    el('div', { class: 'launch-hero-actions' }, [cta, secondary]),
+  ];
+  if (!compact) {
+    kids.push(el('p', {
+      class: 'launch-hero-hint',
+      text: 'Your library is empty — begin your first novel above, or read the quick-start guide first.',
+    }));
+  }
+  return el('section', { class: 'launch-hero' + (compact ? ' is-compact' : '') }, kids);
+}
+
+export function renderLaunch() {
+  if (!root) return;
+  ensureStyle();
+  clear(root);
+  const projects = listProjects();
+  root.appendChild(hero(projects.length > 0));
+  if (!projects.length) return;
+  root.appendChild(el('div', { class: 'launch-lib-bar' }, [
+    el('span', { class: 'launch-lib-count', text: `Your library · ${projects.length} project${projects.length === 1 ? '' : 's'}` }),
+  ]));
+  const items = buildLibraryItems(projects);
+  root.appendChild(el('div', { class: 'launch-list' }, items.map(renderLibraryItem)));
+}
+
+export function initLaunch() {
+  root = document.getElementById('view-launch');
+  subscribe((state, change) => {
+    if (state.view !== 'launch') return;
+    if (change.view || change.project) renderLaunch();
+  });
+  renderLaunch();
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/views/wizard.js
+================================================================================
+/* =========================================================
+Weaver — js/views/wizard.js
+v2 Stage 6.6 + V4: New Project wizard.
+Name, scope (series name + book title + add-to-existing),
+source (scratch/upload incl. silent .docx conversion).
+V4: optional Book-number tag (Book 1, 2, 3…) stored on the
+project + meta so the Library can show it.
+Config bible: single "open Config Bible after creating"
+checkbox + optional hint line.
+========================================================= */
+import { el, clear, toast, modal } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import {
+  createProject, saveProject,
+  listSeries, getSeries, createSeries, addBookToSeries,
+  getSeriesConfig, configHasContent,
+} from '../core/storage.js';
+import { openProject } from '../core/state.js';
+import { setOpenWizard } from './launch.js';
+import { openConfigBible } from '../features/config-bible.js';
+import { readDocx } from '../utils/docx.js';
+import { normalizeNewlines } from '../utils/text.js';
+
+/* ---------- self-styled module (checkbox row) ---------- */
+const STYLE_ID = 'wizard-style';
+const CSS = `.wizard-toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer;user-select:none;color:var(--text);} .wizard-toggle input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;} .wizard-num{max-width:120px;}`;
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+/* ---------- Segmented picker helper ---------- */
+function segmented(options, initial) {
+  let value = initial;
+  let onChange = null;
+  const buttons = options.map((opt) =>
+    el('button', {
+      class: 'btn wizard-seg-btn' + (opt.value === initial ? ' is-selected' : ''),
+      dataset: { value: opt.value },
+      onclick: () => {
+        value = opt.value;
+        buttons.forEach((b) => b.classList.toggle('is-selected', b.dataset.value === value));
+        if (typeof onChange === 'function') onChange(value);
+      },
+    }, [icon(opt.icon), opt.label])
+  );
+  return {
+    node: el('div', { class: 'wizard-seg' }, buttons),
+    get: () => value,
+    onChange: (fn) => { onChange = fn; },
+  };
+}
+
+const DEFAULT_CONFIG_HINT =
+  'Optional — characters, places, plot arcs, world rules, prose style, and AI instructions. Add them any time from the Config button.';
+
+/* ---------- Wizard ---------- */
+export function openProjectWizard(prefill) {
+  ensureStyle();
+  let uploadedText = null;
+  let uploadedName = null;
+
+  /* ----- name / series / book fields ----- */
+  const nameInput = el('input', {
+    class: 'input', type: 'text', maxlength: '80',
+    placeholder: 'e.g. The Ashes of Avalon',
+  });
+  const nameField = el('div', { class: 'field' }, [
+    el('span', { class: 'field-label', text: 'Project name' }),
+    nameInput,
+  ]);
+
+  const seriesSelect = el('select', { class: 'select' });
+  const seriesNameInput = el('input', {
+    class: 'input', type: 'text', maxlength: '80', hidden: true,
+    placeholder: 'New series name…',
+  });
+  const seriesHint = el('span', { class: 'field-hint', hidden: true });
+  const seriesField = el('div', { class: 'field', hidden: true }, [
+    el('span', { class: 'field-label', text: 'Series' }),
+    seriesSelect,
+    seriesNameInput,
+    seriesHint,
+  ]);
+
+  const bookInput = el('input', {
+    class: 'input', type: 'text', maxlength: '80',
+    placeholder: 'e.g. Ashfall',
+  });
+  const bookField = el('div', { class: 'field', hidden: true }, [
+    el('span', { class: 'field-label', text: 'Book title' }),
+    bookInput,
+  ]);
+
+  /* V4: optional book-number tag */
+  const bookNumberInput = el('input', {
+    class: 'input wizard-num', type: 'number', min: '1', step: '1',
+    placeholder: 'e.g. 2',
+  });
+    const bookNumberField = el('div', { class: 'field', hidden: true }, [
+    el('span', { class: 'field-label', text: 'Book number (optional)' }),
+    bookNumberInput,
+    el('span', { class: 'field-hint', text: 'Shown as a tag in your Library. Leave blank if it isn\u2019t part of a numbered series.' }),
+  ]);
+
+  /* ----- scope ----- */
+  const scopeSeg = segmented([
+    { value: 'standalone', label: 'Standalone', icon: 'book' },
+    { value: 'series', label: 'Series installment', icon: 'library' },
+  ], 'standalone');
+
+  /* ----- source ----- */
+  const sourceSeg = segmented([
+    { value: 'scratch', label: 'Start from scratch', icon: 'pen' },
+    { value: 'upload', label: 'Upload manuscript', icon: 'upload' },
+  ], 'scratch');
+
+  /* ----- config bible: one checkbox + one hint line ----- */
+  const configCheck = el('input', { type: 'checkbox' });
+  const configHint = el('span', { class: 'field-hint', text: DEFAULT_CONFIG_HINT });
+  const configField = el('div', { class: 'field' }, [
+    el('span', { class: 'field-label', text: 'Config bible' }),
+    el('label', { class: 'wizard-toggle' }, [
+      configCheck,
+      el('span', { text: 'Open the Config Bible right after creating this project' }),
+    ]),
+    configHint,
+  ]);
+
+  /* ----- upload zone (txt / md / docx) ----- */
+  const uploadLabel = el('span', {
+    class: 'wizard-upload-hint',
+    text: 'Drop a .txt, .md or .docx file here, or click to choose one. (PDF keeps its own layout, so it can\u2019t be imported — export to .txt or .docx first.)',
+  });
+  const fileInput = el('input', {
+    type: 'file', accept: '.txt,.md,.markdown,.docx,text/plain', hidden: true,
+    onchange: (e) => { const f = e.target.files?.[0]; if (f) readFile(f); },
+  });
+  const uploadBox = el('div', {
+    class: 'wizard-upload',
+    onclick: () => fileInput.click(),
+    ondragover: (e) => { e.preventDefault(); uploadBox.classList.add('is-drag'); },
+    ondragleave: () => uploadBox.classList.remove('is-drag'),
+    ondrop: (e) => {
+      e.preventDefault();
+      uploadBox.classList.remove('is-drag');
+      const f = e.dataTransfer.files?.[0];
+      if (f) readFile(f);
+    },
+  }, [icon('upload', 'icon-lg'), uploadLabel, fileInput]);
+  const uploadRow = el('div', { class: 'field', hidden: true }, [
+    el('span', { class: 'field-label', text: 'Manuscript file' }),
+    uploadBox,
+  ]);
+  sourceSeg.onChange((v) => { uploadRow.hidden = v !== 'upload'; });
+
+  const SUPPORTED_RE = /\.(txt|md|markdown|docx)$/i;
+  function looksBinary(s) {
+    let bad = 0;
+    const n = Math.min(s.length, 4000);
+    for (let i = 0; i < n; i++) {
+      const c = s.charCodeAt(i);
+      if (c === 0 || c === 0xfffd) bad++;
+    }
+    return n > 0 && bad / n > 0.02;
+  }
+  async function readFile(file) {
+    try {
+      if (!SUPPORTED_RE.test(file.name)) {
+        toast(
+          /\.pdf$/i.test(file.name)
+            ? 'PDFs keep their own layout, so Weaver can\u2019t import them cleanly. Export the PDF to .txt or .docx first, then upload that.'
+            : `"${file.name}" isn\u2019t a supported format. Weaver imports .txt, .md and .docx only.`,
+          'info'
+        );
+        return;
+      }
+      if (/\.docx$/i.test(file.name)) {
+        const buf = await file.arrayBuffer();
+        const { text } = await readDocx(buf);
+        uploadedText = normalizeNewlines(text);
+      } else {
+        const raw = await file.text();
+        if (looksBinary(raw)) {
+          toast('That file doesn\u2019t look like plain text — it may be a PDF or another binary format with a renamed extension. Export it to .txt or .docx first.', 'info');
+          return;
+        }
+        uploadedText = normalizeNewlines(raw);
+      }
+      uploadedName = file.name;
+      const words = uploadedText.trim() ? uploadedText.trim().split(/\s+/).length : 0;
+      uploadLabel.textContent = `${file.name} — ${words.toLocaleString()} words loaded`;
+      uploadBox.classList.add('is-loaded');
+    } catch (err) {
+      toast(err.message || 'Could not read that file.', 'danger');
+    }
+  }
+
+  /* ----- series UI logic ----- */
+  function refreshSeriesOptions() {
+    clear(seriesSelect);
+    const series = listSeries();
+    for (const s of series) {
+      seriesSelect.appendChild(el('option', { value: s.id, text: s.name }));
+    }
+    seriesSelect.appendChild(
+      el('option', { value: '__new', text: series.length ? '+ New series…' : 'New series (first book)' })
+    );
+    seriesSelect.value = series.length ? series[0].id : '__new';
+    refreshSeriesUI();
+  }
+  function refreshSeriesUI() {
+    const isNew = seriesSelect.value === '__new';
+    seriesNameInput.hidden = !isNew;
+    const sid = isNew ? null : seriesSelect.value;
+    const inherited = sid && configHasContent(getSeriesConfig(sid));
+    configField.hidden = Boolean(inherited);
+    seriesHint.hidden = !inherited;
+    if (inherited) {
+      seriesHint.textContent = `Inherits the shared config bible of "${getSeries(sid).name}" — one bible persists across every book in the series.`;
+    } else if (!isNew) {
+      configHint.textContent = 'Optional — this bible will be shared with every book in the series. Add it any time from the Config button.';
+    } else {
+      configHint.textContent = DEFAULT_CONFIG_HINT;
+    }
+    validate();
+  }
+  seriesSelect.addEventListener('change', refreshSeriesUI);
+
+  scopeSeg.onChange((v) => {
+    const isSeries = v === 'series';
+    nameField.hidden = isSeries;
+    seriesField.hidden = !isSeries;
+    bookField.hidden = !isSeries;
+    bookNumberField.hidden = !isSeries;
+    if (isSeries) refreshSeriesOptions();
+    else validate();
+  });
+
+  /* ----- validation ----- */
+  const createBtn = el('button', {
+    class: 'btn btn-primary', text: 'Create Project', disabled: true,
+    onclick: () => create(),
+  });
+  function validate() {
+    let ok;
+    if (scopeSeg.get() === 'standalone') {
+      ok = nameInput.value.trim() !== '';
+    } else {
+      ok = bookInput.value.trim() !== '' &&
+        (seriesSelect.value !== '__new' || seriesNameInput.value.trim() !== '');
+    }
+    createBtn.disabled = !ok;
+  }
+  nameInput.addEventListener('input', validate);
+  bookInput.addEventListener('input', validate);
+  seriesNameInput.addEventListener('input', validate);
+
+  /* ----- modal ----- */
+  const m = modal({
+    title: 'New Project',
+    body: [
+      el('div', { class: 'field' }, [
+        el('span', { class: 'field-label', text: 'Scope' }),
+        scopeSeg.node,
+      ]),
+      nameField,
+      seriesField,
+      bookField,
+      bookNumberField,
+      el('div', { class: 'field' }, [
+        el('span', { class: 'field-label', text: 'Source' }),
+        sourceSeg.node,
+      ]),
+      uploadRow,
+      configField,
+    ],
+    footer: [
+      el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() }),
+      createBtn,
+    ],
+  });
+
+  /* ----- create ----- */
+  function create() {
+    const scope = scopeSeg.get();
+    let seriesId = null;
+    let seriesName = null;
+    if (scope === 'series') {
+      if (seriesSelect.value === '__new') {
+        const s = createSeries(seriesNameInput.value.trim());
+        seriesId = s.id;
+        seriesName = s.name;
+      } else {
+        seriesId = seriesSelect.value;
+        seriesName = getSeries(seriesId)?.name || 'Series';
+      }
+    }
+    const displayName = scope === 'series' ? bookInput.value.trim() : nameInput.value.trim();
+    if (!displayName) return;
+    if (sourceSeg.get() === 'upload' && !uploadedText) {
+      toast('Choose a manuscript file first, or switch to "Start from scratch".', 'danger');
+      return;
+    }
+    const bookNumber = parseInt(bookNumberInput.value, 10);
+    const inherited = seriesId && configHasContent(getSeriesConfig(seriesId));
+    const wantsConfigNow = configCheck.checked && !inherited;
+    const project = createProject({ name: displayName, scope, source: sourceSeg.get() });
+    project.seriesId = seriesId;
+    project.seriesName = seriesName;
+    project.bookTitle = scope === 'series' ? displayName : null;
+    project.bookNumber = Number.isFinite(bookNumber) && bookNumber > 0 ? bookNumber : null;
+    if (uploadedText) project.manuscript.text = uploadedText;
+    project.uploadedFileName = uploadedName || null;
+    project.configInitialized = Boolean(inherited) || wantsConfigNow;
+    if (seriesId) addBookToSeries(seriesId, project.id);
+    saveProject(project);
+    m.close();
+    if (!openProject(project.id)) {
+      toast('Project created but could not open.', 'danger');
+      return;
+    }
+    toast(
+      seriesName ? `"${displayName}" added to series "${seriesName}".` : `Project "${displayName}" created.`,
+      'success'
+    );
+    if (wantsConfigNow) openConfigBible();
+  }
+
+  /* V3.9: "Add book" prefill — open scoped to an existing series. */
+  if (prefill && prefill.seriesId) {
+    const seriesBtn = scopeSeg.node.querySelector('[data-value="series"]');
+    if (seriesBtn) seriesBtn.click();
+    const opt = Array.from(seriesSelect.options).find((o) => o.value === prefill.seriesId);
+    if (opt) {
+      seriesSelect.value = prefill.seriesId;
+      refreshSeriesUI();
+    }
+    setTimeout(() => bookInput.focus(), 60);
+  } else {
+    setTimeout(() => nameInput.focus(), 50);
+  }
+}
+
+export function initWizard() {
+  setOpenWizard(openProjectWizard);
+}
+
+
+================================================================================
+File: Weaver-4.1.1/js/views/workspace.js
+================================================================================
+/* =========================================================
+Weaver — js/views/workspace.js
+v2 Stage 7: BLANK-PROOF workspace + mobile panel fix.
+V3.3a: Plot button. V3.3c: Plot opens Plot Reference.
+V3.8: mobile panel pills (one full-height panel at a time,
+remember-last, AI attention dot). Panel stack pinned via CSS
+(position:fixed) so the footer always docks at the bottom.
+V4: Accept split footer · Cover button · Focus button ·
+Recheck return-slot tooltips.
+V4 mobile declutter: at ≤860px the topbar keeps ONLY Library
+and Config beside the title; every other tool folds into the
+⋯ sheet (Plot, Cover, Hierarchy, Export, Focus, Guide,
+Settings, Support). Desktop layout is unchanged.
+========================================================= */
+import { el, clear, weaverLogo } from '../utils/dom.js';
+import { icon } from '../utils/icons.js';
+import {
+  getState, setUI, closeProject, flushSave, subscribe,
+} from '../core/state.js';
+import * as msApi from '../panels/manuscript.js';
+import * as nvApi from '../panels/main-novel.js';
+import * as aiApi from '../panels/ai-output.js';
+import * as hrApi from '../features/hierarchy.js';
+import * as rzApi from '../core/resizers.js';
+import { openSettings } from '../features/settings.js';
+import { openGuide } from '../features/guide.js';
+import { exportProject } from '../features/export.js';
+import { openConfigBible } from '../features/config-bible.js';
+import { togglePlotReference } from '../features/plot-reference.js';
+import { openSupport } from '../features/support.js';
+import { autoSync } from '../features/cloud.js';
+
+/* ---------- defensive resolution ---------- */
+function pick(api, names) {
+  for (const n of names) if (typeof api[n] === 'function') return api[n];
+  return null;
+}
+const mountManuscript = pick(msApi, ['mountManuscript', 'initManuscript', 'mount', 'setup', 'init']);
+const renderManuscript = pick(msApi, ['renderManuscript', 'render']);
+const acceptAsIs = pick(msApi, ['acceptAsIs', 'accept', 'acceptBlock', 'acceptManuscript', 'acceptSelection']);
+const acceptWhole = pick(msApi, ['acceptWhole']);
+const mountNovel = pick(nvApi, ['mountMainNovel', 'initMainNovel', 'mount', 'init']);
+const renderNovel = pick(nvApi, ['renderMainNovel', 'render']);
+const recheckFn = pick(nvApi, ['recheck']);
+const initAi = pick(aiApi, ['initAiOutput', 'init', 'mount']);
+const acceptAi = pick(aiApi, ['acceptAiBlock']);
+const rewriteAi = pick(aiApi, ['rewriteAiBlock']);
+const discardAi = pick(aiApi, ['discardAiBlock']);
+const toggleHier = pick(hrApi, ['toggleHierarchyDrawer', 'toggleHierarchy', 'toggle']);
+const bindRz = pick(rzApi, ['bindResizers', 'initResizers']);
+const refreshRz = pick(rzApi, ['refreshLayout', 'refresh']);
+
+const MISSING = [];
+if (!mountManuscript) MISSING.push('manuscript mount (mountManuscript/initManuscript)');
+if (!renderManuscript) MISSING.push('manuscript render (renderManuscript)');
+if (!mountNovel) MISSING.push('main-novel mount (mountMainNovel)');
+if (!renderNovel) MISSING.push('main-novel render (renderMainNovel)');
+if (MISSING.length) console.warn('[Workspace] unresolved panel functions:', MISSING.join('; '));
+
+function safe(label, fn, ...args) {
+  if (typeof fn !== 'function') return false;
+  try { fn(...args); return true; }
+  catch (e) { console.warn(`[Workspace] ${label} failed:`, e); return false; }
+}
+
+const STYLE_ID = 'workspace-style';
+const CSS = `.resizer-line{pointer-events:none;position:absolute;background:rgba(255,255,255,0.06);} .tb-more{display:none;} .tb-more-glyph{font-size:1.15rem;line-height:1;} .tb-more-sheet{position:fixed;top:56px;right:8px;z-index:90;display:none;flex-direction:column;gap:6px;min-width:170px;max-width:240px;padding:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);} .tb-more-sheet.is-open{display:flex;} .tb-more-sheet .btn{justify-content:flex-start;} .tb-more-sheet .btn span{white-space:normal;} .panel-pills{display:none;} .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;} .pill.is-active{background:var(--accent-soft);border-color:rgba(224,168,60,.5);color:var(--accent);} .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;} @media (max-width:860px){ .topbar .tb-fold{display:none;} .topbar .tb-support{display:none;} .tb-more{display:inline-flex;} .workspace-panels{display:flex !important;flex-direction:column !important;position:fixed;left:0;right:0;bottom:0;top:104px;min-height:0;} .workspace-panels .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;width:100%;} .workspace-panels .panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;} .workspace-panels .panel-footer{flex:none;justify-content:center;padding:6px 64px calc(6px + env(safe-area-inset-bottom, 0px));} .panel{border-color:transparent !important;} .panel-resizer{display:block;height:16px;width:100%;cursor:row-resize;touch-action:none;} .panel-resizer .resizer-line{left:0;right:0;top:7px;height:2px;background:transparent;} .topbar .btn-label{display:none;} .topbar .btn{padding:8px;width:34px;height:34px;flex:none;} .topbar .scribe-bar{display:none;} .topbar-title{font-size:.95rem;} .panel-pills{display:flex;gap:6px;padding:8px 10px 2px;overflow-x:auto;flex:none;} .panel-footer .btn{flex:0 0 auto;width:34px;height:34px;padding:0;justify-content:center;} .panel-footer .btn-label{display:none;} .panel-footer .btn-icon{display:inline-flex;} .panel-actions .btn-icon{display:none;} }`;
+function ensureStyle() {
+  if (!document.getElementById(STYLE_ID)) {
+    const s = document.createElement('style');
+    s.id = STYLE_ID;
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+}
+
+let root = null;
+let panelsEl = null;
+let panelRefs = null;
+let pillRefs = null;
+let mobilePanel = 'manuscript';
+let aiDot = false;
+let aiObserver = null;
+
+function isMobileLayout() {
+  return window.matchMedia('(max-width:860px)').matches;
+}
+
+function setMobilePanel(key) {
+  mobilePanel = key;
+  if (key === 'ai') aiDot = false;
+  applyExpanded();
+}
+
+function updatePills() {
+  if (!pillRefs) return;
+  for (const key of ['manuscript', 'novel', 'ai']) {
+    if (pillRefs[key]) pillRefs[key].classList.toggle('is-active', key === mobilePanel);
+  }
+  if (pillRefs.aiDot) pillRefs.aiDot.hidden = !aiDot;
+}
+
+function topBtn(key, iconName, label, onclick) {
+  return el('button', {
+    class: 'btn btn-ghost',
+    dataset: { topbar: key },
+    title: label,
+    onclick,
+  }, [icon(iconName), el('span', { class: 'btn-label', text: label })]);
+}
+
+/* ---------- mobile "More" sheet (holds every folded tool) ---------- */
+let moreSheet = null;
+let moreBtnRef = null;
+function ensureMoreSheet() {
+  if (moreSheet) return moreSheet;
+  moreSheet = el('div', { class: 'tb-more-sheet' }, [
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); togglePlotReference(); } }, [icon('file-text', 'icon-sm'), el('span', { text: 'Plot' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); import('../features/cover-gen.js').then((m) => m.openCoverGenerator()); } }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Cover' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); if (toggleHier) toggleHier(); } }, [icon('tree', 'icon-sm'), el('span', { text: 'Hierarchy' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); exportProject(); } }, [icon('download', 'icon-sm'), el('span', { text: 'Export' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); import('../features/focus-mode.js').then((m) => m.toggleFocusMode()); } }, [icon('expand', 'icon-sm'), el('span', { text: 'Focus' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openGuide(); } }, [icon('book', 'icon-sm'), el('span', { text: 'Guide' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSettings(); } }, [icon('gear', 'icon-sm'), el('span', { text: 'Settings' })]),
+    el('button', { class: 'btn btn-sm', onclick: () => { closeMoreSheet(); openSupport(); } }, [icon('send', 'icon-sm'), el('span', { text: 'Support' })]),
+  ]);
+  document.body.appendChild(moreSheet);
+  document.addEventListener('click', (e) => {
+    if (!moreSheet.classList.contains('is-open')) return;
+    if (moreSheet.contains(e.target) || (moreBtnRef && moreBtnRef.contains(e.target))) return;
+    closeMoreSheet();
+  });
+  return moreSheet;
+}
+function toggleMoreSheet() {
+  ensureMoreSheet().classList.toggle('is-open');
+}
+function closeMoreSheet() {
+  if (moreSheet) moreSheet.classList.remove('is-open');
+}
+
+function buildPanel(key, iconName, title, actions = []) {
+  const header = el('header', { class: 'panel-header' }, [
+    el('div', { class: 'panel-title' }, [icon(iconName), el('span', { text: title })]),
+    el('div', { class: 'panel-actions' }, actions),
+  ]);
+  const body = el('div', { class: 'panel-body', dataset: { panelBody: key } });
+  const footer = el('footer', { class: 'panel-footer', dataset: { panelFooter: key } });
+  const panel = el('section', { class: `panel panel-${key}`, dataset: { panel: key } }, [header, body, footer]);
+  return { panel, header, body, footer };
+}
+
+function resizer(after) {
+  return el('div', {
+    class: 'panel-resizer',
+    dataset: { resizerAfter: after },
+    title: 'Drag to resize · double-click to reset',
+  }, [el('div', { class: 'resizer-line' })]);
+}
+
+export function renderWorkspace() {
+  if (!root) return;
+  ensureStyle();
+  clear(root);
+  const state = getState();
+  const project = state.project;
+  if (!project) return;
+
+  /* Left cluster: Config stays on mobile; Plot/Cover/Hierarchy fold. */
+  const plotBtn = topBtn('plot', 'file-text', 'Plot', () => togglePlotReference());
+  const coverBtn = topBtn('cover', 'sparkles', 'Cover', () => import('../features/cover-gen.js').then((m) => m.openCoverGenerator()));
+  const hierBtn = topBtn('hierarchy', 'tree', 'Hierarchy', () => {
+    if (toggleHier) toggleHier();
+  });
+  plotBtn.classList.add('tb-fold');
+  coverBtn.classList.add('tb-fold');
+  hierBtn.classList.add('tb-fold');
+
+  const topbar = el('header', { class: 'topbar' }, [
+    el('div', { class: 'topbar-left' }, [
+      weaverLogo('sm'),
+      topBtn('config', 'sliders', 'Config', () => openConfigBible()),
+      plotBtn,
+      coverBtn,
+      hierBtn,
+    ]),
+    el('div', { class: 'topbar-center' }, [
+      el('h1', { class: 'topbar-title', text: project.name }),
+      el('span', {
+        class: 'topbar-sub',
+        text: project.seriesName ? `${project.seriesName} · ${project.bookTitle || ''}` : 'standalone',
+      }),
+    ]),
+    (() => {
+      /* Right cluster: Library stays on mobile; the rest fold into ⋯. */
+      const guideBtn = topBtn('guide', 'book', 'Guide', () => openGuide());
+      const exportBtn = topBtn('export', 'download', 'Export', () => exportProject());
+      const focusBtn = topBtn('focus', 'expand', 'Focus', () => import('../features/focus-mode.js').then((m) => m.toggleFocusMode()));
+      const settingsBtn = topBtn('settings', 'gear', 'Settings', () => openSettings());
+      guideBtn.classList.add('tb-fold');
+      exportBtn.classList.add('tb-fold');
+      focusBtn.classList.add('tb-fold');
+      settingsBtn.classList.add('tb-fold');
+      moreBtnRef = el('button', {
+        class: 'btn btn-ghost tb-more',
+        title: 'More tools',
+        'aria-label': 'More tools',
+        onclick: () => toggleMoreSheet(),
+      }, [el('span', { class: 'tb-more-glyph', text: '⋯' })]);
+      return el('div', { class: 'topbar-right' }, [
+        topBtn('library', 'library', 'Library', () => { flushSave(); autoSync(); closeProject(); }),
+        guideBtn,
+        exportBtn,
+        focusBtn,
+        settingsBtn,
+        moreBtnRef,
+      ]);
+    })(),
+  ]);
+
+  const expandBtn = (target) => el('button', {
+    class: 'btn btn-ghost btn-icon btn-sm',
+    title: 'Expand panel',
+    'aria-label': 'Expand panel',
+    onclick: () => setUI({ expandedPanel: state.ui.expandedPanel === target ? null : target }),
+  }, [icon('expand', 'icon-sm')]);
+
+  const manuscript = buildPanel('manuscript', 'pen', 'Manuscript', [expandBtn('manuscript')]);
+  const novel = buildPanel('novel', 'book-open', 'Main Novel', [expandBtn('novel')]);
+  const ai = buildPanel('ai', 'sparkles', 'AI Output', [expandBtn('ai')]);
+
+  if (recheckFn) {
+    novel.footer.appendChild(el('button', {
+      class: 'btn btn-sm',
+      title: 'Cut selected text to the Manuscript for revision — it returns to this spot when you accept',
+      onclick: () => recheckFn(),
+    }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Recheck' })]));
+  }
+
+  if (acceptAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-primary', title: 'Accept block into Main Novel', onclick: () => acceptAi() }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept' })]));
+  if (rewriteAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm', title: 'Rewrite block with the same prompt', onclick: () => rewriteAi() }, [icon('refresh', 'icon-sm'), el('span', { class: 'btn-label', text: 'Rewrite' })]));
+  if (discardAi) ai.footer.appendChild(el('button', { class: 'btn btn-sm btn-danger', title: 'Discard block', onclick: () => discardAi() }, [icon('trash', 'icon-sm'), el('span', { class: 'btn-label', text: 'Discard' })]));
+
+  ai.body.appendChild(el('div', { class: 'empty-state' }, [
+    icon('sparkles', 'icon-lg'),
+    el('p', { text: 'AI generations will appear here.' }),
+  ]));
+
+  const r1 = resizer('manuscript');
+  const r2 = resizer('novel');
+  panelsEl = el('div', {
+    class: 'workspace-panels',
+    dataset: { active: 'manuscript' },
+  }, [manuscript.panel, r1, novel.panel, r2, ai.panel]);
+
+  panelRefs = {
+    panels: [manuscript.panel, novel.panel, ai.panel],
+    resizers: [r1, r2],
+  };
+
+  /* Mobile pill bar (hidden on desktop via CSS) */
+  const pillsBar = el('div', { class: 'panel-pills' });
+  pillRefs = {};
+  const pillDefs = [
+    ['manuscript', 'pen', 'Manuscript'],
+    ['novel', 'book-open', 'Main Novel'],
+    ['ai', 'sparkles', 'AI Output'],
+  ];
+  for (const [key, iconName, label] of pillDefs) {
+    const children = [icon(iconName, 'icon-sm'), el('span', { text: label })];
+    if (key === 'ai') {
+      pillRefs.aiDot = el('span', { class: 'pill-dot', hidden: true });
+      children.push(pillRefs.aiDot);
+    }
+    const btn = el('button', { class: 'pill', onclick: () => setMobilePanel(key) }, children);
+    pillRefs[key] = btn;
+    pillsBar.appendChild(btn);
+  }
+
+  const kids = [];
+  if (MISSING.length) {
+    kids.push(el('div', {
+      style: {
+        padding: '8px 14px',
+        background: 'rgba(224,168,60,.12)',
+        border: '1px solid rgba(224,168,60,.4)',
+        color: 'var(--accent)',
+        fontSize: '.78rem',
+      },
+      text: `Workspace degraded — unresolved: ${MISSING.join('; ')}. Screenshot this for support.`,
+    }));
+  }
+  kids.push(topbar, pillsBar, panelsEl);
+  root.append(...kids);
+
+  if (bindRz) safe('bindResizers', bindRz, { container: panelsEl, panels: panelRefs.panels, resizers: panelRefs.resizers });
+  applyExpanded();
+
+  /* Gold dot when a generation lands while you're on another panel (mobile) */
+  if (aiObserver) aiObserver.disconnect();
+  if (typeof MutationObserver !== 'undefined') {
+    aiObserver = new MutationObserver(() => {
+      if (isMobileLayout() && mobilePanel !== 'ai') { aiDot = true; updatePills(); }
+    });
+    aiObserver.observe(ai.body, { childList: true });
+  }
+
+  if (!safe('mountManuscript(panel)', mountManuscript, manuscript.panel)) {
+    safe('mountManuscript(body)', mountManuscript, manuscript.body);
+  }
+  if (!safe('mountMainNovel(panel)', mountNovel, novel.panel)) {
+    safe('mountMainNovel(body)', mountNovel, novel.body);
+  }
+  safe('renderManuscript', renderManuscript);
+  safe('renderMainNovel', renderNovel);
+
+  /* V4: Accept split — two explicit buttons. */
+  if (acceptAsIs && manuscript.footer.children.length === 0) {
+    manuscript.footer.appendChild(el('button', {
+      class: 'btn btn-sm btn-primary',
+      title: 'Accept highlighted text into the Main Novel — returns to its rechecked spot if one is pending',
+      onclick: () => acceptAsIs(),
+    }, [icon('check', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept highlighted' })]));
+    if (acceptWhole) {
+      manuscript.footer.appendChild(el('button', {
+        class: 'btn btn-sm',
+        title: 'Accept the entire Manuscript into Main Novel and clear the Manuscript',
+        onclick: () => acceptWhole(),
+      }, [icon('book-open', 'icon-sm'), el('span', { class: 'btn-label', text: 'Accept whole' })]));
+    }
+  }
+}
+
+function applyExpanded() {
+  if (!panelRefs) return;
+  const keys = ['manuscript', 'novel', 'ai'];
+  if (isMobileLayout()) {
+    keys.forEach((key, i) => {
+      panelRefs.panels[i].style.display = (key === mobilePanel) ? '' : 'none';
+    });
+    panelRefs.resizers.forEach((r) => { r.style.display = 'none'; });
+    /* Refine the CSS-pinned top edge to sit flush under the pill bar
+    (handles wrapped titles, banners, rotation). */
+    const anchor = (root && (root.querySelector('.panel-pills') || root.querySelector('.topbar'))) || null;
+    const topPx = anchor ? Math.round(anchor.getBoundingClientRect().bottom) : 104;
+    const s = panelsEl.style;
+    s.position = 'fixed';
+    s.left = '0';
+    s.right = '0';
+    s.bottom = '0';
+    s.top = topPx + 'px';
+    s.display = 'flex';
+    s.flexDirection = 'column';
+    updatePills();
+    if (refreshRz) safe('refreshLayout', refreshRz);
+    return;
+  }
+  const s = panelsEl.style;
+  s.position = ''; s.left = ''; s.right = ''; s.bottom = ''; s.top = '';
+  s.display = ''; s.flexDirection = '';
+  const expanded = getState().ui.expandedPanel;
+  keys.forEach((key, i) => {
+    panelRefs.panels[i].style.display = (!expanded || expanded === key) ? '' : 'none';
+  });
+  panelRefs.resizers.forEach((r) => { r.style.display = expanded ? 'none' : ''; });
+  if (refreshRz) safe('refreshLayout', refreshRz);
+}
+
+export function initWorkspace() {
+  root = document.getElementById('view-workspace');
+  safe('initAiOutput', initAi);
+  const mq = window.matchMedia('(max-width:860px)');
+  const onMq = () => applyExpanded();
+  if (mq.addEventListener) mq.addEventListener('change', onMq);
+  else if (mq.addListener) mq.addListener(onMq);
+  window.addEventListener('resize', () => applyExpanded());
+  subscribeWorkspace();
+}
+
+function subscribeWorkspace() {
+  subscribe((state, change) => {
+    if (change.ui) applyExpanded();
+    if (state.view !== 'workspace') return;
+    if (change.view) renderWorkspace();
+  });
+}
+
+
+================================================================================
+File: Weaver-4.1.1/README.md
+================================================================================
+# Weaver
+
+A modular, client-side workspace for structuring, refining, and generating
+long-form creative writing. Combines user drafts, a finalized-text repository,
+and AI generation in a synchronized three-panel interface with automatic
+4-tier dynamic API fallback (Groq → OpenRouter → Gemini → Mistral).
+
+## Live app
+Deploys automatically to GitHub Pages on **every push to `main`** —
+no manual workflow runs required.
+
+## One-time repository setup
+1. Repo → **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+2. Done. All future commits deploy themselves.
+
+## File structure
+```text
+.
+├── .github/workflows/deploy-pages.yml   # Pages pipeline (create once)
+├── index.html                           # Shell + view containers
+├── css/
+│   └── base.css                         # Tokens, reset, splash
+├── js/
+│   └── app.js                           # Bootstrap / entry point
+└── README.md
+
+
+================================================================================
+File: Weaver-4.1.1/welcome/features.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weaver — Features tour</title>
+<meta name="description" content="Tour the Weaver studio: Manuscript, Main Novel, Config Bible, Plot Builder, Scribe, series, cloud vault and export.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='25' font-family='Georgia,serif' font-style='italic' font-size='24' fill='%23e0a43c'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <span class="brand"><b>W</b>eaver</span>
+  <div class="nav-links"><a href="index.html">Home</a><a href="pricing.html">Pricing</a></div>
+  <a class="btn btn-gold" href="../">Open Weaver</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">The tour</p>
+  <h1>Every tool a novel needs. None it doesn't.</h1>
+  <p class="sub">Nine rooms in the studio, each built for one job in the life of a book.</p>
+</div></header>
+
+<section><div class="wrap">
+  <div class="grid3">
+    <div class="card"><span class="k">Write</span><h3>Manuscript & Main Novel</h3><p>Draft freely in the Manuscript; finalize cleanly into the Main Novel. One source of truth, always — no duplicated chapters, no version archaeology.</p></div>
+    <div class="card"><span class="k">Remember</span><h3>Config Bible</h3><p>Characters, places, world rules, prose style and AI instructions in one living reference — the contract every generation must obey.</p></div>
+    <div class="card"><span class="k">Plan</span><h3>Plot Builder</h3><p>Arcs, beats and dependencies at a glance, so structure problems surface in planning, not in draft three.</p></div>
+    <div class="card"><span class="k">Draft</span><h3>Scribe</h3><p>AI drafting in your voice and canon, with accept, rewrite and discard on every block. You stay the author; it stays the assistant.</p></div>
+    <div class="card"><span class="k">Series</span><h3>Series & shared bibles</h3><p>One canon across every book in a series, with new books added any time — the bible persists, the story grows.</p></div>
+    <div class="card"><span class="k">Capture</span><h3>Notes</h3><p>A scratchpad one tap or shortcut away, for the idea that arrives mid-sentence. It saves, syncs, and gets out of your way.</p></div>
+    <div class="card"><span class="k">Protect</span><h3>Cloud Vault</h3><p>Encrypted sync and backup across your devices, with automatic saving as you write. Pro keeps every device in step.</p></div>
+    <div class="card"><span class="k">Ship</span><h3>Export</h3><p>.doc for editors and beta readers, market-ready EPUB for shelves (Pro), .txt for anything else. Your book leaves in the shape you need.</p></div>
+    <div class="card"><span class="k">Help</span><h3>Support that answers</h3><p>Instant support lookups inside the app, threaded replies you can re-read any time, and a human within one business day when it matters.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap cta-row">
+  <a class="btn btn-gold" href="../">Start free today</a>
+  <a class="btn btn-ghost" href="pricing.html">See what Pro adds</a>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <!-- COMPANY NAME (spot 2 of 2) -->
+  <span>Weaver is built and shipped by LegendAlive Studio. © 2026</span>
+  <div class="foot-links"><a href="index.html">Home</a><a href="pricing.html">Pricing</a><a href="../">Open Weaver</a></div>
+</div></footer>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/welcome/index.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weaver — The private novel-writing studio</title>
+<meta name="description" content="Weaver is a private writing studio for novelists: draft, structure and finish your book with AI that follows your canon, on files you own.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='25' font-family='Georgia,serif' font-style='italic' font-size='24' fill='%23e0a43c'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <span class="brand"><b>W</b>eaver</span>
+  <div class="nav-links"><a href="pricing.html">Pricing</a><a href="features.html">Features</a></div>
+  <a class="btn btn-gold" href="../">Open Weaver</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <!-- COMPANY NAME (spot 1 of 2) -->
+  <p class="eyebrow">A LegendAlive Studio product</p>
+  <h1>The novel studio that never reads your manuscript.</h1>
+  <p class="sub">Weaver is a private writing studio for novelists — draft, structure and finish your book with AI that follows your canon, on files you own and can export any time.</p>
+  <div class="cta-row">
+    <a class="btn btn-gold" href="../">Start writing — free</a>
+    <a class="btn btn-ghost" href="pricing.html">See pricing</a>
+  </div>
+</div></header>
+
+<section><div class="wrap">
+  <h2>What Weaver is</h2>
+  <p class="lead">Not a word processor with a chatbot bolted on. A complete pipeline for turning ideas into finished, shelved books.</p>
+  <div class="grid3">
+    <div class="card"><span class="k">Pipeline</span><h3>A complete book pipeline</h3><p>Draft in the Manuscript, finalize into the Main Novel, keep series-wide truth in one bible, and export a market-ready file when you're done.</p></div>
+    <div class="card"><span class="k">Structure</span><h3>Structure before prose</h3><p>The Config Bible holds your characters, places, world rules and prose style; the Plot Builder keeps arcs and beats in view — so chapter thirty never contradicts chapter one.</p></div>
+    <div class="card"><span class="k">AI, disciplined</span><h3>AI with a memory for your world</h3><p>Scribe drafts from your bible and your plot — not from the public internet — so names, places and voice stay yours.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Why writers switch to Weaver</h2>
+  <p class="lead">Three promises most writing tools can't make, because their business models won't let them.</p>
+  <div class="grid3">
+    <div class="card"><span class="k">Privacy</span><h3>Private by architecture, not by promise</h3><p>Local-first files, an encrypted cloud vault, exports you control, and AI providers that don't train on your work.</p><p class="vs">Elsewhere: your manuscript is the product — mined, stored and locked in someone else's cloud.</p></div>
+    <div class="card"><span class="k">Consistency</span><h3>AI that stays in your canon</h3><p>Every generation is grounded in your bible and plot, so the prose sounds like your book, not like a template.</p><p class="vs">Elsewhere: a chatbot that forgets chapter one by chapter three.</p></div>
+    <div class="card"><span class="k">Purpose-built</span><h3>Built for novels, not documents</h3><p>Series with shared bibles, chapter-aware workflow, notes one tap away, EPUB out the door.</p><p class="vs">Elsewhere: a word processor bent until it almost fits fiction.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap cta-row">
+  <a class="btn btn-gold" href="../">Open Weaver — it's free to start</a>
+  <a class="btn btn-ghost" href="features.html">Take the full tour</a>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <!-- COMPANY NAME (spot 2 of 2) -->
+  <span>Weaver is built and shipped by LegendAlive Studio. © 2026</span>
+  <div class="foot-links"><a href="pricing.html">Pricing</a><a href="features.html">Features</a><a href="../">Open Weaver</a></div>
+</div></footer>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/welcome/pricing.html
+================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weaver — Pricing</title>
+<meta name="description" content="Weaver Free forever, or Weaver Pro with cloud vault and canon-aware AI. Monthly, yearly, or one-time.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='2' y='25' font-family='Georgia,serif' font-style='italic' font-size='24' fill='%23e0a43c'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <span class="brand"><b>W</b>eaver</span>
+  <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a></div>
+  <a class="btn btn-gold" href="../">Open Weaver</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">Pricing</p>
+  <h1>One upgrade. The whole studio.</h1>
+  <p class="sub">Start free and stay free as long as you like. Go Pro when you want your books in the cloud and canon-aware AI at your side — pay monthly, yearly, or once.</p>
+</div></header>
+
+<section><div class="wrap">
+  <div class="grid2">
+    <div class="card"><span class="k">Free forever</span><h3>The Writer's Desk</h3>
+      <ul class="tick">
+        <li>Unlimited manuscripts, projects and series</li>
+        <li>Project Bible for characters, places and world rules</li>
+        <li>Plot Builder boards for arcs and beats</li>
+        <li>Notes — a scratchpad one tap from your prose</li>
+        <li>Local-first storage on your own device</li>
+        <li>Export .doc and .txt any time</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--gold)"><span class="k">Pro</span><h3>The Full Studio</h3>
+      <ul class="tick">
+        <li>Everything in Free</li>
+        <li>Cloud vault — encrypted sync and backup across devices</li>
+        <li>Scribe: AI drafting grounded in your bible and voice</li>
+        <li>AI Plot Builder suggestions when you're stuck</li>
+        <li>AI-assisted bible and project setup from a seed idea</li>
+        <li>Market-ready EPUB export, alongside .doc</li>
+        <li>Expanded support-lookup limits and priority replies</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Choose how you pay</h2>
+  <p class="lead">Checkout is handled securely by Gumroad. Use the same email you sign in to Weaver with.</p>
+    <div class="price-grid">
+    <div class="price">
+      <span class="badge">Monthly</span>
+      <span class="amt">$8</span><span class="per">per month</span>
+      <p class="note">Cancel any time. Everything you wrote stays yours.</p>
+      <a class="btn btn-ghost" href="https://mbenson62.gumroad.com/l/weaver-monthly">Buy monthly</a>
+    </div>
+    <div class="price hot">
+      <span class="badge">Yearly · best value</span>
+      <span class="amt">$60</span><span class="per">per year</span>
+      <p class="note">Over four months free, every year you stay.</p>
+      <a class="btn btn-gold" href="https://mbenson62.gumroad.com/l/weaver-yearly">Buy yearly</a>
+    </div>
+    <div class="price">
+      <span class="badge">Lifetime</span>
+      <span class="amt">$149</span><span class="per">one time</span>
+      <p class="note">Pay once, write forever. All future studio updates included.</p>
+      <a class="btn btn-ghost" href="https://mbenson62.gumroad.com/l/weaver-lifetime">Buy lifetime</a>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="grid3">
+    <div class="card"><h3>Your files are yours</h3><p>Export everything any time, on any plan. Cancel Pro and your manuscripts remain on your device and in your exports.</p></div>
+    <div class="card"><h3>No training on your work</h3><p>Your manuscripts are never used to train models — ours or anyone else's. That's architecture, not a policy page.</p></div>
+    <div class="card"><h3>Switch whenever</h3><p>Upgrade, downgrade or move between monthly and yearly at any point; Pro time stacks.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Questions writers ask first</h2>
+  <div class="faq">
+    <details><summary>What happens to my books if I cancel Pro?</summary><p>Nothing is deleted. Your manuscripts stay on your device and in any exports you've made; the cloud vault holds your backup while Pro is active, and you can re-sync any time you return.</p></details>
+    <details><summary>Does the AI read or train on my manuscript?</summary><p>Generations use your bible and the passage you're working on, sent over encrypted connections to providers that don't train on customer content. Your book is never added to a model.</p></details>
+    <details><summary>Can I start free and upgrade mid-book?</summary><p>Yes — most writers do. Your projects, bibles and notes carry over exactly as they are the moment Pro activates.</p></details>
+    <details><summary>What payment methods work?</summary><p>Gumroad checkout accepts major cards and PayPal. Use the same email as your Weaver account so Pro activates on your sign-in.</p></details>
+  </div>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <span>Weaver is built and shipped by LegendAlive Studio. © 2026</span>
+  <div class="foot-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="../">Open Weaver</a></div>
+</div></footer>
+</body>
+</html>
+
+
+================================================================================
+File: Weaver-4.1.1/welcome/site.css
+================================================================================
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f0d0a;--surface:#171410;--surface2:#1f1b15;--border:#2c2822;--text:#ece7dd;--muted:#a29b8f;--faint:#6f695f;--gold:#e0a43c;--gold-soft:rgba(224,164,60,.12);--serif:Georgia,'Iowan Old Style','Times New Roman',serif;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65}
+a{color:var(--gold);text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:10;background:rgba(15,13,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.nav-in{display:flex;align-items:center;gap:20px;height:60px}
+.brand{font-family:var(--serif);font-style:italic;font-size:1.3rem;color:var(--text)}
+.brand b{color:var(--gold)}
+.nav-links{display:flex;gap:18px;margin-right:auto}
+.nav-links a{color:var(--muted);font-size:.9rem;font-weight:600}
+.nav-links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:650;font-size:.95rem;border:1px solid transparent;cursor:pointer;transition:.18s}
+.btn-gold{background:var(--gold);color:#17130a}
+.btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--gold)}
+.hero{padding:96px 0 72px;text-align:center;background:radial-gradient(1200px 500px at 50% -10%,rgba(224,164,60,.14),transparent)}
+.eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+h1{font-family:var(--serif);font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.12;font-weight:600;margin-bottom:18px}
+.sub{font-size:1.12rem;color:var(--muted);max-width:640px;margin:0 auto 34px}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+section{padding:64px 0}
+h2{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:14px}
+.lead{color:var(--muted);max-width:680px;margin-bottom:36px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px}
+.card h3{font-family:var(--serif);font-size:1.15rem;margin-bottom:10px;color:var(--text)}
+.card p{font-size:.92rem;color:var(--muted)}
+.card .k{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block}
+.vs{color:var(--faint);font-size:.85rem;margin-top:12px;font-style:italic}
+ul.tick{list-style:none;display:flex;flex-direction:column;gap:10px;margin:18px 0}
+ul.tick li{padding-left:26px;position:relative;font-size:.94rem;color:var(--muted)}
+ul.tick li:before{content:'✓';position:absolute;left:0;color:var(--gold);font-weight:700}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.price{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:6px}
+.price.hot{border-color:var(--gold);background:linear-gradient(180deg,var(--gold-soft),var(--surface) 55%)}
+.price .amt{font-family:var(--serif);font-size:2.4rem;color:var(--text)}
+.price .per{color:var(--faint);font-size:.85rem}
+.price .note{color:var(--muted);font-size:.88rem;margin:6px 0 16px}
+.price .btn{margin-top:auto}
+.badge{display:inline-block;background:var(--gold-soft);color:var(--gold);border-radius:999px;padding:3px 10px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+footer{border-top:1px solid var(--border);padding:36px 0;margin-top:40px}
+.foot-in{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;color:var(--faint);font-size:.85rem}
+.foot-links{display:flex;gap:16px}
+.foot-links a{color:var(--muted)}
+.faq{display:flex;flex-direction:column;gap:14px;max-width:760px}
+.faq details{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.faq summary{cursor:pointer;font-weight:600;font-size:.95rem}
+.faq p{margin-top:10px;color:var(--muted);font-size:.9rem}
+@media(max-width:860px){.grid3,.grid2,.price-grid{grid-template-columns:1fr}.hero{padding:64px 0 48px}.nav-in{gap:12px}.nav-links{gap:12px}}
+
+>>>
 
 ## 3. WEAVER-SERVER BACKEND BUNDLE
 <<<PASTE_SLOT_B: Delete this line and paste the ENTIRE weaver-server bundle here (your bundler output with the === File [n/N] markers).>>>
