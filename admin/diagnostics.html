@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaver — Diagnostics</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0b0c; color: #e8e5dd;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 18px;
+  }
+  .card {
+    width: min(860px, 100%); background: #141416;
+    border: 1px solid #2b2b30; border-radius: 14px; padding: 26px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.55);
+  }
+  h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
+  .sub { color: #94918a; font-size: .8rem; margin-bottom: 18px; line-height: 1.55; }
+  .gate { text-align: center; padding: 30px 10px; color: #94918a; font-size: .9rem; line-height: 1.6; }
+  .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
+  .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
+  .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
+  .bundle-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    padding: 10px 12px; background: #1c1c20; border: 1px solid #2b2b30; border-radius: 10px; margin-bottom: 14px;
+  }
+  .bundle-status { font-size: .76rem; color: #94918a; font-family: monospace; font-family: "JetBrains Mono", monospace; }
+  textarea {
+    width: 100%; padding: 12px; font-size: .9rem; color: #e8e5dd;
+    border: 1px solid #3a3a40; border-radius: 10px; background: #0f0f11;
+    font-family: inherit; line-height: 1.55; resize: vertical; min-height: 96px;
+  }
+  textarea:focus { outline: none; border-color: #e0a43c; }
+  .row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+  button {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid #3a3a40;
+    background: #1c1c20; color: #e8e5dd; font-size: .88rem; font-weight: 600; cursor: pointer;
+  }
+  button.primary { background: #e0a43c; border-color: #e0a43c; color: #17130a; }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.sm { padding: 7px 12px; font-size: .78rem; }
+  pre#output {
+    display: none; white-space: pre-wrap; overflow-wrap: anywhere;
+    padding: 14px; background: #0f0f11; border: 1px solid #2b2b30; border-radius: 10px;
+    font-family: "JetBrains Mono", Consolas, monospace; font-size: .8rem; line-height: 1.6;
+    max-height: 60vh; overflow-y: auto; color: #d8d4ca;
+  }
+  pre#output.has-error { border-color: rgba(212,96,79,.5); color: #d4604f; }
+  .back { display: inline-block; margin-top: 18px; color: #e0a43c; font-size: .82rem; text-decoration: none; }
+  .hint { font-size: .72rem; color: #6b6862; line-height: 1.6; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Diagnostics</h1>
+  <div class="sub">Describe the problem. The AI reads the code bundle (docs/adminhelp.md), finds the relevant files, and answers with a diagnosis and corrected code. Owner only.</div>
+  <div id="gate" class="gate">Checking your session…</div>
+  <div id="app" style="display:none">
+    <div id="msg" class="msg"></div>
+    <div class="bundle-bar">
+      <span id="bundle-status" class="bundle-status">Bundle: loading…</span>
+      <button id="reload-bundle" class="sm">Reload bundle</button>
+    </div>
+    <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads a file but the cover page is missing' or paste the exact error message from the console."></textarea>
+    <div class="row">
+      <button id="run" class="primary" disabled>Diagnose</button>
+      <button id="stop" disabled>Stop</button>
+      <button id="copy" disabled>Copy response</button>
+    </div>
+    <pre id="output"></pre>
+    <div class="hint">
+      Powered by your configured AI providers (same chain as Scribe). Output is a <b>proposed patch</b> — review it before pasting, exactly like any other code delivery. Best results: include the exact error text, what you changed last, and where you saw it.
+    </div>
+    <a class="back" href="./index.html">&larr; Back to admin console</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+  var ROLE_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin/api/role';
+  var AI_PROXY = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
+  var DOC_URL = 'https://legendalive.github.io/Weaver/docs/adminhelp.md';
+  var CONTEXT_BUDGET = 40000;
+
+  var client = window.supabase.createClient(SB_URL, SB_ANON);
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+  var msg = document.getElementById('msg');
+  var statusEl = document.getElementById('bundle-status');
+  var issueEl = document.getElementById('issue');
+  var runBtn = document.getElementById('run');
+  var stopBtn = document.getElementById('stop');
+  var copyBtn = document.getElementById('copy');
+  var output = document.getElementById('output');
+  var token = '';
+  var chunks = [];
+  var treeText = '';
+  var bundleMeta = '';
+  var controller = null;
+
+  function showMsg(text, ok) {
+    msg.textContent = text;
+    msg.className = 'msg ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
+  }
+
+  /* ---------- bundle parsing ---------- */
+  function parseDoc(text) {
+    var lines = text.split('\n');
+    var re = /^\s*(?:\/\/|<!--)?\s*=== File \[\d+\s*\/\s*\d+\]:\s*(.+?)\s*===/;
+    var out = [];
+    var cur = null;
+    var section = '';
+    var tree = [];
+    var inTree = false;
+    var meta = '';
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if (/^bundle_version:/.test(line)) meta = line.replace('bundle_version:', '').trim();
+      if (/^## 1\. File tree/.test(line)) { inTree = true; continue; }
+      if (/^## 2\./.test(line)) { inTree = false; section = 'weaver'; continue; }
+      if (/^## 3\./.test(line)) { inTree = false; section = 'server'; continue; }
+      if (inTree) { tree.push(line); continue; }
+      var m = line.match(re);
+      if (m) {
+        if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
+        var path = m[1].trim().replace(/^Weaver-3\//, '').replace(/^weaver-server-1\.0\//, '');
+        cur = { path: path, repo: section === 'server' ? 'weaver-server' : 'Weaver', lines: [] };
+        continue;
+      }
+      if (cur && line.indexOf('<<<PASTE_SLOT') !== 0) cur.lines.push(line);
+    }
+    if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
+    treeText = tree.join('\n').trim();
+    bundleMeta = meta;
+    return out;
+  }
+
+  function setStatus() {
+    var stamp = '';
+    try { stamp = new Date().toLocaleString(); } catch (e) {}
+    if (!chunks.length) {
+      statusEl.textContent = 'Bundle: NO FILE MARKERS FOUND — paste the bundles into docs/adminhelp.md';
+    } else {
+      statusEl.textContent = 'Bundle ' + (bundleMeta || '?') + ' · ' + chunks.length + ' files · loaded ' + stamp;
+    }
+    runBtn.disabled = chunks.length === 0;
+  }
+
+  function loadDoc(force) {
+    statusEl.textContent = 'Bundle: loading…';
+    runBtn.disabled = true;
+    var url = DOC_URL + (force ? '?v=' + Date.now() : '');
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (text) {
+      chunks = parseDoc(text);
+      setStatus();
+    }).catch(function (e) {
+      statusEl.textContent = 'Bundle: FAILED to load (' + e.message + ') — is docs/adminhelp.md committed?';
+    });
+  }
+
+  /* ---------- retrieval ---------- */
+  var STOP = new Set(['the','a','an','my','i','is','are','was','were','to','of','in','on','for','and','or','it','with','when','how','do','does','did','not','no','yes','me','you','your','weaver','app','can','cannot','about','please','this','that','have','has','had','be','been','it\'s','its','after','before','now','still','will','would','should','could']);
+  function scoreChunks(query) {
+    var toks = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function (t) {
+      return t.length > 2 && !STOP.has(t);
+    });
+    var scored = chunks.map(function (ch) {
+      var pathLc = ch.path.toLowerCase();
+      var bodyLc = ch.body.toLowerCase();
+      var score = 0;
+      for (var i = 0; i < toks.length; i++) {
+        var t = toks[i];
+        if (pathLc.indexOf(t) >= 0) score += 8;
+        var idx = bodyLc.indexOf(t), c = 0;
+        while (idx >= 0 && c < 6) { score += 1; c++; idx = bodyLc.indexOf(t, idx + t.length); }
+      }
+      return { ch: ch, score: score };
+    }).filter(function (x) { return x.score > 0; })
+      .sort(function (a, b) { return b.score - a.score; });
+    return scored;
+  }
+
+  function buildContext(query) {
+    var ranked = scoreChunks(query);
+    var budget = CONTEXT_BUDGET;
+    var picked = [];
+    for (var i = 0; i < ranked.length && picked.length < 8; i++) {
+      var ch = ranked[i].ch;
+      if (budget - ch.body.length < 0 && picked.length >= 2) break;
+      picked.push(ch);
+      budget -= ch.body.length;
+      if (budget <= 0 && picked.length >= 1) break;
+    }
+    var ctx = '';
+    for (var j = 0; j < picked.length; j++) {
+      ctx += '\n\n=== Repo: ' + picked[j].repo + ' | ' + picked[j].path + ' ===\n' + picked[j].body;
+    }
+    return { ctx: ctx, names: picked.map(function (p) { return p.ch.path; }) };
+  }
+
+  /* ---------- prompt ---------- */
+  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based, privacy-first novel-writing studio (static ES-module frontend on GitHub Pages + Supabase Edge Functions backend).\n' +
+    'You receive CODE CONTEXT: the annotated file tree plus the full source of the files most relevant to the reported issue.\n\n' +
+    'HARD RULES\n' +
+    '1. Base every claim on the CODE CONTEXT. Never invent files, exports, functions, CSS classes or APIs that are not visible in it.\n' +
+    '2. If the context lacks the file you need, state exactly which file is missing and stop — do not guess its contents.\n' +
+    '3. Whenever the fix requires a code change you MUST output corrected code. Describing an edit without providing the code is a failure.\n' +
+    '4. Change larger than 3 lines: output the COMPLETE corrected file, ready to paste over the old one (the owner pastes whole files by hand; there is no terminal or CLI).\n' +
+    '5. Change of 3 lines or fewer: output the exact existing lines to find and the exact replacement, including one unchanged context line above and below.\n' +
+    '6. Before every code block state: "Repo: <repo> — <exact file path>".\n' +
+    '7. Respect codebase conventions: el(tag, props, children) DOM helper (never innerHTML), injected ensureStyle() CSS blocks, ES modules with .js extensions, targeted edits only when 3 lines or fewer.\n' +
+    '8. Preserve all existing behavior except what the issue requires.\n' +
+    '9. End with VERIFY (3-6 concrete test steps) and RISK (anything load-bearing near the change).\n\n' +
+    'RESPONSE FORMAT (always, in this order):\n' +
+    'DIAGNOSIS: root cause in 2-4 sentences.\n' +
+    'LOCATION: repo + exact file path(s).\n' +
+    'FIX: the corrected code.\n' +
+    'VERIFY: how to test.\n' +
+    'RISK: what must not break nearby.';
+
+  /* ---------- SSE ---------- */
+  function forEachSSE(res, onData) {
+    var reader = res.body.getReader();
+    var dec = new TextDecoder();
+    var buf = '';
+    function pump() {
+      return reader.read().then(function (r) {
+        if (r.done) return;
+        buf += dec.decode(r.value, { stream: true });
+        var idx;
+        while ((idx = buf.indexOf('\n')) >= 0) {
+          var line = buf.slice(0, idx).trim();
+          buf = buf.slice(idx + 1);
+          if (line.indexOf('data:') !== 0) continue;
+          var payload = line.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try { onData(JSON.parse(payload)); } catch (e) {}
+        }
+        return pump();
+      });
+    }
+    return pump();
+  }
+
+  /* ---------- run ---------- */
+  function diagnose() {
+    var query = issueEl.value.trim().slice(0, 1500);
+    if (!query) { showMsg('Describe the issue first.', false); return; }
+    var built = buildContext(query);
+    if (!built.names.length) { showMsg('No relevant files matched — try naming the file, feature or exact error text.', false); return; }
+    var userMsg = 'ISSUE REPORTED BY OWNER:\n' + query +
+      '\n\nREPO MAP:\n- Weaver = frontend (GitHub Pages, static ES modules)\n- weaver-server = Supabase Edge Functions\n' +
+      '\nFILE TREE:\n' + treeText +
+      '\n\nCODE CONTEXT — FULL SOURCE OF THE ' + built.names.length + ' MOST RELEVANT FILES (' + built.names.join(', ') + '):' +
+      built.ctx;
+
+    output.style.display = 'block';
+    output.className = '';
+    output.textContent = 'Reading ' + built.names.length + ' file(s): ' + built.names.join(', ') + '\n\n';
+    runBtn.disabled = true;
+    stopBtn.disabled = false;
+    copyBtn.disabled = true;
+    controller = new AbortController();
+    var full = '';
+    fetch(AI_PROXY, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userMsg }
+        ],
+        temperature: 0.15,
+        maxTokens: 8192
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (d) {
+          var extra = '';
+          if (res.status === 402) extra = ' — Diagnostics needs an active Pro entitlement on your account. Grant yourself Pro in the admin console Credits tab, then retry.';
+          if (res.status === 503) extra = ' — No AI providers are configured. Check the AI Keys tab.';
+          throw new Error((d.error || 'HTTP ' + res.status) + extra);
+        });
+      }
+      return forEachSSE(res, function (json) {
+        var delta = json && json.choices && json.choices[0] && json.choices[0].delta ? json.choices[0].delta.content : null;
+        if (delta) { full += delta; output.textContent = output.textContent.split('\n\n')[0] + '\n\n' + full; output.scrollTop = output.scrollHeight; }
+      }).then(function () {
+        if (!full) throw new Error('The AI returned an empty answer. Try again or rephrase.');
+        copyBtn.disabled = false;
+      });
+    }).catch(function (e) {
+      if (e.name === 'AbortError') {
+        output.textContent += '\n\n[stopped]';
+      } else {
+        output.className = 'has-error';
+        output.textContent += '\n\n⚠ ' + e.message;
+      }
+    }).then(function () {
+      runBtn.disabled = false;
+      stopBtn.disabled = true;
+      controller = null;
+    });
+  }
+
+  runBtn.onclick = diagnose;
+  stopBtn.onclick = function () { if (controller) controller.abort(); };
+  copyBtn.onclick = function () {
+    var text = output.textContent || '';
+    var i = text.indexOf('\n\n');
+    if (i >= 0) text = text.slice(i + 2);
+    try { navigator.clipboard.writeText(text); showMsg('Response copied.', true); } catch (e) { showMsg('Could not copy.', false); }
+  };
+  document.getElementById('reload-bundle').onclick = function () { loadDoc(true).then(function () { showMsg('Bundle reloaded.', true); }); };
+
+  /* ---------- boot ---------- */
+  (async function init() {
+    try {
+      var session = (await client.auth.getSession()).data.session;
+      if (!session) {
+        gate.innerHTML = 'Sign in first.<br><a href="../" style="color:#e0a43c">Open Weaver and sign in</a>, then reload this page.';
+        return;
+      }
+      token = session.access_token;
+      var roleRes = await fetch(ROLE_API, { headers: { 'Authorization': 'Bearer ' + token } });
+      var role = await roleRes.json().catch(function () { return {}; });
+      if (!role || role.role !== 'owner') {
+        gate.textContent = 'Diagnostics is owner-only.';
+        return;
+      }
+      gate.style.display = 'none';
+      app.style.display = 'block';
+      await loadDoc(false);
+    } catch (e) {
+      gate.textContent = 'Could not start: ' + e.message;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
