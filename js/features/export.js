@@ -1,15 +1,14 @@
 /* =========================================================
 Weaver — js/features/export.js
-v2 Stage 6.7 + V3.9: Export ALWAYS produces BOTH files.
+v2 Stage 6.7 + V3.9 + V4: Export ALWAYS produces BOTH files.
 Main Novel -> real .docx (blank doc if the novel is empty).
 Config Bible -> readable .txt.
-Neither file is ever silently omitted.
 V3.9: EPUB export (Pro) — market-ready .epub built entirely
-client-side: title page, chapters, nav + NCX table of
-contents, book CSS. Free accounts get a Pro notice instead.
-V3.9c: the EPUB list shows library summaries but loads the
-FULL project blob via getProject() on tap; EPUB reads the
-Main Novel layer only — never the Manuscript draft.
+client-side: title page, chapters, nav + NCX, book CSS.
+V4: uploaded cover (project.cover.image) is embedded as the
+EPUB cover — cover.xhtml first in the spine + cover-image
+property; EPUB author = project.cover.author when set, else
+'Anonymous'. EPUB reads the Main Novel layer only.
 ========================================================= */
 import { getState } from '../core/state.js';
 import { getEffectiveConfig, listProjects, getProject } from '../core/storage.js';
@@ -23,10 +22,12 @@ function downloadFile(filename, content) {
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   triggerDownload(filename, blob);
 }
+
 function downloadBlob(filename, data, mime) {
   const blob = new Blob([data], { type: mime });
   triggerDownload(filename, blob);
 }
+
 function triggerDownload(filename, blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -45,6 +46,7 @@ export function exportProject(projectOverride) {
     return;
   }
   const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
   /* ----- Main Novel as DOCX (always built) ----- */
   const novelText = (project.mainNovel && project.mainNovel.text) || '';
   const idx = buildBlockIndex(novelText);
@@ -53,6 +55,7 @@ export function exportProject(projectOverride) {
     return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
   });
   const docx = buildDocx(blocks.length ? blocks : [{ level: 0, text: '' }]);
+
   /* ----- Config Bible as TXT (always built) ----- */
   const cfg = getEffectiveConfig(project);
   let bibleText = `# Project Bible: ${project.name}\n`;
@@ -73,6 +76,7 @@ export function exportProject(projectOverride) {
   }
   bibleText += `## General Prose\n\n${cfg.generalProse || '(Empty)'}\n\n`;
   bibleText += `## General AI Instructions\n\n${cfg.generalAiInstructions || '(Empty)'}\n\n`;
+
   /* ----- Downloads: BOTH files, always ----- */
   downloadBlob(
     `${safeName}_main_novel.docx`,
@@ -89,12 +93,24 @@ export function exportProject(projectOverride) {
 }
 
 /* =========================================================
-EPUB (Pro) — Main Novel layer only
-========================================================= */
+   EPUB (Pro) — Main Novel layer only + V4 cover embed
+   ========================================================= */
 function escXml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+/* dataURL -> raw bytes + mime (covers are stored as dataURLs). */
+function dataUrlToBytes(dataUrl) {
+  const comma = String(dataUrl).indexOf(',');
+  if (comma < 0) throw new Error('malformed data URL');
+  const mime = String(dataUrl).slice(5, comma).split(';')[0] || 'image/jpeg';
+  const bin = atob(String(dataUrl).slice(comma + 1));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return { bytes, mime };
+}
+
 function novelBlocks(project) {
   const novelText = (project && project.mainNovel && project.mainNovel.text) || '';
   const idx = buildBlockIndex(novelText);
@@ -103,8 +119,9 @@ function novelBlocks(project) {
     return { level: b.level, text: b.level ? raw.slice(headingPrefix(b.level).length) : raw };
   });
 }
+
 /* Chapters = level-1 headings. If the book has none, level-2
-headings become chapters. If it has neither, one whole book. */
+   headings become chapters. If it has neither, one whole book. */
 function chaptersFrom(blocks, fallbackTitle) {
   const make = (title) => ({ title: title || fallbackTitle, html: [] });
   let chapters = [];
@@ -135,6 +152,7 @@ function chaptersFrom(blocks, fallbackTitle) {
   if (!chapters.length) chapters = [make(fallbackTitle)];
   return chapters;
 }
+
 const XHTML_HEAD = (title) =>
   `<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">\n<head><title>${escXml(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>\n<body>\n`;
 
@@ -147,11 +165,13 @@ export function exportEpub(projectOverride) {
   }
   const blocks = novelBlocks(project);
   if (!blocks.some((b) => (b.text || '').trim())) {
-    toast('Main Novel is empty for this book — finalize your chapters into the Main Novel before exporting EPUB.', 'info');
+    toast('Main Novel is empty for this book — finalize chapters into the Main Novel before exporting EPUB.', 'info');
     return;
   }
-  const author = 'Anonymous';
 
+  /* V4: author from the Cover Studio form (fallback: Anonymous). */
+  const cover = project.cover || {};
+  const author = String(cover.author || '').trim() || 'Anonymous';
   const bookTitle = project.bookTitle || project.name || 'Untitled';
   const series = project.seriesName || '';
   const uid = 'urn:uuid:' + (project.id || 'weaver-book');
@@ -164,8 +184,26 @@ export function exportEpub(projectOverride) {
   files.push({ name: 'META-INF/container.xml', bytes: enc.encode(
     `<?xml version="1.0" encoding="utf-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n<rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles>\n</container>\n`) });
 
-  const css = `body{font-family:Georgia,'Times New Roman',serif;line-height:1.5;margin:1em;}\nh1{page-break-before:always;text-align:center;font-size:1.4em;margin:2em 0 1em;}\nh2{font-size:1.15em;margin:1.5em 0 .5em;}\nh3{font-size:1em;margin:1.2em 0 .4em;}\np{margin:0 0 .7em;}\np.scene{text-align:center;letter-spacing:.5em;margin:1.2em 0;}\n.titlepage{text-align:center;margin-top:3em;}\n.titlepage h1{page-break-before:none;margin-top:0;font-size:1.8em;}\n.titlepage .series{font-style:italic;}\n.titlepage .author{margin-top:2em;}\n`;
+  const css = `body{font-family:Georgia,'Times New Roman',serif;line-height:1.5;margin:1em;}\nh1{page-break-before:always;text-align:center;font-size:1.4em;margin:2em 0 1em;}\nh2{font-size:1.15em;margin:1.5em 0 .5em;}\nh3{font-size:1em;margin:1.2em 0 .4em;}\np{margin:0 0 .7em;}\np.scene{text-align:center;letter-spacing:.5em;margin:1.2em 0;}\n.titlepage{text-align:center;margin-top:3em;}\n.titlepage h1{page-break-before:none;margin-top:0;font-size:1.8em;}\n.titlepage .series{font-style:italic;}\n.titlepage .author{margin-top:2em;}\n.coverpage{margin:0;padding:0;text-align:center;}\n.coverpage img{width:100%;}\n`;
   files.push({ name: 'OEBPS/style.css', bytes: enc.encode(css) });
+
+  /* ----- V4: embedded cover (when the project has one) ----- */
+  let coverHref = null;
+  let coverMime = 'image/jpeg';
+  const coverData = typeof cover.image === 'string' && cover.image.startsWith('data:image/') ? cover.image : null;
+  if (coverData) {
+    try {
+      const parsed = dataUrlToBytes(coverData);
+      coverMime = parsed.mime;
+      coverHref = parsed.mime === 'image/png' ? 'cover.png' : 'cover.jpg';
+      files.push({ name: 'OEBPS/' + coverHref, bytes: parsed.bytes });
+      const coverPage = XHTML_HEAD('Cover') +
+        `<div class="coverpage"><img src="${coverHref}" alt="Cover"/></div>\n</body>\n</html>\n`;
+      files.push({ name: 'OEBPS/cover.xhtml', bytes: enc.encode(coverPage) });
+    } catch (e) {
+      coverHref = null;   /* a broken cover must never sink the export */
+    }
+  }
 
   const titlePage = XHTML_HEAD(bookTitle) +
     `<div class="titlepage">\n<h1>${escXml(bookTitle)}</h1>\n` +
@@ -179,9 +217,21 @@ export function exportEpub(projectOverride) {
     `<item id="css" href="style.css" media-type="text/css"/>`,
     `<item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>`,
   ];
-  const spine = [`<itemref idref="title"/>`];
-  const navItems = [`<li><a href="title.xhtml">Title page</a></li>`];
-  const ncxPoints = [`<navPoint id="np0" playOrder="1"><navLabel><text>Title page</text></navLabel><content src="title.xhtml"/></navPoint>`];
+  const spine = [];
+  const navItems = [];
+  const ncxPoints = [];
+  let playOrder = 1;
+
+  if (coverHref) {
+    manifest.push(`<item id="cover-image" href="${coverHref}" media-type="${coverMime}" properties="cover-image"/>`);
+    manifest.push(`<item id="cover-page" href="cover.xhtml" media-type="application/xhtml+xml"/>`);
+    spine.push(`<itemref idref="cover-page"/>`);
+    navItems.push(`<li><a href="cover.xhtml">Cover</a></li>`);
+    ncxPoints.push(`<navPoint id="npCover" playOrder="${playOrder++}"><navLabel><text>Cover</text></navLabel><content src="cover.xhtml"/></navPoint>`);
+  }
+  spine.push(`<itemref idref="title"/>`);
+  navItems.push(`<li><a href="title.xhtml">Title page</a></li>`);
+  ncxPoints.push(`<navPoint id="np0" playOrder="${playOrder++}"><navLabel><text>Title page</text></navLabel><content src="title.xhtml"/></navPoint>`);
 
   chapters.forEach((ch, i) => {
     const href = `chapter${i + 1}.xhtml`;
@@ -191,7 +241,7 @@ export function exportEpub(projectOverride) {
     manifest.push(`<item id="${id}" href="${href}" media-type="application/xhtml+xml"/>`);
     spine.push(`<itemref idref="${id}"/>`);
     navItems.push(`<li><a href="${href}">${escXml(ch.title)}</a></li>`);
-    ncxPoints.push(`<navPoint id="np${i + 1}" playOrder="${i + 2}"><navLabel><text>${escXml(ch.title)}</text></navLabel><content src="${href}"/></navPoint>`);
+    ncxPoints.push(`<navPoint id="np${i + 1}" playOrder="${playOrder++}"><navLabel><text>${escXml(ch.title)}</text></navLabel><content src="${href}"/></navPoint>`);
   });
 
   const nav = XHTML_HEAD('Contents') +
@@ -203,20 +253,22 @@ export function exportEpub(projectOverride) {
 
   const opf = `<?xml version="1.0" encoding="utf-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="en">\n<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n<dc:identifier id="bookid">${escXml(uid)}</dc:identifier>\n<dc:title>${escXml(bookTitle)}</dc:title>\n` +
     (series ? `<dc:subject>${escXml(series)}</dc:subject>\n` : '') +
-    `<dc:language>en</dc:language>\n<dc:creator>${escXml(author)}</dc:creator>\n<meta property="dcterms:modified">${modified}</meta>\n</metadata>\n<manifest>\n${manifest.join('\n')}\n</manifest>\n<spine toc="ncx">\n${spine.join('\n')}\n</spine>\n</package>\n`;
+    `<dc:language>en</dc:language>\n<dc:creator>${escXml(author)}</dc:creator>\n` +
+    (coverHref ? `<meta name="cover" content="cover-image"/>\n` : '') +
+    `<meta property="dcterms:modified">${modified}</meta>\n</metadata>\n<manifest>\n${manifest.join('\n')}\n</manifest>\n<spine toc="ncx">\n${spine.join('\n')}\n</spine>\n</package>\n`;
   files.push({ name: 'OEBPS/content.opf', bytes: enc.encode(opf) });
 
   const zip = buildZip(files);
   const safeName = (project.name || 'Untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
   downloadBlob(`${safeName}.epub`, zip, 'application/epub+zip');
-  toast(`EPUB exported: ${chapters.length} chapter${chapters.length === 1 ? '' : 's'}.`, 'success');
+  toast(`EPUB exported: ${chapters.length} chapter${chapters.length === 1 ? '' : 's'}${coverHref ? ', cover embedded' : ''}.`, 'success');
 }
 
 /* =========================================================
-EPUB export list — Settings. Shows library summaries; loads
-the full book on tap. One book at a time; series books
-listed individually.
-========================================================= */
+   EPUB export list — Settings. Shows library summaries; loads
+   the full book on tap. One book at a time; series books
+   listed individually.
+   ========================================================= */
 export function openEpubExportList() {
   const projects = listProjects() || [];
   if (!projects.length) { toast('No projects to export yet.', 'info'); return; }
@@ -245,7 +297,7 @@ export function openEpubExportList() {
   m = modal({
     title: 'Export EPUB — choose a book',
     body: [
-          el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel — EPUB never reads the Manuscript draft. Use "Accept highlighted" or "Accept whole" to move text into the Main Novel first. Series books are listed individually.' }),
+      el('p', { class: 'set-hint', text: 'One book at a time, from its Main Novel — EPUB never reads the Manuscript draft. Use "Accept highlighted" or "Accept whole" to move text into the Main Novel first. Series books are listed individually.' }),
       list,
     ],
     footer: [el('button', { class: 'btn', text: 'Cancel', onclick: () => m.close() })],
