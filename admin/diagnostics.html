@@ -106,65 +106,66 @@
     msg.className = 'msg ' + (ok ? 'ok' : 'err');
     if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
   }
+  function kb(t) { return Math.round((t || '').length / 1024) + ' KB'; }
+  function looksHtml(t) { return /^\s*(<!DOCTYPE|<html)/i.test(t); }
 
-  /* ---------- RepoBundle parser (3-state machine) ----------
-     Handles the exact format:
-       ====================...
-       File: path/to/file
-       ====================...
-       <file content>
-       ====================...
-       File: next/path
-       ...
-     Metadata headers (REPOSITORY CODEBASE, SOURCE CODE FILES,
-     the file tree) are skipped because they never match "File:". */
+  /* ---------- hardened RepoBundle parser ----------
+     Tolerates: BOM, CRLF/CR endings, indented or short separator
+     lines, "File:" vs "FILE:", and a missing separator after the
+     File: line. Includes a split-based fallback if the state
+     machine finds nothing. */
   function parseBundle(text, repoLabel) {
-    var lines = text.split('\n');
+    var src = String(text);
+    if (src.charCodeAt(0) === 0xFEFF) src = src.slice(1);
+    src = src.replace(/\r\n?/g, '\n');
+    var lines = src.split('\n');
     var files = [];
-    var STATE_LOOKING = 0, STATE_EXPECT_SEP = 1, STATE_READING = 2;
-    var state = STATE_LOOKING;
+    var LOOKING = 0, EXPECT_SEP = 1, READING = 2;
+    var state = LOOKING;
     var currentPath = null;
     var currentLines = [];
-    var sepRe = /^={20,}\s*$/;
-    var fileRe = /^File:\s*(.+?)\s*$/i;
-
+    var sepRe = /^={10,}\s*$/;
+    var fileRe = /^\s*File:\s*(.+?)\s*$/i;
+    function clean(p) {
+      return p.replace(/^Weaver-[\d.]+\//, '').replace(/^weaver-server-[\d.]+\//, '');
+    }
+    function push() {
+      if (currentPath != null) {
+        files.push({ repo: repoLabel, path: clean(currentPath), body: currentLines.join('\n') });
+      }
+      currentPath = null;
+      currentLines = [];
+    }
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
       var isSep = sepRe.test(line);
-
-      if (state === STATE_LOOKING) {
+      if (state === LOOKING) {
         if (isSep) continue;
         var m = line.match(fileRe);
-        if (m) {
-          currentPath = m[1].trim();
-          state = STATE_EXPECT_SEP;
-        }
-      } else if (state === STATE_EXPECT_SEP) {
-        if (isSep) {
-          state = STATE_READING;
-          currentLines = [];
-        } else {
-          state = STATE_LOOKING;
-        }
-      } else if (state === STATE_READING) {
-        if (isSep) {
-          var cleanPath = currentPath
-            .replace(/^Weaver-[\d.]+\//, '')
-            .replace(/^weaver-server-[\d.]+\//, '');
-          files.push({ repo: repoLabel, path: cleanPath, body: currentLines.join('\n') });
-          currentPath = null;
-          currentLines = [];
-          state = STATE_LOOKING;
-        } else {
-          currentLines.push(line);
+        if (m) { currentPath = m[1]; state = EXPECT_SEP; }
+        continue;
+      }
+      if (state === EXPECT_SEP) {
+        if (isSep) { state = READING; currentLines = []; }
+        else { state = READING; currentLines = [line]; }
+        continue;
+      }
+      if (isSep) { push(); state = LOOKING; }
+      else currentLines.push(line);
+    }
+    if (state === READING) push();
+
+    /* Fallback: split on separator lines, keep segments headed by File: */
+    if (!files.length) {
+      var parts = src.split(/\n={10,}\s*\n/);
+      for (var p = 0; p < parts.length; p++) {
+        var seg = parts[p];
+        var fm = seg.match(fileRe);
+        if (fm && seg.indexOf(fm[0]) >= 0 && seg.indexOf(fm[0]) < 200) {
+          var body = seg.slice(seg.indexOf(fm[0]) + fm[0].length).replace(/^\s*={10,}\s*/, '');
+          files.push({ repo: repoLabel, path: clean(fm[1]), body: body });
         }
       }
-    }
-    if (state === STATE_READING && currentPath) {
-      var cp = currentPath
-        .replace(/^Weaver-[\d.]+\//, '')
-        .replace(/^weaver-server-[\d.]+\//, '');
-      files.push({ repo: repoLabel, path: cp, body: currentLines.join('\n') });
     }
     return files;
   }
@@ -183,10 +184,18 @@
       if (!results[1].ok) throw new Error('Server bundle: HTTP ' + results[1].status);
       var feText = await results[0].text();
       var beText = await results[1].text();
+      if (looksHtml(feText) || looksHtml(beText)) {
+        statusEl.textContent = 'Bundles: Pages served RENDERED HTML, not raw text — check Pages build source (must be GitHub Actions, not Jekyll)';
+        return;
+      }
       var feFiles = parseBundle(feText, 'Weaver');
       var beFiles = parseBundle(beText, 'weaver-server');
       allFiles = feFiles.concat(beFiles);
-      statusEl.textContent = 'Bundles loaded · ' + feFiles.length + ' frontend + ' + beFiles.length + ' server files';
+      if (!allFiles.length) {
+        statusEl.textContent = 'Bundles: fetched ' + kb(feText) + ' + ' + kb(beText) + ' but parsed 0 files — separator/File: lines not recognized (run the console probe)';
+        return;
+      }
+      statusEl.textContent = 'Bundles loaded · ' + feFiles.length + ' frontend (' + kb(feText) + ') + ' + beFiles.length + ' server (' + kb(beText) + ')';
       runBtn.disabled = false;
     } catch (e) {
       statusEl.textContent = 'Bundles: FAILED — ' + e.message;
@@ -366,7 +375,7 @@
     try { navigator.clipboard.writeText(text); showMsg('Copied.', true); } catch (e) { showMsg('Could not copy.', false); }
   };
   document.getElementById('reload-bundle').onclick = function () {
-    loadBundles(true).then(function () { showMsg('Reloaded.', true); });
+    loadBundles(true).then(function () { if (allFiles.length) showMsg('Reloaded.', true); });
   };
 
   loadBundles(false);
