@@ -19,7 +19,6 @@
   }
   h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
   .sub { color: #94918a; font-size: .8rem; margin-bottom: 18px; line-height: 1.55; }
-  .gate { text-align: center; padding: 30px 10px; color: #94918a; font-size: .9rem; line-height: 1.6; }
   .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
   .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
   .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
@@ -59,27 +58,24 @@
 <body>
 <div class="card">
   <h1>Diagnostics</h1>
-  <div class="sub">Describe the problem. The AI reads the codebase map, selects the most relevant files, and answers with a diagnosis and corrected code. Owner &amp; supervisors only.</div>
-  <div id="gate" class="gate">Checking your session…</div>
-  <div id="app" style="display:none">
-    <div id="msg" class="msg"></div>
-    <div class="bundle-bar">
-      <span id="bundle-status" class="bundle-status">Codebases: loading…</span>
-      <button id="reload-bundle" class="sm">Reload bundles</button>
-    </div>
-    <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads but the cover page is missing' or paste the exact console error."></textarea>
-    <div id="selected-files" class="selected-files"></div>
-    <div class="row">
-      <button id="run" class="primary" disabled>Diagnose</button>
-      <button id="stop" disabled>Stop</button>
-      <button id="copy" disabled>Copy response</button>
-    </div>
-    <pre id="output"></pre>
-    <div class="hint">
-      The tool parses your RepoBundle files, scores every file against your query, and sends only the most relevant code to the AI (plus the full file tree map). Output is a <b>proposed patch</b> — review before pasting.
-    </div>
-    <a class="back" href="./index.html">&larr; Back to admin console</a>
+  <div class="sub">Describe the problem. The AI reads the codebase map, selects the most relevant files, and answers with a diagnosis and corrected code.</div>
+  <div id="msg" class="msg"></div>
+  <div class="bundle-bar">
+    <span id="bundle-status" class="bundle-status">Codebases: loading…</span>
+    <button id="reload-bundle" class="sm">Reload</button>
   </div>
+  <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads but the cover page is missing' or paste the exact console error."></textarea>
+  <div id="selected-files" class="selected-files"></div>
+  <div class="row">
+    <button id="run" class="primary" disabled>Diagnose</button>
+    <button id="stop" disabled>Stop</button>
+    <button id="copy" disabled>Copy response</button>
+  </div>
+  <pre id="output"></pre>
+  <div class="hint">
+    The tool parses your RepoBundle files, scores every file against your query, and sends only the most relevant code to the AI (plus the full file tree map). Output is a <b>proposed patch</b> — review before pasting.
+  </div>
+  <a class="back" href="./index.html">&larr; Back to admin console</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -87,13 +83,11 @@
 (function () {
   var SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-  var ADMIN_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
-  var ROLE_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin/api/role';
   var AI_PROXY = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
+  var FRONTEND_URL = 'https://legendalive.github.io/Weaver/docs/weaver-codebase.md';
+  var SERVER_URL = 'https://legendalive.github.io/Weaver/docs/server-codebase.md';
 
   var client = window.supabase.createClient(SB_URL, SB_ANON);
-  var gate = document.getElementById('gate');
-  var app = document.getElementById('app');
   var msg = document.getElementById('msg');
   var statusEl = document.getElementById('bundle-status');
   var issueEl = document.getElementById('issue');
@@ -114,7 +108,6 @@
     if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
   }
 
-  /* ---------- RepoBundle Parser ---------- */
   function parseBundle(text, repoLabel) {
     var lines = text.split('\n');
     var files = [];
@@ -140,7 +133,7 @@
       if (expectFile) {
         var m = line.match(fileRe);
         if (m) {
-          var p = m[1].trim().replace(/^Weaver-\d+[\.\d]*\//, '').replace(/^weaver-server-[\d\.]+\//, '');
+          var p = m[1].trim().replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
           currentFile = p;
           expectFile = false;
           continue;
@@ -158,20 +151,19 @@
     allFiles = [];
     var suffix = force ? '?v=' + Date.now() : '';
     try {
-      var hdrs = { 'Authorization': 'Bearer ' + token };
       var results = await Promise.all([
-        fetch(ADMIN_API + '/api/diagnostics/bundle/frontend' + suffix, { headers: hdrs }),
-        fetch(ADMIN_API + '/api/diagnostics/bundle/server' + suffix, { headers: hdrs })
+        fetch(FRONTEND_URL + suffix),
+        fetch(SERVER_URL + suffix)
       ]);
       if (!results[0].ok) throw new Error('Frontend bundle: HTTP ' + results[0].status);
       if (!results[1].ok) throw new Error('Server bundle: HTTP ' + results[1].status);
-      
+
       var feText = await results[0].text();
       var beText = await results[1].text();
-      
+
       var feFiles = parseBundle(feText, 'Weaver');
       var beFiles = parseBundle(beText, 'weaver-server');
-      
+
       allFiles = feFiles.concat(beFiles);
       statusEl.textContent = 'Bundles loaded · ' + feFiles.length + ' frontend + ' + beFiles.length + ' server files';
       runBtn.disabled = false;
@@ -180,7 +172,6 @@
     }
   }
 
-  /* ---------- Scoring & Context Builder ---------- */
   function scoreFiles(query) {
     var tokens = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function(t) {
       return t.length > 2 && !STOP.has(t);
@@ -204,7 +195,7 @@
 
   function buildContext(query) {
     var ranked = scoreFiles(query);
-    var budget = 80000; // ~20k tokens
+    var budget = 80000;
     var picked = [];
     var used = 0;
 
@@ -351,21 +342,13 @@
     try {
       var session = (await client.auth.getSession()).data.session;
       if (!session) {
-        gate.innerHTML = 'Sign in first.<br><a href="../" style="color:#e0a43c">Open Weaver and sign in</a>, then reload.';
+        showMsg('Sign in to Weaver first. Open the app, sign in, then reload this page.', false);
         return;
       }
       token = session.access_token;
-      var roleRes = await fetch(ROLE_API, { headers: { 'Authorization': 'Bearer ' + token } });
-      var role = await roleRes.json().catch(function () { return {}; });
-      if (!role || (role.role !== 'owner' && role.role !== 'supervisor')) {
-        gate.textContent = 'Diagnostics is restricted to owners and supervisors.';
-        return;
-      }
-      gate.style.display = 'none';
-      app.style.display = 'block';
       await loadBundles(false);
     } catch (e) {
-      gate.textContent = 'Could not start: ' + e.message;
+      showMsg('Could not start: ' + e.message, false);
     }
   })();
 })();
