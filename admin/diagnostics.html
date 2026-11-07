@@ -27,7 +27,7 @@
     display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     padding: 10px 12px; background: #1c1c20; border: 1px solid #2b2b30; border-radius: 10px; margin-bottom: 14px;
   }
-  .bundle-status { font-size: .76rem; color: #94918a; font-family: monospace; font-family: "JetBrains Mono", monospace; }
+  .bundle-status { font-size: .76rem; color: #94918a; font-family: "JetBrains Mono", monospace; }
   textarea {
     width: 100%; padding: 12px; font-size: .9rem; color: #e8e5dd;
     border: 1px solid #3a3a40; border-radius: 10px; background: #0f0f11;
@@ -57,13 +57,13 @@
 <body>
 <div class="card">
   <h1>Diagnostics</h1>
-  <div class="sub">Describe the problem. The AI reads the code bundle (docs/adminhelp.md), finds the relevant files, and answers with a diagnosis and corrected code. Owner only.</div>
+  <div class="sub">Describe the problem. The AI reads both code bundles (fetched securely from the server), finds the relevant files, and answers with a diagnosis and corrected code. Owner &amp; supervisors only.</div>
   <div id="gate" class="gate">Checking your session…</div>
   <div id="app" style="display:none">
     <div id="msg" class="msg"></div>
     <div class="bundle-bar">
-      <span id="bundle-status" class="bundle-status">Bundle: loading…</span>
-      <button id="reload-bundle" class="sm">Reload bundle</button>
+      <span id="bundle-status" class="bundle-status">Bundles: loading…</span>
+      <button id="reload-bundle" class="sm">Reload bundles</button>
     </div>
     <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads a file but the cover page is missing' or paste the exact error message from the console."></textarea>
     <div class="row">
@@ -84,9 +84,9 @@
 (function () {
   var SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
+  var ADMIN_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/admin';
   var ROLE_API = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/supervisor-admin/api/role';
   var AI_PROXY = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
-  var DOC_URL = 'https://legendalive.github.io/Weaver/docs/adminhelp.md';
   var CONTEXT_BUDGET = 40000;
 
   var client = window.supabase.createClient(SB_URL, SB_ANON);
@@ -112,34 +112,28 @@
   }
 
   /* ---------- bundle parsing ---------- */
-  function parseDoc(text) {
+  function parseDoc(text, repoLabel) {
     var lines = text.split('\n');
     var re = /^\s*(?:\/\/|<!--)?\s*=== File \[\d+\s*\/\s*\d+\]:\s*(.+?)\s*===/;
     var out = [];
     var cur = null;
-    var section = '';
-    var tree = [];
-    var inTree = false;
     var meta = '';
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
       if (/^bundle_version:/.test(line)) meta = line.replace('bundle_version:', '').trim();
-      if (/^## 1\. File tree/.test(line)) { inTree = true; continue; }
-      if (/^## 2\./.test(line)) { inTree = false; section = 'weaver'; continue; }
-      if (/^## 3\./.test(line)) { inTree = false; section = 'server'; continue; }
-      if (inTree) { tree.push(line); continue; }
       var m = line.match(re);
       if (m) {
         if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
-        var path = m[1].trim().replace(/^Weaver-3\//, '').replace(/^weaver-server-1\.0\//, '');
-        cur = { path: path, repo: section === 'server' ? 'weaver-server' : 'Weaver', lines: [] };
+        var path = m[1].trim()
+          .replace(/^Weaver-3\//, '')
+          .replace(/^weaver-server-1\.0\//, '');
+        cur = { path: path, repo: repoLabel, lines: [] };
         continue;
       }
       if (cur && line.indexOf('<<<PASTE_SLOT') !== 0) cur.lines.push(line);
     }
     if (cur) { cur.body = cur.lines.join('\n'); out.push(cur); }
-    treeText = tree.join('\n').trim();
-    bundleMeta = meta;
+    if (!bundleMeta && meta) bundleMeta = meta;
     return out;
   }
 
@@ -147,26 +141,39 @@
     var stamp = '';
     try { stamp = new Date().toLocaleString(); } catch (e) {}
     if (!chunks.length) {
-      statusEl.textContent = 'Bundle: NO FILE MARKERS FOUND — paste the bundles into docs/adminhelp.md';
+      statusEl.textContent = 'Bundles: NO FILE MARKERS FOUND — check bundle files in weaver-server/docs/';
     } else {
-      statusEl.textContent = 'Bundle ' + (bundleMeta || '?') + ' · ' + chunks.length + ' files · loaded ' + stamp;
+      var fe = chunks.filter(function(c){return c.repo==='Weaver'}).length;
+      var be = chunks.filter(function(c){return c.repo==='weaver-server'}).length;
+      statusEl.textContent = 'Bundles ' + (bundleMeta || '?') + ' · ' + fe + ' frontend + ' + be + ' server files · loaded ' + stamp;
     }
     runBtn.disabled = chunks.length === 0;
   }
 
-  function loadDoc(force) {
-    statusEl.textContent = 'Bundle: loading…';
+  async function loadBundles(force) {
+    statusEl.textContent = 'Bundles: loading…';
     runBtn.disabled = true;
-    var url = DOC_URL + (force ? '?v=' + Date.now() : '');
-    return fetch(url).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    }).then(function (text) {
-      chunks = parseDoc(text);
+    chunks = [];
+    bundleMeta = '';
+    var suffix = force ? '?v=' + Date.now() : '';
+    try {
+      var [feRes, beRes] = await Promise.all([
+        fetch(ADMIN_API + '/api/diagnostics/bundle/frontend' + suffix, { headers: { 'Authorization': 'Bearer ' + token } }),
+        fetch(ADMIN_API + '/api/diagnostics/bundle/server' + suffix, { headers: { 'Authorization': 'Bearer ' + token } })
+      ]);
+      if (!feRes.ok) throw new Error('Frontend bundle: HTTP ' + feRes.status);
+      if (!beRes.ok) throw new Error('Server bundle: HTTP ' + beRes.status);
+      var feText = await feRes.text();
+      var beText = await beRes.text();
+      var feChunks = parseDoc(feText, 'Weaver');
+      var beChunks = parseDoc(beText, 'weaver-server');
+      chunks = feChunks.concat(beChunks);
+      /* Build a combined tree summary from chunk paths */
+      treeText = chunks.map(function(c) { return c.repo + '/' + c.path; }).join('\n');
       setStatus();
-    }).catch(function (e) {
-      statusEl.textContent = 'Bundle: FAILED to load (' + e.message + ') — is docs/adminhelp.md committed?';
-    });
+    } catch (e) {
+      statusEl.textContent = 'Bundles: FAILED — ' + e.message;
+    }
   }
 
   /* ---------- retrieval ---------- */
@@ -175,7 +182,7 @@
     var toks = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function (t) {
       return t.length > 2 && !STOP.has(t);
     });
-    var scored = chunks.map(function (ch) {
+    return chunks.map(function (ch) {
       var pathLc = ch.path.toLowerCase();
       var bodyLc = ch.body.toLowerCase();
       var score = 0;
@@ -188,7 +195,6 @@
       return { ch: ch, score: score };
     }).filter(function (x) { return x.score > 0; })
       .sort(function (a, b) { return b.score - a.score; });
-    return scored;
   }
 
   function buildContext(query) {
@@ -206,7 +212,7 @@
     for (var j = 0; j < picked.length; j++) {
       ctx += '\n\n=== Repo: ' + picked[j].repo + ' | ' + picked[j].path + ' ===\n' + picked[j].body;
     }
-    return { ctx: ctx, names: picked.map(function (p) { return p.ch.path; }) };
+    return { ctx: ctx, names: picked.map(function (p) { return p.ch.repo + '/' + p.ch.path; }) };
   }
 
   /* ---------- prompt ---------- */
@@ -323,7 +329,7 @@
     if (i >= 0) text = text.slice(i + 2);
     try { navigator.clipboard.writeText(text); showMsg('Response copied.', true); } catch (e) { showMsg('Could not copy.', false); }
   };
-  document.getElementById('reload-bundle').onclick = function () { loadDoc(true).then(function () { showMsg('Bundle reloaded.', true); }); };
+  document.getElementById('reload-bundle').onclick = function () { loadBundles(true).then(function () { showMsg('Bundles reloaded.', true); }); };
 
   /* ---------- boot ---------- */
   (async function init() {
@@ -336,13 +342,13 @@
       token = session.access_token;
       var roleRes = await fetch(ROLE_API, { headers: { 'Authorization': 'Bearer ' + token } });
       var role = await roleRes.json().catch(function () { return {}; });
-      if (!role || role.role !== 'owner') {
-        gate.textContent = 'Diagnostics is owner-only.';
+      if (!role || (role.role !== 'owner' && role.role !== 'supervisor')) {
+        gate.textContent = 'Diagnostics is restricted to owners and supervisors.';
         return;
       }
       gate.style.display = 'none';
       app.style.display = 'block';
-      await loadDoc(false);
+      await loadBundles(false);
     } catch (e) {
       gate.textContent = 'Could not start: ' + e.message;
     }
