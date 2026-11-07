@@ -119,29 +119,44 @@
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
+      
+      // 1. We hit a separator line (================)
       if (sepRe.test(line)) {
-        if (expectFile && currentFile) {
+        // If we were already reading a file, push it to the array and reset
+        if (currentFile !== null) {
           files.push({ repo: repoLabel, path: currentFile, body: currentLines.join('\n') });
           currentFile = null;
           currentLines = [];
-          expectFile = false;
-        } else {
-          expectFile = true;
         }
+        // The next meaningful line should be the FILE: path
+        expectFile = true;
         continue;
       }
+      
+      // 2. We are expecting the FILE: path line
       if (expectFile) {
         var m = line.match(fileRe);
         if (m) {
           var p = m[1].trim().replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
           currentFile = p;
-          expectFile = false;
+          expectFile = false; // We found the file name, now read the body until the next separator
           continue;
         }
+        // If it's not a FILE: line, it's just a header (like "REPOSITORY CODEBASE..."). Ignore it.
+        continue; 
       }
-      if (currentFile) currentLines.push(line);
+      
+      // 3. We are inside a file body
+      if (currentFile !== null) {
+        currentLines.push(line);
+      }
     }
-    if (currentFile) files.push({ repo: repoLabel, path: currentFile, body: currentLines.join('\n') });
+    
+    // Catch the very last file if the document doesn't end with a separator
+    if (currentFile !== null) {
+      files.push({ repo: repoLabel, path: currentFile, body: currentLines.join('\n') });
+    }
+    
     return files;
   }
 
