@@ -73,7 +73,7 @@
   </div>
   <pre id="output"></pre>
   <div class="hint">
-    The tool parses your RepoBundle files, scores every file against your query, and sends only the most relevant code to the AI (plus the full file tree map). Output is a <b>proposed patch</b> — review before pasting.
+    The tool parses your RepoBundle files, scores every file against your query, and sends only the most relevant code (plus the full file tree) to the AI. Output is a <b>proposed patch</b> — review before pasting. You must be signed in to Weaver to run a diagnosis.
   </div>
   <a class="back" href="./index.html">&larr; Back to admin console</a>
 </div>
@@ -96,7 +96,6 @@
   var copyBtn = document.getElementById('copy');
   var output = document.getElementById('output');
   var selectedFilesEl = document.getElementById('selected-files');
-  var token = '';
   var allFiles = [];
   var controller = null;
 
@@ -108,45 +107,50 @@
     if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
   }
 
+  /* ---------- RepoBundle parser (3-state machine) ----------
+     Handles the exact format:
+       ====================...
+       File: path/to/file
+       ====================...
+       <file content>
+       ====================...
+       File: next/path
+       ...
+     Metadata headers (REPOSITORY CODEBASE, SOURCE CODE FILES,
+     the file tree) are skipped because they never match "File:". */
   function parseBundle(text, repoLabel) {
     var lines = text.split('\n');
     var files = [];
-    
-    var STATE_LOOKING = 0;
-    var STATE_EXPECT_SEP = 1;
-    var STATE_READING = 2;
-    
+    var STATE_LOOKING = 0, STATE_EXPECT_SEP = 1, STATE_READING = 2;
     var state = STATE_LOOKING;
     var currentPath = null;
     var currentLines = [];
-    
-    var sepRe = /^={5,}\s*$/;
+    var sepRe = /^={20,}\s*$/;
     var fileRe = /^File:\s*(.+?)\s*$/i;
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
       var isSep = sepRe.test(line);
-      
+
       if (state === STATE_LOOKING) {
-        if (isSep) continue; // skip separators while looking for the File: line
+        if (isSep) continue;
         var m = line.match(fileRe);
         if (m) {
           currentPath = m[1].trim();
           state = STATE_EXPECT_SEP;
         }
-      } 
-      else if (state === STATE_EXPECT_SEP) {
+      } else if (state === STATE_EXPECT_SEP) {
         if (isSep) {
-          state = STATE_READING; // we passed the separator, now read the code
+          state = STATE_READING;
           currentLines = [];
         } else {
-          state = STATE_LOOKING; // malformed, reset
+          state = STATE_LOOKING;
         }
-      }
-      else if (state === STATE_READING) {
+      } else if (state === STATE_READING) {
         if (isSep) {
-          // Hit the next separator, the file is complete
-          var cleanPath = currentPath.replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
+          var cleanPath = currentPath
+            .replace(/^Weaver-[\d.]+\//, '')
+            .replace(/^weaver-server-[\d.]+\//, '');
           files.push({ repo: repoLabel, path: cleanPath, body: currentLines.join('\n') });
           currentPath = null;
           currentLines = [];
@@ -156,13 +160,12 @@
         }
       }
     }
-    
-    // Catch the very last file if the document doesn't end with a separator
     if (state === STATE_READING && currentPath) {
-      var cleanPath = currentPath.replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
-      files.push({ repo: repoLabel, path: cleanPath, body: currentLines.join('\n') });
+      var cp = currentPath
+        .replace(/^Weaver-[\d.]+\//, '')
+        .replace(/^weaver-server-[\d.]+\//, '');
+      files.push({ repo: repoLabel, path: cp, body: currentLines.join('\n') });
     }
-    
     return files;
   }
 
@@ -178,13 +181,10 @@
       ]);
       if (!results[0].ok) throw new Error('Frontend bundle: HTTP ' + results[0].status);
       if (!results[1].ok) throw new Error('Server bundle: HTTP ' + results[1].status);
-
       var feText = await results[0].text();
       var beText = await results[1].text();
-
       var feFiles = parseBundle(feText, 'Weaver');
       var beFiles = parseBundle(beText, 'weaver-server');
-
       allFiles = feFiles.concat(beFiles);
       statusEl.textContent = 'Bundles loaded · ' + feFiles.length + ' frontend + ' + beFiles.length + ' server files';
       runBtn.disabled = false;
@@ -193,13 +193,13 @@
     }
   }
 
+  /* ---------- retrieval / scoring ---------- */
   function scoreFiles(query) {
-    var tokens = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function(t) {
+    var tokens = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function (t) {
       return t.length > 2 && !STOP.has(t);
     });
-    if (!tokens.length) return allFiles.map(function(f) { return { file: f, score: 0 }; });
-
-    return allFiles.map(function(f) {
+    if (!tokens.length) return allFiles.map(function (f) { return { file: f, score: 0 }; });
+    return allFiles.map(function (f) {
       var score = 0;
       var pathLc = f.path.toLowerCase();
       var bodyLc = f.body.toLowerCase();
@@ -211,7 +211,7 @@
         while (idx >= 0 && count < 5) { score += 1; count++; idx = bodyLc.indexOf(t, idx + t.length); }
       }
       return { file: f, score: score };
-    }).filter(function(x) { return x.score > 0; }).sort(function(a, b) { return b.score - a.score; });
+    }).filter(function (x) { return x.score > 0; }).sort(function (a, b) { return b.score - a.score; });
   }
 
   function buildContext(query) {
@@ -219,27 +219,24 @@
     var budget = 80000;
     var picked = [];
     var used = 0;
-
     for (var i = 0; i < ranked.length; i++) {
       if (picked.length >= 8) break;
       if (used + ranked[i].file.body.length > budget && picked.length >= 1) break;
       picked.push(ranked[i].file);
       used += ranked[i].file.body.length;
     }
-
     if (!picked.length && allFiles.length > 0) {
       for (var j = 0; j < 3 && j < allFiles.length; j++) picked.push(allFiles[j]);
     }
-
-    var tree = allFiles.map(function(f) { return '- ' + f.repo + '/' + f.path; }).join('\n');
+    var tree = allFiles.map(function (f) { return '- ' + f.repo + '/' + f.path; }).join('\n');
     var ctx = '';
     for (var k = 0; k < picked.length; k++) {
       ctx += '\n\n=== Repo: ' + picked[k].repo + ' | ' + picked[k].path + ' ===\n' + picked[k].body;
     }
-    return { ctx: ctx, names: picked.map(function(p) { return p.repo + '/' + p.path; }), tree: tree };
+    return { ctx: ctx, names: picked.map(function (p) { return p.repo + '/' + p.path; }), tree: tree };
   }
 
-  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based privacy-first novel-writing studio.\n' +
+  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based privacy-first novel-writing studio (static ES-module frontend on GitHub Pages + Supabase Edge Functions backend).\n' +
     'You receive a FILE TREE of the entire codebase, plus the FULL SOURCE of the most relevant files for the reported issue.\n\n' +
     'HARD RULES\n' +
     '1. Base every claim on the provided code. Never invent files, functions, APIs, or CSS classes not visible in it.\n' +
@@ -276,10 +273,23 @@
     return pump();
   }
 
-  function diagnose() {
+  async function getSessionToken() {
+    try {
+      var session = (await client.auth.getSession()).data.session;
+      return session ? session.access_token : '';
+    } catch (e) { return ''; }
+  }
+
+  async function diagnose() {
     var query = issueEl.value.trim().slice(0, 2000);
     if (!query) { showMsg('Describe the issue first.', false); return; }
     if (!allFiles.length) { showMsg('Codebases not loaded. Click Reload.', false); return; }
+
+    var token = await getSessionToken();
+    if (!token) {
+      showMsg('You must be signed in to Weaver to run a diagnosis. Open the app, sign in, then reload this page.', false);
+      return;
+    }
 
     var built = buildContext(query);
     if (!built.names.length) { showMsg('No relevant files matched. Try naming the exact file or feature.', false); return; }
@@ -317,8 +327,8 @@
       if (!res.ok) {
         return res.json().catch(function () { return {}; }).then(function (d) {
           var extra = '';
-          if (res.status === 402) extra = ' — Grant yourself Pro in Credits tab.';
-          if (res.status === 503) extra = ' — No AI providers configured.';
+          if (res.status === 402) extra = ' — Diagnostics needs an active Pro entitlement. Grant yourself Pro in the Credits tab.';
+          if (res.status === 503) extra = ' — No AI providers configured. Check the AI Keys tab.';
           throw new Error((d.error || 'HTTP ' + res.status) + extra);
         });
       }
@@ -359,19 +369,7 @@
     loadBundles(true).then(function () { showMsg('Reloaded.', true); });
   };
 
-  (async function init() {
-    try {
-      var session = (await client.auth.getSession()).data.session;
-      if (!session) {
-        showMsg('Sign in to Weaver first. Open the app, sign in, then reload this page.', false);
-        return;
-      }
-      token = session.access_token;
-      await loadBundles(false);
-    } catch (e) {
-      showMsg('Could not start: ' + e.message, false);
-    }
-  })();
+  loadBundles(false);
 })();
 </script>
 </body>
