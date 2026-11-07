@@ -111,50 +111,56 @@
   function parseBundle(text, repoLabel) {
     var lines = text.split('\n');
     var files = [];
-    var currentFile = null;
+    
+    var STATE_LOOKING = 0;
+    var STATE_EXPECT_SEP = 1;
+    var STATE_READING = 2;
+    
+    var state = STATE_LOOKING;
+    var currentPath = null;
     var currentLines = [];
-    var expectFile = false;
+    
     var sepRe = /^={5,}\s*$/;
-    var fileRe = /^FILE:\s*(.+?)\s*$/;
+    var fileRe = /^File:\s*(.+?)\s*$/i;
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
+      var isSep = sepRe.test(line);
       
-      // 1. We hit a separator line (================)
-      if (sepRe.test(line)) {
-        // If we were already reading a file, push it to the array and reset
-        if (currentFile !== null) {
-          files.push({ repo: repoLabel, path: currentFile, body: currentLines.join('\n') });
-          currentFile = null;
-          currentLines = [];
-        }
-        // The next meaningful line should be the FILE: path
-        expectFile = true;
-        continue;
-      }
-      
-      // 2. We are expecting the FILE: path line
-      if (expectFile) {
+      if (state === STATE_LOOKING) {
+        if (isSep) continue; // skip separators while looking for the File: line
         var m = line.match(fileRe);
         if (m) {
-          var p = m[1].trim().replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
-          currentFile = p;
-          expectFile = false; // We found the file name, now read the body until the next separator
-          continue;
+          currentPath = m[1].trim();
+          state = STATE_EXPECT_SEP;
         }
-        // If it's not a FILE: line, it's just a header (like "REPOSITORY CODEBASE..."). Ignore it.
-        continue; 
+      } 
+      else if (state === STATE_EXPECT_SEP) {
+        if (isSep) {
+          state = STATE_READING; // we passed the separator, now read the code
+          currentLines = [];
+        } else {
+          state = STATE_LOOKING; // malformed, reset
+        }
       }
-      
-      // 3. We are inside a file body
-      if (currentFile !== null) {
-        currentLines.push(line);
+      else if (state === STATE_READING) {
+        if (isSep) {
+          // Hit the next separator, the file is complete
+          var cleanPath = currentPath.replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
+          files.push({ repo: repoLabel, path: cleanPath, body: currentLines.join('\n') });
+          currentPath = null;
+          currentLines = [];
+          state = STATE_LOOKING;
+        } else {
+          currentLines.push(line);
+        }
       }
     }
     
     // Catch the very last file if the document doesn't end with a separator
-    if (currentFile !== null) {
-      files.push({ repo: repoLabel, path: currentFile, body: currentLines.join('\n') });
+    if (state === STATE_READING && currentPath) {
+      var cleanPath = currentPath.replace(/^Weaver-[\d\.]+\//, '').replace(/^weaver-server-[\d\.]+\//, '');
+      files.push({ repo: repoLabel, path: cleanPath, body: currentLines.join('\n') });
     }
     
     return files;
