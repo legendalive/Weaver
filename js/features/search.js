@@ -1,25 +1,20 @@
 /* =========================================================
 Weaver — js/features/search.js
-V4.2: Search, rebuilt for both viewports.
+V4.3: Search, rebuilt for both viewports.
 
-WHY
-- Search was display:none at ≤860px — phone users had no way
-  to find a name or phrase in a 100k-word book.
-- Desktop marked the FIRST match in the mounted DOM, not the
-  match you jumped to, so the highlight lied after hit #1.
-- Text nodes were never normalised after unmarking, so repeat
-  searches fragmented nodes and silently missed matches.
+MOBILE ENTRY (fixed): a dedicated Search pill is appended to
+the mobile .panel-pills bar — sticky to the right edge so it
+stays reachable even when the pill row scrolls. It is injected
+on every workspace render and does not depend on the ⋯ sheet
+existing. The ⋯ sheet row is still added as a secondary path,
+now via a body childList observer so lazy creation is caught.
 
-NOW
-- Desktop: collapsing magnifier → input + count + list toggle
-  + ‹ › + clear, with a browsable results dropdown.
-- Phone: full results sheet (bottom half, text stays visible
-  above it), reached from ⋯ → Search or Ctrl/Cmd+F.
-- Every result shows its panel (draft = cool blue, canon =
-  gold) and its nearest chapter heading, with a live snippet.
-- Jumping marks the EXACT hit by ordinal, reveals it in the
-  visible region, and switches panel/expand state as needed.
-- Marks stay transient and sync-safe; nodes are normalised.
+Desktop: collapsing magnifier → input + count + list + ‹ › + ×,
+with a browsable results dropdown.
+Both: results tagged Draft (cool) / Canon (gold) with their
+nearest chapter heading; jumping marks the EXACT hit by ordinal
+and reveals it in the visible region; nodes are normalised so
+repeat searches never silently miss.
 ========================================================= */
 import { el, clear } from '../utils/dom.js';
 import { getState, setUI, subscribe } from '../core/state.js';
@@ -34,9 +29,9 @@ const DEBOUNCE = 220;
 
 const CSS = `
 :root{
-  --ws-ms:#7eb8da;          /* Manuscript = working draft (cool) */
+  --ws-ms:#7eb8da;
   --ws-ms-soft:rgba(126,184,218,.13);
-  --ws-nv:#e0a83c;          /* Main Novel = canon (gold) */
+  --ws-nv:#e0a83c;
   --ws-nv-soft:rgba(224,168,60,.13);
 }
 
@@ -72,6 +67,22 @@ const CSS = `
 .ws-count.is-novel{color:var(--ws-nv);}
 .ws-count.is-manuscript{color:var(--ws-ms);}
 .ws-count.is-none{color:var(--danger);}
+
+/* ---------- MOBILE SEARCH PILL (always reachable) ---------- */
+.ws-pill{
+  position:sticky;right:0;margin-left:auto;flex:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:34px;padding:0;
+  border-radius:999px;border:1px solid rgba(224,168,60,.5);
+  background:var(--surface);color:var(--accent);cursor:pointer;
+  box-shadow:-12px 0 14px var(--bg);
+  transition:background .15s ease,border-color .15s ease,transform .08s ease;
+}
+.ws-pill:hover{background:var(--accent-soft);border-color:var(--accent);}
+.ws-pill:active{transform:scale(.94);}
+.ws-pill.is-live{background:var(--accent-soft);border-color:var(--accent);}
+.ws-pill .icon{width:16px;height:16px;}
+@media (min-width:861px){ .ws-pill{display:none;} }
 
 /* ---------- shared result rows ---------- */
 .ws-list{
@@ -148,7 +159,7 @@ const CSS = `
 @keyframes ws-fade{from{opacity:0;}to{opacity:1;}}
 .ws-sheet{
   position:fixed;left:0;right:0;bottom:0;z-index:95;
-  height:56vh;display:none;flex-direction:column;
+  height:58vh;display:none;flex-direction:column;
   background:var(--surface);border-top:1px solid var(--border-strong);
   border-radius:16px 16px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.6);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -203,6 +214,7 @@ function ensureStyle() {
 /* ---------- state ---------- */
 let bar = null, input = null, countEl = null, drop = null, dropList = null;
 let sheet = null, scrim = null, sheetInput = null, sheetList = null, sheetCount = null, footCount = null;
+let mobilePill = null;
 let chipSets = [];
 let query = '';
 let filter = 'all';
@@ -212,17 +224,15 @@ let allResults = [];
 let pos = -1;
 let debounce = null;
 let dropOpen = false;
+let bodyObserver = null;
 
 function isMobile() { return window.matchMedia('(max-width:860px)').matches; }
 function sheetOpen() { return !!(sheet && sheet.classList.contains('is-open')); }
 function panelLabel(k) { return k === 'manuscript' ? 'Manuscript' : 'Main Novel'; }
 function panelSel(k) { return `.panel[data-panel="${k === 'manuscript' ? 'manuscript' : 'novel'}"]`; }
+function shown() { return filter === 'all' ? allResults : allResults.filter((r) => r.panel === filter); }
 
-function shown() {
-  return filter === 'all' ? allResults : allResults.filter((r) => r.panel === filter);
-}
-
-/* ---------- magnifier (independent of the icon registry) ---------- */
+/* ---------- magnifier ---------- */
 function magnifier(cls) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -230,8 +240,9 @@ function magnifier(cls) {
   svg.setAttribute('stroke', 'currentColor');
   svg.setAttribute('stroke-width', '2');
   svg.setAttribute('stroke-linecap', 'round');
-  svg.setAttribute('round', 'round');
-  if (cls) svg.setAttribute('class', cls);
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', ('icon ' + (cls || '')).trim());
   const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   c.setAttribute('cx', '11'); c.setAttribute('cy', '11'); c.setAttribute('r', '7.5');
   const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -245,13 +256,9 @@ function magnifier(cls) {
 function findHits(text, q) {
   const out = [];
   if (!q || !text) return out;
-  const hay = text.toLowerCase();
-  const needle = q.toLowerCase();
+  const hay = text.toLowerCase(), needle = q.toLowerCase();
   let i = hay.indexOf(needle);
-  while (i >= 0 && out.length < MAX_MATCHES) {
-    out.push(i);
-    i = hay.indexOf(needle, i + needle.length);
-  }
+  while (i >= 0 && out.length < MAX_MATCHES) { out.push(i); i = hay.indexOf(needle, i + needle.length); }
   return out;
 }
 
@@ -263,9 +270,7 @@ function recompute() {
   const project = getState().project;
   if (!project || !query) return;
   for (const key of ['manuscript', 'novel']) {
-    const text = key === 'manuscript'
-      ? (project.manuscript.text || '')
-      : (project.mainNovel.text || '');
+    const text = key === 'manuscript' ? (project.manuscript.text || '') : (project.mainNovel.text || '');
     const arr = findHits(text, query);
     hits[key] = arr;
     if (!arr.length) continue;
@@ -281,10 +286,7 @@ function headingFor(r) {
   if (!m) return '';
   const bi = blockAtOffset(m.blocks, r.off);
   let title = '';
-  for (const h of m.headings) {
-    if (h.index <= bi) title = h.title;
-    else break;
-  }
+  for (const h of m.headings) { if (h.index <= bi) title = h.title; else break; }
   return title;
 }
 
@@ -300,7 +302,7 @@ function snippetFor(r) {
   };
 }
 
-/* ---------- marking (exact ordinal, sync-safe) ---------- */
+/* ---------- marking ---------- */
 function clearMarks() {
   const touched = new Set();
   document.querySelectorAll('mark.ws-hit').forEach((m) => {
@@ -337,7 +339,6 @@ function markNth(sel, q, n) {
   return null;
 }
 
-/* Cross-line queries can't be marked inline — light the block instead. */
 function markBlockFallback(sel) {
   const node = document.querySelector(sel + ' .panel-body .ms-block, ' + sel + ' .panel-body .mn-block');
   if (!node) return null;
@@ -374,9 +375,7 @@ function goto(index) {
   const project = getState().project;
   if (!project) return;
 
-  const text = r.panel === 'manuscript'
-    ? (project.manuscript.text || '')
-    : (project.mainNovel.text || '');
+  const text = r.panel === 'manuscript' ? (project.manuscript.text || '') : (project.mainNovel.text || '');
   const blocks = buildBlockIndex(text);
   if (!blocks.length) return;
   const bi = blockAtOffset(blocks, r.off);
@@ -398,10 +397,7 @@ function goto(index) {
   });
 }
 
-function step(delta) {
-  if (!shown().length) return;
-  goto(pos + delta);
-}
+function step(delta) { if (shown().length) goto(pos + delta); }
 
 /* ---------- counts ---------- */
 function paintCounts() {
@@ -419,31 +415,31 @@ function paintCounts() {
     else if (cur) node.classList.add(cur === 'novel' ? 'is-novel' : 'is-manuscript');
   }
   if (countEl && cur) countEl.title = `Match ${pos + 1} of ${total} · ${panelLabel(cur)}`;
+  if (mobilePill) {
+    mobilePill.classList.toggle('is-live', Boolean(query && total));
+    mobilePill.title = query && total ? `Search — ${total} match${total === 1 ? '' : 'es'}` : 'Search your book';
+  }
 }
 
 /* ---------- result rows ---------- */
 function resultRow(r, i) {
   const sn = snippetFor(r);
   const chapter = headingFor(r);
-  const snip = el('div', { class: 'ws-snip' }, [
-    document.createTextNode(sn.pre),
-    el('mark', { text: sn.hit }),
-    document.createTextNode(sn.post),
-  ]);
   return el('button', {
     class: `ws-row is-${r.panel}` + (i === pos ? ' is-active' : ''),
     dataset: { wsRow: String(i) },
-    onclick: () => {
-      goto(i);
-      if (!isMobile()) setDropOpen(false);
-    },
+    onclick: () => { goto(i); if (!isMobile()) setDropOpen(false); },
   }, [
     el('div', { class: 'ws-row-top' }, [
       el('span', { class: `ws-tag is-${r.panel}`, text: r.panel === 'manuscript' ? 'Draft' : 'Canon' }),
       el('span', { class: 'ws-chapter', text: chapter || panelLabel(r.panel) }),
       el('span', { class: 'ws-num', text: `#${i + 1}` }),
     ]),
-    snip,
+    el('div', { class: 'ws-snip' }, [
+      document.createTextNode(sn.pre),
+      el('mark', { text: sn.hit }),
+      document.createTextNode(sn.post),
+    ]),
   ]);
 }
 
@@ -461,9 +457,7 @@ function paintList(host) {
   if (!list.length) {
     host.appendChild(el('div', {
       class: 'ws-empty',
-      text: filter === 'all'
-        ? `No matches for “${query}”.`
-        : `No matches in the ${panelLabel(filter)}. Try “All”.`,
+      text: filter === 'all' ? `No matches for “${query}”.` : `No matches in the ${panelLabel(filter)}. Try “All”.`,
     }));
     return;
   }
@@ -484,7 +478,7 @@ function paintActiveRow() {
       n.classList.toggle('is-active', Number(n.dataset.wsRow) === pos);
     });
     const active = host.querySelector('.ws-row.is-active');
-    if (active && host.contains(active)) {
+    if (active) {
       const hRect = host.getBoundingClientRect();
       const aRect = active.getBoundingClientRect();
       if (aRect.top < hRect.top || aRect.bottom > hRect.bottom) {
@@ -494,14 +488,9 @@ function paintActiveRow() {
   }
 }
 
-function paintAll() {
-  paintList(dropList);
-  paintList(sheetList);
-  paintCounts();
-  paintChips();
-}
+function paintAll() { paintList(dropList); paintList(sheetList); paintCounts(); paintChips(); }
 
-/* ---------- filter chips ---------- */
+/* ---------- chips ---------- */
 function buildChips() {
   const wrap = el('div', { class: 'ws-chips' });
   const defs = [['all', 'All'], ['manuscript', 'Draft'], ['novel', 'Canon']];
@@ -515,16 +504,13 @@ function buildChips() {
       paintAll();
       if (list.length) goto(0);
     },
-  }, []));
+  }));
   btns.forEach((b, i) => { b.dataset.wsFilter = defs[i][0]; wrap.appendChild(b); });
   chipSets.push(btns);
   return wrap;
 }
-
 function paintChips() {
-  for (const set of chipSets) {
-    for (const b of set) b.classList.toggle('is-on', b.dataset.wsFilter === filter);
-  }
+  for (const set of chipSets) for (const b of set) b.classList.toggle('is-on', b.dataset.wsFilter === filter);
 }
 
 /* ---------- query plumbing ---------- */
@@ -544,7 +530,7 @@ function onInput(value) {
   clearTimeout(debounce);
   debounce = setTimeout(() => {
     applyQuery(value);
-    if (bar) bar.classList.toggle('is-open', true);
+    if (bar) bar.classList.add('is-open');
   }, DEBOUNCE);
 }
 
@@ -589,23 +575,14 @@ function buildDrop() {
 }
 
 function buildBar() {
-  input = el('input', {
-    class: 'input ws-input', type: 'text', placeholder: 'Search manuscript & novel…',
-    value: query,
-  });
+  input = el('input', { class: 'input ws-input', type: 'text', placeholder: 'Search manuscript & novel…', value: query });
   countEl = el('span', { class: 'ws-count' });
   const listBtn = el('button', {
     class: 'btn btn-ghost', title: 'Show result list', text: '☰',
     onclick: () => { buildDrop(); setDropOpen(!dropOpen); },
   });
-  const prev = el('button', {
-    class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '‹',
-    onclick: () => step(-1),
-  });
-  const next = el('button', {
-    class: 'btn btn-ghost', title: 'Next match (Enter)', text: '›',
-    onclick: () => step(1),
-  });
+  const prev = el('button', { class: 'btn btn-ghost', title: 'Previous match (Shift+Enter)', text: '‹', onclick: () => step(-1) });
+  const next = el('button', { class: 'btn btn-ghost', title: 'Next match (Enter)', text: '›', onclick: () => step(1) });
   const clr = el('button', {
     class: 'btn btn-ghost', title: 'Clear search (Esc)', text: '×',
     onclick: () => { clearSearch(); if (input) input.blur(); if (bar) bar.classList.remove('is-open'); },
@@ -636,7 +613,7 @@ function buildBar() {
     class: 'ws-bar' + (query ? ' is-open' : ''),
     dataset: { wsBound: '1' },
     title: 'Search (Ctrl/Cmd+F)',
-  }, [magnifier('icon'), input, countEl, listBtn, prev, next, clr]);
+  }, [magnifier(), input, countEl, listBtn, prev, next, clr]);
 
   bar.addEventListener('click', () => {
     if (!bar.classList.contains('is-open')) {
@@ -650,9 +627,7 @@ function buildBar() {
 /* ---------- mobile sheet ---------- */
 function buildSheet() {
   if (sheet) return sheet;
-  sheetInput = el('input', {
-    class: 'ws-input', type: 'search', placeholder: 'Search your book…', value: query,
-  });
+  sheetInput = el('input', { class: 'ws-input', type: 'search', placeholder: 'Search your book…', value: query });
   sheetCount = el('span', { class: 'ws-count' });
   footCount = el('span', { class: 'ws-foot-count' });
   sheetList = el('div', { class: 'ws-list' });
@@ -671,7 +646,7 @@ function buildSheet() {
   scrim = el('div', { class: 'ws-scrim', onclick: () => closeMobileSearch() });
   sheet = el('div', { class: 'ws-sheet', role: 'dialog', 'aria-label': 'Search' }, [
     el('div', { class: 'ws-grab' }),
-    el('div', { class: 'ws-sheet-head' }, [magnifier('icon'), sheetInput, closeBtn]),
+    el('div', { class: 'ws-sheet-head' }, [magnifier(), sheetInput, closeBtn]),
     el('div', { class: 'ws-sheet-meta' }, [sheetCount, buildChips()]),
     sheetList,
     el('div', { class: 'ws-sheet-foot' }, [
@@ -699,12 +674,32 @@ export function closeMobileSearch() {
   if (scrim) scrim.classList.remove('is-open');
 }
 
-/* ---------- ⋯ More-sheet entry (no workspace.js edit needed) ---------- */
+/* ---------- MOBILE ENTRY 1: pill in the panel-pill bar ----------
+   The pill bar is rendered in the DOM on every workspace render
+   (never lazily), so this always lands. Sticky-right keeps it
+   reachable when the row scrolls. */
+function injectMobilePill() {
+  const host = document.querySelector('.panel-pills');
+  if (!host) return;
+  if (host.querySelector('.ws-pill')) { mobilePill = host.querySelector('.ws-pill'); return; }
+  mobilePill = el('button', {
+    class: 'ws-pill',
+    type: 'button',
+    title: 'Search your book',
+    'aria-label': 'Search your book',
+    onclick: (e) => { e.stopPropagation(); openMobileSearch(); },
+  }, [magnifier()]);
+  host.appendChild(mobilePill);
+  paintCounts();
+}
+
+/* ---------- MOBILE ENTRY 2: row in the ⋯ sheet ---------- */
 function injectMoreEntry() {
   const host = document.querySelector('.tb-more-sheet');
   if (!host || host.querySelector('[data-ws-search-entry]')) return;
   const row = el('button', {
     class: 'btn btn-sm',
+    type: 'button',
     dataset: { wsSearchEntry: '1' },
     onclick: () => { host.classList.remove('is-open'); openMobileSearch(); },
   }, [magnifier('icon-sm'), el('span', { text: 'Search' })]);
@@ -713,9 +708,17 @@ function injectMoreEntry() {
 
 function bindMoreEntry() {
   const more = document.querySelector('.tb-more');
-  if (!more || more.dataset.wsSearchBound) return;
-  more.dataset.wsSearchBound = '1';
-  more.addEventListener('click', () => requestAnimationFrame(injectMoreEntry));
+  if (more && !more.dataset.wsSearchBound) {
+    more.dataset.wsSearchBound = '1';
+    more.addEventListener('click', () => requestAnimationFrame(injectMoreEntry));
+  }
+  /* The ⋯ sheet is created lazily and appended to <body>.
+     A childList-only observer on body catches it cheaply. */
+  if (!bodyObserver && typeof MutationObserver !== 'undefined') {
+    bodyObserver = new MutationObserver(() => { injectMoreEntry(); });
+    bodyObserver.observe(document.body, { childList: true });
+  }
+  injectMoreEntry();
 }
 
 /* ---------- bind / lifecycle ---------- */
@@ -732,8 +735,12 @@ function bind() {
       countEl = old.querySelector('.ws-count');
     }
   }
+  injectMobilePill();
   bindMoreEntry();
   paintCounts();
+  /* Second pass after layout, in case the pill bar was rebuilt
+     by a subscriber that ran after ours. */
+  requestAnimationFrame(() => { injectMobilePill(); injectMoreEntry(); });
 }
 
 function resetAll() {
@@ -774,6 +781,7 @@ export function initSearch() {
   window.addEventListener('resize', () => {
     if (dropOpen) positionDrop();
     if (!isMobile()) closeMobileSearch();
+    injectMobilePill();
   });
 
   document.addEventListener('click', (e) => {
@@ -789,5 +797,6 @@ export function initSearch() {
     }
     if (change.view) { resetAll(); bind(); }
     else if (change.project && !change.silent) { clearMarks(); recompute(); paintAll(); }
+    else if (change.ui) { injectMobilePill(); }
   });
 }
