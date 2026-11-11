@@ -5,276 +5,235 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weaver — Diagnostics</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0b0b0c; color: #e8e5dd;
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-    min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
-    padding: 40px 18px;
-  }
-  .card {
-    width: min(900px, 100%); background: #141416;
-    border: 1px solid #2b2b30; border-radius: 14px; padding: 26px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.55);
-  }
-  h1 { font-size: 1.15rem; font-weight: 650; letter-spacing: .03em; margin-bottom: 4px; }
-  .sub { color: #94918a; font-size: .8rem; margin-bottom: 18px; line-height: 1.55; }
-  .msg { padding: 10px 12px; border-radius: 10px; font-size: .85rem; margin-bottom: 14px; display: none; }
-  .msg.ok { display: block; background: rgba(127,176,105,.12); border: 1px solid rgba(127,176,105,.35); color: #7fb069; }
-  .msg.err { display: block; background: rgba(212,96,79,.12); border: 1px solid rgba(212,96,79,.35); color: #d4604f; }
-  .bundle-bar {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-    padding: 10px 12px; background: #1c1c20; border: 1px solid #2b2b30; border-radius: 10px; margin-bottom: 14px;
-  }
-  .bundle-status { font-size: .76rem; color: #94918a; font-family: "JetBrains Mono", monospace; }
-  textarea {
-    width: 100%; padding: 12px; font-size: .9rem; color: #e8e5dd;
-    border: 1px solid #3a3a40; border-radius: 10px; background: #0f0f11;
-    font-family: inherit; line-height: 1.55; resize: vertical; min-height: 96px;
-  }
-  textarea:focus { outline: none; border-color: #e0a43c; }
-  .row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
-  button {
-    padding: 10px 16px; border-radius: 10px; border: 1px solid #3a3a40;
-    background: #1c1c20; color: #e8e5dd; font-size: .88rem; font-weight: 600; cursor: pointer;
-  }
-  button.primary { background: #e0a43c; border-color: #e0a43c; color: #17130a; }
-  button.primary:hover { filter: brightness(1.08); }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  button.sm { padding: 7px 12px; font-size: .78rem; }
-  pre#output {
-    display: none; white-space: pre-wrap; overflow-wrap: anywhere;
-    padding: 14px; background: #0f0f11; border: 1px solid #2b2b30; border-radius: 10px;
-    font-family: "JetBrains Mono", Consolas, monospace; font-size: .8rem; line-height: 1.6;
-    max-height: 60vh; overflow-y: auto; color: #d8d4ca;
-  }
-  pre#output.has-error { border-color: rgba(212,96,79,.5); color: #d4604f; }
-  .back { display: inline-block; margin-top: 18px; color: #e0a43c; font-size: .82rem; text-decoration: none; }
-  .hint { font-size: .72rem; color: #6b6862; line-height: 1.6; margin-top: 10px; }
-  .selected-files { font-size: .72rem; color: #94918a; font-family: "JetBrains Mono", monospace; margin-top: 8px; line-height: 1.5; }
-  .selected-files b { color: #e0a43c; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b0b0c;color:#e8e5dd;font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+       min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:36px 16px}
+  .card{width:min(940px,100%);background:#141416;border:1px solid #2b2b30;border-radius:14px;
+        padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.55)}
+  h1{font-size:1.15rem;font-weight:650;letter-spacing:.03em;margin-bottom:4px}
+  .sub{color:#94918a;font-size:.8rem;margin-bottom:16px;line-height:1.55}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid #2b2b30;padding-bottom:10px}
+  .tab{padding:7px 14px;border-radius:999px;border:1px solid #2b2b30;background:#1c1c20;
+       color:#94918a;font-size:.8rem;font-weight:600;cursor:pointer}
+  .tab.on{background:rgba(224,164,60,.14);border-color:rgba(224,164,60,.5);color:#e0a43c}
+  .pane{display:none}.pane.on{display:block}
+  .msg{padding:10px 12px;border-radius:10px;font-size:.84rem;margin-bottom:14px;display:none;line-height:1.5}
+  .msg.ok{display:block;background:rgba(127,176,105,.12);border:1px solid rgba(127,176,105,.35);color:#7fb069}
+  .msg.err{display:block;background:rgba(212,96,79,.12);border:1px solid rgba(212,96,79,.35);color:#d4604f}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+       padding:10px 12px;background:#1c1c20;border:1px solid #2b2b30;border-radius:10px;margin-bottom:14px}
+  .status{font-size:.74rem;color:#94918a;font-family:"JetBrains Mono",monospace;line-height:1.5}
+  textarea,input[type=text],input[type=password],input[type=number],select{
+    width:100%;padding:10px 12px;font-size:.88rem;color:#e8e5dd;border:1px solid #3a3a40;
+    border-radius:10px;background:#0f0f11;font-family:inherit}
+  textarea{line-height:1.55;resize:vertical;min-height:96px}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:#e0a43c}
+  .row{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;align-items:center}
+  button{padding:9px 15px;border-radius:10px;border:1px solid #3a3a40;background:#1c1c20;
+         color:#e8e5dd;font-size:.86rem;font-weight:600;cursor:pointer}
+  button.primary{background:#e0a43c;border-color:#e0a43c;color:#17130a}
+  button.primary:hover{filter:brightness(1.08)}
+  button.danger{color:#d4604f;background:transparent}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.sm{padding:6px 11px;font-size:.76rem}
+  pre#output{display:none;white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;background:#0f0f11;
+    border:1px solid #2b2b30;border-radius:10px;font-family:"JetBrains Mono",Consolas,monospace;
+    font-size:.79rem;line-height:1.6;max-height:62vh;overflow-y:auto;color:#d8d4ca}
+  pre#output.has-error{border-color:rgba(212,96,79,.5);color:#d4604f}
+  .hint{font-size:.72rem;color:#6b6862;line-height:1.6;margin-top:10px}
+  .sel{font-size:.72rem;color:#94918a;font-family:"JetBrains Mono",monospace;margin-top:8px;line-height:1.5}
+  .sel b{color:#e0a43c}
+  .back{display:inline-block;margin-top:18px;color:#e0a43c;font-size:.82rem;text-decoration:none}
+  .pcard{border:1px solid #2b2b30;border-radius:12px;background:#1c1c20;padding:14px;margin-bottom:12px}
+  .phead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .pname{font-size:.95rem;font-weight:650}
+  .badge{font-size:.64rem;font-family:"JetBrains Mono",monospace;padding:2px 8px;border-radius:999px;
+         border:1px solid #3a3a40;color:#94918a}
+  .badge.on{color:#7fb069;border-color:rgba(127,176,105,.45);background:rgba(127,176,105,.1)}
+  .field{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+  .label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#94918a;font-weight:650}
+  .chk{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer}
+  .chk input{width:16px;height:16px;accent-color:#e0a43c}
+  .models{margin-top:10px;max-height:150px;overflow-y:auto;border:1px dashed #3a3a40;border-radius:8px;
+          padding:8px;font-family:"JetBrains Mono",monospace;font-size:.7rem;color:#94918a;line-height:1.7}
+  .models .top{color:#e0a43c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  a.k{color:#e0a43c;font-size:.74rem}
 </style>
 </head>
 <body>
 <div class="card">
   <h1>Diagnostics</h1>
-  <div class="sub">Describe the problem. The AI reads the codebase map, selects the most relevant files, and answers with a diagnosis and corrected code.</div>
+  <div class="sub">Reads both codebase bundles, selects the files relevant to your issue, and answers with a diagnosis and corrected code. Runs on <b>your own</b> Gemini / Groq keys — never the production AI proxy.</div>
+
+  <div class="tabs">
+    <span class="tab on" data-tab="diag">Diagnose</span>
+    <span class="tab" data-tab="set">AI Settings</span>
+  </div>
+
   <div id="msg" class="msg"></div>
-  <div class="bundle-bar">
-    <span id="bundle-status" class="bundle-status">Codebases: loading…</span>
-    <button id="reload-bundle" class="sm">Reload</button>
+
+  <!-- ============ DIAGNOSE ============ -->
+  <div id="pane-diag" class="pane on">
+    <div class="bar">
+      <span id="bundle-status" class="status">Codebases: loading…</span>
+      <button id="reload" class="sm">Reload bundles</button>
+    </div>
+    <div class="bar">
+      <span id="ai-status" class="status">AI: not configured</span>
+      <button id="go-settings" class="sm">AI Settings</button>
+    </div>
+    <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'Recheck says no selection detected' or paste the exact console error."></textarea>
+    <div id="sel" class="sel"></div>
+    <div class="row">
+      <button id="run" class="primary" disabled>Diagnose</button>
+      <button id="stop" disabled>Stop</button>
+      <button id="copy" disabled>Copy response</button>
+    </div>
+    <pre id="output"></pre>
+    <div class="hint">Only the most relevant files plus the file tree are sent. Output is a <b>proposed patch</b> — review before pasting.</div>
   </div>
-  <textarea id="issue" rows="4" placeholder="Describe the issue… e.g. 'The EPUB export downloads but the cover page is missing' or paste the exact console error."></textarea>
-  <div id="selected-files" class="selected-files"></div>
-  <div class="row">
-    <button id="run" class="primary" disabled>Diagnose</button>
-    <button id="stop" disabled>Stop</button>
-    <button id="copy" disabled>Copy response</button>
+
+  <!-- ============ SETTINGS ============ -->
+  <div id="pane-set" class="pane">
+    <div class="hint" style="margin:0 0 14px">
+      Keys are stored in <b>this browser only</b> (localStorage). They are never committed to the repo, never synced to your vault, and never sent to Supabase — only directly to the provider you enable. Production keys and customer quotas are untouched.
+    </div>
+    <div id="providers"></div>
+    <div class="pcard">
+      <div class="phead"><span class="pname">Behaviour</span></div>
+      <div class="grid2">
+        <div class="field">
+          <span class="label">Try first</span>
+          <select id="order">
+            <option value="gemini,groq">Gemini, then Groq</option>
+            <option value="groq,gemini">Groq, then Gemini</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="label">Context budget (characters)</span>
+          <input id="budget" type="number" min="20000" max="400000" step="10000">
+        </div>
+      </div>
+      <div class="hint">Models are discovered live and ranked for long-context code work. If one errors, the next is tried automatically — up to 8 attempts across both providers.</div>
+    </div>
+    <div class="row">
+      <button id="save" class="primary">Save settings</button>
+      <button id="refresh">Refresh model lists</button>
+      <button id="clear" class="danger">Clear all keys</button>
+    </div>
   </div>
-  <pre id="output"></pre>
-  <div class="hint">
-    The tool parses your RepoBundle files, scores every file against your query, and sends only the most relevant code (plus the full file tree) to the AI. Output is a <b>proposed patch</b> — review before pasting. You must be signed in to Weaver to run a diagnosis.
-  </div>
+
   <a class="back" href="./index.html">&larr; Back to admin console</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
-  var SB_URL = 'https://hiqmvhkwuvvgalqxxtbc.supabase.co';
-  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcW12aGt3dXZ2Z2FscXh4dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzQxOTMsImV4cCI6MjEwODAxMDE5M30.BgYJxwX7JFsrbKXeqhnS84rs7l9V1gWz9o-C5AZS8ls';
-  var AI_PROXY = 'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co/ai-proxy';
+  /* ================= constants ================= */
   var FRONTEND_URL = 'https://legendalive.github.io/Weaver/docs/weaver-codebase.txt';
-  var SERVER_URL = 'https://legendalive.github.io/Weaver/docs/server-codebase.txt';
+  var SERVER_URL   = 'https://legendalive.github.io/Weaver/docs/server-codebase.txt';
+  var CFG_KEY   = 'weaver_diagnostics_ai_v1';
+  var MODEL_KEY = 'weaver_diagnostics_models_v1';
+  var MODEL_TTL = 6 * 60 * 60 * 1000;
+  var MAX_ATTEMPTS = 8;
 
-  var client = window.supabase.createClient(SB_URL, SB_ANON);
-  var msg = document.getElementById('msg');
-  var statusEl = document.getElementById('bundle-status');
-  var issueEl = document.getElementById('issue');
-  var runBtn = document.getElementById('run');
-  var stopBtn = document.getElementById('stop');
-  var copyBtn = document.getElementById('copy');
-  var output = document.getElementById('output');
-  var selectedFilesEl = document.getElementById('selected-files');
-  var allFiles = [];
-  var controller = null;
+  /* Non-chat model families are excluded by CATEGORY, never by model id.
+     No specific model is ever named, required or defaulted anywhere. */
+  var EXCLUDE = /(embed|aqa|imagen|whisper|tts|text-to-speech|playai|guard|moderation|live|image-generation|rerank|compound|robotics)/i;
 
-  var STOP = new Set(['the','a','an','my','i','is','are','was','were','to','of','in','on','for','and','or','it','with','when','how','do','does','did','not','no','yes','me','you','your','weaver','app','can','cannot','about','please','this','that','have','has','had','be','been','it\'s','its','after','before','now','still','will','would','should','could']);
-
-  function showMsg(text, ok) {
-    msg.textContent = text;
-    msg.className = 'msg ' + (ok ? 'ok' : 'err');
-    if (ok) setTimeout(function () { msg.className = 'msg'; }, 4000);
-  }
-  function kb(t) { return Math.round((t || '').length / 1024) + ' KB'; }
-  function looksHtml(t) { return /^\s*(<!DOCTYPE|<html)/i.test(t); }
-
-  /* ---------- hardened RepoBundle parser ----------
-     Tolerates: BOM, CRLF/CR endings, indented or short separator
-     lines, "File:" vs "FILE:", and a missing separator after the
-     File: line. Includes a split-based fallback if the state
-     machine finds nothing. */
-  function parseBundle(text, repoLabel) {
-    var src = String(text);
-    if (src.charCodeAt(0) === 0xFEFF) src = src.slice(1);
-    src = src.replace(/\r\n?/g, '\n');
-    var lines = src.split('\n');
-    var files = [];
-    var LOOKING = 0, EXPECT_SEP = 1, READING = 2;
-    var state = LOOKING;
-    var currentPath = null;
-    var currentLines = [];
-    var sepRe = /^={10,}\s*$/;
-    var fileRe = /^\s*File:\s*(.+?)\s*$/i;
-    function clean(p) {
-      return p.replace(/^Weaver-[\d.]+\//, '').replace(/^weaver-server-[\d.]+\//, '');
-    }
-    function push() {
-      if (currentPath != null) {
-        files.push({ repo: repoLabel, path: clean(currentPath), body: currentLines.join('\n') });
-      }
-      currentPath = null;
-      currentLines = [];
-    }
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
-      var isSep = sepRe.test(line);
-      if (state === LOOKING) {
-        if (isSep) continue;
-        var m = line.match(fileRe);
-        if (m) { currentPath = m[1]; state = EXPECT_SEP; }
-        continue;
-      }
-      if (state === EXPECT_SEP) {
-        if (isSep) { state = READING; currentLines = []; }
-        else { state = READING; currentLines = [line]; }
-        continue;
-      }
-      if (isSep) { push(); state = LOOKING; }
-      else currentLines.push(line);
-    }
-    if (state === READING) push();
-
-    /* Fallback: split on separator lines, keep segments headed by File: */
-    if (!files.length) {
-      var parts = src.split(/\n={10,}\s*\n/);
-      for (var p = 0; p < parts.length; p++) {
-        var seg = parts[p];
-        var fm = seg.match(fileRe);
-        if (fm && seg.indexOf(fm[0]) >= 0 && seg.indexOf(fm[0]) < 200) {
-          var body = seg.slice(seg.indexOf(fm[0]) + fm[0].length).replace(/^\s*={10,}\s*/, '');
-          files.push({ repo: repoLabel, path: clean(fm[1]), body: body });
-        }
-      }
-    }
-    return files;
-  }
-
-  async function loadBundles(force) {
-    statusEl.textContent = 'Codebases: loading…';
-    runBtn.disabled = true;
-    allFiles = [];
-    var suffix = force ? '?v=' + Date.now() : '';
-    try {
-      var results = await Promise.all([
-        fetch(FRONTEND_URL + suffix),
-        fetch(SERVER_URL + suffix)
-      ]);
-      if (!results[0].ok) throw new Error('Frontend bundle: HTTP ' + results[0].status);
-      if (!results[1].ok) throw new Error('Server bundle: HTTP ' + results[1].status);
-      var feText = await results[0].text();
-      var beText = await results[1].text();
-      if (looksHtml(feText) || looksHtml(beText)) {
-        statusEl.textContent = 'Bundles: Pages served RENDERED HTML, not raw text — check Pages build source (must be GitHub Actions, not Jekyll)';
-        return;
-      }
-      var feFiles = parseBundle(feText, 'Weaver');
-      var beFiles = parseBundle(beText, 'weaver-server');
-      allFiles = feFiles.concat(beFiles);
-      if (!allFiles.length) {
-        statusEl.textContent = 'Bundles: fetched ' + kb(feText) + ' + ' + kb(beText) + ' but parsed 0 files — separator/File: lines not recognized (run the console probe)';
-        return;
-      }
-      statusEl.textContent = 'Bundles loaded · ' + feFiles.length + ' frontend (' + kb(feText) + ') + ' + beFiles.length + ' server (' + kb(beText) + ')';
-      runBtn.disabled = false;
-    } catch (e) {
-      statusEl.textContent = 'Bundles: FAILED — ' + e.message;
-    }
-  }
-
-  /* ---------- retrieval / scoring ---------- */
-  function scoreFiles(query) {
-    var tokens = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/).filter(function (t) {
-      return t.length > 2 && !STOP.has(t);
+  /* ================= tiny DOM helper ================= */
+  function h(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v == null || v === false) return;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k === 'html') n.innerHTML = v;
+      else if (k.slice(0, 2) === 'on' && typeof v === 'function') n.addEventListener(k.slice(2), v);
+      else if (v === true) n.setAttribute(k, '');
+      else n.setAttribute(k, v);
     });
-    if (!tokens.length) return allFiles.map(function (f) { return { file: f, score: 0 }; });
-    return allFiles.map(function (f) {
-      var score = 0;
-      var pathLc = f.path.toLowerCase();
-      var bodyLc = f.body.toLowerCase();
-      for (var i = 0; i < tokens.length; i++) {
-        var t = tokens[i];
-        if (pathLc.indexOf(t) >= 0) score += 15;
-        var idx = bodyLc.indexOf(t);
-        var count = 0;
-        while (idx >= 0 && count < 5) { score += 1; count++; idx = bodyLc.indexOf(t, idx + t.length); }
+    (Array.isArray(kids) ? kids : [kids]).forEach(function (c) {
+      if (c == null || c === false) return;
+      n.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+    });
+    return n;
+  }
+  function $(id) { return document.getElementById(id); }
+
+  var msgEl = $('msg'), outEl = $('output'), selEl = $('sel');
+  var runBtn = $('run'), stopBtn = $('stop'), copyBtn = $('copy');
+  var bundleStatus = $('bundle-status'), aiStatus = $('ai-status');
+  var allFiles = [], controller = null, deadProviders = {};
+
+  function showMsg(t, ok) {
+    msgEl.textContent = t;
+    msgEl.className = 'msg ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(function () { msgEl.className = 'msg'; }, 4000);
+  }
+
+  /* ================= config ================= */
+  function defaultCfg() {
+    return {
+      order: ['gemini', 'groq'],
+      budget: 80000,
+      providers: {
+        gemini: { key: '', enabled: true },
+        groq:   { key: '', enabled: true }
       }
-      return { file: f, score: score };
-    }).filter(function (x) { return x.score > 0; }).sort(function (a, b) { return b.score - a.score; });
+    };
+  }
+  function loadCfg() {
+    try {
+      var raw = localStorage.getItem(CFG_KEY);
+      if (!raw) return defaultCfg();
+      var c = JSON.parse(raw), d = defaultCfg();
+      return {
+        order: Array.isArray(c.order) && c.order.length === 2 ? c.order : d.order,
+        budget: Number(c.budget) > 0 ? Number(c.budget) : d.budget,
+        providers: {
+          gemini: Object.assign({}, d.providers.gemini, (c.providers || {}).gemini),
+          groq:   Object.assign({}, d.providers.groq,   (c.providers || {}).groq)
+        }
+      };
+    } catch (e) { return defaultCfg(); }
+  }
+  function saveCfg(c) { try { localStorage.setItem(CFG_KEY, JSON.stringify(c)); } catch (e) {} }
+  function loadModelCache() { try { return JSON.parse(localStorage.getItem(MODEL_KEY) || '{}'); } catch (e) { return {}; } }
+  function saveModelCache(c) { try { localStorage.setItem(MODEL_KEY, JSON.stringify(c)); } catch (e) {} }
+
+  /* ================= provider adapters ================= */
+  function httpError(label, res, body) {
+    var msg = '';
+    try {
+      var j = JSON.parse(body);
+      msg = (j && j.error && j.error.message) || (j && j.message) ||
+            (Array.isArray(j) && j[0] && j[0].error && j[0].error.message) || '';
+    } catch (e) { msg = (body || '').slice(0, 180); }
+    var err = new Error(label + ' HTTP ' + res.status + (msg ? ': ' + msg : ''));
+    err.status = res.status;
+    err.fatalKey = (res.status === 401 || res.status === 403);
+    err.raw = msg;
+    return err;
   }
 
-  function buildContext(query) {
-    var ranked = scoreFiles(query);
-    var budget = 80000;
-    var picked = [];
-    var used = 0;
-    for (var i = 0; i < ranked.length; i++) {
-      if (picked.length >= 8) break;
-      if (used + ranked[i].file.body.length > budget && picked.length >= 1) break;
-      picked.push(ranked[i].file);
-      used += ranked[i].file.body.length;
-    }
-    if (!picked.length && allFiles.length > 0) {
-      for (var j = 0; j < 3 && j < allFiles.length; j++) picked.push(allFiles[j]);
-    }
-    var tree = allFiles.map(function (f) { return '- ' + f.repo + '/' + f.path; }).join('\n');
-    var ctx = '';
-    for (var k = 0; k < picked.length; k++) {
-      ctx += '\n\n=== Repo: ' + picked[k].repo + ' | ' + picked[k].path + ' ===\n' + picked[k].body;
-    }
-    return { ctx: ctx, names: picked.map(function (p) { return p.repo + '/' + p.path; }), tree: tree };
-  }
-
-  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based privacy-first novel-writing studio (static ES-module frontend on GitHub Pages + Supabase Edge Functions backend).\n' +
-    'You receive a FILE TREE of the entire codebase, plus the FULL SOURCE of the most relevant files for the reported issue.\n\n' +
-    'HARD RULES\n' +
-    '1. Base every claim on the provided code. Never invent files, functions, APIs, or CSS classes not visible in it.\n' +
-    '2. If the context lacks the file you need, state exactly which file from the tree is missing and stop.\n' +
-    '3. Whenever a fix requires a code change, you MUST output corrected code. Describing an edit without code is a failure.\n' +
-    '4. Change > 3 lines: output the COMPLETE corrected file ready to paste.\n' +
-    '5. Change ≤ 3 lines: output exact find/replace with surrounding context.\n' +
-    '6. Before every code block state: "Repo: <repo> — <exact file path>".\n' +
-    '7. Respect conventions: el() DOM helper (no innerHTML), ensureStyle() CSS injection, ES modules with .js extensions.\n' +
-    '8. Preserve existing behavior unless the issue requires changing it.\n' +
-    '9. End with VERIFY (3-6 test steps) and RISK (what must not break).\n\n' +
-    'RESPONSE FORMAT:\nDIAGNOSIS: ...\nLOCATION: ...\nFIX: ...\nVERIFY: ...\nRISK: ...';
-
-  function forEachSSE(res, onData) {
-    var reader = res.body.getReader();
-    var dec = new TextDecoder();
-    var buf = '';
+  function readSSE(res, onJSON) {
+    var reader = res.body.getReader(), dec = new TextDecoder(), buf = '';
     function pump() {
       return reader.read().then(function (r) {
         if (r.done) return;
         buf += dec.decode(r.value, { stream: true });
-        var idx;
-        while ((idx = buf.indexOf('\n')) >= 0) {
-          var line = buf.slice(0, idx).trim();
-          buf = buf.slice(idx + 1);
+        var i;
+        while ((i = buf.indexOf('\n')) >= 0) {
+          var line = buf.slice(0, i).trim();
+          buf = buf.slice(i + 1);
           if (line.indexOf('data:') !== 0) continue;
-          var payload = line.slice(5).trim();
-          if (!payload || payload === '[DONE]') continue;
-          try { onData(JSON.parse(payload)); } catch (e) {}
+          var p = line.slice(5).trim();
+          if (!p || p === '[DONE]') continue;
+          try { onJSON(JSON.parse(p)); } catch (e) {}
         }
         return pump();
       });
@@ -282,102 +241,515 @@
     return pump();
   }
 
-  async function getSessionToken() {
-    try {
-      var session = (await client.auth.getSession()).data.session;
-      return session ? session.access_token : '';
-    } catch (e) { return ''; }
-  }
-
-  async function diagnose() {
-    var query = issueEl.value.trim().slice(0, 2000);
-    if (!query) { showMsg('Describe the issue first.', false); return; }
-    if (!allFiles.length) { showMsg('Codebases not loaded. Click Reload.', false); return; }
-
-    var token = await getSessionToken();
-    if (!token) {
-      showMsg('You must be signed in to Weaver to run a diagnosis. Open the app, sign in, then reload this page.', false);
-      return;
-    }
-
-    var built = buildContext(query);
-    if (!built.names.length) { showMsg('No relevant files matched. Try naming the exact file or feature.', false); return; }
-
-    selectedFilesEl.innerHTML = '<b>Reading ' + built.names.length + ' file(s):</b> ' + built.names.join(', ');
-
-    var userMsg = 'ISSUE:\n' + query + '\n\n' +
-      'REPO MAP:\n- Weaver = frontend (GitHub Pages, static ES modules)\n- weaver-server = Supabase Edge Functions\n' +
-      '\nFILE TREE:\n' + built.tree +
-      '\n\nCODE CONTEXT — FULL SOURCE OF THE ' + built.names.length + ' MOST RELEVANT FILES:' +
-      built.ctx;
-
-    output.style.display = 'block';
-    output.className = '';
-    output.textContent = 'Sending ' + built.names.length + ' files to AI…\n\n';
-    runBtn.disabled = true;
-    stopBtn.disabled = false;
-    copyBtn.disabled = true;
-    controller = new AbortController();
-    var full = '';
-
-    fetch(AI_PROXY, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userMsg }
-        ],
-        temperature: 0.15,
-        maxTokens: 8192
-      })
-    }).then(function (res) {
-      if (!res.ok) {
-        return res.json().catch(function () { return {}; }).then(function (d) {
-          var extra = '';
-          if (res.status === 402) extra = ' — Diagnostics needs an active Pro entitlement. Grant yourself Pro in the Credits tab.';
-          if (res.status === 503) extra = ' — No AI providers configured. Check the AI Keys tab.';
-          throw new Error((d.error || 'HTTP ' + res.status) + extra);
+  var PROVIDERS = {
+    gemini: {
+      id: 'gemini', label: 'Google Gemini',
+      keyUrl: 'https://aistudio.google.com/app/apikey',
+      keyHint: 'aistudio.google.com → Get API key',
+      listModels: function (key) {
+        var url = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key);
+        return fetch(url).then(function (r) {
+          return r.text().then(function (t) {
+            if (!r.ok) throw httpError('Gemini', r, t);
+            var j = JSON.parse(t);
+            return (j.models || [])
+              .filter(function (m) { return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0; })
+              .map(function (m) {
+                return {
+                  id: String(m.name || '').replace(/^models\//, ''),
+                  label: m.displayName || m.name,
+                  ctx: m.inputTokenLimit || 0,
+                  out: m.outputTokenLimit || 0
+                };
+              })
+              .filter(function (m) { return m.id && !EXCLUDE.test(m.id); });
+          });
+        });
+      },
+      stream: function (o) {
+        var sys = o.messages.filter(function (m) { return m.role === 'system'; })
+                            .map(function (m) { return m.content; }).join('\n\n');
+        function body(withSys) {
+          var msgs = o.messages;
+          if (!withSys && sys) {
+            msgs = o.messages.filter(function (m) { return m.role !== 'system'; });
+            if (msgs.length) msgs = [{ role: 'user', content: sys + '\n\n' + msgs[0].content }].concat(msgs.slice(1));
+          }
+          var b = {
+            contents: msgs.filter(function (m) { return m.role !== 'system'; })
+              .map(function (m) { return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }; }),
+            generationConfig: { temperature: o.temperature, maxOutputTokens: o.maxTokens }
+          };
+          if (withSys && sys) b.systemInstruction = { parts: [{ text: sys }] };
+          return JSON.stringify(b);
+        }
+        function attempt(withSys) {
+          var url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+                    encodeURIComponent(o.model) + ':streamGenerateContent?alt=sse&key=' + encodeURIComponent(o.key);
+          return fetch(url, {
+            method: 'POST', signal: o.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: body(withSys)
+          }).then(function (r) {
+            if (!r.ok) return r.text().then(function (t) { throw httpError('Gemini', r, t); });
+            var full = '';
+            return readSSE(r, function (j) {
+              var parts = j && j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts;
+              if (!parts) return;
+              var txt = parts.map(function (p) { return p.text || ''; }).join('');
+              if (txt) { full += txt; o.onToken(txt, full); }
+            }).then(function () { return full; });
+          });
+        }
+        /* Some discovered models reject systemInstruction — fold it in and retry once. */
+        return attempt(true).catch(function (e) {
+          if (e.name === 'AbortError') throw e;
+          if (/developer instruction|system instruction|system_instruction/i.test(e.raw || e.message || '')) return attempt(false);
+          throw e;
         });
       }
-      return forEachSSE(res, function (json) {
-        var delta = json && json.choices && json.choices[0] && json.choices[0].delta ? json.choices[0].delta.content : null;
-        if (delta) {
-          full += delta;
-          output.textContent = output.textContent.split('\n\n')[0] + '\n\n' + full;
-          output.scrollTop = output.scrollHeight;
+    },
+
+    groq: {
+      id: 'groq', label: 'Groq',
+      keyUrl: 'https://console.groq.com/keys',
+      keyHint: 'console.groq.com → API Keys',
+      listModels: function (key) {
+        return fetch('https://api.groq.com/openai/v1/models', {
+          headers: { 'Authorization': 'Bearer ' + key }
+        }).then(function (r) {
+          return r.text().then(function (t) {
+            if (!r.ok) throw httpError('Groq', r, t);
+            var j = JSON.parse(t);
+            return (j.data || [])
+              .filter(function (m) { return m.active !== false && !m.deprecated; })
+              .map(function (m) {
+                return {
+                  id: m.id, label: m.id,
+                  ctx: m.context_window || m.context_length || 0,
+                  out: m.max_completion_tokens || 0
+                };
+              })
+              .filter(function (m) { return m.id && !EXCLUDE.test(m.id); });
+          });
+        });
+      },
+      stream: function (o) {
+        function attempt(tokenField) {
+          var payload = { model: o.model, messages: o.messages, stream: true, temperature: o.temperature };
+          payload[tokenField] = o.maxTokens;
+          return fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST', signal: o.signal,
+            headers: { 'Authorization': 'Bearer ' + o.key, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(function (r) {
+            if (!r.ok) return r.text().then(function (t) { throw httpError('Groq', r, t); });
+            var full = '';
+            return readSSE(r, function (j) {
+              var d = j && j.choices && j.choices[0] && j.choices[0].delta;
+              var txt = d && d.content;
+              if (txt) { full += txt; o.onToken(txt, full); }
+            }).then(function () { return full; });
+          });
         }
-      }).then(function () {
-        if (!full) throw new Error('Empty response. The AI may have rejected the prompt.');
-        copyBtn.disabled = false;
-      });
-    }).catch(function (e) {
-      if (e.name === 'AbortError') {
-        output.textContent += '\n\n[stopped]';
-      } else {
-        output.className = 'has-error';
-        output.textContent += '\n\n⚠ ' + e.message;
+        /* Newer models require max_completion_tokens — retry once on that complaint. */
+        return attempt('max_tokens').catch(function (e) {
+          if (e.name === 'AbortError') throw e;
+          if (/max_tokens|max_completion_tokens/i.test(e.raw || e.message || '')) return attempt('max_completion_tokens');
+          throw e;
+        });
       }
-    }).then(function () {
-      runBtn.disabled = false;
-      stopBtn.disabled = true;
-      controller = null;
+    }
+  };
+
+  /* ================= model ranking (no model ids) ================= */
+  function scoreModel(m, pid) {
+    var s = 0, id = String(m.id).toLowerCase(), ctx = m.ctx || 0, out = m.out || 0;
+    if (ctx >= 1000000) s += 900;
+    else if (ctx >= 200000) s += 720;
+    else if (ctx >= 128000) s += 620;
+    else if (ctx >= 64000) s += 420;
+    else if (ctx >= 32000) s += 260;
+    else if (ctx >= 16000) s += 110;
+    else s -= 220;
+    if (out >= 8192) s += 200; else if (out >= 4096) s += 100;
+    if (/(70b|72b|120b|235b|405b|large|versatile|maestro)/.test(id)) s += 260;
+    if (/(flash|plus)/.test(id)) s += 130;
+    if (/(qwen|deepseek|llama-3|llama-4|gemma-3|gemma3|mistral|mixtral)/.test(id)) s += 120;
+    if (/(8b|7b|9b|3b|1b|mini|lite|small|tiny)/.test(id)) s -= 190;
+    if (pid === 'gemini' && /-pro/.test(id)) s -= 280;   /* free tier usually blocks pro */
+    if (/(preview|exp|experimental|beta)/.test(id)) s -= 45;
+    return s;
+  }
+
+  function getModels(pid, key, force) {
+    var cache = loadModelCache(), e = cache[pid];
+    if (!force && e && e.key === key.slice(-8) && (Date.now() - e.at) < MODEL_TTL && e.models && e.models.length) {
+      return Promise.resolve(e.models);
+    }
+    return PROVIDERS[pid].listModels(key).then(function (models) {
+      var c = loadModelCache();
+      c[pid] = { at: Date.now(), key: key.slice(-8), models: models };
+      saveModelCache(c);
+      return models;
     });
   }
 
+  function buildCandidates(force) {
+    var cfg = loadCfg(), lists = [], notes = [];
+    var chain = Promise.resolve();
+    cfg.order.forEach(function (pid) {
+      chain = chain.then(function () {
+        var p = cfg.providers[pid];
+        if (!p || !p.enabled || !p.key) { notes.push(PROVIDERS[pid].label + ': no key'); return; }
+        return getModels(pid, p.key, force).then(function (models) {
+          var ranked = models.map(function (m) {
+            return { provider: pid, model: m.id, ctx: m.ctx, score: scoreModel(m, pid) };
+          }).sort(function (a, b) { return b.score - a.score; });
+          if (!ranked.length) { notes.push(PROVIDERS[pid].label + ': 0 usable models'); return; }
+          lists.push(ranked);
+          notes.push(PROVIDERS[pid].label + ': ' + ranked.length + ' models');
+        }).catch(function (e) {
+          notes.push(PROVIDERS[pid].label + ': ' + e.message);
+        });
+      });
+    });
+    return chain.then(function () {
+      var out = [], i = 0, added = true;
+      while (added) {
+        added = false;
+        for (var k = 0; k < lists.length; k++) {
+          if (lists[k][i]) { out.push(lists[k][i]); added = true; }
+        }
+        i++;
+      }
+      return { candidates: out, notes: notes };
+    });
+  }
+
+  function runAI(o) {
+    deadProviders = {};
+    return buildCandidates(false).then(function (built) {
+      if (!built.candidates.length) {
+        throw new Error('No AI models available. Open AI Settings and add a Gemini or Groq key. ' + built.notes.join(' · '));
+      }
+      var tried = [], last = null;
+      var limit = Math.min(built.candidates.length, MAX_ATTEMPTS);
+      var i = 0;
+      function next() {
+        if (i >= limit) {
+          throw new Error('All tried models failed.' + (last ? ' Last: ' + last.message : '') +
+                          '\n\nTried:\n' + tried.join('\n'));
+        }
+        var c = built.candidates[i++];
+        if (deadProviders[c.provider]) return next();
+        o.onStatus(PROVIDERS[c.provider].label + ' · ' + c.model);
+        return PROVIDERS[c.provider].stream({
+          key: loadCfg().providers[c.provider].key,
+          model: c.model,
+          messages: o.messages,
+          temperature: o.temperature,
+          maxTokens: o.maxTokens,
+          signal: o.signal,
+          onToken: o.onToken
+        }).then(function (text) {
+          if (!text || !text.trim()) throw new Error('empty response');
+          return { text: text, used: c };
+        }).catch(function (e) {
+          if (e.name === 'AbortError') throw e;
+          last = e;
+          tried.push('• ' + c.model + ' — ' + e.message);
+          if (e.fatalKey) deadProviders[c.provider] = true;
+          o.onRetry(c, e);
+          return next();
+        });
+      }
+      return next();
+    });
+  }
+
+  /* ================= bundle parsing ================= */
+  function parseBundle(text, repoLabel) {
+    var src = String(text);
+    if (src.charCodeAt(0) === 0xFEFF) src = src.slice(1);
+    src = src.replace(/\r\n?/g, '\n');
+    var lines = src.split('\n'), files = [];
+    var LOOKING = 0, EXPECT = 1, READING = 2, state = LOOKING;
+    var path = null, buf = [];
+    var sepRe = /^={10,}\s*$/, fileRe = /^\s*File:\s*(.+?)\s*$/i;
+    function clean(p) { return p.replace(/^Weaver-[\d.]+\//, '').replace(/^weaver-server-[\d.]+\//, ''); }
+    function push() {
+      if (path != null) files.push({ repo: repoLabel, path: clean(path), body: buf.join('\n') });
+      path = null; buf = [];
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i], isSep = sepRe.test(line);
+      if (state === LOOKING) {
+        if (isSep) continue;
+        var m = line.match(fileRe);
+        if (m) { path = m[1]; state = EXPECT; }
+        continue;
+      }
+      if (state === EXPECT) { state = READING; buf = isSep ? [] : [line]; continue; }
+      if (isSep) { push(); state = LOOKING; } else buf.push(line);
+    }
+    if (state === READING) push();
+    if (!files.length) {
+      src.split(/\n={10,}\s*\n/).forEach(function (seg) {
+        var fm = seg.match(fileRe);
+        if (fm && seg.indexOf(fm[0]) < 200) {
+          files.push({ repo: repoLabel, path: clean(fm[1]),
+            body: seg.slice(seg.indexOf(fm[0]) + fm[0].length).replace(/^\s*={10,}\s*/, '') });
+        }
+      });
+    }
+    return files;
+  }
+
+  function kb(t) { return Math.round((t || '').length / 1024) + ' KB'; }
+
+  function loadBundles(force) {
+    bundleStatus.textContent = 'Codebases: loading…';
+    runBtn.disabled = true; allFiles = [];
+    var q = force ? '?v=' + Date.now() : '';
+    return Promise.all([fetch(FRONTEND_URL + q), fetch(SERVER_URL + q)]).then(function (r) {
+      if (!r[0].ok) throw new Error('Frontend bundle HTTP ' + r[0].status);
+      if (!r[1].ok) throw new Error('Server bundle HTTP ' + r[1].status);
+      return Promise.all([r[0].text(), r[1].text()]);
+    }).then(function (t) {
+      if (/^\s*(<!DOCTYPE|<html)/i.test(t[0]) || /^\s*(<!DOCTYPE|<html)/i.test(t[1])) {
+        bundleStatus.textContent = 'Bundles: Pages served HTML, not raw text — use .txt files';
+        return;
+      }
+      var fe = parseBundle(t[0], 'Weaver'), be = parseBundle(t[1], 'weaver-server');
+      allFiles = fe.concat(be);
+      if (!allFiles.length) {
+        bundleStatus.textContent = 'Bundles: fetched ' + kb(t[0]) + ' + ' + kb(t[1]) + ' but parsed 0 files';
+        return;
+      }
+      bundleStatus.textContent = 'Bundles · ' + fe.length + ' frontend (' + kb(t[0]) + ') + ' +
+                                 be.length + ' server (' + kb(t[1]) + ')';
+      refreshRunState();
+    }).catch(function (e) { bundleStatus.textContent = 'Bundles: FAILED — ' + e.message; });
+  }
+
+  /* ================= retrieval ================= */
+  var STOP = new Set(['the','a','an','my','i','is','are','was','were','to','of','in','on','for','and','or','it','with','when','how','do','does','did','not','no','yes','me','you','your','weaver','app','can','cannot','about','please','this','that','have','has','had','be','been','its','after','before','now','still','will','would','should','could']);
+
+  function buildContext(query) {
+    var toks = query.toLowerCase().replace(/[^a-z0-9_.\/\s-]/g, ' ').split(/\s+/)
+      .filter(function (t) { return t.length > 2 && !STOP.has(t); });
+    var ranked = allFiles.map(function (f) {
+      var s = 0, p = f.path.toLowerCase(), b = f.body.toLowerCase();
+      toks.forEach(function (t) {
+        if (p.indexOf(t) >= 0) s += 15;
+        var i = b.indexOf(t), c = 0;
+        while (i >= 0 && c < 5) { s += 1; c++; i = b.indexOf(t, i + t.length); }
+      });
+      return { f: f, s: s };
+    }).filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s; });
+
+    var budget = loadCfg().budget, picked = [], used = 0;
+    for (var i = 0; i < ranked.length && picked.length < 8; i++) {
+      if (used + ranked[i].f.body.length > budget && picked.length >= 1) break;
+      picked.push(ranked[i].f); used += ranked[i].f.body.length;
+    }
+    if (!picked.length) picked = allFiles.slice(0, 3);
+    var tree = allFiles.map(function (f) { return '- ' + f.repo + '/' + f.path; }).join('\n');
+    var ctx = picked.map(function (f) {
+      return '\n\n=== Repo: ' + f.repo + ' | ' + f.path + ' ===\n' + f.body;
+    }).join('');
+    return { ctx: ctx, tree: tree, names: picked.map(function (f) { return f.repo + '/' + f.path; }) };
+  }
+
+  var SYSTEM_PROMPT = 'You are the senior maintainer of Weaver, a browser-based privacy-first novel-writing studio (static ES-module frontend on GitHub Pages + Supabase Edge Functions backend).\n' +
+    'You receive a FILE TREE of the codebase plus the FULL SOURCE of the most relevant files.\n\n' +
+    'HARD RULES\n' +
+    '1. Base every claim on the provided code. Never invent files, functions, APIs or CSS classes.\n' +
+    '2. If a needed file is missing from the context, name it from the tree and stop.\n' +
+    '3. Any fix requiring a code change MUST include the corrected code.\n' +
+    '4. Change > 3 lines: output the COMPLETE corrected file, ready to paste.\n' +
+    '5. Change <= 3 lines: exact find/replace with one unchanged line above and below.\n' +
+    '6. Before every code block state: "Repo: <repo> — <exact file path>".\n' +
+    '7. Conventions: el() DOM helper (never innerHTML), ensureStyle() CSS injection, ES modules with .js extensions.\n' +
+    '8. Preserve existing behaviour except what the issue requires.\n' +
+    '9. End with VERIFY (3-6 test steps) and RISK.\n\n' +
+    'FORMAT:\nDIAGNOSIS:\nLOCATION:\nFIX:\nVERIFY:\nRISK:';
+
+  /* ================= run ================= */
+  function refreshRunState() {
+    var cfg = loadCfg();
+    var live = cfg.order.filter(function (p) { return cfg.providers[p].enabled && cfg.providers[p].key; });
+    aiStatus.textContent = live.length
+      ? 'AI: ' + live.map(function (p) { return PROVIDERS[p].label; }).join(' → ') + ' · models auto-discovered'
+      : 'AI: not configured — add a key in AI Settings';
+    runBtn.disabled = !(allFiles.length && live.length);
+  }
+
+  function diagnose() {
+    var query = $('issue').value.trim().slice(0, 2500);
+    if (!query) { showMsg('Describe the issue first.', false); return; }
+    if (!allFiles.length) { showMsg('Codebases not loaded. Click Reload bundles.', false); return; }
+
+    var built = buildContext(query);
+    selEl.innerHTML = '<b>Reading ' + built.names.length + ' file(s):</b> ' + built.names.join(', ');
+    var userMsg = 'ISSUE:\n' + query +
+      '\n\nREPO MAP:\n- Weaver = frontend (GitHub Pages, static ES modules)\n- weaver-server = Supabase Edge Functions\n' +
+      '\nFILE TREE:\n' + built.tree +
+      '\n\nCODE CONTEXT — FULL SOURCE OF ' + built.names.length + ' FILES:' + built.ctx;
+
+    outEl.style.display = 'block';
+    outEl.className = '';
+    var header = 'Selecting a model…';
+    outEl.textContent = header + '\n\n';
+    runBtn.disabled = true; stopBtn.disabled = false; copyBtn.disabled = true;
+    controller = new AbortController();
+
+    runAI({
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: userMsg }],
+      temperature: 0.15,
+      maxTokens: 8192,
+      signal: controller.signal,
+      onStatus: function (s) { header = 'Model: ' + s; outEl.textContent = header + '\n\n'; },
+      onRetry: function (c, e) {
+        header = 'Model: ' + c.model + ' failed — trying next…';
+        outEl.textContent = header + '\n(' + e.message + ')\n\n';
+      },
+      onToken: function (delta, full) {
+        outEl.textContent = header + '\n\n' + full;
+        outEl.scrollTop = outEl.scrollHeight;
+      }
+    }).then(function (r) {
+      header = 'Model: ' + PROVIDERS[r.used.provider].label + ' · ' + r.used.model;
+      outEl.textContent = header + '\n\n' + r.text;
+      copyBtn.disabled = false;
+    }).catch(function (e) {
+      if (e.name === 'AbortError') outEl.textContent += '\n\n[stopped]';
+      else { outEl.className = 'has-error'; outEl.textContent += '\n\n⚠ ' + e.message; }
+    }).then(function () {
+      stopBtn.disabled = true; controller = null; refreshRunState();
+    });
+  }
+
+  /* ================= settings UI ================= */
+  function renderSettings() {
+    var cfg = loadCfg(), host = $('providers');
+    host.innerHTML = '';
+    var cache = loadModelCache();
+    ['gemini', 'groq'].forEach(function (pid) {
+      var P = PROVIDERS[pid], p = cfg.providers[pid];
+      var keyInput = h('input', { type: 'password', placeholder: 'Paste ' + P.label + ' API key…', value: p.key || '', autocomplete: 'off' });
+      var enabled = h('input', { type: 'checkbox' });
+      enabled.checked = p.enabled !== false;
+      var badge = h('span', { class: 'badge' + (p.key ? ' on' : ''), text: p.key ? 'key saved' : 'no key' });
+      var modelsBox = h('div', { class: 'models', text: 'No model list loaded yet.' });
+
+      function paintModels(list) {
+        modelsBox.innerHTML = '';
+        if (!list || !list.length) { modelsBox.textContent = 'No usable models discovered.'; return; }
+        var ranked = list.map(function (m) { return { m: m, s: scoreModel(m, pid) }; })
+                         .sort(function (a, b) { return b.s - a.s; });
+        ranked.forEach(function (r, i) {
+          modelsBox.appendChild(h('div', {
+            class: i === 0 ? 'top' : '',
+            text: (i === 0 ? '★ ' : '   ') + r.m.id + '  ·  ctx ' + (r.m.ctx || '?').toLocaleString()
+          }));
+        });
+      }
+      if (cache[pid] && cache[pid].models) paintModels(cache[pid].models);
+
+      var testBtn = h('button', { class: 'sm', text: 'Test & load models', onclick: function () {
+        var k = keyInput.value.trim();
+        if (!k) { showMsg('Enter a key first.', false); return; }
+        testBtn.disabled = true; testBtn.textContent = 'Loading…';
+        modelsBox.textContent = 'Discovering models…';
+        P.listModels(k).then(function (list) {
+          var c = loadModelCache();
+          c[pid] = { at: Date.now(), key: k.slice(-8), models: list };
+          saveModelCache(c);
+          paintModels(list);
+          showMsg(P.label + ': ' + list.length + ' usable models discovered.', true);
+        }).catch(function (e) {
+          modelsBox.textContent = e.message;
+          showMsg(P.label + ': ' + e.message, false);
+        }).then(function () { testBtn.disabled = false; testBtn.textContent = 'Test & load models'; });
+      }});
+
+      keyInput.addEventListener('input', function () {
+        var c = loadCfg(); c.providers[pid].key = keyInput.value.trim(); saveCfg(c);
+        badge.textContent = keyInput.value.trim() ? 'key saved' : 'no key';
+        badge.className = 'badge' + (keyInput.value.trim() ? ' on' : '');
+        refreshRunState();
+      });
+      enabled.addEventListener('change', function () {
+        var c = loadCfg(); c.providers[pid].enabled = enabled.checked; saveCfg(c); refreshRunState();
+      });
+
+      host.appendChild(h('div', { class: 'pcard' }, [
+        h('div', { class: 'phead' }, [h('span', { class: 'pname', text: P.label }), badge]),
+        h('a', { class: 'k', href: P.keyUrl, target: '_blank', rel: 'noopener', text: P.keyHint }),
+        h('div', { class: 'field' }, [h('span', { class: 'label', text: 'API key' }), keyInput]),
+        h('div', { class: 'field' }, [h('label', { class: 'chk' }, [enabled, h('span', { text: 'Include in fallback chain' })])]),
+        h('div', { class: 'row' }, [testBtn]),
+        h('span', { class: 'label', text: 'Discovered models (ranked — ★ tried first)' }),
+        modelsBox
+      ]));
+    });
+    $('order').value = cfg.order.join(',');
+    $('budget').value = String(cfg.budget);
+  }
+
+  /* ================= wiring ================= */
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
+      var k = t.dataset.tab;
+      $('pane-diag').classList.toggle('on', k === 'diag');
+      $('pane-set').classList.toggle('on', k === 'set');
+      if (k === 'set') renderSettings();
+    });
+  });
+  $('go-settings').onclick = function () { document.querySelector('[data-tab="set"]').click(); };
+  $('reload').onclick = function () { loadBundles(true).then(function () { if (allFiles.length) showMsg('Bundles reloaded.', true); }); };
   runBtn.onclick = diagnose;
   stopBtn.onclick = function () { if (controller) controller.abort(); };
   copyBtn.onclick = function () {
-    var text = output.textContent || '';
-    var i = text.indexOf('\n\n');
-    if (i >= 0) text = text.slice(i + 2);
-    try { navigator.clipboard.writeText(text); showMsg('Copied.', true); } catch (e) { showMsg('Could not copy.', false); }
+    var t = outEl.textContent || '', i = t.indexOf('\n\n');
+    if (i >= 0) t = t.slice(i + 2);
+    navigator.clipboard.writeText(t).then(function () { showMsg('Copied.', true); },
+                                            function () { showMsg('Could not copy.', false); });
   };
-  document.getElementById('reload-bundle').onclick = function () {
-    loadBundles(true).then(function () { if (allFiles.length) showMsg('Reloaded.', true); });
+  $('save').onclick = function () {
+    var c = loadCfg();
+    c.order = $('order').value.split(',');
+    c.budget = Math.max(20000, parseInt($('budget').value, 10) || 80000);
+    saveCfg(c); refreshRunState(); showMsg('Settings saved.', true);
+  };
+  $('refresh').onclick = function () {
+    saveModelCache({});
+    var c = loadCfg(), any = false;
+    var chain = Promise.resolve();
+    c.order.forEach(function (pid) {
+      chain = chain.then(function () {
+        var p = c.providers[pid];
+        if (!p.key || !p.enabled) return;
+        any = true;
+        return getModels(pid, p.key, true).catch(function () {});
+      });
+    });
+    chain.then(function () {
+      renderSettings();
+      showMsg(any ? 'Model lists refreshed.' : 'Add a key first.', any);
+    });
+  };
+  $('clear').onclick = function () {
+    if (!confirm('Remove both API keys from this browser?')) return;
+    localStorage.removeItem(CFG_KEY); localStorage.removeItem(MODEL_KEY);
+    renderSettings(); refreshRunState(); showMsg('Keys cleared.', true);
   };
 
+  renderSettings();
+  refreshRunState();
   loadBundles(false);
 })();
 </script>
