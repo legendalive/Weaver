@@ -1,7 +1,11 @@
 /* =========================================================
-   Weaver — css/base.css
-   Step 1: reset, design tokens, view switching, splash screen.
-   ========================================================= */
+Weaver — css/base.css
+Step 1: reset, design tokens, view switching, splash screen.
+V4.5 BRAND: the freehand golden W is now a path-drawn SVG
+delivered as a CSS background-image data-URI. No webfont, no
+JavaScript, no background-clip:text — so the entry swash and
+exit flourish can never be clipped again.
+========================================================= */
 
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,14 +35,24 @@ button, input, textarea, select { font: inherit; color: inherit; }
   --accent-soft: rgba(224, 168, 60, 0.14);
   --danger: #d4604f;
   --success: #7fb069;
+
   --font-ui: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-prose: "Georgia", "Iowan Old Style", "Times New Roman", serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+
   --shadow-1: 0 2px 10px rgba(0, 0, 0, .45);
   --shadow-2: 0 8px 30px rgba(0, 0, 0, .55);
+
+  /* ---------- THE BRAND MARK ----------
+     Calligraphic W: hairline entry swash → two tapered
+     copperplate downstrokes → looping exit flourish.
+     viewBox 128×88 (ratio 1.4545). Ink sits fully inside the
+     frame, so nothing is ever truncated at any size. */
+  --weaver-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 88'%3E%3Cdefs%3E%3ClinearGradient id='wm' gradientUnits='userSpaceOnUse' x1='16' y1='10' x2='112' y2='78'%3E%3Cstop offset='0' stop-color='%23fff6da'/%3E%3Cstop offset='.4' stop-color='%23f9d97e'/%3E%3Cstop offset='.7' stop-color='%23eebc52'/%3E%3Cstop offset='1' stop-color='%23e0a83c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M8 74C14 56 21 33 32 24C33 42 33 58 37 68C42 77 51 70 56 46C58 36 59 26 61 22C63 18 66 20 66 26C66.5 44 66.5 58 70 68C75 77 84 70 90 48C93 37 95 28 97 24C103 15 112 12 118 17C123 21 122 30 115 31C110 32 106 28 105 24' fill='none' stroke='url(%23wm)' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M27 25C26.5 42 28.5 57 33 68C35 73 39.5 72.5 39 67.5C37 56 36.5 42 37 25C37 20 27 20 27 25Z' fill='url(%23wm)'/%3E%3Cpath d='M61 27C60.5 44 62.5 57 66 68C68 73 72.5 72.5 72 67.5C70 56 70.5 44 71 27C71 22 61 22 61 27Z' fill='url(%23wm)'/%3E%3C/svg%3E");
 }
 
 /* ---------- View routing ---------- */
@@ -46,7 +60,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .view { display: none; height: 100%; }
 .view.is-active { display: block; }
 
-/* ---------- Splash (Step-1 boot screen; replaced by dashboard in Stage D) ---------- */
+/* ---------- Splash (boot screen) ---------- */
 .splash {
   height: 100%;
   display: flex;
@@ -81,27 +95,74 @@ button, input, textarea, select { font: inherit; color: inherit; }
   border-radius: 8px;
   border: 2px solid var(--bg);
 }
+*::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 *::-webkit-scrollbar-track { background: transparent; }
 
 /* ---------- Accessibility ---------- */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-/* ---------- Weaver Logo (Stage 6.10: freehand script W) ---------- */
+
+/* =========================================================
+   WEAVER LOGO — path-drawn SVG, never clipped.
+   The element keeps its `W` text for screen readers and for
+   markup compatibility, but the glyph is fully transparent;
+   the visible mark is the background image.
+   ========================================================= */
 .weaver-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Great Vibes', 'Georgia', cursive;
-  font-weight: 400;
-  background: linear-gradient(160deg, #fff6da 0%, #f9d97e 40%, #eebc52 70%, #e0a83c 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
+  display: inline-block;
+  flex: none;
+  width: 1.455em;
+  height: 1em;
+  line-height: 1;
+  vertical-align: middle;
+  background-image: var(--weaver-mark);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  /* Neutralise the old gradient-text treatment completely. */
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: transparent;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 10px rgba(240, 192, 84, 0.35));
-  line-height: 0.85;
+  text-shadow: none;
+  font-family: var(--font-ui);
   user-select: none;
   pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 2px 10px rgba(240, 192, 84, .35));
 }
 .weaver-logo.logo-sm { font-size: 1.8rem; margin-right: 6px; }
 .weaver-logo.logo-md { font-size: 3rem; }
-.weaver-logo.logo-lg { font-size: 4.6rem; filter: drop-shadow(0 6px 22px rgba(240, 192, 84, 0.4)); }
-.weaver-logo.logo-xl { font-size: 6.5rem; filter: drop-shadow(0 8px 30px rgba(240, 192, 84, 0.45)); }
+.weaver-logo.logo-lg {
+  font-size: 4.6rem;
+  filter: drop-shadow(0 6px 22px rgba(240, 192, 84, .4));
+}
+.weaver-logo.logo-xl {
+  font-size: 6.5rem;
+  filter: drop-shadow(0 8px 30px rgba(240, 192, 84, .45));
+}
+
+/* The auth card's logo box was a fixed 44px square from
+   auth.css; the script mark is wider than it is tall, so let
+   the box size to the mark. Higher specificity wins over
+   auth.css regardless of stylesheet order. */
+.auth-head .auth-logo { width: auto; height: auto; flex: none; }
+
+/* Library hero containers must never constrain the mark. */
+.launch-hero .launch-hero-logo,
+.launch-hero.is-compact .launch-hero-logo {
+  width: auto;
+  height: auto;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .weaver-logo.logo-lg,
+  .weaver-logo.logo-xl { animation: weaver-mark-in .7s cubic-bezier(.2, .8, .3, 1) both; }
+}
+@keyframes weaver-mark-in {
+  from { opacity: 0; transform: translateY(6px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
