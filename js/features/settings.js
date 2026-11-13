@@ -52,7 +52,7 @@ function accountSection() {
   });
   const upgradeBtn = el('a', {
     class: 'btn btn-sm btn-primary',
-    href: 'https://legendalive.github.io/Weaver/welcome/pricing.html',
+    href: 'https://weaver-studio.pages.dev/pricing',
     target: '_blank',
     hidden: isPro()
   }, [icon('sparkles', 'icon-sm'), el('span', { text: 'Upgrade to Pro' })]);
