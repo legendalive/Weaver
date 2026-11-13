@@ -354,7 +354,7 @@ Pro — the Scribe temperature slider.
 | EPUB export (with embedded cover) | ❌ | ✅ |
 
 ### How do I upgrade to Pro?
-Settings → Account → Upgrade to Pro opens the pricing page: $8/month,
+Settings → Account → Upgrade to Pro opens https://weaver-studio.pages.dev/pricing — $8/month,
 $60/year, or $149 lifetime. After purchasing on Gumroad with the same
 email as your Weaver account, Pro is activated by the Weaver team —
 usually within one business day.
