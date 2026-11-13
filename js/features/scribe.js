@@ -310,7 +310,7 @@ function streamInto(block) {
 }
 
 /* ---------- Pro upgrade notice (free users) ---------- */
-const UPGRADE_URL = 'https://legendalive.github.io/Weaver/welcome/pricing.html';
+const UPGRADE_URL = 'https://weaver-studio.pages.dev/pricing';
 function showUpgradeNotice() {
   const body = document.querySelector('.panel[data-panel="ai"] .panel-body');
   if (!body || body.querySelector('.upgrade-notice')) return;
