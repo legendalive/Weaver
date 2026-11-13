@@ -1,7 +1,8 @@
 /* =========================================================
 Weaver — welcome/site.js
 Marketing-site behaviour: stuck nav, current-page marker,
-staged scroll reveals, live footer year. No dependencies.
+staged scroll reveals, hero parallax, self-maintaining
+copyright year. No dependencies.
 ========================================================= */
 (function () {
   'use strict';
@@ -64,8 +65,15 @@ staged scroll reveals, live footer year. No dependencies.
     }, { passive: true });
   }
 
-  /* ---- live copyright year ---- */
+  /* ---- copyright: first year of trading → current year ----
+     Renders "2026" through 31 Dec 2026, then "2026–2027",
+     "2026–2028", and so on. Never needs a commit. The HTML
+     fallback keeps a valid year visible if JS is unavailable. */
+  var LAUNCH_YEAR = 2026;
   document.querySelectorAll('[data-year]').forEach(function (n) {
-    n.textContent = String(new Date().getFullYear());
+    var now = new Date().getFullYear();
+    if (!Number.isFinite(now)) return;                 /* guard a broken device clock */
+    var year = Math.max(now, LAUNCH_YEAR);
+    n.textContent = year > LAUNCH_YEAR ? LAUNCH_YEAR + '\u2013' + year : String(LAUNCH_YEAR);
   });
 })();
