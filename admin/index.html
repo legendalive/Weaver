@@ -297,10 +297,44 @@ return [
 { id:'imp_fnbase', icon:'🔗', title:'Functions Base URL', url:'https://hiqmvhkwuvvgalqxxtbc.functions.supabase.co', desc:'Base for all edge functions: /admin, /ai-proxy, /ai-admin, /support, /help, /support-admin, /supervisor-admin.' },
 ];
 }
+/* One-time migration: the marketing site moved to Cloudflare Pages.
+   Saved items in this browser still hold the old GitHub URL, so the
+   defaults alone would never reach them. Rewrites in place, once. */
+const MARKETING_ORIGIN = 'https://weaver-studio.pages.dev';
+const LEGACY_WELCOME = 'https://legendalive.github.io/Weaver/welcome';
+function impMigrate(items) {
+let changed = false;
+for (const it of items) {
+if (typeof it.url === 'string' && it.url.indexOf(LEGACY_WELCOME) === 0) {
+let tail = it.url.slice(LEGACY_WELCOME.length).replace(/^\/+/, '').replace(/\.html$/i, '');
+if (tail === 'index') tail = '';
+it.url = MARKETING_ORIGIN + (tail ? '/' + tail : '/');
+changed = true;
+}
+if (it.id === 'imp_welcome') {
+if (it.title === 'Welcome / Marketing') { it.title = 'Marketing Site'; changed = true; }
+if (/^Public landing page, pricing, and features tour\.?$/.test(it.desc || '')) {
+it.desc = 'Public landing page, pricing and features tour — hosted on Cloudflare Pages. Deploys from Weaver/welcome on every push to main.';
+changed = true;
+}
+}
+}
+if (!items.some(x => x.id === 'imp_cloudflare')) {
+const def = impDefaults().find(x => x.id === 'imp_cloudflare');
+if (def) { items.push(def); changed = true; }
+}
+return changed;
+}
 function impLoad() {
 try {
 const raw = localStorage.getItem(IMPORTANT_KEY);
-if (raw) return JSON.parse(raw);
+if (raw) {
+const items = JSON.parse(raw);
+if (Array.isArray(items)) {
+if (impMigrate(items)) impSave(items);
+return items;
+}
+}
 } catch (e) {}
 const defaults = impDefaults();
 impSave(defaults);
